@@ -1,0 +1,39 @@
+# General
+.DS_Store
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Backend (Spring Boot + Gradle)
+backend/build/
+backend/.gradle/
+backend/out/
+backend/bin/
+backend/target/
+backend/*.log
+
+# Frontend (Vue + Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.cache/
+frontend/*.log
+
+# Test
+backend/test-results/
+frontend/test-results/
+coverage/
+
+# OS
+Thumbs.db
+
