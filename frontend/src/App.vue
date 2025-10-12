@@ -5,11 +5,11 @@
         <router-link to="/" class="logo">TWIIIINS</router-link>
         <div class="nav-links">
           <router-link to="/about">ABOUT</router-link>
-          <router-link to="/gallery">PROJECTS</router-link>
-          <router-link to="/gallery">CONCERTS</router-link>
-          <router-link to="/gallery">MEDIA</router-link>
-          <router-link to="/store">SHOP</router-link>
-          <router-link to="/about">CONTACT</router-link>
+          <router-link to="/projects">PROJECTS</router-link>
+          <router-link to="/concerts">CONCERTS</router-link>
+          <router-link to="/media">MEDIA</router-link>
+          <router-link to="/shop">SHOP</router-link>
+          <router-link to="/contact">CONTACT</router-link>
         </div>
       </div>
     </nav>
