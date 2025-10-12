@@ -1,5 +1,5 @@
 <template>
-  <div class="home fullpage-scroll">
+  <div class="home fullpage-scroll" ref="scrollContainer">
     <!-- 히어로 섹션 (메인 이미지) -->
     <section class="hero-section">
       <div class="hero-image">
@@ -23,11 +23,22 @@
         </div>
       </div>
     </section>
+
+    <!-- 페이지 인디케이터 -->
+    <div class="page-indicators">
+      <div 
+        v-for="(section, index) in sections" 
+        :key="index"
+        class="indicator"
+        :class="{ active: currentSection === index }"
+        @click="scrollToSection(index)"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 // 하드코딩된 이벤트 데이터
 const events = ref([
@@ -50,6 +61,46 @@ const events = ref([
     name: 'DER AUFHALTSAME AUFSTIEG DES'
   }
 ])
+
+// 페이지 인디케이터 관련
+const scrollContainer = ref(null)
+const currentSection = ref(0)
+const sections = ref(['hero', 'events'])
+
+// 섹션으로 스크롤하는 함수
+const scrollToSection = (index) => {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollTo({
+      top: index * window.innerHeight,
+      behavior: 'smooth'
+    })
+  }
+}
+
+// 스크롤 이벤트 리스너
+const handleScroll = () => {
+  if (scrollContainer.value) {
+    const scrollTop = scrollContainer.value.scrollTop
+    const sectionHeight = window.innerHeight
+    const newSection = Math.round(scrollTop / sectionHeight)
+    currentSection.value = Math.min(newSection, sections.value.length - 1)
+  }
+}
+
+// 페이지 진입 시 body에 클래스 추가, 페이지 나갈 때 제거
+onMounted(() => {
+  document.body.classList.add('has-fullpage-scroll')
+  if (scrollContainer.value) {
+    scrollContainer.value.addEventListener('scroll', handleScroll)
+  }
+})
+
+onUnmounted(() => {
+  document.body.classList.remove('has-fullpage-scroll')
+  if (scrollContainer.value) {
+    scrollContainer.value.removeEventListener('scroll', handleScroll)
+  }
+})
 </script>
 
 <style scoped>
@@ -62,12 +113,23 @@ const events = ref([
   z-index: 1;
 }
 
+/* 스크롤바 숨기기 */
+.fullpage-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.fullpage-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* 히어로 섹션 */
 .hero-section {
   height: 100vh;
   scroll-snap-align: start;
   position: relative;
   overflow: hidden;
+  margin-top: 0;
 }
 
 .hero-image {
@@ -154,6 +216,39 @@ const events = ref([
   font-weight: bold;
   min-width: 30px;
   text-align: right;
+}
+
+/* 페이지 인디케이터 */
+.page-indicators {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.indicator:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
+}
+
+.indicator.active {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 </style>
 

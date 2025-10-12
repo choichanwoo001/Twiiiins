@@ -9,6 +9,12 @@ body {
   line-height: 1.6;
   color: #333;
   background: #fff;
+  overflow-x: hidden;
+}
+
+/* Home 페이지에서만 body 스크롤 비활성화 */
+body.has-fullpage-scroll {
+  overflow-y: hidden;
 }
 
 .container {
@@ -81,7 +87,7 @@ main {
 main:has(.fullpage-scroll) {
   padding: 0;
   min-height: 100vh;
-  padding-top: 5rem; /* fixed 헤더를 위한 상단 패딩 */
+  background: transparent;
 }
 
 /* 버튼 */
