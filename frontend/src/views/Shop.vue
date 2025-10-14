@@ -1,50 +1,64 @@
 <template>
   <div class="shop">
-    <!-- 텍스트 섹션 -->
-    <section class="shop-text">
+    <!-- 좌측 고정 타이틀 -->
+    <aside class="shop-title">
       <h1>SHOP</h1>
-    </section>
+    </aside>
 
-    <!-- 상품 섹션 -->
-    <section class="shop-content">
+    <!-- 우측 콘텐츠 -->
+    <main class="shop-content">
       <div class="no-products">
         <p>No products available yet.</p>
       </div>
-    </section>
+    </main>
   </div>
 </template>
 
 <style scoped>
+/* 레이아웃 */
 .shop {
-  background-color: white;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding-top: 60px; /* 헤더 높이만큼 상단 패딩 */
-}
-
-/* 텍스트 섹션 */
-.shop-text {
-  padding: 2rem 2rem 4rem 2rem;
+  background: #fff;
+  color: #222;
+  min-height: calc(100vh - 60px);
+  margin-top: -60px;
+  padding-top: calc(60px + 4rem);
+  display: grid;
+  grid-template-columns: 1fr 2.2fr;
+  align-items: start;
+  gap: 4rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-h1 {
-  font-size: 4rem;
-  font-weight: bold;
+/* 좌측 타이틀 */
+.shop-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 1rem;
+  padding-top: 2rem;
+}
+
+.shop-title h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
   color: #2E86AB;
+  text-transform: uppercase;
+  line-height: 1;
   margin: 0;
-  text-align: left;
-  letter-spacing: 3px;
 }
 
-/* 상품 섹션 */
+/* 우측 콘텐츠 */
 .shop-content {
-  padding: 0 2rem 4rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
+  margin-right: 2rem;
+  justify-self: end;
+  padding-top: 2rem;
 }
 
 .no-products {
@@ -59,19 +73,39 @@ h1 {
   font-weight: 300;
 }
 
-/* 반응형 디자인 */
+/* 반응형 */
+@media (max-width: 1024px) {
+  .shop {
+    grid-template-columns: 0.9fr 2fr;
+    gap: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .shop-text {
-    padding: 2rem 1rem 3rem 1rem;
+  .shop {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
   
-  h1 {
-    font-size: 2.5rem;
-    text-align: center;
+  .shop-title {
+    justify-content: center;
+    padding-left: 0;
+    padding-top: 1rem;
+  }
+  
+  .shop-title h1 {
+    letter-spacing: 0.08em;
   }
   
   .shop-content {
-    padding: 0 1rem 3rem 1rem;
+    margin: 0 auto;
+    justify-self: center;
+    padding: 0 1rem;
+    padding-top: 1rem;
   }
   
   .no-products {
@@ -84,10 +118,6 @@ h1 {
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-  
   .no-products p {
     font-size: 1rem;
   }

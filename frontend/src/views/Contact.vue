@@ -1,12 +1,12 @@
 <template>
   <div class="contact">
-    <!-- 텍스트 섹션 -->
-    <section class="contact-text">
+    <!-- 좌측 고정 타이틀 -->
+    <aside class="contact-title">
       <h1>CONTACT</h1>
-    </section>
+    </aside>
 
-    <!-- 콘텐츠 섹션 -->
-    <section class="contact-content">
+    <!-- 우측 콘텐츠 -->
+    <main class="contact-content">
       <!-- 안내 문구 -->
       <div class="contact-info">
         <p class="intro-text">
@@ -71,45 +71,55 @@
           </div>
         </div>
       </div>
-    </section>
+    </main>
   </div>
 </template>
 
 <style scoped>
+/* 레이아웃 */
 .contact {
-  background-color: white;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding-top: 60px; /* 헤더 높이만큼 상단 패딩 */
-  display: flex;
+  background: #fff;
+  color: #222;
+  min-height: calc(100vh - 60px);
+  margin-top: -60px;
+  padding-top: calc(60px + 4rem);
+  display: grid;
+  grid-template-columns: 1fr 2.2fr;
+  align-items: start;
+  gap: 4rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-/* 텍스트 섹션 */
-.contact-text {
-  width: 50%;
-  padding: 4rem 2rem;
+/* 좌측 타이틀 */
+.contact-title {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 1rem;
+  padding-top: 2rem;
 }
 
-h1 {
-  font-size: 4rem;
-  font-weight: bold;
+.contact-title h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
   color: #8B4513;
+  text-transform: uppercase;
+  line-height: 1;
   margin: 0;
-  text-align: left;
-  letter-spacing: 3px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
 }
 
-/* 콘텐츠 섹션 */
+/* 우측 콘텐츠 */
 .contact-content {
-  width: 50%;
-  padding: 4rem 2rem;
+  max-width: 800px;
+  width: 100%;
+  margin-right: 2rem;
+  justify-self: end;
+  padding-top: 2rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -201,26 +211,39 @@ h1 {
   color: #666;
 }
 
-/* 반응형 디자인 */
+/* 반응형 */
+@media (max-width: 1024px) {
+  .contact {
+    grid-template-columns: 0.9fr 2fr;
+    gap: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
   .contact {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
   
-  .contact-text,
+  .contact-title {
+    justify-content: center;
+    padding-left: 0;
+    padding-top: 1rem;
+  }
+  
+  .contact-title h1 {
+    letter-spacing: 0.08em;
+  }
+  
   .contact-content {
-    width: 100%;
-    padding: 2rem 1rem;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    writing-mode: horizontal-tb;
-    text-orientation: initial;
-    text-align: center;
-  }
-  
-  .contact-content {
+    margin: 0 auto;
+    justify-self: center;
+    padding: 0 1rem;
+    padding-top: 1rem;
     gap: 2rem;
   }
   
@@ -247,10 +270,6 @@ h1 {
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-  
   .contact-name {
     font-size: 1rem;
   }

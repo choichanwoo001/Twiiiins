@@ -158,31 +158,34 @@ onUnmounted(() => {
 }
 
 .events-container {
-  text-align: center;
   max-width: 800px;
-  padding: 2rem;
+  padding: 1.5rem;
+  width: 90%;
 }
 
 .events-title {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 3rem;
-  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-left: 140px;
 }
 
 .events-list {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
+/* 경계선은 삭제 */
 .event-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 1.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem 0;
   transition: opacity 0.3s ease;
+  gap: 1rem;
 }
 
 .event-item:hover {
@@ -190,32 +193,42 @@ onUnmounted(() => {
 }
 
 .event-date {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  min-width: 180px;
+  width: 120px;
   text-align: left;
+  flex-shrink: 0;
+  margin-right: 20px;
 }
 
 .event-info {
   flex: 1;
-  text-align: center;
+  text-align: left;
+  min-width: 0;
+  padding-left: 0;
 }
 
 .event-location {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .event-name {
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: bold;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.2;
 }
 
 .event-arrow {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  min-width: 30px;
+  min-width: 20px;
   text-align: right;
+  flex-shrink: 0;
 }
 
 /* 페이지 인디케이터 */
@@ -233,7 +246,6 @@ onUnmounted(() => {
 .indicator {
   width: 12px;
   height: 12px;
-  border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.3s ease;

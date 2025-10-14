@@ -333,7 +333,6 @@ const newsList = ref([
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 8px;
   margin-bottom: 1rem;
 }
 
@@ -370,7 +369,6 @@ const newsList = ref([
   position: relative;
   width: 320px;
   height: 180px;
-  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -389,7 +387,6 @@ const newsList = ref([
   color: white;
   width: 60px;
   height: 60px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -422,7 +419,6 @@ const newsList = ref([
 
 .photo-item {
   overflow: hidden;
-  border-radius: 8px;
   cursor: pointer;
   transition: transform 0.3s ease;
 }
@@ -511,7 +507,6 @@ const newsList = ref([
 .equipment-image {
   width: 100%;
   max-width: 600px;
-  border-radius: 8px;
   overflow: hidden;
 }
 

@@ -1,50 +1,53 @@
 <template>
   <div class="concert">
-    <!-- 텍스트 섹션 -->
-    <section class="concert-text">
+    <!-- 좌측 고정 타이틀 -->
+    <aside class="concert-title">
       <h1>CONCERT</h1>
-    </section>
+    </aside>
 
-    <!-- 이벤트 섹션 -->
-    <section class="events-section">
-      <!-- Upcoming Events -->
-      <div class="events-category">
-        <h2>Upcoming Events</h2>
-        <div class="events-list">
-          <div class="event-item" v-for="event in upcomingEvents" :key="event.id">
-            <div class="event-date">{{ event.date }}</div>
-            <div class="event-info">
-              <div class="event-location">{{ event.location }}</div>
-              <div class="event-name">{{ event.name }}</div>
-            </div>
-            <div class="event-expand">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+    <!-- 우측 콘텐츠 -->
+    <main class="concert-content">
+      <!-- 이벤트 섹션 -->
+      <section class="events-section">
+        <!-- Upcoming Events -->
+        <div class="events-category">
+          <h2>Upcoming Events</h2>
+          <div class="events-list">
+            <div class="event-item" v-for="event in upcomingEvents" :key="event.id">
+              <div class="event-date">{{ event.date }}</div>
+              <div class="event-info">
+                <div class="event-location">{{ event.location }}</div>
+                <div class="event-name">{{ event.name }}</div>
+              </div>
+              <div class="event-expand">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Past Events -->
-      <div class="events-category">
-        <h2>Past Events</h2>
-        <div class="events-list">
-          <div class="event-item" v-for="event in pastEvents" :key="event.id">
-            <div class="event-date">{{ event.date }}</div>
-            <div class="event-info">
-              <div class="event-location">{{ event.location }}</div>
-              <div class="event-name">{{ event.name }}</div>
-            </div>
-            <div class="event-expand">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+        <!-- Past Events -->
+        <div class="events-category">
+          <h2>Past Events</h2>
+          <div class="events-list">
+            <div class="event-item" v-for="event in pastEvents" :key="event.id">
+              <div class="event-date">{{ event.date }}</div>
+              <div class="event-info">
+                <div class="event-location">{{ event.location }}</div>
+                <div class="event-name">{{ event.name }}</div>
+              </div>
+              <div class="event-expand">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
   </div>
 </template>
 
@@ -96,36 +99,54 @@ const pastEvents = ref([
 </script>
 
 <style scoped>
+/* 레이아웃 */
 .concert {
-  background-color: #fafafa;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding-top: 60px; /* 헤더 높이만큼 상단 패딩 */
-}
-
-/* 텍스트 섹션 */
-.concert-text {
-  padding: 2rem 2rem 4rem 2rem;
+  background: #fafafa;
+  color: #222;
+  min-height: calc(100vh - 60px);
+  margin-top: -60px;
+  padding-top: calc(60px + 4rem);
+  display: grid;
+  grid-template-columns: 1fr 2.2fr;
+  align-items: start;
+  gap: 4rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-h1 {
-  font-size: 4rem;
-  font-weight: bold;
+/* 좌측 타이틀 */
+.concert-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 1rem;
+  padding-top: 2rem;
+}
+
+.concert-title h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
   color: #D4AF37;
+  text-transform: uppercase;
+  line-height: 1;
   margin: 0;
-  text-align: left;
-  letter-spacing: 3px;
+}
+
+/* 우측 콘텐츠 */
+.concert-content {
+  max-width: 800px;
+  width: 100%;
+  margin-right: 2rem;
+  justify-self: end;
+  padding-top: 2rem;
 }
 
 /* 이벤트 섹션 */
 .events-section {
-  padding: 0 2rem 4rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 4rem;
@@ -205,19 +226,42 @@ h1 {
   color: #666;
 }
 
-/* 반응형 디자인 */
+/* 반응형 */
+@media (max-width: 1024px) {
+  .concert {
+    grid-template-columns: 0.9fr 2fr;
+    gap: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .concert-text {
-    padding: 2rem 1rem 3rem 1rem;
+  .concert {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
   
-  h1 {
-    font-size: 2.5rem;
-    text-align: center;
+  .concert-title {
+    justify-content: center;
+    padding-left: 0;
+    padding-top: 1rem;
+  }
+  
+  .concert-title h1 {
+    letter-spacing: 0.08em;
+  }
+  
+  .concert-content {
+    margin: 0 auto;
+    justify-self: center;
+    padding: 0 1rem;
+    padding-top: 1rem;
   }
   
   .events-section {
-    padding: 0 1rem 3rem 1rem;
     gap: 3rem;
   }
   
@@ -238,10 +282,6 @@ h1 {
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-  
   .events-category h2 {
     font-size: 1.2rem;
   }

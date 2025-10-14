@@ -16,23 +16,29 @@
     <!-- 이미지 그리드 섹션 -->
     <section class="about-images">
       <div class="image-grid">
-        <div class="image-item">
-          <img src="../imgs/20250719-P1250713 1.png" alt="TWIIIINS Performance">
+        <!-- 첫 번째 행 -->
+        <div class="image-row">
+          <div class="image-item">
+            <img src="../imgs/20250719-P1250713 1.png" alt="TWIIIINS Performance">
+          </div>
+          <div class="image-item">
+            <img src="../imgs/20250719-P1250816 1.png" alt="TWIIIINS Performance">
+          </div>
+          <div class="image-item">
+            <img src="../imgs/20250719-P1250891 1.png" alt="TWIIIINS Performance">
+          </div>
         </div>
-        <div class="image-item">
-          <img src="../imgs/20250719-P1250816 1.png" alt="TWIIIINS Performance">
-        </div>
-        <div class="image-item">
-          <img src="../imgs/20250719-P1250891 1.png" alt="TWIIIINS Performance">
-        </div>
-        <div class="image-item">
-          <img src="../imgs/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
-        </div>
-        <div class="image-item">
-          <img src="../imgs/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
-        </div>
-        <div class="image-item">
-          <img src="../imgs/unnamed 1.png" alt="TWIIIINS Performance">
+        <!-- 두 번째 행 -->
+        <div class="image-row">
+          <div class="image-item">
+            <img src="../imgs/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
+          </div>
+          <div class="image-item">
+            <img src="../imgs/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
+          </div>
+          <div class="image-item">
+            <img src="../imgs/unnamed 1.png" alt="TWIIIINS Performance">
+          </div>
         </div>
       </div>
     </section>
@@ -70,12 +76,13 @@ h1 {
   margin-bottom: 3rem;
   text-align: left;
   letter-spacing: 2px;
+  margin-left: 2rem;
 }
 
 .about-content {
   text-align: left;
   max-width: 800px;
-  margin: 0 auto;
+  margin-left: 2rem;
 }
 
 .about-content p {
@@ -94,17 +101,54 @@ h1 {
 }
 
 .image-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
+.image-row {
+  display: flex;
+  gap: 0.5rem;
+  height: 300px;
+}
+
+.image-row:nth-child(2) {
+  height: 250px;
+}
+
 .image-item {
-  aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.image-row:nth-child(1) .image-item:nth-child(1) {
+  flex: 1;
+}
+
+.image-row:nth-child(1) .image-item:nth-child(2) {
+  flex: 2;
+}
+
+.image-row:nth-child(1) .image-item:nth-child(3) {
+  flex: 1;
+}
+
+.image-row:nth-child(2) .image-item:nth-child(1) {
+  flex: 1;
+}
+
+.image-row:nth-child(2) .image-item:nth-child(2) {
+  flex: 2;
+}
+
+.image-row:nth-child(2) .image-item:nth-child(3) {
+  flex: 1;
 }
 
 .image-item img {
@@ -112,6 +156,7 @@ h1 {
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+  display: block;
 }
 
 .image-item:hover img {
