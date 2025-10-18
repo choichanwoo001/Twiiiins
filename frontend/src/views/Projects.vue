@@ -54,17 +54,16 @@ export default {
   background:#fff;
   color:#222;
   min-height: calc(100vh - 60px);
-  margin-top:-60px;            /* 상단 고정 헤더 보정 사용 중이라면 유지 */
-  padding-top: calc(60px + 4rem); /* 헤더 높이 + 충분한 여백 */
+  margin-top:-60px;
+  padding-top: calc(60px + 6rem);
   display:grid;
-  grid-template-columns: 1fr 2.2fr; /* 좌(타이틀) : 우(콘텐츠) 비율 */
+  grid-template-columns: 1fr 2.2fr;
   align-items: start;
-  gap: 4rem; /* 제목과 이미지 사이 공백 증가 */
-  max-width: 1200px;
+  gap: 4rem;
   margin-left: auto;
   margin-right: auto;
   padding-left: 2rem;
-  padding-right: 2rem;
+  padding-right: 4rem;
 }
 
 /* 좌측 타이틀 */
@@ -72,12 +71,11 @@ export default {
   display:flex;
   align-items:flex-start;
   justify-content:flex-start;
-  padding-left: 1rem;
-  padding-top: 2rem; /* 제목을 아래로 이동 */
+  padding-top: 2rem;
 }
 .projects-title h1{
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight:700;
+  font-weight: 500;
   letter-spacing: 0.12em;
   color:#6f93a0;               /* 이미지처럼 청록빛 톤 */
   text-transform: uppercase;

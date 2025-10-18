@@ -5,10 +5,17 @@
       <h1>ABOUT</h1>
       <div class="about-content">
         <p>
-          TWIIIINS IS A VIOLIN DUO FROM SOUTH KOREA AND GERMANY, KNOWN FOR THEIR ENERGETIC AND GENRE-BLENDING PERFORMANCES. THEY COMBINE CLASSICAL MUSIC WITH POP, FUNK, FILM SCORES, JAZZ, AND ROCK, CREATING A UNIQUE AND DYNAMIC SOUND.
+          TWIIIINS IS A VIOLIN DUO FROM SOUTH KOREA AND GERMANY,<br>
+          KNOWN FOR THEIR ENERGETIC AND GENRE-BLENDING PERFORMANCES.<br>
+          THEY COMBINE CLASSICAL MUSIC WITH POP, FUNK, FILM SCORES, JAZZ, AND ROCK,<br>
+          CREATING A UNIQUE AND DYNAMIC SOUND.<br>
         </p>
         <p>
-          WITH THEIR LIVELY STAGE PRESENCE AND PASSION FOR LIVE MUSIC, TWIIIINS CAPTIVATES AUDIENCES, TURNING EACH PERFORMANCE INTO AN ENGAGING EXPERIENCE. MORE THAN JUST A DUO, THEY AIM TO SPREAD JOY THROUGH THEIR MUSIC, OFFERING A FRESH TAKE ON VIOLIN PERFORMANCES THAT CONNECT WITH PEOPLE ACROSS DIFFERENT GENRES AND STYLES.
+          WITH THEIR LIVELY STAGE PRESENCE AND PASSION FOR LIVE MUSIC,<br>
+          TWIIIINS CAPTIVATES AUDIENCES, TURNING EACH PERFORMANCE INTO AN ENGAGING EXPERIENCE.<br>
+          MORE THAN JUST A DUO, THEY AIM TO SPREAD JOY THROUGH THEIR MUSIC,<br>
+          OFFERING A FRESH TAKE ON VIOLIN PERFORMANCES<br>
+          THAT CONNECT WITH PEOPLE ACROSS DIFFERENT GENRES AND STYLES.
         </p>
       </div>
     </section>
@@ -42,13 +49,6 @@
         </div>
       </div>
     </section>
-
-    <!-- 스크롤 인디케이터 -->
-    <div class="scroll-indicator">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> -->
-      </svg>
-    </div>
   </div>
 </template>
 
@@ -57,32 +57,32 @@
   background-color: white;
   color: #333;
   font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding-top: 60px; /* 헤더 높이만큼 상단 패딩 */
+  min-height: calc(100vh - 60px);
+  margin-top: -60px;
+  padding-top: calc(60px + 6rem);
+  padding-left: 2rem;
 }
 
 /* 텍스트 섹션 */
 .about-text {
-  padding: 4rem 2rem;
-  max-width: 1200px;
   margin: 0 auto;
+  padding-top: 2rem;
 }
 
-h1 {
-  font-size: 3rem;
-  font-weight: bold;
-  color: #8B0000;
-  margin-bottom: 3rem;
+.about-text h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: #8B4513;
+  text-transform: uppercase;
+  line-height: 1;
+  margin: 0 0 3rem 0;
   text-align: left;
-  letter-spacing: 2px;
-  margin-left: 2rem;
 }
 
 .about-content {
   text-align: left;
   max-width: 800px;
-  margin-left: 2rem;
 }
 
 .about-content p {
@@ -91,13 +91,16 @@ h1 {
   margin-bottom: 2rem;
   color: #555;
   font-weight: 400;
+  white-space: pre-line;
 }
 
 /* 이미지 그리드 섹션 */
 .about-images {
-  padding: 2rem;
+  padding: 4rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
 .image-grid {
@@ -105,7 +108,7 @@ h1 {
   flex-direction: column;
   gap: 0.5rem;
   max-width: 1000px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .image-row {

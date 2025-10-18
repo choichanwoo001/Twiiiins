@@ -21,16 +21,15 @@
   color: #222;
   min-height: calc(100vh - 60px);
   margin-top: -60px;
-  padding-top: calc(60px + 4rem);
+  padding-top: calc(60px + 6rem);
   display: grid;
   grid-template-columns: 1fr 2.2fr;
   align-items: start;
   gap: 4rem;
-  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 2rem;
-  padding-right: 2rem;
+  padding-right: 4rem;
 }
 
 /* 좌측 타이틀 */
@@ -38,13 +37,12 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding-left: 1rem;
   padding-top: 2rem;
 }
 
 .shop-title h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.12em;
   color: #2E86AB;
   text-transform: uppercase;
