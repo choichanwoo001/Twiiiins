@@ -10,7 +10,7 @@
       <!-- 이미지 -->
       <figure class="project-figure">
         <img
-          src="../imgs/019_Gregor Schulz, Maximilian Paier und Ensemble_Arturo Ui_©SLT - Tobias Witzgall_LT1_2433 1.png"
+          src="../imgs/project_cover.jpg"
           alt="Project hero"
         />
       </figure>
@@ -20,14 +20,33 @@
         <div class="caption-left">ARTURO UI</div>
         <div class="caption-right">
           <span>02.22.2025, Salzburg State Theater</span>
-          <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" @click="goToProjectDetail">
             <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-      </div>
+      </div>  
     </main>
   </div>
 </template>
+
+<script>
+import { useRouter } from 'vue-router'
+
+export default {
+  name: 'Projects',
+  setup() {
+    const router = useRouter()
+    
+    const goToProjectDetail = () => {
+      router.push('/projects/arturo-ui')
+    }
+    
+    return {
+      goToProjectDetail
+    }
+  }
+}
+</script>
 
 <style scoped>
 /* 레이아웃 */
@@ -116,6 +135,12 @@
 .caption-arrow{
   flex:0 0 auto;
   color:#666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.caption-arrow:hover {
+  color: #333;
 }
 
 /* 호버 미세 인터랙션(선택) */
@@ -124,38 +149,4 @@
   transition: transform .25s ease;
 }
 
-/* 반응형 */
-@media (max-width: 1024px){
-  .projects{
-    grid-template-columns: 0.9fr 2fr;
-    gap: 3rem; /* 태블릿에서도 공백 유지 */
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}
-@media (max-width: 768px){
-  .projects{
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  .projects-title{
-    justify-content: center;
-    padding-left: 0;
-    padding-top: 1rem;
-  }
-  .projects-title h1{
-    letter-spacing: 0.08em;
-  }
-  .projects-content{
-    margin: 0 auto;
-    justify-self: center;
-    padding: 0 1rem;
-    padding-top: 1rem;
-  }
-  .project-caption{
-    padding: 0;
-  }
-}
 </style>

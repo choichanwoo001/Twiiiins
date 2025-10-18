@@ -523,46 +523,4 @@ const newsList = ref([
   text-align: center;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .media {
-    flex-direction: column;
-  }
-  
-  .media-nav {
-    width: 100%;
-    padding: 2rem 1rem;
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-  }
-  
-  .nav-item {
-    font-size: 1.2rem;
-    margin-bottom: 0;
-    white-space: nowrap;
-  }
-  
-  .media-content {
-    padding: 2rem 1rem;
-  }
-  
-  .music-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
-  }
-  
-  .video-item {
-    flex-direction: column;
-  }
-  
-  .video-thumbnail {
-    width: 100%;
-    height: 200px;
-  }
-  
-  .photos-masonry {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-}
 </style>

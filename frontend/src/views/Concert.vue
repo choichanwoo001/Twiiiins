@@ -5,48 +5,53 @@
       <h1>CONCERT</h1>
     </aside>
 
-    <!-- 우측 콘텐츠 -->
-    <main class="concert-content">
-      <!-- 이벤트 섹션 -->
-      <section class="events-section">
-        <!-- Upcoming Events -->
-        <div class="events-category">
-          <h2>Upcoming Events</h2>
-          <div class="events-list">
-            <div class="event-item" v-for="event in upcomingEvents" :key="event.id">
-              <div class="event-date">{{ event.date }}</div>
-              <div class="event-info">
-                <div class="event-location">{{ event.location }}</div>
-                <div class="event-name">{{ event.name }}</div>
-              </div>
-              <div class="event-expand">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- 중간 섹션 제목 -->
+    <aside class="section-title">
+      <h2>Upcoming Events</h2>
+    </aside>
 
-        <!-- Past Events -->
-        <div class="events-category">
-          <h2>Past Events</h2>
-          <div class="events-list">
-            <div class="event-item" v-for="event in pastEvents" :key="event.id">
-              <div class="event-date">{{ event.date }}</div>
-              <div class="event-info">
-                <div class="event-location">{{ event.location }}</div>
-                <div class="event-name">{{ event.name }}</div>
-              </div>
-              <div class="event-expand">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
+    <!-- 우측 이벤트 목록 -->
+    <main class="events-content">
+      <div class="events-list">
+        <div class="event-item" v-for="event in upcomingEvents" :key="event.id">
+          <div class="event-preview" @click="toggleEvent(event.id)">
+            <div class="event-date">{{ event.date }}</div>
+            <div class="event-info">
+              <div class="event-location">{{ event.location }}</div>
+              <div class="event-name">{{ event.name }}</div>
+            </div>
+            <div class="event-expand" :class="{ 'expanded': event.expanded }">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- 상세 정보 -->
+          <div class="event-details" v-if="event.expanded">
+            <div class="detail-row">
+              <span class="detail-label">Concert starts at:</span>
+              <span class="detail-value">{{ event.startTime }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Ticket Info:</span>
+              <a :href="event.ticketInfo" target="_blank" class="detail-link">{{ event.ticketInfo }}</a>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Location:</span>
+              <span class="detail-value">{{ event.fullLocation }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Google Map:</span>
+              <a :href="event.googleMap" target="_blank" class="detail-link">View on Google Maps</a>
+            </div>
+            <div class="detail-row" v-if="event.collaborationInfo">
+              <span class="detail-label">Concert information (only for collaboration):</span>
+              <span class="detail-value">{{ event.collaborationInfo }}</span>
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </main>
   </div>
 </template>
@@ -54,46 +59,103 @@
 <script setup>
 import { ref } from 'vue'
 
-// 하드코딩된 이벤트 데이터
+// 토글 함수
+const toggleEvent = (eventId, category = 'upcoming') => {
+  const events = category === 'past' ? pastEvents.value : upcomingEvents.value
+  const event = events.find(e => e.id === eventId)
+  if (event) {
+    event.expanded = !event.expanded
+  }
+}
+
+// 하드코딩된 이벤트 데이터 (상세 정보 포함)
 const upcomingEvents = ref([
   {
     id: 1,
-    date: 'July 30, 2026',
-    location: 'Smaragd, Linz [AT]',
-    name: 'TWIIIINS Concert'
+    date: 'October 25, 2025',
+    location: 'Schloss Salon, Linz [AT]',
+    name: 'TWIIIINS Concert',
+    expanded: false,
+    startTime: '20:30',
+    ticketInfo: 'https://aeskil.at/',
+    fullLocation: 'Schloss Eschelberg, Eschelberg 1, 4112 St. Gotthard im Mühlkreis',
+    googleMap: 'https://maps.app.goo.gl/qSDyev6zUo7BP1YEA',
+    collaborationInfo: ''
   },
   {
     id: 2,
-    date: 'July 30, 2026',
-    location: 'Smaragd, Linz [AT]',
-    name: 'TWIIIINS Concert'
+    date: 'November 26, 2025',
+    location: 'Märchenbazar, Munich [DE]',
+    name: 'TWIIIINS Concert',
+    expanded: false,
+    startTime: '',
+    ticketInfo: 'https://maerchenbazar.de/',
+    fullLocation: 'Olympiapark München, Spiridon-Louis-Ring 21, 80809 München, Germany',
+    googleMap: 'https://maps.app.goo.gl/1Qk3S7JeBzhiDtNH7',
+    collaborationInfo: ''
   },
   {
     id: 3,
-    date: 'July 30, 2026',
-    location: 'Smaragd, Linz [AT]',
-    name: 'TWIIIINS Concert'
+    date: 'December 6, 2025',
+    location: 'Kopfbau, Munich [DE]',
+    name: 'TWIIIINS Concert',
+    expanded: false,
+    startTime: '',
+    ticketInfo: '',
+    fullLocation: '',
+    googleMap: '',
+    collaborationInfo: ''
+  },
+  {
+    id: 4,
+    date: 'December 18, 2025',
+    location: 'Korea Kulturzentrum, Vienna [AT]',
+    name: 'TWIIIINS Concert',
+    expanded: false,
+    startTime: '18:00',
+    ticketInfo: 'https://vienna.korean-culture.org/vienna.korean-culture.html',
+    fullLocation: 'Kärntner Straße 43, 1010 Wien, Österreich',
+    googleMap: 'https://maps.app.goo.gl/oupu1vYxPmjBmSU78',
+    collaborationInfo: ''
+  },
+  {
+    id: 5,
+    date: 'August 1, 2026',
+    location: 'Herzberg Festival [DE]',
+    name: 'TWIIIINS Concert',
+    expanded: false,
+    startTime: '',
+    ticketInfo: 'https://herzberg-festival.com/',
+    fullLocation: 'Hofhuhnstadt, 36287 Breitenbach am Herzberg, Germany',
+    googleMap: 'https://maps.app.goo.gl/hW5iV3QHHnXxhU2d6',
+    collaborationInfo: ''
   }
 ])
 
 const pastEvents = ref([
   {
     id: 1,
-    date: 'July 30, 2026',
-    location: 'Smaragd, Linz [AT]',
-    name: 'TWIIIINS Concert'
+    date: 'February 22, 2025',
+    location: 'Salzburg State Theatre, Salzburg [AT]',
+    name: 'Arturo Ui Performance',
+    expanded: false,
+    startTime: '19:30',
+    ticketInfo: 'https://salzburger-landestheater.at/',
+    fullLocation: 'Salzburg State Theatre, Schwarzstraße 22, 5020 Salzburg',
+    googleMap: 'https://maps.app.goo.gl/salzburg-example',
+    collaborationInfo: 'Collaboration with Salzburger Landestheater'
   },
   {
     id: 2,
-    date: 'July 30, 2026',
-    location: 'Smaragd, Linz [AT]',
-    name: 'TWIIIINS Concert'
-  },
-  {
-    id: 3,
-    date: 'July 30, 2026',
-    location: 'Smaragd, Linz [AT]',
-    name: 'TWIIIINS Concert'
+    date: 'June 10, 2024',
+    location: 'Göttingen Concert Hall, Göttingen [DE]',
+    name: 'TWIIIINS Concert',
+    expanded: false,
+    startTime: '20:00',
+    ticketInfo: 'https://goettingen-music.de/',
+    fullLocation: 'Göttingen Concert Hall, Theaterplatz 1, 37073 Göttingen',
+    googleMap: 'https://maps.app.goo.gl/goettingen-example',
+    collaborationInfo: ''
   }
 ])
 </script>
@@ -107,7 +169,7 @@ const pastEvents = ref([
   margin-top: -60px;
   padding-top: calc(60px + 4rem);
   display: grid;
-  grid-template-columns: 1fr 2.2fr;
+  grid-template-columns: 1fr 1fr 2fr;
   align-items: start;
   gap: 4rem;
   max-width: 1200px;
@@ -136,34 +198,26 @@ const pastEvents = ref([
   margin: 0;
 }
 
-/* 우측 콘텐츠 */
-.concert-content {
-  max-width: 800px;
-  width: 100%;
-  margin-right: 2rem;
-  justify-self: end;
+/* 중간 섹션 제목 */
+.section-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
   padding-top: 2rem;
 }
 
-/* 이벤트 섹션 */
-.events-section {
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-}
-
-.events-category {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.events-category h2 {
+.section-title h2 {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
   margin: 0;
   text-align: left;
+}
+
+/* 우측 이벤트 콘텐츠 */
+.events-content {
+  width: 100%;
+  padding-top: 2rem;
 }
 
 .events-list {
@@ -173,20 +227,25 @@ const pastEvents = ref([
 }
 
 .event-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 0;
   border-bottom: 1px solid #e0e0e0;
   transition: background-color 0.3s ease;
 }
 
-.event-item:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
 .event-item:last-child {
   border-bottom: none;
+}
+
+.event-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.event-preview:hover {
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 .event-date {
@@ -216,86 +275,61 @@ const pastEvents = ref([
 
 .event-expand {
   color: #999;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
   min-width: 30px;
   text-align: right;
+}
+
+.event-expand.expanded {
+  transform: rotate(180deg);
 }
 
 .event-expand:hover {
   color: #666;
 }
 
-/* 반응형 */
-@media (max-width: 1024px) {
-  .concert {
-    grid-template-columns: 0.9fr 2fr;
-    gap: 3rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+/* 상세 정보 스타일 */
+.event-details {
+  padding: 1.5rem 0 2rem 0;
+  background-color: #f8f8f8;
+  border-top: 1px solid #e0e0e0;
 }
 
-@media (max-width: 768px) {
-  .concert {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .concert-title {
-    justify-content: center;
-    padding-left: 0;
-    padding-top: 1rem;
-  }
-  
-  .concert-title h1 {
-    letter-spacing: 0.08em;
-  }
-  
-  .concert-content {
-    margin: 0 auto;
-    justify-self: center;
-    padding: 0 1rem;
-    padding-top: 1rem;
-  }
-  
-  .events-section {
-    gap: 3rem;
-  }
-  
-  .event-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem 0;
-  }
-  
-  .event-info {
-    margin-left: 0;
-  }
-  
-  .event-expand {
-    align-self: flex-end;
-  }
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
 }
 
-@media (max-width: 480px) {
-  .events-category h2 {
-    font-size: 1.2rem;
-  }
-  
-  .event-date {
-    font-size: 0.9rem;
-  }
-  
-  .event-location {
-    font-size: 0.9rem;
-  }
-  
-  .event-name {
-    font-size: 0.8rem;
-  }
+.detail-row:last-child {
+  margin-bottom: 0;
 }
+
+.detail-label {
+  font-size: 0.9rem;
+  color: #666;
+  min-width: 200px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #333;
+  flex: 1;
+}
+
+.detail-link {
+  font-size: 0.9rem;
+  color: #8B0000;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.detail-link:hover {
+  color: #A00000;
+  text-decoration: underline;
+}
+
 </style>

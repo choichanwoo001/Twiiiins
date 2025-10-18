@@ -19,25 +19,25 @@
         <!-- 첫 번째 행 -->
         <div class="image-row">
           <div class="image-item">
-            <img src="../imgs/20250719-P1250713 1.png" alt="TWIIIINS Performance">
+            <img src="../imgs/About/20250719-P1250713 1.png" alt="TWIIIINS Performance">
           </div>
           <div class="image-item">
-            <img src="../imgs/20250719-P1250816 1.png" alt="TWIIIINS Performance">
+            <img src="../imgs/About/20250719-P1250816 1.png" alt="TWIIIINS Performance">
           </div>
           <div class="image-item">
-            <img src="../imgs/20250719-P1250891 1.png" alt="TWIIIINS Performance">
+            <img src="../imgs/About/20250719-P1250891 1.png" alt="TWIIIINS Performance">
           </div>
         </div>
         <!-- 두 번째 행 -->
         <div class="image-row">
           <div class="image-item">
-            <img src="../imgs/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
+            <img src="../imgs/About/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
           </div>
           <div class="image-item">
-            <img src="../imgs/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
+            <img src="../imgs/About/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
           </div>
           <div class="image-item">
-            <img src="../imgs/unnamed 1.png" alt="TWIIIINS Performance">
+            <img src="../imgs/About/unnamed 1.png" alt="TWIIIINS Performance">
           </div>
         </div>
       </div>
@@ -46,7 +46,7 @@
     <!-- 스크롤 인디케이터 -->
     <div class="scroll-indicator">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> -->
       </svg>
     </div>
   </div>
@@ -187,35 +187,5 @@ h1 {
   }
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .about-text {
-    padding: 2rem 1rem;
-  }
-  
-  h1 {
-    font-size: 2rem;
-    text-align: center;
-  }
-  
-  .about-content {
-    text-align: center;
-  }
-  
-  .image-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-  }
-  
-  .about-images {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .image-grid {
-    grid-template-columns: 1fr;
-  }
-}
 </style>
 

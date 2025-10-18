@@ -3,7 +3,7 @@
     <!-- 히어로 섹션 (메인 이미지) -->
     <section class="hero-section">
       <div class="hero-image">
-        <img src="../imgs/TwinsMusicApril2024-6 3.png" alt="TWIIIINS Performance">
+        <img src="../imgs/home.png" alt="TWIIIINS Performance">
       </div>
     </section>
 
