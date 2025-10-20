@@ -57,9 +57,9 @@
   background-color: white;
   color: #333;
   font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px);
-  margin-top: -60px;
-  padding-top: calc(60px + 6rem);
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  padding-top: 6rem;
   padding-left: 2rem;
 }
 
