@@ -165,9 +165,9 @@ const pastEvents = ref([
 .concert {
   background: #fafafa;
   color: #222;
-  min-height: calc(100vh - 60px);
-  margin-top: -60px;
-  padding-top: calc(60px + 6rem);
+  padding-top: 6rem;
+  height: calc(100vh - 60px);
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
   align-items: start;
@@ -215,6 +215,9 @@ const pastEvents = ref([
 .events-content {
   width: 100%;
   padding-top: 2rem;
+  min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
+  height: 100%;
+  overflow-y: auto;
 }
 
 .events-list {
