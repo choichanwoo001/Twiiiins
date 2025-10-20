@@ -72,7 +72,6 @@ body.has-fullpage-scroll {
 
 /* 메인 컨텐츠 */
 main {
-  min-height: calc(100vh - 60px); /* 헤더 높이만 빼기 */
   padding-top: 60px; /* fixed 헤더를 위한 정확한 상단 패딩 */
 }
 

@@ -27,13 +27,35 @@
     </div>
 
     <!-- 스크롤 업 버튼 (오른쪽 하단) -->
-    <button class="scroll-up-button" @click="scrollToTop">
+    <button v-if="showScrollUp" class="scroll-up-button" @click="scrollToTop" aria-label="Scroll to top">
       ↑
     </button>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+
+const showScrollUp = ref(false)
+
+const updateScrollUpVisibility = () => {
+  const { scrollHeight, clientHeight } = document.documentElement
+  const isScrollable = scrollHeight > clientHeight + 1
+  const hasScrolled = window.scrollY > 100
+  showScrollUp.value = isScrollable && hasScrolled
+}
+
+onMounted(() => {
+  updateScrollUpVisibility()
+  window.addEventListener('scroll', updateScrollUpVisibility, { passive: true })
+  window.addEventListener('resize', updateScrollUpVisibility)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', updateScrollUpVisibility)
+  window.removeEventListener('resize', updateScrollUpVisibility)
+})
+
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
