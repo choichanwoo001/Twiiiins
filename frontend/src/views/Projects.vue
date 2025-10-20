@@ -53,9 +53,7 @@ export default {
 .projects {
   background:#fff;
   color:#222;
-  min-height: calc(100vh - 60px);
-  margin-top:-60px;
-  padding-top: calc(60px + 6rem);
+  padding-top: 6rem;
   display:grid;
   grid-template-columns: 1fr 2.2fr;
   align-items: start;
