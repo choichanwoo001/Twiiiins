@@ -15,59 +15,62 @@
         </p>
       </div>
 
-      <!-- 연락처 정보 -->
-      <div class="contact-details">
-        <div class="contact-item">
-          <div class="contact-name">TWIIIINS</div>
-          <div class="contact-email">stickypeanutbutter@proton.me</div>
+      <!-- 연락처 + 다운로드 병렬 섹션 -->
+      <div class="contact-body">
+        <!-- 연락처 정보 -->
+        <div class="contact-details">
+          <div class="contact-item">
+            <div class="contact-name">TWIIIINS</div>
+            <div class="contact-email">stickypeanutbutter@proton.me</div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-name">Dowon Kim</div>
+            <div class="contact-role">Violin</div>
+            <div class="contact-email">kimdowon.c1@gmail.com</div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-name">Linus Shastri</div>
+            <div class="contact-role">Baritone Violin</div>
+            <div class="contact-email">linusshastri@protonmail.com</div>
+          </div>
         </div>
 
-        <div class="contact-item">
-          <div class="contact-name">Dowon Kim</div>
-          <div class="contact-role">Violin</div>
-          <div class="contact-email">kimdowon.c1@gmail.com</div>
-        </div>
-
-        <div class="contact-item">
-          <div class="contact-name">Linus Shastri</div>
-          <div class="contact-role">Baritone Violin</div>
-          <div class="contact-email">linusshastri@protonmail.com</div>
-        </div>
-      </div>
-
-      <!-- 다운로드 섹션 -->
-      <div class="download-section">
-        <h2>Download</h2>
-        <div class="download-list">
-          <div class="download-item">
-            <span>Portfolio [EN]</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>Portfolio [DE]</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>Portfolio [KR]</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>Stage Rider</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>CV</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+        <!-- 다운로드 섹션 -->
+        <div class="download-section">
+          <h2>Download</h2>
+          <div class="download-list">
+            <div class="download-item">
+              <span>Portfolio [EN]</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>Portfolio [DE]</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>Portfolio [KR]</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>Stage Rider</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>CV</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -80,9 +83,7 @@
 .contact {
   background: #fff;
   color: #222;
-  min-height: calc(100vh - 60px);
-  margin-top: -60px;
-  padding-top: calc(60px + 6rem);
+  padding-top: 6rem;
   display: grid;
   grid-template-columns: 1fr 2.2fr;
   align-items: start;
@@ -121,6 +122,15 @@
   display: flex;
   flex-direction: column;
   gap: 3rem;
+}
+
+/* 연락처 + 다운로드 병렬 컨테이너 */
+.contact-body {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4rem;
 }
 
 /* 안내 문구 */
@@ -167,7 +177,8 @@
 
 /* 다운로드 섹션 */
 .download-section {
-  margin-top: 2rem;
+  margin-top: 0;
+  min-width: 240px;
 }
 
 .download-section h2 {
