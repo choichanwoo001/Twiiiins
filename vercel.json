@@ -14,6 +14,11 @@
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ]
+  ],
+  "functions": {
+    "frontend/dist/**": {
+      "maxDuration": 10
+    }
+  }
 }
 
