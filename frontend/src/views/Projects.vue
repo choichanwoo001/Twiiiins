@@ -62,6 +62,8 @@ export default {
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
+  height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
 /* 좌측 타이틀 */
@@ -88,6 +90,9 @@ export default {
   margin-right: 2rem;
   justify-self: end;           /* 우측 정렬 느낌 */
   padding-top: 2rem; /* 콘텐츠를 아래로 이동 */
+  min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
+  height: 100%;
+  overflow-y: auto;
 }
 
 /* 이미지 컨테이너 */

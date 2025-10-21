@@ -28,6 +28,8 @@
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
+  height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
 /* 좌측 타이틀 */
@@ -55,6 +57,9 @@
   margin-right: 2rem;
   justify-self: end;
   padding-top: 2rem;
+  min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
+  height: 100%;
+  overflow-y: auto;
 }
 
 .no-products {
