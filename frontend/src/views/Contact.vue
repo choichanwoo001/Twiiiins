@@ -1,12 +1,12 @@
 <template>
   <div class="contact">
-    <!-- 텍스트 섹션 -->
-    <section class="contact-text">
+    <!-- 좌측 고정 타이틀 -->
+    <aside class="contact-title">
       <h1>CONTACT</h1>
-    </section>
+    </aside>
 
-    <!-- 콘텐츠 섹션 -->
-    <section class="contact-content">
+    <!-- 우측 콘텐츠 -->
+    <main class="contact-content">
       <!-- 안내 문구 -->
       <div class="contact-info">
         <p class="intro-text">
@@ -15,104 +15,122 @@
         </p>
       </div>
 
-      <!-- 연락처 정보 -->
-      <div class="contact-details">
-        <div class="contact-item">
-          <div class="contact-name">TWIIIINS</div>
-          <div class="contact-email">stickypeanutbutter@proton.me</div>
+      <!-- 연락처 + 다운로드 병렬 섹션 -->
+      <div class="contact-body">
+        <!-- 연락처 정보 -->
+        <div class="contact-details">
+          <div class="contact-item">
+            <div class="contact-name">TWIIIINS</div>
+            <div class="contact-email">stickypeanutbutter@proton.me</div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-name">Dowon Kim</div>
+            <div class="contact-role">Violin</div>
+            <div class="contact-email">kimdowon.c1@gmail.com</div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-name">Linus Shastri</div>
+            <div class="contact-role">Baritone Violin</div>
+            <div class="contact-email">linusshastri@protonmail.com</div>
+          </div>
         </div>
 
-        <div class="contact-item">
-          <div class="contact-name">Dowon Kim</div>
-          <div class="contact-role">Violin</div>
-          <div class="contact-email">kimdowon.c1@gmail.com</div>
-        </div>
-
-        <div class="contact-item">
-          <div class="contact-name">Linus Shastri</div>
-          <div class="contact-role">Baritone Violin</div>
-          <div class="contact-email">linusshastri@protonmail.com</div>
+        <!-- 다운로드 섹션 -->
+        <div class="download-section">
+          <h2>Download</h2>
+          <div class="download-list">
+            <div class="download-item">
+              <span>Portfolio [EN]</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>Portfolio [DE]</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>Portfolio [KR]</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>Stage Rider</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="download-item">
+              <span>CV</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- 다운로드 섹션 -->
-      <div class="download-section">
-        <h2>Download</h2>
-        <div class="download-list">
-          <div class="download-item">
-            <span>Portfolio [EN]</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>Portfolio [DE]</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>Portfolio [KR]</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>Stage Rider</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="download-item">
-            <span>CV</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </section>
+    </main>
   </div>
 </template>
 
 <style scoped>
+/* 레이아웃 */
 .contact {
-  background-color: white;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding-top: 60px; /* 헤더 높이만큼 상단 패딩 */
-  display: flex;
+  background: #fff;
+  color: #222;
+  padding-top: 6rem;
+  display: grid;
+  grid-template-columns: 1fr 2.2fr;
+  align-items: start;
+  gap: 4rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 4rem;
 }
 
-/* 텍스트 섹션 */
-.contact-text {
-  width: 50%;
-  padding: 4rem 2rem;
+/* 좌측 타이틀 */
+.contact-title {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 2rem;
 }
 
-h1 {
-  font-size: 4rem;
-  font-weight: bold;
+.contact-title h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
   color: #8B4513;
+  text-transform: uppercase;
+  line-height: 1;
   margin: 0;
-  text-align: left;
-  letter-spacing: 3px;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
 }
 
-/* 콘텐츠 섹션 */
+/* 우측 콘텐츠 */
 .contact-content {
-  width: 50%;
-  padding: 4rem 2rem;
+  max-width: 800px;
+  width: 100%;
+  margin-right: 2rem;
+  justify-self: end;
+  padding-top: 2rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
+}
+
+/* 연락처 + 다운로드 병렬 컨테이너 */
+.contact-body {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4rem;
 }
 
 /* 안내 문구 */
@@ -159,7 +177,8 @@ h1 {
 
 /* 다운로드 섹션 */
 .download-section {
-  margin-top: 2rem;
+  margin-top: 0;
+  min-width: 240px;
 }
 
 .download-section h2 {
@@ -201,66 +220,4 @@ h1 {
   color: #666;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .contact {
-    flex-direction: column;
-  }
-  
-  .contact-text,
-  .contact-content {
-    width: 100%;
-    padding: 2rem 1rem;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    writing-mode: horizontal-tb;
-    text-orientation: initial;
-    text-align: center;
-  }
-  
-  .contact-content {
-    gap: 2rem;
-  }
-  
-  .intro-text {
-    font-size: 0.8rem;
-    text-align: center;
-  }
-  
-  .contact-details {
-    gap: 1.5rem;
-  }
-  
-  .contact-item {
-    text-align: center;
-  }
-  
-  .download-section {
-    margin-top: 1rem;
-  }
-  
-  .download-section h2 {
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-  
-  .contact-name {
-    font-size: 1rem;
-  }
-  
-  .contact-email {
-    font-size: 0.9rem;
-  }
-  
-  .download-item span {
-    font-size: 0.9rem;
-  }
-}
 </style>

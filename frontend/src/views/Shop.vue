@@ -1,50 +1,65 @@
 <template>
   <div class="shop">
-    <!-- 텍스트 섹션 -->
-    <section class="shop-text">
+    <!-- 좌측 고정 타이틀 -->
+    <aside class="shop-title">
       <h1>SHOP</h1>
-    </section>
+    </aside>
 
-    <!-- 상품 섹션 -->
-    <section class="shop-content">
+    <!-- 우측 콘텐츠 -->
+    <main class="shop-content">
       <div class="no-products">
         <p>No products available yet.</p>
       </div>
-    </section>
+    </main>
   </div>
 </template>
 
 <style scoped>
+/* 레이아웃 */
 .shop {
-  background-color: white;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding-top: 60px; /* 헤더 높이만큼 상단 패딩 */
+  background: #fff;
+  color: #222;
+  padding-top: 6rem;
+  display: grid;
+  grid-template-columns: 1fr 2.2fr;
+  align-items: start;
+  gap: 4rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 4rem;
+  height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
-/* 텍스트 섹션 */
-.shop-text {
-  padding: 2rem 2rem 4rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+/* 좌측 타이틀 */
+.shop-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 2rem;
 }
 
-h1 {
-  font-size: 4rem;
-  font-weight: bold;
+.shop-title h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
   color: #2E86AB;
+  text-transform: uppercase;
+  line-height: 1;
   margin: 0;
-  text-align: left;
-  letter-spacing: 3px;
 }
 
-/* 상품 섹션 */
+/* 우측 콘텐츠 */
 .shop-content {
-  padding: 0 2rem 4rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
+  margin-right: 2rem;
+  justify-self: end;
+  padding-top: 2rem;
+  min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
+  height: 100%;
+  overflow-y: auto;
 }
 
 .no-products {
@@ -59,37 +74,4 @@ h1 {
   font-weight: 300;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .shop-text {
-    padding: 2rem 1rem 3rem 1rem;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    text-align: center;
-  }
-  
-  .shop-content {
-    padding: 0 1rem 3rem 1rem;
-  }
-  
-  .no-products {
-    padding: 3rem 1rem;
-  }
-  
-  .no-products p {
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-  
-  .no-products p {
-    font-size: 1rem;
-  }
-}
 </style>
