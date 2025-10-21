@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -17,6 +18,10 @@ public class ProjectService {
     
     public List<Project> getAllProjects() {
         return projectRepository.findAllByOrderByDisplayOrderAsc();
+    }
+    
+    public List<Project> getProjectsWithFilters(String title, String location, LocalDate startDate, LocalDate endDate) {
+        return projectRepository.findProjectsWithFilters(title, location, startDate, endDate);
     }
     
     public Project getProjectById(Long id) {
