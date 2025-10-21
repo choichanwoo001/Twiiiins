@@ -107,68 +107,6 @@ main:has(.fullpage-scroll) {
   background: transparent;
 }
 
-/* 버튼 */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn-primary {
-  background: #000;
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: #333;
-}
-
-.btn-secondary {
-  background: #fff;
-  color: #000;
-  border: 2px solid #000;
-}
-
-.btn-secondary:hover {
-  background: #000;
-  color: #fff;
-}
-
-/* 그리드 */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
-}
-
-/* 카드 */
-.card {
-  background: #fff;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-
-.card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.card-content {
-  padding: 1rem;
-}
-
 /* 폼 */
 .form-group {
   margin-bottom: 1.5rem;
@@ -250,27 +188,3 @@ body.events-section-active .sns-links {
   background: rgba(255, 255, 255, 1);
   transform: translateY(-2px);
 }
-
-/* 로딩 */
-.loading {
-  text-align: center;
-  padding: 4rem 0;
-  font-size: 1.2rem;
-}
-
-/* 에러 메시지 */
-.error {
-  background: #fee;
-  color: #c00;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-/* 성공 메시지 */
-.success {
-  background: #efe;
-  color: #0a0;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-

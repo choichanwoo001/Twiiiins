@@ -109,14 +109,6 @@
   margin: 0 auto;
 }
 
-.project-label {
-  font-size: 0.9rem;
-  color: #999;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
 .project-title-section {
   display: flex;
   flex-direction: column;

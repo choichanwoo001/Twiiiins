@@ -165,30 +165,5 @@
 .image-item:hover img {
   transform: scale(1.05);
 }
-
-/* 스크롤 인디케이터 */
-.scroll-indicator {
-  display: flex;
-  justify-content: center;
-  padding: 2rem 0;
-  color: #666;
-}
-
-.scroll-indicator svg {
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
 </style>
 

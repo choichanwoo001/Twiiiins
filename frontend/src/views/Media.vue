@@ -151,15 +151,13 @@ const musicItems = ref([
     id: 1,
     title: 'Time',
     artist: 'TWIIIINS',
-    cover: new URL('../imgs/music/time.png', import.meta.url).href,
-    link: 'https://open.spotify.com/track/1Io8OY15mHCEbuvSEBLcGJ?si=21bfa76397dc4534'
+    cover: new URL('../imgs/music/time.png', import.meta.url).href
   },
   {
     id: 2,
     title: 'Common Room',
     artist: 'TWIIIINS',
-    cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href,
-    link: 'https://open.spotify.com/track/7xWLTxelg1fvFT0d7jUOLO?si=189b8fdb82d14206'
+    cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
   }
 ])
 

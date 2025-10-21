@@ -60,9 +60,8 @@
 import { ref } from 'vue'
 
 // 토글 함수
-const toggleEvent = (eventId, category = 'upcoming') => {
-  const events = category === 'past' ? pastEvents.value : upcomingEvents.value
-  const event = events.find(e => e.id === eventId)
+const toggleEvent = (eventId) => {
+  const event = upcomingEvents.value.find(e => e.id === eventId)
   if (event) {
     event.expanded = !event.expanded
   }
@@ -128,33 +127,6 @@ const upcomingEvents = ref([
     ticketInfo: 'https://herzberg-festival.com/',
     fullLocation: 'Hofhuhnstadt, 36287 Breitenbach am Herzberg, Germany',
     googleMap: 'https://maps.app.goo.gl/hW5iV3QHHnXxhU2d6',
-    collaborationInfo: ''
-  }
-])
-
-const pastEvents = ref([
-  {
-    id: 1,
-    date: 'February 22, 2025',
-    location: 'Salzburg State Theatre, Salzburg [AT]',
-    name: 'Arturo Ui Performance',
-    expanded: false,
-    startTime: '19:30',
-    ticketInfo: 'https://salzburger-landestheater.at/',
-    fullLocation: 'Salzburg State Theatre, Schwarzstraße 22, 5020 Salzburg',
-    googleMap: 'https://maps.app.goo.gl/salzburg-example',
-    collaborationInfo: 'Collaboration with Salzburger Landestheater'
-  },
-  {
-    id: 2,
-    date: 'June 10, 2024',
-    location: 'Göttingen Concert Hall, Göttingen [DE]',
-    name: 'TWIIIINS Concert',
-    expanded: false,
-    startTime: '20:00',
-    ticketInfo: 'https://goettingen-music.de/',
-    fullLocation: 'Göttingen Concert Hall, Theaterplatz 1, 37073 Göttingen',
-    googleMap: 'https://maps.app.goo.gl/goettingen-example',
     collaborationInfo: ''
   }
 ])
