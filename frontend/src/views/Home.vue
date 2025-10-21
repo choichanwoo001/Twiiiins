@@ -84,12 +84,22 @@ const handleScroll = () => {
     const sectionHeight = window.innerHeight
     const newSection = Math.round(scrollTop / sectionHeight)
     currentSection.value = Math.min(newSection, sections.value.length - 1)
+    
+    // 현재 섹션에 따라 body에 클래스 추가/제거
+    if (currentSection.value === 0) {
+      document.body.classList.add('hero-section-active')
+      document.body.classList.remove('events-section-active')
+    } else {
+      document.body.classList.remove('hero-section-active')
+      document.body.classList.add('events-section-active')
+    }
   }
 }
 
 // 페이지 진입 시 body에 클래스 추가, 페이지 나갈 때 제거
 onMounted(() => {
   document.body.classList.add('has-fullpage-scroll')
+  document.body.classList.add('hero-section-active')
   if (scrollContainer.value) {
     scrollContainer.value.addEventListener('scroll', handleScroll)
   }
@@ -97,6 +107,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.body.classList.remove('has-fullpage-scroll')
+  document.body.classList.remove('hero-section-active')
+  document.body.classList.remove('events-section-active')
   if (scrollContainer.value) {
     scrollContainer.value.removeEventListener('scroll', handleScroll)
   }
