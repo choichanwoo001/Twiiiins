@@ -1,183 +1,153 @@
 <template>
   <div class="projects">
-    <!-- 텍스트 섹션 -->
-    <section class="projects-text">
+    <!-- 좌측 고정 타이틀 -->
+    <aside class="projects-title">
       <h1>PROJECTS</h1>
-    </section>
+    </aside>
 
-    <!-- 프로젝트 이미지 섹션 -->
-    <section class="projects-content">
-      <div class="project-item">
-        <div class="project-image">
-          <img src="../imgs/019_Gregor Schulz, Maximilian Paier und Ensemble_Arturo Ui_©SLT - Tobias Witzgall_LT1_2433 1.png" alt="Arturo Ui Performance">
+    <!-- 우측 콘텐츠 -->
+    <main class="projects-content">
+      <!-- 이미지 -->
+      <figure class="project-figure">
+        <img
+          src="../imgs/project_cover.jpg"
+          alt="Project hero"
+        />
+      </figure>
+
+      <!-- 캡션 행 -->
+      <div class="project-caption">
+        <div class="caption-left">ARTURO UI</div>
+        <div class="caption-right">
+          <span>02.22.2025, Salzburg State Theater</span>
+          <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" @click="goToProjectDetail">
+            <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-        <div class="project-info">
-          <div class="project-title">ARTURO UI</div>
-          <div class="project-details">
-            <div class="project-date-location">02.22.2025, Salzburg State Theater</div>
-            <div class="project-expand" @click="goToProjectDetail">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      </div>  
+    </main>
   </div>
 </template>
 
-<script setup>
+<script>
 import { useRouter } from 'vue-router'
 
-const router = useRouter()
-
-const goToProjectDetail = () => {
-  router.push('/projects/arturo-ui')
+export default {
+  name: 'Projects',
+  setup() {
+    const router = useRouter()
+    
+    const goToProjectDetail = () => {
+      router.push('/projects/arturo-ui')
+    }
+    
+    return {
+      goToProjectDetail
+    }
+  }
 }
 </script>
 
 <style scoped>
+/* 레이아웃 */
 .projects {
-  background-color: white;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding: calc(60px + 2rem) 0 2rem 0; /* 헤더 높이 + 여백 */
-}
-
-/* 텍스트 섹션 */
-.projects-text {
-  padding: 2rem 2rem 4rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-h1 {
-  font-size: 4rem;
-  font-weight: bold;
-  color: #2E86AB;
-  margin: 0;
-  text-align: left;
-  letter-spacing: 3px;
-}
-
-/* 프로젝트 콘텐츠 섹션 */
-.projects-content {
-  padding: 0 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.project-item {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.project-image {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  border-radius: 8px;
+  background:#fff;
+  color:#222;
+  padding-top: 6rem;
+  display:grid;
+  grid-template-columns: 1fr 2.2fr;
+  align-items: start;
+  gap: 4rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 4rem;
+  height: calc(100vh - 60px);
   overflow: hidden;
 }
 
-.project-image img {
+/* 좌측 타이틀 */
+.projects-title {
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  padding-top: 2rem;
+}
+.projects-title h1{
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color:#6f93a0;               /* 이미지처럼 청록빛 톤 */
+  text-transform: uppercase;
+  line-height:1;
+  margin:0;
+}
+
+/* 우측 콘텐츠 */
+.projects-content{
+  max-width: 800px; /* 이미지 크기 줄임 */
   width: 100%;
-  height: auto;
+  margin-right: 2rem;
+  justify-self: end;           /* 우측 정렬 느낌 */
+  padding-top: 2rem; /* 콘텐츠를 아래로 이동 */
+  min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* 이미지 컨테이너 */
+.project-figure{
+  width:100%;
+  aspect-ratio: 16 / 9;        /* 가로형 파노라마 비율로 조정 */
+  background:#eee;
+  overflow:hidden;
+  margin: 0;                   /* figure 기본 마진 제거 */
+  border: 0;
+}
+.project-figure img{
+  width:100%;
+  height:100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  display:block;
+  transform: translateZ(0);
 }
 
-.project-image:hover img {
-  transform: scale(1.02);
-}
-
-.project-info {
-  display: flex;
+/* 캡션 행 */
+.project-caption{
+  display:flex;
+  align-items:center;
   justify-content: space-between;
-  align-items: center;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding: 0 0.25rem;
+}
+.caption-left{
+  font-size: 0.98rem;
+  letter-spacing: 0.04em;
+  color:#222;
+}
+.caption-right{
+  display:flex;
+  align-items:center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color:#666;
+}
+.caption-arrow{
+  flex:0 0 auto;
+  color:#666;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
-.project-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+.caption-arrow:hover {
   color: #333;
 }
 
-.project-details {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+/* 호버 미세 인터랙션(선택) */
+.project-figure:hover img{
+  transform: scale(1.01);
+  transition: transform .25s ease;
 }
 
-.project-date-location {
-  font-size: 1rem;
-  color: #666;
-  font-weight: 500;
-}
-
-.project-expand {
-  color: #2E86AB;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.project-expand:hover {
-  color: #1a5a7a;
-}
-
-.project-expand svg {
-  transition: transform 0.3s ease;
-}
-
-.project-expand:hover svg {
-  transform: rotate(45deg);
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .projects-text {
-    padding: 2rem 1rem 3rem 1rem;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    text-align: center;
-  }
-  
-  .projects-content {
-    padding: 0 1rem;
-  }
-  
-  .project-info {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-  
-  .project-details {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
-  }
-  
-  .project-title {
-    font-size: 1.2rem;
-  }
-  
-  .project-date-location {
-    font-size: 0.9rem;
-  }
-}
 </style>
