@@ -197,5 +197,65 @@ public class MediaController {
         mediaService.deleteEquipment(id);
         return ResponseEntity.noContent().build();
     }
+    
+    // Contact endpoints
+    @GetMapping("/contacts")
+    public ResponseEntity<List<Contact>> getAllContacts() {
+        return ResponseEntity.ok(mediaService.getAllContacts());
+    }
+    
+    @GetMapping("/contacts/{id}")
+    public ResponseEntity<Contact> getContactById(@PathVariable Long id) {
+        return ResponseEntity.ok(mediaService.getContactById(id));
+    }
+    
+    @PostMapping("/contacts")
+    public ResponseEntity<Contact> createContact(@RequestBody Contact contact) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(mediaService.createContact(contact));
+    }
+    
+    @PutMapping("/contacts/{id}")
+    public ResponseEntity<Contact> updateContact(
+            @PathVariable Long id,
+            @RequestBody Contact contact) {
+        return ResponseEntity.ok(mediaService.updateContact(id, contact));
+    }
+    
+    @DeleteMapping("/contacts/{id}")
+    public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
+        mediaService.deleteContact(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    // DownloadFile endpoints
+    @GetMapping("/download-files")
+    public ResponseEntity<List<DownloadFile>> getAllDownloadFiles() {
+        return ResponseEntity.ok(mediaService.getAllDownloadFiles());
+    }
+    
+    @GetMapping("/download-files/{id}")
+    public ResponseEntity<DownloadFile> getDownloadFileById(@PathVariable Long id) {
+        return ResponseEntity.ok(mediaService.getDownloadFileById(id));
+    }
+    
+    @PostMapping("/download-files")
+    public ResponseEntity<DownloadFile> createDownloadFile(@RequestBody DownloadFile downloadFile) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(mediaService.createDownloadFile(downloadFile));
+    }
+    
+    @PutMapping("/download-files/{id}")
+    public ResponseEntity<DownloadFile> updateDownloadFile(
+            @PathVariable Long id,
+            @RequestBody DownloadFile downloadFile) {
+        return ResponseEntity.ok(mediaService.updateDownloadFile(id, downloadFile));
+    }
+    
+    @DeleteMapping("/download-files/{id}")
+    public ResponseEntity<Void> deleteDownloadFile(@PathVariable Long id) {
+        mediaService.deleteDownloadFile(id);
+        return ResponseEntity.noContent().build();
+    }
 }
 

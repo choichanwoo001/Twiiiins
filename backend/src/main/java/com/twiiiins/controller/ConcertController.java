@@ -54,5 +54,50 @@ public class ConcertController {
         concertService.deleteConcert(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @PutMapping("/{id}/move-to-past")
+    public ResponseEntity<Concert> moveToPastEvent(@PathVariable Long id) {
+        return ResponseEntity.ok(concertService.moveToPastEvent(id));
+    }
+    
+    @PutMapping("/{id}/move-to-upcoming")
+    public ResponseEntity<Concert> moveToUpcomingEvent(@PathVariable Long id) {
+        return ResponseEntity.ok(concertService.moveToUpcomingEvent(id));
+    }
+    
+    @PutMapping("/auto-move-past")
+    public ResponseEntity<AutoMoveResponse> autoMovePastEvents(@RequestBody AutoMoveRequest request) {
+        int movedCount = concertService.autoMovePastEvents(request.getCurrentDate());
+        return ResponseEntity.ok(new AutoMoveResponse(movedCount));
+    }
+    
+    // DTO 클래스들
+    public static class AutoMoveRequest {
+        private String currentDate;
+        
+        public String getCurrentDate() {
+            return currentDate;
+        }
+        
+        public void setCurrentDate(String currentDate) {
+            this.currentDate = currentDate;
+        }
+    }
+    
+    public static class AutoMoveResponse {
+        private int movedCount;
+        
+        public AutoMoveResponse(int movedCount) {
+            this.movedCount = movedCount;
+        }
+        
+        public int getMovedCount() {
+            return movedCount;
+        }
+        
+        public void setMovedCount(int movedCount) {
+            this.movedCount = movedCount;
+        }
+    }
 }
 
