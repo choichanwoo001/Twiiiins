@@ -1,5 +1,6 @@
 package com.twiiiins.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class Concert {
     @Column(nullable = false)
     private LocalDate date;
     
-    @Column(nullable = false)
+    @Column(nullable = false)   
     private String location;
     
     @Column(nullable = false)
@@ -42,7 +43,8 @@ public class Concert {
     @Column(name = "collaboration_info")
     private String collaborationInfo;
     
-    @Column(name = "is_past")
+    @Column(name = "is_past", nullable = false)
+    @JsonProperty("isPast")
     private Boolean isPast = false;
 }
 
