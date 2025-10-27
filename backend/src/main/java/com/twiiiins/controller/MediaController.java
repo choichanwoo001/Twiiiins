@@ -19,7 +19,7 @@ public class MediaController {
     private final PhotoService photoService;
     private final NewsService newsService;
     private final EquipmentService equipmentService;
-    private final ContactService contactService;
+    private final ContactEntityService contactEntityService;
     private final DownloadFileService downloadFileService;
     
     // Music endpoints
@@ -207,30 +207,30 @@ public class MediaController {
     // Contact endpoints
     @GetMapping("/contacts")
     public ResponseEntity<List<Contact>> getAllContacts() {
-        return ResponseEntity.ok(contactService.getAllContacts());
+        return ResponseEntity.ok(contactEntityService.getAllContacts());
     }
     
     @GetMapping("/contacts/{id}")
     public ResponseEntity<Contact> getContactById(@PathVariable Long id) {
-        return ResponseEntity.ok(contactService.getContactById(id));
+        return ResponseEntity.ok(contactEntityService.getContactById(id));
     }
     
     @PostMapping("/contacts")
     public ResponseEntity<Contact> createContact(@RequestBody Contact contact) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(contactService.createContact(contact));
+                .body(contactEntityService.createContact(contact));
     }
     
     @PutMapping("/contacts/{id}")
     public ResponseEntity<Contact> updateContact(
             @PathVariable Long id,
             @RequestBody Contact contact) {
-        return ResponseEntity.ok(contactService.updateContact(id, contact));
+        return ResponseEntity.ok(contactEntityService.updateContact(id, contact));
     }
     
     @DeleteMapping("/contacts/{id}")
     public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
-        contactService.deleteContact(id);
+        contactEntityService.deleteContact(id);
         return ResponseEntity.noContent().build();
     }
     
