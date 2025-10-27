@@ -1003,6 +1003,44 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from '../api/axios'
+import {
+  createConcertSearchFilters,
+  createConcertForm,
+  resetConcertSearchFilters,
+  resetConcertForm,
+  createMusicSearchFilters,
+  createMusicForm,
+  resetMusicSearchFilters,
+  resetMusicForm,
+  createVideoSearchFilters,
+  createVideoForm,
+  resetVideoSearchFilters,
+  resetVideoForm,
+  createPhotoGroupSearchFilters,
+  createPhotoGroupForm,
+  resetPhotoGroupSearchFilters,
+  resetPhotoGroupForm,
+  createPhotoAddForm,
+  resetPhotoAddFormData,
+  createPhotoEditForm,
+  resetPhotoEditForm,
+  createNewsSearchFilters,
+  createNewsForm,
+  resetNewsSearchFilters,
+  resetNewsForm,
+  createEquipmentSearchFilters,
+  createEquipmentForm,
+  resetEquipmentSearchFilters,
+  resetEquipmentForm,
+  createContactSearchFilters,
+  createContactForm,
+  resetContactSearchFilters,
+  resetContactForm,
+  createDownloadFileSearchFilters,
+  createDownloadFileForm,
+  resetDownloadFileSearchFilters,
+  resetDownloadFileForm
+} from '../types/dto'
 
 // 백엔드 절대 URL 유틸
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
@@ -1019,134 +1057,59 @@ const mediaTab = ref('music')
 // Concerts
 const concerts = ref([])
 const editingConcert = ref(null)
-const concertSearchFilters = ref({
-  name: '',
-  location: '',
-  startDate: '',
-  endDate: ''
-})
-const concertForm = ref({
-  date: '',
-  location: '',
-  name: '',
-  startTime: '',
-  ticketInfo: '',
-  fullLocation: '',
-  googleMapUrl: '',
-  collaborationInfo: '',
-  isPast: false
-})
+const concertSearchFilters = ref(createConcertSearchFilters())
+const concertForm = ref(createConcertForm())
 
 // Music
 const musicList = ref([])
 const editingMusic = ref(null)
-const musicSearchFilters = ref({
-  title: '',
-  artist: ''
-})
-const musicForm = ref({
-  title: '',
-  artist: '',
-  coverUrl: '',
-  linkUrl: '',
-  displayOrder: 0
-})
+const musicSearchFilters = ref(createMusicSearchFilters())
+const musicForm = ref(createMusicForm())
 
 // Videos
 const videos = ref([])
 const editingVideo = ref(null)
-const videoSearchFilters = ref({
-  title: ''
-})
-const videoForm = ref({
-  title: '',
-  embedUrl: '',
-  displayOrder: 0
-})
+const videoSearchFilters = ref(createVideoSearchFilters())
+const videoForm = ref(createVideoForm())
 
 // PhotoGroups
 const photoGroups = ref([])
 const editingPhotoGroup = ref(null)
-const photoGroupSearchFilters = ref({
-  title: ''
-})
-const photoGroupForm = ref({
-  title: '',
-  displayOrder: 0
-})
+const photoGroupSearchFilters = ref(createPhotoGroupSearchFilters())
+const photoGroupForm = ref(createPhotoGroupForm())
 
 // Photos
 const selectedPhotoGroup = ref(null)
-const photoAddForm = ref({
-  photoGroupId: '',
-  imageUrl: '',
-  title: '',
-  displayOrder: 0
-})
+const photoAddForm = ref(createPhotoAddForm())
 const selectedPhotoFiles = ref([])
 const photoPreviewUrls = ref([])
 const isUploadingPhotos = ref(false)
 const editingPhoto = ref(null)
-const photoEditForm = ref({
-  id: null,
-  imageUrl: '',
-  title: '',
-  displayOrder: 0
-})
+const photoEditForm = ref(createPhotoEditForm())
 
 // News
 const newsList = ref([])
 const editingNews = ref(null)
-const newsSearchFilters = ref({
-  title: '',
-  startDate: '',
-  endDate: ''
-})
-const newsForm = ref({
-  date: '',
-  title: '',
-  description: '',
-  displayOrder: 0
-})
+const newsSearchFilters = ref(createNewsSearchFilters())
+const newsForm = ref(createNewsForm())
 
 // Equipment
 const equipmentList = ref([])
 const editingEquipment = ref(null)
-const equipmentSearchFilters = ref({
-  name: ''
-})
-const equipmentForm = ref({
-  name: '',
-  imageUrl: '',
-  displayOrder: 0
-})
+const equipmentSearchFilters = ref(createEquipmentSearchFilters())
+const equipmentForm = ref(createEquipmentForm())
 
 // Contact
 const contactList = ref([])
 const editingContact = ref(null)
-const contactSearchFilters = ref({
-  name: '',
-  role: '',
-  email: ''
-})
-const contactForm = ref({
-  name: '',
-  role: '',
-  email: '',
-  displayOrder: 0
-})
+const contactSearchFilters = ref(createContactSearchFilters())
+const contactForm = ref(createContactForm())
 
 // Download Files
 const downloadFileList = ref([])
 const editingDownloadFile = ref(null)
-const downloadFileSearchFilters = ref({
-  name: ''
-})
-const downloadFileForm = ref({
-  name: '',
-  fileUrl: '',
-  displayOrder: 0
-})
+const downloadFileSearchFilters = ref(createDownloadFileSearchFilters())
+const downloadFileForm = ref(createDownloadFileForm())
 
 // 날짜 포맷팅
 const formatDate = (dateString) => {
@@ -1182,12 +1145,7 @@ const searchConcerts = async () => {
 
 // 콘서트 필터 초기화
 const resetConcertFilters = () => {
-  concertSearchFilters.value = {
-    name: '',
-    location: '',
-    startDate: '',
-    endDate: ''
-  }
+  resetConcertSearchFilters(concertSearchFilters.value)
   loadConcerts()
 }
 
@@ -1199,17 +1157,7 @@ const editConcert = (concert) => {
 // 콘서트 수정 취소
 const cancelConcertEdit = () => {
   editingConcert.value = null
-  concertForm.value = {
-    date: '',
-    location: '',
-    name: '',
-    startTime: '',
-    ticketInfo: '',
-    fullLocation: '',
-    googleMapUrl: '',
-    collaborationInfo: '',
-    isPast: false
-  }
+  resetConcertForm(concertForm.value)
 }
 
 const saveConcert = async () => {
@@ -1290,10 +1238,7 @@ const searchMusic = async () => {
 
 // 음악 필터 초기화
 const resetMusicFilters = () => {
-  musicSearchFilters.value = {
-    title: '',
-    artist: ''
-  }
+  resetMusicSearchFilters(musicSearchFilters.value)
   loadMusic()
 }
 
@@ -1305,13 +1250,7 @@ const editMusic = (music) => {
 // 음악 수정 취소
 const cancelMusicEdit = () => {
   editingMusic.value = null
-  musicForm.value = {
-    title: '',
-    artist: '',
-    coverUrl: '',
-    linkUrl: '',
-    displayOrder: 0
-  }
+  resetMusicForm(musicForm.value)
 }
 
 const saveMusic = async () => {
@@ -1365,9 +1304,7 @@ const searchVideos = async () => {
 
 // 비디오 필터 초기화
 const resetVideoFilters = () => {
-  videoSearchFilters.value = {
-    title: ''
-  }
+  resetVideoSearchFilters(videoSearchFilters.value)
   loadVideos()
 }
 
@@ -1379,11 +1316,7 @@ const editVideo = (video) => {
 // 비디오 수정 취소
 const cancelVideoEdit = () => {
   editingVideo.value = null
-  videoForm.value = {
-    title: '',
-    embedUrl: '',
-    displayOrder: 0
-  }
+  resetVideoForm(videoForm.value)
 }
 
 const saveVideo = async () => {
@@ -1461,9 +1394,7 @@ const searchPhotoGroups = async () => {
 
 // 사진 그룹 필터 초기화
 const resetPhotoGroupFilters = () => {
-  photoGroupSearchFilters.value = {
-    title: ''
-  }
+  resetPhotoGroupSearchFilters(photoGroupSearchFilters.value)
   loadPhotoGroups()
 }
 
@@ -1475,10 +1406,7 @@ const editPhotoGroup = (group) => {
 // 사진 그룹 수정 취소
 const cancelPhotoGroupEdit = () => {
   editingPhotoGroup.value = null
-  photoGroupForm.value = {
-    title: '',
-    displayOrder: 0
-  }
+  resetPhotoGroupForm(photoGroupForm.value)
 }
 
 const savePhotoGroup = async () => {
@@ -1535,12 +1463,7 @@ const closePhotoGroupDetails = () => {
 
 // 사진 추가 폼 초기화
 const resetPhotoAddForm = () => {
-  photoAddForm.value = {
-    photoGroupId: '',
-    imageUrl: '',
-    title: '',
-    displayOrder: 0
-  }
+  resetPhotoAddFormData(photoAddForm.value)
   selectedPhotoFiles.value = []
   photoPreviewUrls.value = []
   // 파일 input 초기화
@@ -1628,12 +1551,7 @@ const editPhoto = (photo) => {
 // 사진 수정 취소
 const cancelPhotoEdit = () => {
   editingPhoto.value = null
-  photoEditForm.value = {
-    id: null,
-    imageUrl: '',
-    title: '',
-    displayOrder: 0
-  }
+  resetPhotoEditForm(photoEditForm.value)
 }
 
 // 사진 저장
@@ -1707,11 +1625,7 @@ const searchNews = async () => {
 
 // 뉴스 필터 초기화
 const resetNewsFilters = () => {
-  newsSearchFilters.value = {
-    title: '',
-    startDate: '',
-    endDate: ''
-  }
+  resetNewsSearchFilters(newsSearchFilters.value)
   loadNews()
 }
 
@@ -1723,12 +1637,7 @@ const editNews = (news) => {
 // 뉴스 수정 취소
 const cancelNewsEdit = () => {
   editingNews.value = null
-  newsForm.value = {
-    date: '',
-    title: '',
-    description: '',
-    displayOrder: 0
-  }
+  resetNewsForm(newsForm.value)
 }
 
 const saveNews = async () => {
@@ -1780,9 +1689,7 @@ const searchEquipment = async () => {
 
 // 장비 필터 초기화
 const resetEquipmentFilters = () => {
-  equipmentSearchFilters.value = {
-    name: ''
-  }
+  resetEquipmentSearchFilters(equipmentSearchFilters.value)
   loadEquipment()
 }
 
@@ -1794,11 +1701,7 @@ const editEquipment = (equipment) => {
 // 장비 수정 취소
 const cancelEquipmentEdit = () => {
   editingEquipment.value = null
-  equipmentForm.value = {
-    name: '',
-    imageUrl: '',
-    displayOrder: 0
-  }
+  resetEquipmentForm(equipmentForm.value)
 }
 
 const saveEquipment = async () => {
@@ -1852,11 +1755,7 @@ const searchContacts = async () => {
 
 // 연락처 필터 초기화
 const resetContactFilters = () => {
-  contactSearchFilters.value = {
-    name: '',
-    role: '',
-    email: ''
-  }
+  resetContactSearchFilters(contactSearchFilters.value)
   loadContact()
 }
 
@@ -1868,12 +1767,7 @@ const editContact = (contact) => {
 // 연락처 수정 취소
 const cancelContactEdit = () => {
   editingContact.value = null
-  contactForm.value = {
-    name: '',
-    role: '',
-    email: '',
-    displayOrder: 0
-  }
+  resetContactForm(contactForm.value)
 }
 
 // Contact 폼 제출 핸들러
@@ -2093,9 +1987,7 @@ const searchDownloadFiles = async () => {
 }
 
 const resetDownloadFileFilters = () => {
-  downloadFileSearchFilters.value = {
-    name: ''
-  }
+  resetDownloadFileSearchFilters(downloadFileSearchFilters.value)
   loadDownloadFiles()
 }
 
@@ -2106,11 +1998,7 @@ const editDownloadFile = (file) => {
 
 const cancelDownloadFileEdit = () => {
   editingDownloadFile.value = null
-  downloadFileForm.value = {
-    name: '',
-    fileUrl: '',
-    displayOrder: 0
-  }
+  resetDownloadFileForm(downloadFileForm.value)
 }
 
 // Download File 폼 제출 핸들러
