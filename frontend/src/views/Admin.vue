@@ -1160,7 +1160,7 @@ const loadConcerts = async () => {
     const response = await axios.get('/api/concerts')
     concerts.value = response.data
   } catch (error) {
-    console.error('콘서트 로드 실패:', error)
+    // 콘서트 로드 실패
   }
 }
 
@@ -1176,7 +1176,7 @@ const searchConcerts = async () => {
     const response = await axios.get(`/api/concerts?${params.toString()}`)
     concerts.value = response.data
   } catch (error) {
-    console.error('콘서트 검색 실패:', error)
+    // 콘서트 검색 실패
   }
 }
 
@@ -1222,7 +1222,7 @@ const saveConcert = async () => {
     cancelConcertEdit()
     loadConcerts()
   } catch (error) {
-    console.error('콘서트 저장 실패:', error)
+    // 콘서트 저장 실패
   }
 }
 
@@ -1232,7 +1232,7 @@ const deleteConcert = async (id) => {
       await axios.delete(`/api/concerts/${id}`)
       loadConcerts()
     } catch (error) {
-      console.error('콘서트 삭제 실패:', error)
+      // 콘서트 삭제 실패
     }
   }
 }
@@ -1245,7 +1245,7 @@ const moveToPastEvent = async (id) => {
       loadConcerts()
       alert('Past Event로 이동되었습니다.')
     } catch (error) {
-      console.error('Past Event 이동 실패:', error)
+      // Past Event 이동 실패
       alert('이동에 실패했습니다.')
     }
   }
@@ -1259,7 +1259,7 @@ const moveToUpcomingEvent = async (id) => {
       loadConcerts()
       alert('Upcoming Event로 이동되었습니다.')
     } catch (error) {
-      console.error('Upcoming Event 이동 실패:', error)
+      // Upcoming Event 이동 실패
       alert('이동에 실패했습니다.')
     }
   }
@@ -1267,14 +1267,10 @@ const moveToUpcomingEvent = async (id) => {
 
 const loadMusic = async () => {
   try {
-    console.log('Admin: 음악 데이터 로드 시작...')
     const response = await axios.get('/api/media/music')
-    console.log('Admin: API 응답:', response.data)
     musicList.value = response.data
-    console.log('Admin: 음악 리스트 업데이트 완료:', musicList.value)
   } catch (error) {
-    console.error('Admin: 음악 로드 실패:', error)
-    console.error('Admin: 에러 상세:', error.response?.data)
+    // 음악 로드 실패
   }
 }
 
@@ -1288,7 +1284,7 @@ const searchMusic = async () => {
     const response = await axios.get(`/api/media/music?${params.toString()}`)
     musicList.value = response.data
   } catch (error) {
-    console.error('음악 검색 실패:', error)
+    // 음악 검색 실패
   }
 }
 
@@ -1320,22 +1316,16 @@ const cancelMusicEdit = () => {
 
 const saveMusic = async () => {
   try {
-    console.log('음악 저장 시작:', musicForm.value)
-    
     let response
     if (editingMusic.value) {
       response = await axios.put(`/api/media/music/${editingMusic.value.id}`, musicForm.value)
-      console.log('음악 수정 완료:', response.data)
     } else {
       response = await axios.post('/api/media/music', musicForm.value)
-      console.log('음악 생성 완료:', response.data)
     }
     
     cancelMusicEdit()
     loadMusic()
   } catch (error) {
-    console.error('음악 저장 실패:', error)
-    console.error('에러 상세:', error.response?.data)
     alert('음악 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
@@ -1346,21 +1336,17 @@ const deleteMusic = async (id) => {
       await axios.delete(`/api/media/music/${id}`)
       loadMusic()
     } catch (error) {
-      console.error('음악 삭제 실패:', error)
+      // 음악 삭제 실패
     }
   }
 }
 
 const loadVideos = async () => {
   try {
-    console.log('Admin: 비디오 로드 시작...')
     const response = await axios.get('/api/media/videos')
-    console.log('Admin: 비디오 API 응답:', response.data)
     videos.value = response.data
-    console.log('Admin: 비디오 리스트 업데이트 완료:', videos.value.length, '개')
   } catch (error) {
-    console.error('Admin: 비디오 로드 실패:', error)
-    console.error('Admin: 에러 상세:', error.response?.data)
+    // 비디오 로드 실패
   }
 }
 
@@ -1373,7 +1359,7 @@ const searchVideos = async () => {
     const response = await axios.get(`/api/media/videos?${params.toString()}`)
     videos.value = response.data
   } catch (error) {
-    console.error('비디오 검색 실패:', error)
+    // 비디오 검색 실패
   }
 }
 
@@ -1418,7 +1404,7 @@ const saveVideo = async () => {
     cancelVideoEdit()
     loadVideos()
   } catch (error) {
-    console.error('비디오 저장 실패:', error)
+    // 비디오 저장 실패
   }
 }
 
@@ -1446,21 +1432,17 @@ const deleteVideo = async (id) => {
       await axios.delete(`/api/media/videos/${id}`)
       loadVideos()
     } catch (error) {
-      console.error('비디오 삭제 실패:', error)
+      // 비디오 삭제 실패
     }
   }
 }
 
 const loadPhotoGroups = async () => {
   try {
-    console.log('Admin: 사진 그룹 로드 시작...')
     const response = await axios.get('/api/media/photo-groups')
-    console.log('Admin: 사진 그룹 API 응답:', response.data)
     photoGroups.value = response.data
-    console.log('Admin: 사진 그룹 리스트 업데이트 완료:', photoGroups.value.length, '개')
   } catch (error) {
-    console.error('Admin: 사진 그룹 로드 실패:', error)
-    console.error('Admin: 에러 상세:', error.response?.data)
+    // 사진 그룹 로드 실패
   }
 }
 
@@ -1473,7 +1455,7 @@ const searchPhotoGroups = async () => {
     const response = await axios.get(`/api/media/photo-groups?${params.toString()}`)
     photoGroups.value = response.data
   } catch (error) {
-    console.error('사진 그룹 검색 실패:', error)
+    // 사진 그룹 검색 실패
   }
 }
 
@@ -1509,7 +1491,7 @@ const savePhotoGroup = async () => {
     cancelPhotoGroupEdit()
     loadPhotoGroups()
   } catch (error) {
-    console.error('사진 그룹 저장 실패:', error)
+    // 사진 그룹 저장 실패
   }
 }
 
@@ -1519,7 +1501,7 @@ const deletePhotoGroup = async (id) => {
       await axios.delete(`/api/media/photo-groups/${id}`)
       loadPhotoGroups()
     } catch (error) {
-      console.error('사진 그룹 삭제 실패:', error)
+      // 사진 그룹 삭제 실패
     }
   }
 }
@@ -1540,9 +1522,7 @@ const togglePhotoGroupDetails = async (groupId) => {
         ...groupResponse.data,
         photos: photosResponse.data
       }
-      console.log('선택된 사진 그룹:', selectedPhotoGroup.value)
     } catch (error) {
-      console.error('사진 그룹 상세 로드 실패:', error)
       alert('사진 그룹 정보를 불러오는데 실패했습니다.')
     }
   }
@@ -1607,7 +1587,6 @@ const addPhotoToGroup = async () => {
           failCount++
         }
       } catch (error) {
-        console.error(`사진 ${i + 1} 추가 실패:`, error)
         failCount++
       }
     }
@@ -1629,7 +1608,6 @@ const addPhotoToGroup = async () => {
       alert('모든 사진 추가에 실패했습니다.')
     }
   } catch (error) {
-    console.error('사진 추가 실패:', error)
     alert('사진 추가 중 오류가 발생했습니다.')
   } finally {
     isUploadingPhotos.value = false
@@ -1670,14 +1648,12 @@ const savePhoto = async () => {
       try {
         const photosResponse = await axios.get(`/api/media/photo-groups/${selectedPhotoGroup.value.id}/photos`)
         selectedPhotoGroup.value.photos = photosResponse.data
-        console.log('사진 수정 후 그룹 사진 목록 업데이트:', selectedPhotoGroup.value.photos.length, '개')
       } catch (error) {
-        console.error('사진 목록 새로고침 실패:', error)
+        // 사진 목록 새로고침 실패
       }
     }
     alert('사진이 수정되었습니다.')
   } catch (error) {
-    console.error('사진 수정 실패:', error)
     alert('사진 수정에 실패했습니다.')
   }
 }
@@ -1694,14 +1670,12 @@ const deletePhoto = async (photoId) => {
         try {
           const photosResponse = await axios.get(`/api/media/photo-groups/${selectedPhotoGroup.value.id}/photos`)
           selectedPhotoGroup.value.photos = photosResponse.data
-          console.log('사진 삭제 후 그룹 사진 목록 업데이트:', selectedPhotoGroup.value.photos.length, '개')
         } catch (error) {
-          console.error('사진 목록 새로고침 실패:', error)
+          // 사진 목록 새로고침 실패
         }
       }
       alert('사진이 삭제되었습니다.')
     } catch (error) {
-      console.error('사진 삭제 실패:', error)
       alert('사진 삭제에 실패했습니다.')
     }
   }
@@ -1709,14 +1683,10 @@ const deletePhoto = async (photoId) => {
 
 const loadNews = async () => {
   try {
-    console.log('Admin: 뉴스 로드 시작...')
     const response = await axios.get('/api/media/news')
-    console.log('Admin: 뉴스 API 응답:', response.data)
     newsList.value = response.data
-    console.log('Admin: 뉴스 리스트 업데이트 완료:', newsList.value.length, '개')
   } catch (error) {
-    console.error('Admin: 뉴스 로드 실패:', error)
-    console.error('Admin: 에러 상세:', error.response?.data)
+    // 뉴스 로드 실패
   }
 }
 
@@ -1731,7 +1701,7 @@ const searchNews = async () => {
     const response = await axios.get(`/api/media/news?${params.toString()}`)
     newsList.value = response.data
   } catch (error) {
-    console.error('뉴스 검색 실패:', error)
+    // 뉴스 검색 실패
   }
 }
 
@@ -1771,7 +1741,7 @@ const saveNews = async () => {
     cancelNewsEdit()
     loadNews()
   } catch (error) {
-    console.error('뉴스 저장 실패:', error)
+    // 뉴스 저장 실패
   }
 }
 
@@ -1781,21 +1751,17 @@ const deleteNews = async (id) => {
       await axios.delete(`/api/media/news/${id}`)
       loadNews()
     } catch (error) {
-      console.error('뉴스 삭제 실패:', error)
+      // 뉴스 삭제 실패
     }
   }
 }
 
 const loadEquipment = async () => {
   try {
-    console.log('Admin: 장비 로드 시작...')
     const response = await axios.get('/api/media/equipment')
-    console.log('Admin: 장비 API 응답:', response.data)
     equipmentList.value = response.data
-    console.log('Admin: 장비 리스트 업데이트 완료:', equipmentList.value.length, '개')
   } catch (error) {
-    console.error('Admin: 장비 로드 실패:', error)
-    console.error('Admin: 에러 상세:', error.response?.data)
+    // 장비 로드 실패
   }
 }
 
@@ -1808,7 +1774,7 @@ const searchEquipment = async () => {
     const response = await axios.get(`/api/media/equipment?${params.toString()}`)
     equipmentList.value = response.data
   } catch (error) {
-    console.error('장비 검색 실패:', error)
+    // 장비 검색 실패
   }
 }
 
@@ -1845,7 +1811,7 @@ const saveEquipment = async () => {
     cancelEquipmentEdit()
     loadEquipment()
   } catch (error) {
-    console.error('장비 저장 실패:', error)
+    // 장비 저장 실패
   }
 }
 
@@ -1855,7 +1821,7 @@ const deleteEquipment = async (id) => {
       await axios.delete(`/api/media/equipment/${id}`)
       loadEquipment()
     } catch (error) {
-      console.error('장비 삭제 실패:', error)
+      // 장비 삭제 실패
     }
   }
 }
@@ -1865,7 +1831,7 @@ const loadContact = async () => {
     const response = await axios.get('/api/media/contacts')
     contactList.value = response.data
   } catch (error) {
-    console.error('연락처 로드 실패:', error)
+    // 연락처 로드 실패
   }
 }
 
@@ -1880,7 +1846,7 @@ const searchContacts = async () => {
     const response = await axios.get(`/api/media/contacts?${params.toString()}`)
     contactList.value = response.data
   } catch (error) {
-    console.error('연락처 검색 실패:', error)
+    // 연락처 검색 실패
   }
 }
 
@@ -1908,20 +1874,15 @@ const cancelContactEdit = () => {
     email: '',
     displayOrder: 0
   }
-  console.log('Contact 폼 초기화 완료:', contactForm.value)
 }
 
 // Contact 폼 제출 핸들러
 const handleContactSubmit = (event) => {
-  console.log('Contact 폼 제출 이벤트 발생')
-  console.log('현재 contactForm 값:', contactForm.value)
-  console.log('editingContact 상태:', editingContact.value)
   saveContact()
 }
 
 const saveContact = async () => {
   try {
-    console.log('Contact 저장 시작:', contactForm.value)
     
     // 필수 필드 검증
     if (!contactForm.value.name || !contactForm.value.email) {
@@ -1937,21 +1898,15 @@ const saveContact = async () => {
     }
     
     if (editingContact.value) {
-      console.log('Contact 수정 중...')
       await axios.put(`/api/media/contacts/${editingContact.value.id}`, contactForm.value)
-      console.log('Contact 수정 완료')
     } else {
-      console.log('Contact 생성 중...')
       await axios.post('/api/media/contacts', contactForm.value)
-      console.log('Contact 생성 완료')
     }
     
     cancelContactEdit()
     loadContact()
     alert('연락처가 성공적으로 저장되었습니다.')
   } catch (error) {
-    console.error('연락처 저장 실패:', error)
-    console.error('에러 상세:', error.response?.data)
     alert('연락처 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
@@ -1962,7 +1917,7 @@ const deleteContact = async (id) => {
       await axios.delete(`/api/media/contacts/${id}`)
       loadContact()
     } catch (error) {
-      console.error('연락처 삭제 실패:', error)
+      // 연락처 삭제 실패
     }
   }
 }
@@ -1979,11 +1934,10 @@ const autoMovePastEvents = async () => {
     })
     
     if (response.data.movedCount > 0) {
-      console.log(`${response.data.movedCount}개의 콘서트가 자동으로 Past Event로 이동되었습니다.`)
       loadConcerts() // 목록 새로고침
     }
   } catch (error) {
-    console.error('자동 이동 실패:', error)
+    // 자동 이동 실패
   }
 }
 
@@ -2021,7 +1975,6 @@ const uploadImage = async (file) => {
     // 성공 시 알림은 그룹 단위로만 표시하기 위해 여기서는 반환만 합니다
     return response.data.url
   } catch (error) {
-    console.error('파일 업로드 실패:', error)
     return null
   }
 }
@@ -2051,7 +2004,6 @@ const uploadFile = async (file) => {
     })
     return response.data.url
   } catch (error) {
-    console.error('파일 업로드 실패:', error)
     alert('파일 업로드에 실패했습니다: ' + (error.response?.data || error.message))
     return null
   }
@@ -2124,7 +2076,7 @@ const loadDownloadFiles = async () => {
     // displayOrder 순으로 정렬
     downloadFileList.value = response.data.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
   } catch (error) {
-    console.error('다운로드 파일 로드 실패:', error)
+    // 다운로드 파일 로드 실패
   }
 }
 
@@ -2136,7 +2088,7 @@ const searchDownloadFiles = async () => {
     const response = await axios.get(`/api/media/download-files?${params.toString()}`)
     downloadFileList.value = response.data
   } catch (error) {
-    console.error('다운로드 파일 검색 실패:', error)
+    // 다운로드 파일 검색 실패
   }
 }
 
@@ -2163,15 +2115,11 @@ const cancelDownloadFileEdit = () => {
 
 // Download File 폼 제출 핸들러
 const handleDownloadFileSubmit = (event) => {
-  console.log('Download File 폼 제출 이벤트 발생')
-  console.log('현재 downloadFileForm 값:', downloadFileForm.value)
-  console.log('editingDownloadFile 상태:', editingDownloadFile.value)
   saveDownloadFile()
 }
 
 const saveDownloadFile = async () => {
   try {
-    console.log('Download File 저장 시작:', downloadFileForm.value)
     
     // 필수 필드 검증
     if (!downloadFileForm.value.name || !downloadFileForm.value.fileUrl) {
@@ -2180,21 +2128,15 @@ const saveDownloadFile = async () => {
     }
     
     if (editingDownloadFile.value) {
-      console.log('Download File 수정 중...')
       await axios.put(`/api/media/download-files/${editingDownloadFile.value.id}`, downloadFileForm.value)
-      console.log('Download File 수정 완료')
     } else {
-      console.log('Download File 생성 중...')
       await axios.post('/api/media/download-files', downloadFileForm.value)
-      console.log('Download File 생성 완료')
     }
     
     cancelDownloadFileEdit()
     loadDownloadFiles()
     alert('다운로드 파일이 성공적으로 저장되었습니다.')
   } catch (error) {
-    console.error('다운로드 파일 저장 실패:', error)
-    console.error('에러 상세:', error.response?.data)
     alert('다운로드 파일 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
@@ -2205,7 +2147,7 @@ const deleteDownloadFile = async (id) => {
       await axios.delete(`/api/media/download-files/${id}`)
       loadDownloadFiles()
     } catch (error) {
-      console.error('다운로드 파일 삭제 실패:', error)
+      // 다운로드 파일 삭제 실패
     }
   }
 }
@@ -2213,8 +2155,6 @@ const deleteDownloadFile = async (id) => {
 const handleDownloadFileUpload = async (event) => {
   const file = event.target.files[0]
   if (!file) return
-  
-  console.log('PDF 파일 업로드 시작:', file.name, file.type)
   
   // PDF 파일인지 확인
   if (file.type !== 'application/pdf') {
@@ -2229,10 +2169,7 @@ const handleDownloadFileUpload = async (event) => {
     if (!downloadFileForm.value.name) {
       downloadFileForm.value.name = file.name.replace('.pdf', '')
     }
-    console.log('PDF 파일 업로드 성공:', url)
     alert('PDF 파일이 성공적으로 업로드되었습니다.')
-  } else {
-    console.log('PDF 파일 업로드 실패')
   }
 }
 
@@ -2285,7 +2222,7 @@ onMounted(() => {
   color: #bdc3c7;
   text-align: left;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   transition: all 0.3s;
   font-size: 1rem;
 }
@@ -2310,9 +2247,9 @@ onMounted(() => {
 
 .content-section {
   background: white;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
 }
 
 .section-title {
@@ -2331,16 +2268,16 @@ onMounted(() => {
 /* Dashboard */
 .dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(15.625rem, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .stat-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -2348,19 +2285,19 @@ onMounted(() => {
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 1rem rgba(0,0,0,0.15);
 }
 
 .stat-icon {
   font-size: 2.5rem;
-  width: 60px;
-  height: 60px;
+  width: 3.75rem;
+  height: 3.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f8f9fa;
-  border-radius: 12px;
+  border-radius: 0.75rem;
 }
 
 .stat-content h3 {
@@ -2386,23 +2323,23 @@ onMounted(() => {
 
 .dashboard-section {
   background: white;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.1);
 }
 
 .dashboard-section h2 {
   margin: 0 0 1.5rem 0;
   color: #2c3e50;
   font-size: 1.5rem;
-  border-bottom: 2px solid #ecf0f1;
+  border-bottom: 0.125rem solid #ecf0f1;
   padding-bottom: 0.5rem;
 }
 
 .activity-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
   gap: 1.5rem;
 }
 
@@ -2412,19 +2349,19 @@ onMounted(() => {
   gap: 1rem;
   padding: 1.5rem;
   background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #3498db;
+  border-radius: 0.5rem;
+  border-left: 0.25rem solid #3498db;
 }
 
 .activity-icon {
   font-size: 1.5rem;
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background: white;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   flex-shrink: 0;
 }
 
@@ -2442,7 +2379,7 @@ onMounted(() => {
 
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 1rem;
 }
 
@@ -2453,8 +2390,8 @@ onMounted(() => {
   gap: 0.75rem;
   padding: 1.5rem;
   background: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
+  border: 0.125rem solid #e9ecef;
+  border-radius: 0.75rem;
   cursor: pointer;
   transition: all 0.3s;
   text-align: center;
@@ -2464,7 +2401,7 @@ onMounted(() => {
   background: #3498db;
   color: white;
   border-color: #3498db;
-  transform: translateY(-2px);
+  transform: translateY(-0.125rem);
 }
 
 .quick-action-icon {
@@ -2488,7 +2425,7 @@ onMounted(() => {
   gap: 1rem;
   padding: 1rem;
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 
 .status-label {
@@ -2523,7 +2460,7 @@ onMounted(() => {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #ecf0f1;
+  border-bottom: 0.125rem solid #ecf0f1;
 }
 
 .tab {
@@ -2532,7 +2469,7 @@ onMounted(() => {
   border: none;
   color: #7f8c8d;
   cursor: pointer;
-  border-bottom: 3px solid transparent;
+  border-bottom: 0.1875rem solid transparent;
   transition: all 0.3s;
   font-size: 1rem;
 }
@@ -2573,7 +2510,7 @@ th {
 
 td {
   padding: 1rem;
-  border-bottom: 1px solid #ecf0f1;
+  border-bottom: 0.0625rem solid #ecf0f1;
 }
 
 tbody tr:hover {
@@ -2586,7 +2523,7 @@ tbody tr:hover {
   background: #3498db;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 1rem;
   transition: background 0.3s;
@@ -2601,7 +2538,7 @@ tbody tr:hover {
   background: #95a5a6;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 1rem;
   transition: background 0.3s;
@@ -2616,7 +2553,7 @@ tbody tr:hover {
   background: #f39c12;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   margin-right: 0.5rem;
   transition: background 0.3s;
@@ -2631,7 +2568,7 @@ tbody tr:hover {
   background: #e74c3c;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   margin-right: 0.5rem;
   transition: background 0.3s;
@@ -2659,7 +2596,7 @@ tbody tr:hover {
 
 .modal-content {
   background: white;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   max-height: 90vh;
   overflow-y: auto;
@@ -2673,10 +2610,10 @@ tbody tr:hover {
 /* 검색 섹션 */
 .search-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .search-filters {
@@ -2700,8 +2637,8 @@ tbody tr:hover {
 
 .filter-group input {
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 0.0625rem solid #ddd;
+  border-radius: 0.25rem;
   font-size: 1rem;
 }
 
@@ -2723,7 +2660,7 @@ tbody tr:hover {
 .btn-reset, .btn-search {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 1rem;
   transition: background 0.3s;
@@ -2750,11 +2687,11 @@ tbody tr:hover {
 /* 프로젝트 폼 섹션 */
 .project-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .project-form-section h2 {
@@ -2790,8 +2727,8 @@ tbody tr:hover {
 .form-group input,
 .form-group textarea {
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 0.0625rem solid #ddd;
+  border-radius: 0.25rem;
   font-size: 1rem;
   transition: border-color 0.3s;
 }
@@ -2817,7 +2754,7 @@ tbody tr:hover {
   background: #27ae60;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 1rem;
   transition: background 0.3s;
@@ -2832,7 +2769,7 @@ tbody tr:hover {
   background: #95a5a6;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 1rem;
   transition: background 0.3s;
@@ -2845,9 +2782,9 @@ tbody tr:hover {
 /* 프로젝트 목록 */
 .projects-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .projects-list h2 {
@@ -2862,7 +2799,7 @@ tbody tr:hover {
 
 .status-badge {
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   font-size: 0.8rem;
   font-weight: 500;
   background: #e74c3c;
@@ -2880,11 +2817,11 @@ tbody tr:hover {
 /* 콘서트 폼 섹션 */
 .concert-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .concert-form-section h2 {
@@ -2902,9 +2839,9 @@ tbody tr:hover {
 /* 콘서트 목록 */
 .concerts-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .concerts-header {
@@ -2925,7 +2862,7 @@ tbody tr:hover {
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 1rem;
 }
@@ -2943,7 +2880,7 @@ tbody tr:hover {
   color: #212529;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 0.9rem;
   margin-left: 0.5rem;
@@ -2958,7 +2895,7 @@ tbody tr:hover {
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 0.9rem;
   margin-left: 0.5rem;
@@ -2971,10 +2908,10 @@ tbody tr:hover {
 /* 연락처 폼 섹션 */
 .contact-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .contact-form-section h2 {
@@ -2986,10 +2923,10 @@ tbody tr:hover {
 /* Download Files 관련 스타일 */
 .download-files-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .download-files-list h2 {
@@ -3004,10 +2941,10 @@ tbody tr:hover {
 
 .download-file-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .download-file-form-section h2 {
@@ -3020,7 +2957,7 @@ tbody tr:hover {
   margin-top: 0.5rem;
   padding: 0.5rem;
   background: #e9ecef;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   font-size: 0.9rem;
   color: #666;
 }
@@ -3034,10 +2971,10 @@ tbody tr:hover {
 /* 연락처 목록 */
 .contacts-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .contacts-list h2 {
@@ -3053,11 +2990,11 @@ tbody tr:hover {
 /* 음악 폼 섹션 */
 .music-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .music-form-section h2 {
@@ -3075,9 +3012,9 @@ tbody tr:hover {
 /* 음악 목록 */
 .music-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .music-list h2 {
@@ -3093,11 +3030,11 @@ tbody tr:hover {
 /* 비디오 폼 섹션 */
 .video-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .video-form-section h2 {
@@ -3115,9 +3052,9 @@ tbody tr:hover {
 /* 비디오 목록 */
 .videos-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .videos-list h2 {
@@ -3133,11 +3070,11 @@ tbody tr:hover {
 /* 사진 그룹 폼 섹션 */
 .photo-group-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .photo-group-form-section h2 {
@@ -3155,9 +3092,9 @@ tbody tr:hover {
 /* 사진 그룹 목록 */
 .photo-groups-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .photo-groups-list h2 {
@@ -3173,11 +3110,11 @@ tbody tr:hover {
 /* 뉴스 폼 섹션 */
 .news-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .news-form-section h2 {
@@ -3195,9 +3132,9 @@ tbody tr:hover {
 /* 뉴스 목록 */
 .news-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .news-list h2 {
@@ -3213,11 +3150,11 @@ tbody tr:hover {
 /* 장비 폼 섹션 */
 .equipment-form-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .equipment-form-section h2 {
@@ -3235,9 +3172,9 @@ tbody tr:hover {
 /* 장비 목록 */
 .equipment-list {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .equipment-list h2 {
@@ -3253,10 +3190,10 @@ tbody tr:hover {
 /* 사진 추가 섹션 */
 .photo-add-section {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .photo-add-section h2 {
@@ -3274,10 +3211,10 @@ tbody tr:hover {
 /* 사진 그룹 상세 */
 .photo-group-details {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 2rem;
   margin-top: 2rem;
-  border: 1px solid #e9ecef;
+  border: 0.0625rem solid #e9ecef;
 }
 
 .photo-group-details h2 {
@@ -3289,10 +3226,10 @@ tbody tr:hover {
 /* 사진 수정 섹션 */
 .photo-edit-section {
   background: #fff;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border: 1px solid #dee2e6;
+  border: 0.0625rem solid #dee2e6;
 }
 
 .photo-edit-section h3 {
@@ -3310,16 +3247,16 @@ tbody tr:hover {
 /* 사진 목록 */
 .photo-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(18.75rem, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .photo-item {
   background: #fff;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 1rem;
-  border: 1px solid #dee2e6;
+  border: 0.0625rem solid #dee2e6;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -3327,9 +3264,9 @@ tbody tr:hover {
 
 .photo-preview {
   width: 100%;
-  height: 200px;
+  height: 12.5rem;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 0.25rem;
 }
 
 .photo-preview img {
@@ -3358,7 +3295,7 @@ tbody tr:hover {
 .photo-actions button {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 0.9rem;
 }
@@ -3382,7 +3319,7 @@ tbody tr:hover {
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 0.9rem;
 }
@@ -3391,7 +3328,7 @@ tbody tr:hover {
 .photo-groups-table .btn-edit,
 .photo-groups-table .btn-delete,
 .photo-groups-table .btn-manage {
-  min-width: 88px;
+  min-width: 5.5rem;
   text-align: center;
 }
 
@@ -3404,7 +3341,7 @@ tbody tr:hover {
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-size: 1rem;
 }
@@ -3429,7 +3366,7 @@ tbody tr:hover {
   background: #3498db;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   text-align: center;
   font-size: 0.9rem;
@@ -3442,8 +3379,8 @@ tbody tr:hover {
 
 .url-input {
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 0.0625rem solid #ddd;
+  border-radius: 0.25rem;
   font-size: 1rem;
   transition: border-color 0.3s;
 }
@@ -3458,11 +3395,11 @@ tbody tr:hover {
 }
 
 .image-preview img {
-  max-width: 200px;
-  max-height: 150px;
+  max-width: 12.5rem;
+  max-height: 9.375rem;
   object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  border: 0.0625rem solid #ddd;
 }
 
 /* 여러 파일 선택 정보 */
@@ -3479,7 +3416,7 @@ tbody tr:hover {
 /* 여러 이미지 미리보기 */
 .multiple-image-preview {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -3488,9 +3425,9 @@ tbody tr:hover {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   overflow: hidden;
-  border: 2px solid #e9ecef;
+  border: 0.125rem solid #e9ecef;
 }
 
 .preview-item img {
@@ -3501,16 +3438,16 @@ tbody tr:hover {
 
 .btn-remove-preview {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 24px;
-  height: 24px;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
   background: rgba(231, 76, 60, 0.9);
   color: white;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 1.125rem;
   line-height: 1;
   display: flex;
   align-items: center;

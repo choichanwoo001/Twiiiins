@@ -65,7 +65,7 @@ const loadContacts = async () => {
     const response = await axios.get('/api/media/contacts')
     contacts.value = response.data
   } catch (error) {
-    console.error('연락처 로드 실패:', error)
+    // 연락처 로드 실패
   }
 }
 
@@ -76,7 +76,7 @@ const loadDownloadFiles = async () => {
     // displayOrder 순으로 정렬
     downloadFiles.value = response.data.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
   } catch (error) {
-    console.error('다운로드 파일 로드 실패:', error)
+    // 다운로드 파일 로드 실패
   }
 }
 
@@ -135,7 +135,7 @@ onMounted(() => {
 
 /* 우측 콘텐츠 */
 .contact-content {
-  max-width: 800px;
+  max-width: 50rem;
   width: 100%;
   margin-right: 2rem;
   justify-self: end;
@@ -172,7 +172,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 2rem;
   flex: 1;
-  max-width: 400px;
+  max-width: 25rem;
 }
 
 .contact-item {
@@ -202,8 +202,8 @@ onMounted(() => {
 /* 다운로드 섹션 */
 .download-section {
   margin-top: 0;
-  min-width: 240px;
-  max-width: 300px;
+  min-width: 15rem;
+  max-width: 18.75rem;
 }
 
 .download-section h2 {

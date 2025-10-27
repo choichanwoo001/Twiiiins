@@ -62,7 +62,6 @@ const loadEvents = async () => {
         name: concert.name
       }))
   } catch (error) {
-    console.error('이벤트 로드 실패:', error)
     // 에러 시 빈 배열로 설정
     events.value = []
   }
@@ -173,7 +172,7 @@ onUnmounted(() => {
 }
 
 .events-container {
-  max-width: 800px;
+  max-width: 50rem;
   padding: 1.5rem;
   width: 90%;
 }
@@ -182,9 +181,9 @@ onUnmounted(() => {
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 2rem;
-  letter-spacing: 1px;
+  letter-spacing: 0.0625rem;
   text-align: center;
-  margin-left: 140px;
+  margin-left: 8.75rem;
 }
 
 .events-list {
@@ -210,10 +209,10 @@ onUnmounted(() => {
 .event-date {
   font-size: 0.9rem;
   font-weight: 500;
-  width: 120px;
+  width: 7.5rem;
   text-align: left;
   flex-shrink: 0;
-  margin-right: 20px;
+  margin-right: 1.25rem;
 }
 
 .event-info {
@@ -241,7 +240,7 @@ onUnmounted(() => {
 .event-arrow {
   font-size: 1.2rem;
   font-weight: bold;
-  min-width: 20px;
+  min-width: 1.25rem;
   text-align: right;
   flex-shrink: 0;
 }
@@ -259,12 +258,12 @@ onUnmounted(() => {
 }
 
 .indicator {
-  width: 12px;
-  height: 12px;
+  width: 0.75rem;
+  height: 0.75rem;
   background: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 0.125rem solid rgba(255, 255, 255, 0.8);
 }
 
 .indicator:hover {
@@ -275,7 +274,7 @@ onUnmounted(() => {
 .indicator.active {
   background: rgba(255, 255, 255, 1);
   transform: scale(1.3);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0.625rem rgba(255, 255, 255, 0.5);
 }
 </style>
 

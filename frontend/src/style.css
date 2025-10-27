@@ -28,7 +28,7 @@ body.has-fullpage-scroll {
   right: 0;
   z-index: 1000;
   transition: all 0.5s ease;
-  height: 60px; /* 정확한 헤더 높이 설정 */
+  height: 3.75rem; /* 정확한 헤더 높이 설정 */
   opacity: 1;
 }
 
@@ -56,7 +56,7 @@ body:has(.router-link-active[href="/"]) .navbar {
   font-weight: bold;
   color: #333;
   text-decoration: none;
-  letter-spacing: 2px;
+  letter-spacing: 0.125rem;
   line-height: 1;
   display: inline-block;
 }
@@ -87,12 +87,12 @@ body:has(.router-link-active[href="/"]) .logo {
 }
 
 .nav-links a.router-link-active {
-  border-bottom: 2px solid #333;
+  border-bottom: 0.125rem solid #333;
 }
 
 /* 메인 컨텐츠 */
 main {
-  padding-top: 60px; /* fixed 헤더를 위한 정확한 상단 패딩 */
+  padding-top: 3.75rem; /* fixed 헤더를 위한 정확한 상단 패딩 */
 }
 
 /* Admin 페이지에서는 패딩 제거 */
@@ -123,7 +123,7 @@ main:has(.fullpage-scroll) {
 .form-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 0.0625rem solid #ddd;
   font-size: 1rem;
 }
 
@@ -186,5 +186,5 @@ body.events-section-active .sns-links {
 
 .scroll-up-button:hover {
   background: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
+  transform: translateY(-0.125rem);
 }

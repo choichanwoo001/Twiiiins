@@ -134,7 +134,6 @@ const loadConcerts = async () => {
     upcomingEvents.value = allConcerts.filter(concert => !concert.isPast)
     pastEvents.value = allConcerts.filter(concert => concert.isPast)
   } catch (error) {
-    console.error('콘서트 로드 실패:', error)
     // 에러 시 기본 데이터 사용
     upcomingEvents.value = [
       {
@@ -183,7 +182,7 @@ onMounted(() => {
   background: #fafafa;
   color: #222;
   padding-top: 6rem;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 3.75rem);
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -229,7 +228,7 @@ onMounted(() => {
 /* 섹션 레이아웃 (좌우 배치) */
 .section-layout {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 12.5rem 1fr;
   gap: 2rem;
   align-items: start;
 }
@@ -250,7 +249,7 @@ onMounted(() => {
 }
 
 .event-item {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 0.0625rem solid #e0e0e0;
   transition: background-color 0.3s ease;
 }
 
@@ -274,7 +273,7 @@ onMounted(() => {
 .event-date {
   font-size: 1rem;
   color: #555;
-  min-width: 150px;
+  min-width: 9.375rem;
   text-align: left;
 }
 
@@ -299,7 +298,7 @@ onMounted(() => {
 .event-expand {
   color: #999;
   transition: all 0.3s ease;
-  min-width: 30px;
+  min-width: 1.875rem;
   text-align: right;
 }
 
@@ -315,7 +314,7 @@ onMounted(() => {
 .event-details {
   padding: 1.5rem 0 2rem 0;
   background-color: #f8f8f8;
-  border-top: 1px solid #e0e0e0;
+  border-top: 0.0625rem solid #e0e0e0;
 }
 
 .detail-row {
@@ -332,7 +331,7 @@ onMounted(() => {
 .detail-label {
   font-size: 0.9rem;
   color: #666;
-  min-width: 200px;
+  min-width: 12.5rem;
   font-weight: 500;
   flex-shrink: 0;
 }

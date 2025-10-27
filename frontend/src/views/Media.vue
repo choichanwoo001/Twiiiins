@@ -168,9 +168,7 @@ const equipmentList = ref([])
 // 음악 데이터 로드
 const loadMusic = async () => {
   try {
-    console.log('음악 데이터 로드 시작...')
     const response = await axios.get('/api/media/music')
-    console.log('API 응답:', response.data)
     
     if (response.data && response.data.length > 0) {
       musicItems.value = response.data.map(music => ({
@@ -179,9 +177,7 @@ const loadMusic = async () => {
         artist: music.artist,
         cover: music.coverUrl ? toAbsoluteUrl(music.coverUrl) : new URL('../imgs/music/time.png', import.meta.url).href
       }))
-      console.log('음악 데이터 매핑 완료:', musicItems.value)
     } else {
-      console.log('음악 데이터가 비어있음, 기본 데이터 사용')
       musicItems.value = [
         {
           id: 1,
@@ -198,8 +194,6 @@ const loadMusic = async () => {
       ]
     }
   } catch (error) {
-    console.error('음악 로드 실패:', error)
-    console.error('에러 상세:', error.response?.data)
     // 에러 시 기본 데이터 사용
     musicItems.value = [
       {
@@ -228,7 +222,6 @@ const loadVideos = async () => {
       embedUrl: video.embedUrl
     }))
   } catch (error) {
-    console.error('비디오 로드 실패:', error)
     // 에러 시 기본 데이터 사용
     videos.value = [
       {
@@ -280,7 +273,6 @@ const loadPhotoGroups = async () => {
       })) : []
     }))
   } catch (error) {
-    console.error('사진 그룹 로드 실패:', error)
     // 에러 시 기본 데이터 사용
     photoGroups.value = []
   }
@@ -296,7 +288,6 @@ const loadEquipment = async () => {
       imageUrl: toAbsoluteUrl(equipment.imageUrl)
     }))
   } catch (error) {
-    console.error('장비 로드 실패:', error)
     // 에러 시 기본 데이터 사용
     equipmentList.value = [
       {
@@ -322,7 +313,6 @@ const loadNews = async () => {
       description: news.description
     }))
   } catch (error) {
-    console.error('뉴스 로드 실패:', error)
     newsList.value = []
   }
 }
@@ -343,13 +333,13 @@ const formatNewsDate = (dateString) => {
   display: flex;
   background-color: white;
   padding-top: 6rem;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 3.75rem);
   overflow: hidden;
 }
 
 /* 왼쪽 네비게이션 */
 .media-nav {
-  width: 550px;
+  width: 34.375rem;
   padding: 2rem 2rem;
   background-color: white;
   display: flex;
@@ -425,7 +415,7 @@ const formatNewsDate = (dateString) => {
 
 .artist-profile-item {
   text-align: center;
-  flex: 0 0 280px;
+  flex: 0 0 17.5rem;
 }
 
 .albums-grid {
@@ -441,12 +431,12 @@ const formatNewsDate = (dateString) => {
 
 .music-cover {
   width: 100%;
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 12.5rem;
+  max-height: 12.5rem;
   aspect-ratio: 1;
   overflow: hidden;
   margin-bottom: 1rem;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   margin: 0 auto;
 }
 
@@ -484,7 +474,7 @@ const formatNewsDate = (dateString) => {
 .video-embed {
   position: relative;
   width: 100%;
-  max-width: 960px;
+  max-width: 60rem;
   aspect-ratio: 16 / 9;
   background: #000;
 }
@@ -535,7 +525,7 @@ const formatNewsDate = (dateString) => {
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 1rem;
 }
 
@@ -543,7 +533,7 @@ const formatNewsDate = (dateString) => {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease;
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 
 .photo-item:hover {
@@ -552,7 +542,7 @@ const formatNewsDate = (dateString) => {
 
 .photo-item img {
   width: 100%;
-  height: 200px;
+  height: 12.5rem;
   object-fit: cover;
   display: block;
 }
@@ -568,7 +558,7 @@ const formatNewsDate = (dateString) => {
   display: flex;
   align-items: center;
   padding: 1.5rem 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 0.0625rem solid #e0e0e0;
 }
 
 .news-item:last-child {
@@ -578,7 +568,7 @@ const formatNewsDate = (dateString) => {
 .news-date {
   font-size: 1rem;
   color: #666;
-  min-width: 80px;
+  min-width: 5rem;
   text-align: left;
 }
 
@@ -602,14 +592,14 @@ const formatNewsDate = (dateString) => {
 .news-expand {
   color: #999;
   cursor: pointer;
-  min-width: 30px;
+  min-width: 1.875rem;
   text-align: right;
 }
 
 /* EQUIPMENT 섹션 */
 .equipment-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
   gap: 2rem;
   padding: 2rem 0;
 }
@@ -623,7 +613,7 @@ const formatNewsDate = (dateString) => {
 
 .equipment-image {
   width: 100%;
-  max-width: 600px;
+  max-width: 37.5rem;
   overflow: hidden;
 }
 

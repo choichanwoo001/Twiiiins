@@ -28,7 +28,7 @@
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 3.75rem);
   overflow: hidden;
 }
 
@@ -52,7 +52,7 @@
 
 /* 우측 콘텐츠 */
 .shop-content {
-  max-width: 800px;
+  max-width: 50rem;
   width: 100%;
   margin-right: 2rem;
   justify-self: end;
