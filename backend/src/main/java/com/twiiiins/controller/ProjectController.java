@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -17,8 +18,18 @@ public class ProjectController {
     private final ProjectService projectService;
     
     @GetMapping
-    public ResponseEntity<List<Project>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+    public ResponseEntity<List<Project>> getAllProjects(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate) {
+        
+        // 검색 파라미터가 있으면 필터링된 결과 반환, 없으면 전체 목록 반환
+        if (title != null || location != null || startDate != null || endDate != null) {
+            return ResponseEntity.ok(projectService.getProjectsWithFilters(title, location, startDate, endDate));
+        } else {
+            return ResponseEntity.ok(projectService.getAllProjects());
+        }
     }
     
     @GetMapping("/{id}")

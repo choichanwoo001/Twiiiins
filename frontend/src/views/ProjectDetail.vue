@@ -1,64 +1,56 @@
 <template>
   <div class="project-detail">
     <!-- 프로젝트 제목 섹션 -->
-    <section class="project-header">
+    <section class="project-header" v-if="project">
       <div class="project-title-section">
-        <h1>THE RESISTIBLE RISE OF ARTURO UI</h1>
-        <div class="project-subtitle">Collaboration with Salzburger Landestheater</div>
-        <div class="project-date-location">Premiere: February 22, 2025 · Salzburg State Theatre</div>
+        <h1>{{ project.title }}</h1>
+        <div class="project-subtitle">{{ project.subtitle }}</div>
+        <div class="project-date-location">Premiere: {{ formatDate(project.premiereDate) }} · {{ project.location }}</div>
       </div>
     </section>
 
     <!-- 메인 이미지 -->
-    <section class="main-image">
-      <img src="../imgs/project_detail/main.jpg" alt="Arturo Ui Performance">
+    <section class="main-image" v-if="project">
+      <img :src="project.mainImageUrl" :alt="project.title">
     </section>
 
     <!-- 첫 번째 텍스트 블록 -->
-    <section class="text-block">
-      <p>
-        We joined the production of Bertolt Brecht's The Resistible Rise of Arturo Ui as composers and performers, creating all of the music for the show using the sound of the violin as the central element.
-      </p>
+    <section class="text-block" v-if="project">
+      <p>{{ project.description1 }}</p>
     </section>
 
     <!-- 두 번째 이미지 블록 (좌우 분할) -->
-    <section class="image-split">
+    <section class="image-split" v-if="project">
       <div class="split-left">
         <div class="image-item">
-          <img src="../imgs/project_detail/horizontal1.jpg" alt="Arturo Ui Performance">
+          <img :src="project.horizontal1ImageUrl" :alt="project.title">
         </div>
       </div>
       <div class="split-right">
         <div class="image-item">
-          <img src="../imgs/project_detail/horizontal2.jpg" alt="Arturo Ui Performance">
+          <img :src="project.horizontal2ImageUrl" :alt="project.title">
         </div>
       </div>
     </section>
 
     <!-- 두 번째 텍스트 블록 -->
-    <section class="text-block">
-      <p>
-        Throughout 13 performances, we appeared on stage in a minor role while performing live alongside the actors and dancers. Sharing the stage with such a talented ensemble made this collaboration a particularly meaningful experience for us.
-      </p>
+    <section class="text-block" v-if="project">
+      <p>{{ project.description2 }}</p>
     </section>
 
     <!-- 세 번째 이미지 블록 (3분할 그리드) -->
-    <section class="image-trio">
+    <section class="image-trio" v-if="project">
       <div class="trio-left">
         <div class="image-item">
-          <img src="../imgs/project_detail/verticle1.jpg" alt="Arturo Ui Performance">
+          <img :src="project.vertical1ImageUrl" :alt="project.title">
         </div>
       </div>
       <div class="trio-center">
-        <div class="text-content">
-          <p>
-            Improvisation was an important part of our contribution. Playing close to the actors allowed us to respond to their performances in real time, adding another layer of energy to the scenes.
-          </p>
-          <p>
-            We would like to thank Alexandra Liedtke and Paul Blackman for their trust and collaboration.
-          </p>
-          <div class="more-info">
-            <a href="https://www.salzburger-landestheater.at/en/produktionen/der-aufhaltsameaufstieg-des-arturo-ui.html?m=537" target="_blank">
+        <div class="text-content" v-if="project">
+          <p v-if="project.description3">{{ project.description3 }}</p>
+          <p v-if="project.thankYouText">{{ project.thankYouText }}</p>
+          <div class="more-info" v-if="project.moreInfoUrl">
+            <a :href="project.moreInfoUrl" target="_blank">
               More Information →
             </a>
           </div>
@@ -66,31 +58,71 @@
       </div>
       <div class="trio-right">
         <div class="image-item">
-          <img src="../imgs/project_detail/verticle2.jpg" alt="Arturo Ui Performance">
+          <img :src="project.vertical2ImageUrl" :alt="project.title">
         </div>
       </div>
     </section>
 
     <!-- 리뷰 섹션 -->
-    <section class="reviews-section">
+    <section class="reviews-section" v-if="project">
       <h2>REVIEWS</h2>
       <div class="reviews-grid">
-        <div class="review-item">
+        <div class="review-item" v-if="project.review1Text">
           <blockquote>
-            „Eine gelungene expressiv körperbetonte Interpretation – die von der anfänglichen Lächerlichkeit des Unbeholfenen, zur erschreckend blutrünstigen Unmenschlichkeit entartet. Eine fantastische Umsetzung eines erschreckend aktuellen Stoffs."
+            „{{ project.review1Text }}"
           </blockquote>
-          <cite>Reichenhaller Tagblatt</cite>
+          <cite>{{ project.review1Source }}</cite>
         </div>
-        <div class="review-item">
+        <div class="review-item" v-if="project.review2Text">
           <blockquote>
-            „Der Abend enthält starke Szenen, etwa den Rhetorik-Unterricht. Diesen nimmt Ui bei einem Schauspieler, köstlich gespielt von Michael Maertens in Form einer Videoeinblendung. Treffsicher die Persiflage auf politische Theatralik."
+            „{{ project.review2Text }}"
           </blockquote>
-          <cite>Salzburger Nachrichten</cite>
+          <cite>{{ project.review2Source }}</cite>
         </div>
       </div>
     </section>
   </div>
 </template>
+
+<script setup>
+import { ref } from 'vue'
+import mainImg from '../imgs/project_detail/main.jpg'
+import horizontal1Img from '../imgs/project_detail/horizontal1.jpg'
+import horizontal2Img from '../imgs/project_detail/horizontal2.jpg'
+import vertical1Img from '../imgs/project_detail/verticle1.jpg'
+import vertical2Img from '../imgs/project_detail/verticle2.jpg'
+
+const project = ref({
+  title: 'THE RESISTIBLE RISE OF ARTURO UI',
+  subtitle: 'Collaboration with Salzburger Landestheater',
+  premiereDate: '2025-02-22',
+  location: 'Salzburg State Theatre',
+  description1: "We joined the production of Bertolt Brecht's The Resistible Rise of Arturo Ui as composers and performers, creating all of the music for the show using the sound of the violin as the central element.",
+  description2: "The production explores themes of power, manipulation, and the rise of authoritarianism through the story of Arturo Ui, a small-time gangster who rises to power in 1930s Chicago.",
+  description3: "Our musical contribution to this production involved creating an original score that blends classical violin techniques with contemporary sound design, enhancing the dramatic impact of Brecht's political allegory.",
+  thankYouText: "We would like to thank Alexandra Liedtke and Paul Blackman for their trust and collaboration.",
+  mainImageUrl: mainImg,
+  horizontal1ImageUrl: horizontal1Img,
+  horizontal2ImageUrl: horizontal2Img,
+  vertical1ImageUrl: vertical1Img,
+  vertical2ImageUrl: vertical2Img,
+  review1Text: "Eine gelungene expressiv körperbetonte Interpretation – die von der anfänglichen Lächerlichkeit des Unbeholfenen, zur erschreckend blutrünstigen Unmenschlichkeit entartet. Eine fantastische Umsetzung eines erschreckend aktuellen Stoffs.",
+  review1Source: "Reichenhaller Tagblatt",
+  review2Text: "Der Abend enthält starke Szenen, etwa den Rhetorik-Unterricht. Diesen nimmt Ui bei einem Schauspieler, köstlich gespielt von Michael Maertens in Form einer Videoeinblendung. Treffsicher die Persiflage auf politische Theatralik.",
+  review2Source: "Salzburger Nachrichten"
+})
+
+// 날짜 포맷팅
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+</script>
 
 <style scoped>
 .project-detail {

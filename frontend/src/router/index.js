@@ -26,7 +26,7 @@ const routes = [
     component: Projects
   },
   {
-    path: '/projects/arturo-ui',
+    path: '/projects/:slug',
     name: 'ProjectDetail',
     component: ProjectDetail
   },

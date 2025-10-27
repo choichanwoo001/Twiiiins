@@ -19,21 +19,10 @@
       <div class="contact-body">
         <!-- 연락처 정보 -->
         <div class="contact-details">
-          <div class="contact-item">
-            <div class="contact-name">TWIIIINS</div>
-            <div class="contact-email">stickypeanutbutter@proton.me</div>
-          </div>
-
-          <div class="contact-item">
-            <div class="contact-name">Dowon Kim</div>
-            <div class="contact-role">Violin</div>
-            <div class="contact-email">kimdowon.c1@gmail.com</div>
-          </div>
-
-          <div class="contact-item">
-            <div class="contact-name">Linus Shastri</div>
-            <div class="contact-role">Baritone Violin</div>
-            <div class="contact-email">linusshastri@protonmail.com</div>
+          <div v-for="contact in contacts" :key="contact.id" class="contact-item">
+            <div class="contact-name">{{ contact.name }}</div>
+            <div v-if="contact.role" class="contact-role">{{ contact.role }}</div>
+            <div class="contact-email">{{ contact.email }}</div>
           </div>
         </div>
 
@@ -41,32 +30,8 @@
         <div class="download-section">
           <h2>Download</h2>
           <div class="download-list">
-            <div class="download-item">
-              <span>Portfolio [EN]</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="download-item">
-              <span>Portfolio [DE]</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="download-item">
-              <span>Portfolio [KR]</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="download-item">
-              <span>Stage Rider</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="download-item">
-              <span>CV</span>
+            <div v-for="file in downloadFiles" :key="file.id" class="download-item" @click="downloadFile(file.fileUrl, file.name)">
+              <span>{{ file.name }}</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -77,6 +42,62 @@
     </main>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from '../api/axios'
+
+// 백엔드 절대 URL 생성 유틸
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+const toAbsoluteUrl = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
+  return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+}
+
+// 데이터
+const contacts = ref([])
+const downloadFiles = ref([])
+
+// 연락처 데이터 로드
+const loadContacts = async () => {
+  try {
+    const response = await axios.get('/api/media/contacts')
+    contacts.value = response.data
+  } catch (error) {
+    console.error('연락처 로드 실패:', error)
+  }
+}
+
+// 다운로드 파일 데이터 로드
+const loadDownloadFiles = async () => {
+  try {
+    const response = await axios.get('/api/media/download-files')
+    // displayOrder 순으로 정렬
+    downloadFiles.value = response.data.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+  } catch (error) {
+    console.error('다운로드 파일 로드 실패:', error)
+  }
+}
+
+// 파일 다운로드
+const downloadFile = (fileUrl, fileName) => {
+  const absoluteUrl = toAbsoluteUrl(fileUrl)
+  const link = document.createElement('a')
+  link.href = absoluteUrl
+  link.download = fileName
+  link.target = '_blank'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+// 페이지 로드 시 데이터 가져오기
+onMounted(() => {
+  loadContacts()
+  loadDownloadFiles()
+})
+</script>
 
 <style scoped>
 /* 레이아웃 */
@@ -129,8 +150,8 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 4rem;
+  justify-content: flex-start;
+  gap: 2rem;
 }
 
 /* 안내 문구 */
@@ -150,6 +171,8 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  flex: 1;
+  max-width: 400px;
 }
 
 .contact-item {
@@ -162,6 +185,7 @@
   font-size: 1.1rem;
   font-weight: bold;
   color: #333;
+  line-height: 1;
 }
 
 .contact-role {
@@ -179,13 +203,15 @@
 .download-section {
   margin-top: 0;
   min-width: 240px;
+  max-width: 300px;
 }
 
 .download-section h2 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #333;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 0.25rem 0;
+  line-height: 1;
 }
 
 .download-list {
