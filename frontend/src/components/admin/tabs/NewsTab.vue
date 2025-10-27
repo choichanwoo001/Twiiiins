@@ -1,48 +1,38 @@
 <template>
-  <div class="content-section">
-    <h1 class="section-title">Contact 관리</h1>
-    
+  <div class="news-tab">
     <!-- 검색/필터 섹션 -->
     <div class="search-section">
       <div class="search-filters">
         <div class="filter-group">
-          <label>이름</label>
-          <input v-model="searchFilters.name" placeholder="이름을 입력하세요" />
-        </div>
-        <div class="filter-group">
-          <label>역할</label>
-          <input v-model="searchFilters.role" placeholder="역할을 입력하세요" />
+          <label>제목</label>
+          <input v-model="searchFilters.title" placeholder="제목을 입력하세요" />
         </div>
         <div class="filter-actions">
           <button class="btn-reset" @click="resetFilters">초기화</button>
-          <button class="btn-search" @click="searchContacts">검색</button>
+          <button class="btn-search" @click="searchNews">검색</button>
         </div>
       </div>
     </div>
 
-    <!-- 연락처 목록 -->
-    <div class="contacts-list">
+    <!-- 뉴스 목록 -->
+    <div class="news-list">
       <h2>전체 목록</h2>
-      <div class="contacts-table">
+      <div class="news-table">
         <table>
           <thead>
             <tr>
               <th>No</th>
-              <th>이름</th>
-              <th>역할</th>
-              <th>이메일</th>
+              <th>제목</th>
               <th>작업</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(contact, index) in contacts" :key="contact.id">
+            <tr v-for="(news, index) in newsList" :key="news.id">
               <td>{{ index + 1 }}</td>
-              <td>{{ contact.name }}</td>
-              <td>{{ contact.role }}</td>
-              <td>{{ contact.email }}</td>
+              <td>{{ news.title }}</td>
               <td>
-                <button class="btn-edit" @click="editContact(contact)">수정</button>
-                <button class="btn-delete" @click="deleteContact(contact.id)">삭제</button>
+                <button class="btn-edit" @click="editNews(news)">수정</button>
+                <button class="btn-delete" @click="deleteNews(news.id)">삭제</button>
               </td>
             </tr>
           </tbody>
@@ -50,24 +40,18 @@
       </div>
     </div>
 
-    <!-- 연락처 등록/수정 폼 -->
-    <div class="contact-form-section">
-      <h2>{{ editingContact ? '연락처 수정' : '새 연락처 등록' }}</h2>
-      <form @submit.prevent="saveContact" class="contact-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label>이름 *</label>
-            <input v-model="form.name" required />
-          </div>
-          <div class="form-group">
-            <label>역할 *</label>
-            <input v-model="form.role" required />
-          </div>
+    <!-- 뉴스 등록/수정 폼 -->
+    <div class="news-form-section">
+      <h2>{{ editingNews ? '뉴스 수정' : '새 뉴스 등록' }}</h2>
+      <form @submit.prevent="saveNews" class="news-form">
+        <div class="form-group">
+          <label>제목 *</label>
+          <input v-model="form.title" required />
         </div>
 
         <div class="form-group">
-          <label>이메일 *</label>
-          <input type="email" v-model="form.email" required />
+          <label>링크 URL *</label>
+          <input v-model="form.linkUrl" required />
         </div>
 
         <div class="form-group">
@@ -76,8 +60,8 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-save">{{ editingContact ? '수정' : '등록' }}</button>
-          <button type="button" class="btn-cancel" @click="cancelEdit" v-if="editingContact">취소</button>
+          <button type="submit" class="btn-save">{{ editingNews ? '수정' : '등록' }}</button>
+          <button type="button" class="btn-cancel" @click="cancelEdit" v-if="editingNews">취소</button>
         </div>
       </form>
     </div>
@@ -86,112 +70,79 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { contactService } from '../../services'
-import {
-  createContactSearchFilters,
-  createContactForm,
-  resetContactSearchFilters,
-  resetContactForm
-} from '../../types/dto'
+import axios from '../../../api/axios'
 
-// Props
-const props = defineProps({
-  contacts: {
-    type: Array,
-    default: () => []
-  }
-})
+const searchFilters = ref({ title: '' })
+const form = ref({ title: '', linkUrl: '', displayOrder: 0 })
+const newsList = ref([])
+const editingNews = ref(null)
 
-// Emits
-const emit = defineEmits(['update:contacts'])
-
-// Reactive data
-const searchFilters = ref(createContactSearchFilters())
-const form = ref(createContactForm())
-const editingContact = ref(null)
-
-// Methods
-const loadContacts = async () => {
+const loadNews = async () => {
   try {
-    const contacts = await contactService.getAllContacts()
-    emit('update:contacts', contacts)
+    const res = await axios.get('/api/media/news')
+    newsList.value = res.data
   } catch (error) {
-    console.error('연락처 로드 실패:', error)
+    console.error('뉴스 로드 실패:', error)
   }
 }
 
-const searchContacts = async () => {
-  try {
-    const contacts = await contactService.searchContacts(searchFilters.value)
-    emit('update:contacts', contacts)
-  } catch (error) {
-    console.error('연락처 검색 실패:', error)
-  }
+const searchNews = async () => {
+  loadNews()
 }
 
 const resetFilters = () => {
-  resetContactSearchFilters(searchFilters.value)
-  loadContacts()
+  searchFilters.value = { title: '' }
+  loadNews()
 }
 
-const editContact = (contact) => {
-  editingContact.value = contact
+const editNews = (news) => {
+  editingNews.value = news
   form.value = {
-    name: contact.name,
-    role: contact.role,
-    email: contact.email,
-    displayOrder: contact.displayOrder || 0
+    title: news.title,
+    linkUrl: news.linkUrl,
+    displayOrder: news.displayOrder || 0
   }
 }
 
 const cancelEdit = () => {
-  editingContact.value = null
-  resetContactForm(form.value)
+  editingNews.value = null
+  form.value = { title: '', linkUrl: '', displayOrder: 0 }
 }
 
-const saveContact = async () => {
+const saveNews = async () => {
   try {
-    if (editingContact.value) {
-      // 수정
-      await contactService.updateContact(editingContact.value.id, form.value)
+    if (editingNews.value) {
+      await axios.put(`/api/media/news/${editingNews.value.id}`, form.value)
     } else {
-      // 등록
-      await contactService.createContact(form.value)
+      await axios.post('/api/media/news', form.value)
     }
     
-    await loadContacts()
+    await loadNews()
     cancelEdit()
   } catch (error) {
-    console.error('연락처 저장 실패:', error)
+    console.error('뉴스 저장 실패:', error)
   }
 }
 
-const deleteContact = async (id) => {
+const deleteNews = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await contactService.deleteContact(id)
-      await loadContacts()
+      await axios.delete(`/api/media/news/${id}`)
+      await loadNews()
     } catch (error) {
-      console.error('연락처 삭제 실패:', error)
+      console.error('뉴스 삭제 실패:', error)
     }
   }
 }
 
-// Lifecycle
 onMounted(() => {
-  loadContacts()
+  loadNews()
 })
 </script>
 
 <style scoped>
-.content-section {
-  padding: 2rem;
-}
-
-.section-title {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  color: #333;
+.news-tab {
+  padding: 0;
 }
 
 .search-section {
@@ -232,7 +183,7 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
-.contacts-list {
+.news-list {
   margin-bottom: 2rem;
   background: white;
   padding: 2rem;
@@ -240,16 +191,16 @@ onMounted(() => {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.contacts-list h2 {
+.news-list h2 {
   margin-bottom: 1rem;
   color: #333;
 }
 
-.contacts-table {
+.news-table {
   overflow-x: auto;
 }
 
-.contacts-table table {
+.news-table table {
   width: 100%;
   border-collapse: collapse;
   background: white;
@@ -258,38 +209,32 @@ onMounted(() => {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.contacts-table th,
-.contacts-table td {
+.news-table th,
+.news-table td {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
 
-.contacts-table th {
+.news-table th {
   background: #f8f9fa;
   font-weight: 600;
   color: #555;
 }
 
-.contacts-table tr:hover {
+.news-table tr:hover {
   background: #f8f9fa;
 }
 
-.contact-form-section {
+.news-form-section {
   background: white;
   padding: 2rem;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.contact-form {
+.news-form {
   max-width: 50rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
 }
 
 .form-group {
@@ -317,7 +262,6 @@ onMounted(() => {
   margin-top: 2rem;
 }
 
-/* 버튼 스타일 */
 .btn-reset, .btn-search {
   padding: 0.75rem 1.5rem;
   border: none;

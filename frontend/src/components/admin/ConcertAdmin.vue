@@ -293,9 +293,10 @@ onMounted(() => {
 }
 
 .search-section {
-  background: #f8f9fa;
+  background: white;
   padding: 1.5rem;
   border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-bottom: 2rem;
 }
 
@@ -337,6 +338,10 @@ onMounted(() => {
 
 .concerts-list {
   margin-bottom: 2rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .concerts-header {
@@ -390,9 +395,10 @@ onMounted(() => {
 }
 
 .concert-form-section {
-  background: #f8f9fa;
+  background: white;
   padding: 2rem;
   border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .concert-form {
