@@ -19,6 +19,8 @@ public class MediaService {
     private final PhotoRepository photoRepository;
     private final NewsRepository newsRepository;
     private final EquipmentRepository equipmentRepository;
+    private final ContactRepository contactRepository;
+    private final DownloadFileRepository downloadFileRepository;
     
     // Music 관련
     public List<Music> getAllMusic() {
@@ -177,6 +179,59 @@ public class MediaService {
     
     public void deleteEquipment(Long id) {
         equipmentRepository.deleteById(id);
+    }
+    
+    // Contact 관련
+    public List<Contact> getAllContacts() {
+        return contactRepository.findAllByOrderByDisplayOrderAsc();
+    }
+    
+    public Contact getContactById(Long id) {
+        return contactRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contact not found with id: " + id));
+    }
+    
+    public Contact createContact(Contact contact) {
+        return contactRepository.save(contact);
+    }
+    
+    public Contact updateContact(Long id, Contact contactDetails) {
+        Contact contact = getContactById(id);
+        contact.setName(contactDetails.getName());
+        contact.setRole(contactDetails.getRole());
+        contact.setEmail(contactDetails.getEmail());
+        contact.setDisplayOrder(contactDetails.getDisplayOrder());
+        return contactRepository.save(contact);
+    }
+    
+    public void deleteContact(Long id) {
+        contactRepository.deleteById(id);
+    }
+    
+    // DownloadFile 관련
+    public List<DownloadFile> getAllDownloadFiles() {
+        return downloadFileRepository.findAllByOrderByDisplayOrderAsc();
+    }
+    
+    public DownloadFile getDownloadFileById(Long id) {
+        return downloadFileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("DownloadFile not found with id: " + id));
+    }
+    
+    public DownloadFile createDownloadFile(DownloadFile downloadFile) {
+        return downloadFileRepository.save(downloadFile);
+    }
+    
+    public DownloadFile updateDownloadFile(Long id, DownloadFile downloadFileDetails) {
+        DownloadFile downloadFile = getDownloadFileById(id);
+        downloadFile.setName(downloadFileDetails.getName());
+        downloadFile.setFileUrl(downloadFileDetails.getFileUrl());
+        downloadFile.setDisplayOrder(downloadFileDetails.getDisplayOrder());
+        return downloadFileRepository.save(downloadFile);
+    }
+    
+    public void deleteDownloadFile(Long id) {
+        downloadFileRepository.deleteById(id);
     }
 }
 
