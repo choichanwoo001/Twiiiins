@@ -7,43 +7,90 @@
 
     <!-- 우측 콘텐츠 -->
     <main class="projects-content">
-      <!-- 이미지 -->
-      <figure class="project-figure">
-        <img
-          src="../imgs/project_cover.jpg"
-          alt="Project hero"
-        />
-      </figure>
+      <!-- 프로젝트 목록 -->
+      <div v-if="projects.length > 0" class="projects-list">
+        <div 
+          v-for="project in projects" 
+          :key="project.id" 
+          class="project-item"
+          @click="goToProjectDetail(project.urlSlug)"
+        >
+          <!-- 이미지 -->
+          <figure class="project-figure">
+            <img
+              :src="project.mainImageUrl || '../imgs/project_cover.jpg'"
+              :alt="project.title"
+            />
+          </figure>
 
-      <!-- 캡션 행 -->
-      <div class="project-caption">
-        <div class="caption-left">ARTURO UI</div>
-        <div class="caption-right">
-          <span>02.22.2025, Salzburg State Theater</span>
-          <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" @click="goToProjectDetail">
-            <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <!-- 캡션 행 -->
+          <div class="project-caption">
+            <div class="caption-left">{{ project.title }}</div>
+            <div class="caption-right">
+              <span>{{ formatDate(project.premiereDate) }}, {{ project.location }}</span>
+              <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div> 
         </div>
-      </div>  
+      </div>
+
+      <!-- 프로젝트가 없을 때 기본 이미지 -->
+      <div v-else class="default-project">
+        <figure class="project-figure">
+          <img
+            :src="projectCoverImg"
+            alt="Project hero"
+          />
+        </figure>
+
+        <div class="project-caption">
+          <div class="caption-left">ARTURO UI</div>
+          <div class="caption-right">
+            <span>02.22.2025, Salzburg State Theater</span>
+            <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" @click="goToProjectDetail('arturo-ui')">
+              <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import projectCoverImg from '../imgs/project_cover.jpg'
 
-export default {
-  name: 'Projects',
-  setup() {
-    const router = useRouter()
-    
-    const goToProjectDetail = () => {
-      router.push('/projects/arturo-ui')
-    }
-    
-    return {
-      goToProjectDetail
-    }
+const router = useRouter()
+const projects = ref([
+  {
+    id: 1,
+    title: 'ARTURO UI',
+    premiereDate: '2025-02-22',
+    location: 'Salzburg State Theater',
+    mainImageUrl: projectCoverImg,
+    urlSlug: 'arturo-ui'
+  }
+])
+
+// 날짜 포맷팅
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).replace(/\//g, '.')
+}
+
+// 프로젝트 상세로 이동
+const goToProjectDetail = (urlSlug) => {
+  if (urlSlug) {
+    router.push(`/projects/${urlSlug}`)
   }
 }
 </script>
@@ -93,6 +140,22 @@ export default {
   min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
   height: 100%;
   overflow-y: auto;
+}
+
+/* 프로젝트 목록 */
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.project-item {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.project-item:hover {
+  transform: translateY(-2px);
 }
 
 /* 이미지 컨테이너 */

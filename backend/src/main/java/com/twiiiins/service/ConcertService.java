@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -55,6 +57,32 @@ public class ConcertService {
     public void deleteConcert(Long id) {
         Concert concert = getConcertById(id);
         concertRepository.delete(concert);
+    }
+    
+    public Concert moveToPastEvent(Long id) {
+        Concert concert = getConcertById(id);
+        concert.setIsPast(true);
+        return concertRepository.save(concert);
+    }
+    
+    public Concert moveToUpcomingEvent(Long id) {
+        Concert concert = getConcertById(id);
+        concert.setIsPast(false);
+        return concertRepository.save(concert);
+    }
+    
+    public int autoMovePastEvents(String currentDateStr) {
+        LocalDate currentDate = LocalDate.parse(currentDateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+        
+        // 어제까지의 콘서트들을 Past Event로 이동
+        List<Concert> concertsToMove = concertRepository.findByDateBeforeAndIsPast(currentDate, false);
+        
+        for (Concert concert : concertsToMove) {
+            concert.setIsPast(true);
+            concertRepository.save(concert);
+        }
+        
+        return concertsToMove.size();
     }
 }
 

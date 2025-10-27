@@ -39,28 +39,34 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import axios from '../api/axios'
 
-// 하드코딩된 이벤트 데이터
-const events = ref([
-  {
-    id: 1,
-    date: 'July 30, 2026',
-    location: 'Smaragd, Linz [AT]',
-    name: 'TWIIIINS'
-  },
-  {
-    id: 2,
-    date: 'December 18, 2025',
-    location: 'Korean Culture Center in Vienna',
-    name: 'TWIIIINS'
-  },
-  {
-    id: 3,
-    date: 'September 18, 2025',
-    location: 'Landestheater Salzburg',
-    name: 'DER AUFHALTSAME AUFSTIEG DES'
+// 이벤트 데이터
+const events = ref([])
+
+// 콘서트 데이터 로드
+const loadEvents = async () => {
+  try {
+    const response = await axios.get('/api/concerts')
+    // 다가오는 이벤트만 필터링 (isPast: false)
+    events.value = response.data
+      .filter(concert => !concert.isPast)
+      .map(concert => ({
+        id: concert.id,
+        date: new Date(concert.date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        location: concert.location,
+        name: concert.name
+      }))
+  } catch (error) {
+    console.error('이벤트 로드 실패:', error)
+    // 에러 시 빈 배열로 설정
+    events.value = []
   }
-])
+}
 
 // 페이지 인디케이터 관련
 const scrollContainer = ref(null)
@@ -100,6 +106,7 @@ onMounted(() => {
   if (scrollContainer.value) {
     scrollContainer.value.addEventListener('scroll', handleScroll)
   }
+  loadEvents() // 이벤트 데이터 로드
 })
 
 onUnmounted(() => {
