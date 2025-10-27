@@ -10,11 +10,6 @@
           Dashboard
         </button>
         <button 
-          :class="['nav-item', { active: activeSection === 'projects' }]"
-          @click="activeSection = 'projects'">
-          Projects
-        </button>
-        <button 
           :class="['nav-item', { active: activeSection === 'concerts' }]"
           @click="activeSection = 'concerts'">
           Concerts
@@ -29,6 +24,11 @@
           @click="activeSection = 'contact'">
           Contact
         </button>
+        <button 
+          :class="['nav-item', { active: activeSection === 'download-files' }]"
+          @click="activeSection = 'download-files'">
+          Download Files
+        </button>
       </nav>
     </aside>
 
@@ -37,202 +37,120 @@
       <!-- Dashboard -->
       <div v-if="activeSection === 'dashboard'" class="content-section">
         <h1 class="section-title">Dashboard</h1>
-        <div class="dashboard-card">
-          <h3>방문자 통계</h3>
-          <p>Google Analytics를 사용하여 방문자 통계를 확인할 수 있습니다.</p>
-          <p>Google Analytics 대시보드: <a href="https://analytics.google.com" target="_blank">https://analytics.google.com</a></p>
-          <div class="stats-placeholder">
-            <p>GA4 추적 코드를 index.html에 추가하세요.</p>
+        
+        <!-- 통계 카드들 -->
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-icon">🎵</div>
+            <div class="stat-content">
+              <h3>콘서트</h3>
+              <p class="stat-number">{{ concerts.length }}</p>
+              <p class="stat-label">총 콘서트 수</p>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Projects 관리 -->
-      <div v-if="activeSection === 'projects'" class="content-section">
-        <!-- 검색/필터 섹션 -->
-        <div class="search-section">
-          <div class="search-filters">
-            <div class="filter-group">
-              <label>프로젝트명</label>
-              <input v-model="searchFilters.title" placeholder="프로젝트명을 입력하세요" />
+          
+          <div class="stat-card">
+            <div class="stat-icon">📸</div>
+            <div class="stat-content">
+              <h3>사진 그룹</h3>
+              <p class="stat-number">{{ photoGroups.length }}</p>
+              <p class="stat-label">총 사진 그룹 수</p>
             </div>
-            <div class="filter-group">
-              <label>장소</label>
-              <input v-model="searchFilters.location" placeholder="장소를 입력하세요" />
-            </div>
-            <div class="filter-group">
-              <label>날짜 범위</label>
-              <div class="date-range">
-                <input type="date" v-model="searchFilters.startDate" />
-                <span>~</span>
-                <input type="date" v-model="searchFilters.endDate" />
-              </div>
-            </div>
-            <div class="filter-actions">
-              <button class="btn-reset" @click="resetFilters">초기화</button>
-              <button class="btn-search" @click="searchProjects">검색</button>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">🎬</div>
+            <div class="stat-content">
+              <h3>미디어</h3>
+              <p class="stat-number">{{ musicList.length + videos.length + newsList.length + equipmentList.length }}</p>
+              <p class="stat-label">총 미디어 수</p>
             </div>
           </div>
         </div>
 
-        <!-- 프로젝트 등록/수정 폼 -->
-        <div class="project-form-section">
-          <h2>{{ editingProject ? '프로젝트 수정' : '새 프로젝트 등록' }}</h2>
-          <form @submit.prevent="saveProject" class="project-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label>제목 *</label>
-                <input v-model="projectForm.title" required />
-              </div>
-              <div class="form-group">
-                <label>부제목</label>
-                <input v-model="projectForm.subtitle" />
+        <!-- 최근 활동 -->
+        <div class="dashboard-section">
+          <h2>최근 활동</h2>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon">🎵</div>
+              <div class="activity-content">
+                <h4>콘서트 관리</h4>
+                <p>예정된 콘서트: {{ concerts.filter(c => !c.isPast).length }}개</p>
+                <p>지난 콘서트: {{ concerts.filter(c => c.isPast).length }}개</p>
               </div>
             </div>
             
-            <div class="form-row">
-              <div class="form-group">
-                <label>날짜 *</label>
-                <input type="date" v-model="projectForm.premiereDate" required />
+            <div class="activity-item">
+              <div class="activity-icon">📸</div>
+              <div class="activity-content">
+                <h4>사진 관리</h4>
+                <p>총 사진 그룹: {{ photoGroups.length }}개</p>
+                <p>총 사진 수: {{ photoGroups.reduce((total, group) => total + (group.photos ? group.photos.length : 0), 0) }}개</p>
               </div>
-              <div class="form-group">
-                <label>장소 *</label>
-                <input v-model="projectForm.location" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>설명 1</label>
-              <textarea v-model="projectForm.description1" rows="3"></textarea>
             </div>
             
-            <div class="form-group">
-              <label>설명 2</label>
-              <textarea v-model="projectForm.description2" rows="3"></textarea>
-            </div>
-            
-            <div class="form-group">
-              <label>설명 3</label>
-              <textarea v-model="projectForm.description3" rows="3"></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>메인 이미지 URL</label>
-                <input v-model="projectForm.mainImageUrl" />
-              </div>
-              <div class="form-group">
-                <label>커버 이미지 URL</label>
-                <input v-model="projectForm.coverImageUrl" />
+            <div class="activity-item">
+              <div class="activity-icon">🎬</div>
+              <div class="activity-content">
+                <h4>미디어 관리</h4>
+                <p>음악: {{ musicList.length }}개</p>
+                <p>비디오: {{ videos.length }}개</p>
+                <p>사진 그룹: {{ photoGroups.length }}개</p>
+                <p>뉴스: {{ newsList.length }}개</p>
+                <p>장비: {{ equipmentList.length }}개</p>
               </div>
             </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>가로 이미지 1 URL</label>
-                <input v-model="projectForm.horizontal1ImageUrl" />
-              </div>
-              <div class="form-group">
-                <label>가로 이미지 2 URL</label>
-                <input v-model="projectForm.horizontal2ImageUrl" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>세로 이미지 1 URL</label>
-                <input v-model="projectForm.vertical1ImageUrl" />
-              </div>
-              <div class="form-group">
-                <label>세로 이미지 2 URL</label>
-                <input v-model="projectForm.vertical2ImageUrl" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>더보기 URL</label>
-              <input v-model="projectForm.moreInfoUrl" />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>리뷰 1 텍스트</label>
-                <textarea v-model="projectForm.review1Text" rows="2"></textarea>
-              </div>
-              <div class="form-group">
-                <label>리뷰 1 출처</label>
-                <input v-model="projectForm.review1Source" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>리뷰 2 텍스트</label>
-                <textarea v-model="projectForm.review2Text" rows="2"></textarea>
-              </div>
-              <div class="form-group">
-                <label>리뷰 2 출처</label>
-                <input v-model="projectForm.review2Source" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>URL Slug</label>
-                <input v-model="projectForm.urlSlug" />
-              </div>
-              <div class="form-group">
-                <label>표시 순서</label>
-                <input type="number" v-model="projectForm.displayOrder" />
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn-save">{{ editingProject ? '수정' : '등록' }}</button>
-              <button type="button" class="btn-cancel" @click="cancelEdit" v-if="editingProject">취소</button>
-            </div>
-          </form>
+          </div>
         </div>
 
-        <!-- 프로젝트 목록 -->
-        <div class="projects-list">
-          <h2>전체 목록</h2>
-          <div class="projects-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>프로젝트</th>
-                  <th>장소</th>
-                  <th>날짜</th>
-                  <th>상태</th>
-                  <th>작업</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(project, index) in projects" :key="project.id">
-                  <td>{{ index + 1 }}</td>
-                  <td>{{ project.title }}</td>
-                  <td>{{ project.location }}</td>
-                  <td>{{ formatDate(project.premiereDate) }}</td>
-                  <td>
-                    <span class="status-badge" :class="{ active: project.displayOrder > 0 }">
-                      {{ project.displayOrder > 0 ? '활성' : '비활성' }}
-                    </span>
-                  </td>
-                  <td>
-                    <button class="btn-edit" @click="editProject(project)">수정</button>
-                    <button class="btn-delete" @click="deleteProject(project.id)">삭제</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- 빠른 작업 -->
+        <div class="dashboard-section">
+          <h2>빠른 작업</h2>
+          <div class="quick-actions">
+            <button class="quick-action-btn" @click="activeSection = 'concerts'">
+              <div class="quick-action-icon">🎵</div>
+              <span>새 콘서트 추가</span>
+            </button>
+            
+            <button class="quick-action-btn" @click="activeSection = 'media'; mediaTab = 'photos'">
+              <div class="quick-action-icon">📸</div>
+              <span>사진 업로드</span>
+            </button>
+            
+            <button class="quick-action-btn" @click="activeSection = 'media'; mediaTab = 'music'">
+              <div class="quick-action-icon">🎬</div>
+              <span>음악 추가</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 시스템 상태 -->
+        <div class="dashboard-section">
+          <h2>시스템 상태</h2>
+          <div class="system-status">
+            <div class="status-item">
+              <span class="status-label">데이터베이스 연결</span>
+              <span class="status-indicator success">●</span>
+              <span class="status-text">정상</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">파일 업로드</span>
+              <span class="status-indicator success">●</span>
+              <span class="status-text">정상</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">API 서버</span>
+              <span class="status-indicator success">●</span>
+              <span class="status-text">정상</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Concerts 관리 -->
       <div v-if="activeSection === 'concerts'" class="content-section">
+        <h1 class="section-title">Concerts 관리</h1>
         <!-- 검색/필터 섹션 -->
         <div class="search-section">
           <div class="search-filters">
@@ -256,6 +174,61 @@
               <button class="btn-reset" @click="resetConcertFilters">초기화</button>
               <button class="btn-search" @click="searchConcerts">검색</button>
             </div>
+          </div>
+        </div>
+
+        <!-- 콘서트 목록 -->
+        <div class="concerts-list">
+          <div class="concerts-header">
+            <h2>전체 목록</h2>
+            <button class="btn-auto-move" @click="triggerAutoMove">
+              자동 이동 실행
+            </button>
+          </div>
+          <div class="concerts-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>콘서트</th>
+                  <th>장소</th>
+                  <th>날짜</th>
+                  <th>상태</th>
+                  <th>작업</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(concert, index) in concerts" :key="concert.id">
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ concert.name }}</td>
+                  <td>{{ concert.location }}</td>
+                  <td>{{ formatDate(concert.date) }}</td>
+                  <td>
+                    <span class="status-badge" :class="{ past: concert.isPast }">
+                      {{ concert.isPast ? '지난 공연' : '예정' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-edit" @click="editConcert(concert)">수정</button>
+                    <button class="btn-delete" @click="deleteConcert(concert.id)">삭제</button>
+                    <button 
+                      v-if="!concert.isPast" 
+                      class="btn-move-past" 
+                      @click="moveToPastEvent(concert.id)"
+                    >
+                      Past Event로 이동
+                    </button>
+                    <button 
+                      v-if="concert.isPast" 
+                      class="btn-move-upcoming" 
+                      @click="moveToUpcomingEvent(concert.id)"
+                    >
+                      Upcoming으로 이동
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -318,42 +291,6 @@
             </div>
           </form>
         </div>
-
-        <!-- 콘서트 목록 -->
-        <div class="concerts-list">
-          <h2>전체 목록</h2>
-          <div class="concerts-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>콘서트</th>
-                  <th>장소</th>
-                  <th>날짜</th>
-                  <th>상태</th>
-                  <th>작업</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(concert, index) in concerts" :key="concert.id">
-                  <td>{{ index + 1 }}</td>
-                  <td>{{ concert.name }}</td>
-                  <td>{{ concert.location }}</td>
-                  <td>{{ formatDate(concert.date) }}</td>
-                  <td>
-                    <span class="status-badge" :class="{ past: concert.isPast }">
-                      {{ concert.isPast ? '지난 공연' : '예정' }}
-                    </span>
-                  </td>
-                  <td>
-                    <button class="btn-edit" @click="editConcert(concert)">수정</button>
-                    <button class="btn-delete" @click="deleteConcert(concert.id)">삭제</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
 
       <!-- Media 관리 -->
@@ -409,43 +346,6 @@
             </div>
           </div>
 
-          <!-- 음악 등록/수정 폼 -->
-          <div class="music-form-section">
-            <h2>{{ editingMusic ? '음악 수정' : '새 음악 등록' }}</h2>
-            <form @submit.prevent="saveMusic" class="music-form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>제목 *</label>
-                  <input v-model="musicForm.title" required />
-                </div>
-                <div class="form-group">
-                  <label>아티스트 *</label>
-                  <input v-model="musicForm.artist" required />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>커버 이미지 URL *</label>
-                <input v-model="musicForm.coverUrl" required />
-              </div>
-
-              <div class="form-group">
-                <label>링크 URL</label>
-                <input v-model="musicForm.linkUrl" />
-              </div>
-
-              <div class="form-group">
-                <label>표시 순서</label>
-                <input type="number" v-model="musicForm.displayOrder" />
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-save">{{ editingMusic ? '수정' : '등록' }}</button>
-                <button type="button" class="btn-cancel" @click="cancelMusicEdit" v-if="editingMusic">취소</button>
-              </div>
-            </form>
-          </div>
-
           <!-- 음악 목록 -->
           <div class="music-list">
             <h2>전체 목록</h2>
@@ -475,6 +375,49 @@
               </table>
             </div>
           </div>
+
+          <!-- 음악 등록/수정 폼 -->
+          <div class="music-form-section">
+            <h2>{{ editingMusic ? '음악 수정' : '새 음악 등록' }}</h2>
+            <form @submit.prevent="saveMusic" class="music-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>제목 *</label>
+                  <input v-model="musicForm.title" required />
+                </div>
+                <div class="form-group">
+                  <label>아티스트 *</label>
+                  <input v-model="musicForm.artist" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>커버 이미지 *</label>
+                <div class="file-upload-container">
+                  <input type="file" @change="handleMusicFileUpload($event)" accept="image/*" class="file-input" id="musicCover">
+                  <label for="musicCover" class="file-upload-btn">이미지 업로드</label>
+                  <div v-if="musicForm.coverUrl" class="image-preview">
+                    <img :src="musicForm.coverUrl" alt="커버 이미지 미리보기" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>링크 URL</label>
+                <input v-model="musicForm.linkUrl" />
+              </div>
+
+              <div class="form-group">
+                <label>표시 순서</label>
+                <input type="number" v-model="musicForm.displayOrder" />
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-save">{{ editingMusic ? '수정' : '등록' }}</button>
+                <button type="button" class="btn-cancel" @click="cancelMusicEdit" v-if="editingMusic">취소</button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <!-- Videos 탭 -->
@@ -491,32 +434,6 @@
                 <button class="btn-search" @click="searchVideos">검색</button>
               </div>
             </div>
-          </div>
-
-          <!-- 비디오 등록/수정 폼 -->
-          <div class="video-form-section">
-            <h2>{{ editingVideo ? '비디오 수정' : '새 비디오 등록' }}</h2>
-            <form @submit.prevent="saveVideo" class="video-form">
-              <div class="form-group">
-                <label>제목 *</label>
-                <input v-model="videoForm.title" required />
-              </div>
-
-              <div class="form-group">
-                <label>YouTube Embed URL *</label>
-                <input v-model="videoForm.embedUrl" required />
-              </div>
-
-              <div class="form-group">
-                <label>표시 순서</label>
-                <input type="number" v-model="videoForm.displayOrder" />
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-save">{{ editingVideo ? '수정' : '등록' }}</button>
-                <button type="button" class="btn-cancel" @click="cancelVideoEdit" v-if="editingVideo">취소</button>
-              </div>
-            </form>
           </div>
 
           <!-- 비디오 목록 -->
@@ -546,6 +463,33 @@
               </table>
             </div>
           </div>
+
+          <!-- 비디오 등록/수정 폼 -->
+          <div class="video-form-section">
+            <h2>{{ editingVideo ? '비디오 수정' : '새 비디오 등록' }}</h2>
+            <form @submit.prevent="saveVideo" class="video-form">
+              <div class="form-group">
+                <label>제목 *</label>
+                <input v-model="videoForm.title" required />
+              </div>
+
+              <div class="form-group">
+                <label>YouTube Embed URL * (iframe 코드 또는 URL)</label>
+                <textarea v-model="videoForm.embedUrl" rows="3" required placeholder="https://www.youtube.com/embed/... 또는 iframe 전체 코드"></textarea>
+                <small style="color: #666;">※ iframe 전체 코드를 붙여넣으면 자동으로 URL을 추출합니다</small>
+              </div>
+
+              <div class="form-group">
+                <label>표시 순서</label>
+                <input type="number" v-model="videoForm.displayOrder" />
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-save">{{ editingVideo ? '수정' : '등록' }}</button>
+                <button type="button" class="btn-cancel" @click="cancelVideoEdit" v-if="editingVideo">취소</button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <!-- Photos 탭 -->
@@ -562,65 +506,6 @@
                 <button class="btn-search" @click="searchPhotoGroups">검색</button>
               </div>
             </div>
-          </div>
-
-          <!-- 사진 그룹 등록/수정 폼 -->
-          <div class="photo-group-form-section">
-            <h2>{{ editingPhotoGroup ? '사진 그룹 수정' : '새 사진 그룹 등록' }}</h2>
-            <form @submit.prevent="savePhotoGroup" class="photo-group-form">
-              <div class="form-group">
-                <label>제목 *</label>
-                <input v-model="photoGroupForm.title" required />
-              </div>
-
-              <div class="form-group">
-                <label>표시 순서</label>
-                <input type="number" v-model="photoGroupForm.displayOrder" />
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-save">{{ editingPhotoGroup ? '수정' : '등록' }}</button>
-                <button type="button" class="btn-cancel" @click="cancelPhotoGroupEdit" v-if="editingPhotoGroup">취소</button>
-              </div>
-            </form>
-          </div>
-
-          <!-- 사진 추가 섹션 -->
-          <div class="photo-add-section">
-            <h2>사진 추가</h2>
-            <form @submit.prevent="addPhotoToGroup" class="photo-add-form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>사진 그룹 선택 *</label>
-                  <select v-model="photoAddForm.photoGroupId" required>
-                    <option value="">그룹을 선택하세요</option>
-                    <option v-for="group in photoGroups" :key="group.id" :value="group.id">
-                      {{ group.title }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>사진 URL *</label>
-                  <input v-model="photoAddForm.imageUrl" placeholder="이미지 URL을 입력하세요" required />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>사진 제목</label>
-                  <input v-model="photoAddForm.title" placeholder="사진 제목을 입력하세요" />
-                </div>
-                <div class="form-group">
-                  <label>표시 순서</label>
-                  <input type="number" v-model="photoAddForm.displayOrder" />
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-save">사진 추가</button>
-                <button type="button" class="btn-cancel" @click="resetPhotoAddForm">초기화</button>
-              </div>
-            </form>
           </div>
 
           <!-- 사진 그룹 목록 -->
@@ -662,8 +547,14 @@
               <form @submit.prevent="savePhoto" class="photo-edit-form">
                 <div class="form-row">
                   <div class="form-group">
-                    <label>사진 URL *</label>
-                    <input v-model="photoEditForm.imageUrl" required />
+                    <label>사진 파일</label>
+                    <div class="file-upload-container">
+                      <input type="file" @change="handlePhotoEditFileUpload($event)" accept="image/*" class="file-input" id="photoEditFile">
+                      <label for="photoEditFile" class="file-upload-btn">이미지 변경</label>
+                      <div v-if="photoEditForm.imageUrl" class="image-preview">
+                        <img :src="toAbsoluteUrl(photoEditForm.imageUrl)" alt="사진 미리보기" />
+                      </div>
+                    </div>
                   </div>
                   <div class="form-group">
                     <label>사진 제목</label>
@@ -684,7 +575,7 @@
             <div class="photo-list">
               <div v-for="photo in selectedPhotoGroup.photos" :key="photo.id" class="photo-item">
                 <div class="photo-preview">
-                  <img :src="photo.imageUrl" :alt="photo.title" />
+                  <img :src="toAbsoluteUrl(photo.imageUrl)" :alt="photo.title" />
                 </div>
                 <div class="photo-info">
                   <h4>{{ photo.title || '제목 없음' }}</h4>
@@ -697,6 +588,79 @@
               </div>
             </div>
             <button class="btn-close" @click="closePhotoGroupDetails">닫기</button>
+          </div>
+
+          <!-- 사진 그룹 등록/수정 폼 -->
+          <div class="photo-group-form-section">
+            <h2>{{ editingPhotoGroup ? '사진 그룹 수정' : '새 사진 그룹 등록' }}</h2>
+            <form @submit.prevent="savePhotoGroup" class="photo-group-form">
+              <div class="form-group">
+                <label>제목 *</label>
+                <input v-model="photoGroupForm.title" required />
+              </div>
+
+              <div class="form-group">
+                <label>표시 순서</label>
+                <input type="number" v-model="photoGroupForm.displayOrder" />
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-save">{{ editingPhotoGroup ? '수정' : '등록' }}</button>
+                <button type="button" class="btn-cancel" @click="cancelPhotoGroupEdit" v-if="editingPhotoGroup">취소</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- 사진 추가 섹션 -->
+          <div class="photo-add-section">
+            <h2>사진 추가</h2>
+            <form @submit.prevent="addPhotoToGroup" class="photo-add-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>사진 그룹 선택 *</label>
+                  <select v-model="photoAddForm.photoGroupId" required>
+                    <option value="">그룹을 선택하세요</option>
+                    <option v-for="group in photoGroups" :key="group.id" :value="group.id">
+                      {{ group.title }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>사진 파일 * (여러 개 선택 가능)</label>
+                  <div class="file-upload-container">
+                    <input type="file" @change="handleMultiplePhotoFileUpload($event)" accept="image/*" class="file-input" id="photoFile" multiple required>
+                    <label for="photoFile" class="file-upload-btn">이미지 업로드 (여러 개 선택 가능)</label>
+                    <div v-if="selectedPhotoFiles.length > 0" class="selected-files-info">
+                      <p>선택된 파일: {{ selectedPhotoFiles.length }}개</p>
+                      <div class="multiple-image-preview">
+                        <div v-for="(preview, index) in photoPreviewUrls" :key="index" class="preview-item">
+                          <img :src="preview" :alt="`사진 미리보기 ${index + 1}`" />
+                          <button type="button" class="btn-remove-preview" @click="removePhotoFile(index)">×</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>사진 제목</label>
+                  <input v-model="photoAddForm.title" placeholder="사진 제목을 입력하세요" />
+                </div>
+                <div class="form-group">
+                  <label>표시 순서</label>
+                  <input type="number" v-model="photoAddForm.displayOrder" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-save" :disabled="isUploadingPhotos">
+                  {{ isUploadingPhotos ? '업로드 중...' : '사진 추가' }}
+                </button>
+                <button type="button" class="btn-cancel" @click="resetPhotoAddForm">초기화</button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -721,6 +685,36 @@
                 <button class="btn-reset" @click="resetNewsFilters">초기화</button>
                 <button class="btn-search" @click="searchNews">검색</button>
               </div>
+            </div>
+          </div>
+
+          <!-- 뉴스 목록 -->
+          <div class="news-list">
+            <h2>전체 목록</h2>
+            <div class="news-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>날짜</th>
+                    <th>제목</th>
+                    <th>설명</th>
+                    <th>작업</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(news, index) in newsList" :key="news.id">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ formatDate(news.date) }}</td>
+                    <td>{{ news.title }}</td>
+                    <td>{{ news.description?.substring(0, 50) }}...</td>
+                    <td>
+                      <button class="btn-edit" @click="editNews(news)">수정</button>
+                      <button class="btn-delete" @click="deleteNews(news.id)">삭제</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -755,36 +749,6 @@
               </div>
             </form>
           </div>
-
-          <!-- 뉴스 목록 -->
-          <div class="news-list">
-            <h2>전체 목록</h2>
-            <div class="news-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>No</th>
-                    <th>날짜</th>
-                    <th>제목</th>
-                    <th>설명</th>
-                    <th>작업</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(news, index) in newsList" :key="news.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ formatDate(news.date) }}</td>
-                    <td>{{ news.title }}</td>
-                    <td>{{ news.description?.substring(0, 50) }}...</td>
-                    <td>
-                      <button class="btn-edit" @click="editNews(news)">수정</button>
-                      <button class="btn-delete" @click="deleteNews(news.id)">삭제</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
 
         <!-- Equipment 탭 -->
@@ -801,32 +765,6 @@
                 <button class="btn-search" @click="searchEquipment">검색</button>
               </div>
             </div>
-          </div>
-
-          <!-- 장비 등록/수정 폼 -->
-          <div class="equipment-form-section">
-            <h2>{{ editingEquipment ? '장비 수정' : '새 장비 등록' }}</h2>
-            <form @submit.prevent="saveEquipment" class="equipment-form">
-              <div class="form-group">
-                <label>이름 *</label>
-                <input v-model="equipmentForm.name" required />
-              </div>
-
-              <div class="form-group">
-                <label>이미지 URL</label>
-                <input v-model="equipmentForm.imageUrl" />
-              </div>
-
-              <div class="form-group">
-                <label>표시 순서</label>
-                <input type="number" v-model="equipmentForm.displayOrder" />
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-save">{{ editingEquipment ? '수정' : '등록' }}</button>
-                <button type="button" class="btn-cancel" @click="cancelEquipmentEdit" v-if="editingEquipment">취소</button>
-              </div>
-            </form>
           </div>
 
           <!-- 장비 목록 -->
@@ -856,11 +794,44 @@
               </table>
             </div>
           </div>
+
+          <!-- 장비 등록/수정 폼 -->
+          <div class="equipment-form-section">
+            <h2>{{ editingEquipment ? '장비 수정' : '새 장비 등록' }}</h2>
+            <form @submit.prevent="saveEquipment" class="equipment-form">
+              <div class="form-group">
+                <label>이름 *</label>
+                <input v-model="equipmentForm.name" required />
+              </div>
+
+              <div class="form-group">
+                <label>이미지</label>
+                <div class="file-upload-container">
+                  <input type="file" @change="handleEquipmentFileUpload($event)" accept="image/*" class="file-input" id="equipmentImage">
+                  <label for="equipmentImage" class="file-upload-btn">이미지 업로드</label>
+                  <div v-if="equipmentForm.imageUrl" class="image-preview">
+                    <img :src="equipmentForm.imageUrl" alt="장비 이미지 미리보기" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>표시 순서</label>
+                <input type="number" v-model="equipmentForm.displayOrder" />
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-save">{{ editingEquipment ? '수정' : '등록' }}</button>
+                <button type="button" class="btn-cancel" @click="cancelEquipmentEdit" v-if="editingEquipment">취소</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
       <!-- Contact 관리 -->
       <div v-if="activeSection === 'contact'" class="content-section">
+        <h1 class="section-title">Contact 관리</h1>
         <!-- 검색/필터 섹션 -->
         <div class="search-section">
           <div class="search-filters">
@@ -881,70 +852,6 @@
               <button class="btn-search" @click="searchContacts">검색</button>
             </div>
           </div>
-        </div>
-
-        <!-- 연락처 등록/수정 폼 -->
-        <div class="contact-form-section">
-          <h2>{{ editingContact ? '연락처 수정' : '새 연락처 등록' }}</h2>
-          <form @submit.prevent="saveContact" class="contact-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label>이름 *</label>
-                <input v-model="contactForm.name" required />
-              </div>
-              <div class="form-group">
-                <label>역할</label>
-                <input v-model="contactForm.role" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>이메일 *</label>
-              <input type="email" v-model="contactForm.email" required />
-            </div>
-
-            <div class="form-group">
-              <label>안내 문구</label>
-              <textarea v-model="contactForm.introText" rows="3"></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Portfolio EN URL</label>
-                <input v-model="contactForm.portfolioEnUrl" />
-              </div>
-              <div class="form-group">
-                <label>Portfolio DE URL</label>
-                <input v-model="contactForm.portfolioDeUrl" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Portfolio KR URL</label>
-                <input v-model="contactForm.portfolioKrUrl" />
-              </div>
-              <div class="form-group">
-                <label>Stage Rider URL</label>
-                <input v-model="contactForm.stageRiderUrl" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>CV URL</label>
-              <input v-model="contactForm.cvUrl" />
-            </div>
-
-            <div class="form-group">
-              <label>표시 순서</label>
-              <input type="number" v-model="contactForm.displayOrder" />
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn-save">{{ editingContact ? '수정' : '등록' }}</button>
-              <button type="button" class="btn-cancel" @click="cancelContactEdit" v-if="editingContact">취소</button>
-            </div>
-          </form>
         </div>
 
         <!-- 연락처 목록 -->
@@ -976,6 +883,118 @@
             </table>
           </div>
         </div>
+
+          <!-- 연락처 등록/수정 폼 -->
+        <div class="contact-form-section">
+          <h2>{{ editingContact ? '연락처 수정' : '새 연락처 등록' }}</h2>
+          <form @submit.prevent="handleContactSubmit" class="contact-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>이름 *</label>
+                <input v-model="contactForm.name" required />
+              </div>
+              <div class="form-group">
+                <label>역할</label>
+                <input v-model="contactForm.role" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>이메일 *</label>
+              <input type="email" v-model="contactForm.email" required />
+            </div>
+
+
+            <div class="form-group">
+              <label>표시 순서</label>
+              <input type="number" v-model="contactForm.displayOrder" />
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-save">{{ editingContact ? '수정' : '등록' }}</button>
+              <button type="button" class="btn-cancel" @click="cancelContactEdit" v-if="editingContact">취소</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Download Files 관리 -->
+      <div v-if="activeSection === 'download-files'" class="content-section">
+        <h1 class="section-title">Download Files 관리</h1>
+        
+        <!-- 검색/필터 섹션 -->
+        <div class="search-section">
+          <div class="search-filters">
+            <div class="filter-group">
+              <label>파일명</label>
+              <input v-model="downloadFileSearchFilters.name" placeholder="파일명을 입력하세요" />
+            </div>
+            <div class="filter-actions">
+              <button class="btn-reset" @click="resetDownloadFileFilters">초기화</button>
+              <button class="btn-search" @click="searchDownloadFiles">검색</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 다운로드 파일 목록 -->
+        <div class="download-files-list">
+          <h2>전체 목록</h2>
+          <div class="download-files-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>파일명</th>
+                  <th>파일 URL</th>
+                  <th>작업</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(file, index) in downloadFileList" :key="file.id">
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ file.name }}</td>
+                  <td>{{ file.fileUrl }}</td>
+                  <td>
+                    <button class="btn-edit" @click="editDownloadFile(file)">수정</button>
+                    <button class="btn-delete" @click="deleteDownloadFile(file.id)">삭제</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 다운로드 파일 등록/수정 폼 -->
+        <div class="download-file-form-section">
+          <h2>{{ editingDownloadFile ? '다운로드 파일 수정' : '새 다운로드 파일 등록' }}</h2>
+          <form @submit.prevent="handleDownloadFileSubmit" class="download-file-form">
+            <div class="form-group">
+              <label>표시 제목 * (사용자에게 보여질 제목)</label>
+              <input v-model="downloadFileForm.name" required placeholder="예: 공연 포스터, 악보 등" />
+            </div>
+
+            <div class="form-group">
+              <label>파일 업로드 *</label>
+              <div class="file-upload-container">
+                <input type="file" @change="handleDownloadFileUpload($event)" accept=".pdf" class="file-input" id="downloadFile">
+                <label for="downloadFile" class="file-upload-btn">PDF 파일 업로드</label>
+                <div v-if="downloadFileForm.fileUrl" class="file-preview">
+                  <p>업로드된 파일: {{ downloadFileForm.name }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>표시 순서</label>
+              <input type="number" v-model="downloadFileForm.displayOrder" />
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-save">{{ editingDownloadFile ? '수정' : '등록' }}</button>
+              <button type="button" class="btn-cancel" @click="cancelDownloadFileEdit" v-if="editingDownloadFile">취소</button>
+            </div>
+          </form>
+        </div>
       </div>
     </main>
   </div>
@@ -985,41 +1004,17 @@
 import { ref, onMounted } from 'vue'
 import axios from '../api/axios'
 
+// 백엔드 절대 URL 유틸
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+const toAbsoluteUrl = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
+  return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+}
+
 // 활성 섹션
 const activeSection = ref('dashboard')
 const mediaTab = ref('music')
-
-// Projects
-const projects = ref([])
-const editingProject = ref(null)
-const searchFilters = ref({
-  title: '',
-  location: '',
-  startDate: '',
-  endDate: ''
-})
-const projectForm = ref({
-  title: '',
-  subtitle: '',
-  premiereDate: '',
-  location: '',
-  description1: '',
-  description2: '',
-  description3: '',
-  mainImageUrl: '',
-  horizontal1ImageUrl: '',
-  horizontal2ImageUrl: '',
-  vertical1ImageUrl: '',
-  vertical2ImageUrl: '',
-  coverImageUrl: '',
-  moreInfoUrl: '',
-  review1Text: '',
-  review1Source: '',
-  review2Text: '',
-  review2Source: '',
-  urlSlug: '',
-  displayOrder: 0
-})
 
 // Concerts
 const concerts = ref([])
@@ -1088,6 +1083,9 @@ const photoAddForm = ref({
   title: '',
   displayOrder: 0
 })
+const selectedPhotoFiles = ref([])
+const photoPreviewUrls = ref([])
+const isUploadingPhotos = ref(false)
 const editingPhoto = ref(null)
 const photoEditForm = ref({
   id: null,
@@ -1135,108 +1133,20 @@ const contactForm = ref({
   name: '',
   role: '',
   email: '',
-  introText: '',
-  portfolioEnUrl: '',
-  portfolioDeUrl: '',
-  portfolioKrUrl: '',
-  stageRiderUrl: '',
-  cvUrl: '',
   displayOrder: 0
 })
 
-// API 호출 함수들
-const loadProjects = async () => {
-  try {
-    const response = await axios.get('/api/projects')
-    projects.value = response.data
-  } catch (error) {
-    console.error('프로젝트 로드 실패:', error)
-  }
-}
-
-// 프로젝트 검색
-const searchProjects = async () => {
-  try {
-    const params = new URLSearchParams()
-    if (searchFilters.value.title) params.append('title', searchFilters.value.title)
-    if (searchFilters.value.location) params.append('location', searchFilters.value.location)
-    if (searchFilters.value.startDate) params.append('startDate', searchFilters.value.startDate)
-    if (searchFilters.value.endDate) params.append('endDate', searchFilters.value.endDate)
-    
-    const response = await axios.get(`/api/projects?${params.toString()}`)
-    projects.value = response.data
-  } catch (error) {
-    console.error('프로젝트 검색 실패:', error)
-  }
-}
-
-// 필터 초기화
-const resetFilters = () => {
-  searchFilters.value = {
-    title: '',
-    location: '',
-    startDate: '',
-    endDate: ''
-  }
-  loadProjects()
-}
-
-const editProject = (project) => {
-  editingProject.value = project
-  projectForm.value = { ...project }
-}
-
-// 수정 취소
-const cancelEdit = () => {
-  editingProject.value = null
-  projectForm.value = {
-    title: '',
-    subtitle: '',
-    premiereDate: '',
-    location: '',
-    description1: '',
-    description2: '',
-    description3: '',
-    mainImageUrl: '',
-    horizontal1ImageUrl: '',
-    horizontal2ImageUrl: '',
-    vertical1ImageUrl: '',
-    vertical2ImageUrl: '',
-    coverImageUrl: '',
-    moreInfoUrl: '',
-    review1Text: '',
-    review1Source: '',
-    review2Text: '',
-    review2Source: '',
-    urlSlug: '',
-    displayOrder: 0
-  }
-}
-
-const saveProject = async () => {
-  try {
-    if (editingProject.value) {
-      await axios.put(`/api/projects/${editingProject.value.id}`, projectForm.value)
-    } else {
-      await axios.post('/api/projects', projectForm.value)
-    }
-    cancelEdit()
-    loadProjects()
-  } catch (error) {
-    console.error('프로젝트 저장 실패:', error)
-  }
-}
-
-const deleteProject = async (id) => {
-  if (confirm('정말 삭제하시겠습니까?')) {
-    try {
-      await axios.delete(`/api/projects/${id}`)
-      loadProjects()
-    } catch (error) {
-      console.error('프로젝트 삭제 실패:', error)
-    }
-  }
-}
+// Download Files
+const downloadFileList = ref([])
+const editingDownloadFile = ref(null)
+const downloadFileSearchFilters = ref({
+  name: ''
+})
+const downloadFileForm = ref({
+  name: '',
+  fileUrl: '',
+  displayOrder: 0
+})
 
 // 날짜 포맷팅
 const formatDate = (dateString) => {
@@ -1327,12 +1237,44 @@ const deleteConcert = async (id) => {
   }
 }
 
+// Past Event로 이동
+const moveToPastEvent = async (id) => {
+  if (confirm('이 콘서트를 Past Event로 이동하시겠습니까?')) {
+    try {
+      await axios.put(`/api/concerts/${id}/move-to-past`)
+      loadConcerts()
+      alert('Past Event로 이동되었습니다.')
+    } catch (error) {
+      console.error('Past Event 이동 실패:', error)
+      alert('이동에 실패했습니다.')
+    }
+  }
+}
+
+// Upcoming Event로 이동
+const moveToUpcomingEvent = async (id) => {
+  if (confirm('이 콘서트를 Upcoming Event로 이동하시겠습니까?')) {
+    try {
+      await axios.put(`/api/concerts/${id}/move-to-upcoming`)
+      loadConcerts()
+      alert('Upcoming Event로 이동되었습니다.')
+    } catch (error) {
+      console.error('Upcoming Event 이동 실패:', error)
+      alert('이동에 실패했습니다.')
+    }
+  }
+}
+
 const loadMusic = async () => {
   try {
+    console.log('Admin: 음악 데이터 로드 시작...')
     const response = await axios.get('/api/media/music')
+    console.log('Admin: API 응답:', response.data)
     musicList.value = response.data
+    console.log('Admin: 음악 리스트 업데이트 완료:', musicList.value)
   } catch (error) {
-    console.error('음악 로드 실패:', error)
+    console.error('Admin: 음악 로드 실패:', error)
+    console.error('Admin: 에러 상세:', error.response?.data)
   }
 }
 
@@ -1378,15 +1320,23 @@ const cancelMusicEdit = () => {
 
 const saveMusic = async () => {
   try {
+    console.log('음악 저장 시작:', musicForm.value)
+    
+    let response
     if (editingMusic.value) {
-      await axios.put(`/api/media/music/${editingMusic.value.id}`, musicForm.value)
+      response = await axios.put(`/api/media/music/${editingMusic.value.id}`, musicForm.value)
+      console.log('음악 수정 완료:', response.data)
     } else {
-      await axios.post('/api/media/music', musicForm.value)
+      response = await axios.post('/api/media/music', musicForm.value)
+      console.log('음악 생성 완료:', response.data)
     }
+    
     cancelMusicEdit()
     loadMusic()
   } catch (error) {
     console.error('음악 저장 실패:', error)
+    console.error('에러 상세:', error.response?.data)
+    alert('음악 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 
@@ -1403,10 +1353,14 @@ const deleteMusic = async (id) => {
 
 const loadVideos = async () => {
   try {
+    console.log('Admin: 비디오 로드 시작...')
     const response = await axios.get('/api/media/videos')
+    console.log('Admin: 비디오 API 응답:', response.data)
     videos.value = response.data
+    console.log('Admin: 비디오 리스트 업데이트 완료:', videos.value.length, '개')
   } catch (error) {
-    console.error('비디오 로드 실패:', error)
+    console.error('Admin: 비디오 로드 실패:', error)
+    console.error('Admin: 에러 상세:', error.response?.data)
   }
 }
 
@@ -1448,16 +1402,42 @@ const cancelVideoEdit = () => {
 
 const saveVideo = async () => {
   try {
+    // iframe 코드에서 URL 추출
+    const extractedUrl = extractEmbedUrl(videoForm.value.embedUrl)
+    
+    const videoData = {
+      ...videoForm.value,
+      embedUrl: extractedUrl
+    }
+    
     if (editingVideo.value) {
-      await axios.put(`/api/media/videos/${editingVideo.value.id}`, videoForm.value)
+      await axios.put(`/api/media/videos/${editingVideo.value.id}`, videoData)
     } else {
-      await axios.post('/api/media/videos', videoForm.value)
+      await axios.post('/api/media/videos', videoData)
     }
     cancelVideoEdit()
     loadVideos()
   } catch (error) {
     console.error('비디오 저장 실패:', error)
   }
+}
+
+// iframe 코드에서 embed URL 추출
+const extractEmbedUrl = (input) => {
+  if (!input) return ''
+  
+  // 이미 순수 URL인 경우
+  if (input.startsWith('https://') && !input.includes('<iframe')) {
+    return input.trim()
+  }
+  
+  // iframe 코드에서 src 추출
+  const srcMatch = input.match(/src=["']([^"']+)["']/)
+  if (srcMatch && srcMatch[1]) {
+    return srcMatch[1]
+  }
+  
+  return input.trim()
 }
 
 const deleteVideo = async (id) => {
@@ -1473,10 +1453,14 @@ const deleteVideo = async (id) => {
 
 const loadPhotoGroups = async () => {
   try {
+    console.log('Admin: 사진 그룹 로드 시작...')
     const response = await axios.get('/api/media/photo-groups')
+    console.log('Admin: 사진 그룹 API 응답:', response.data)
     photoGroups.value = response.data
+    console.log('Admin: 사진 그룹 리스트 업데이트 완료:', photoGroups.value.length, '개')
   } catch (error) {
-    console.error('사진 그룹 로드 실패:', error)
+    console.error('Admin: 사진 그룹 로드 실패:', error)
+    console.error('Admin: 에러 상세:', error.response?.data)
   }
 }
 
@@ -1541,13 +1525,25 @@ const deletePhotoGroup = async (id) => {
 }
 
 // 사진 그룹 상세 보기 토글
-const togglePhotoGroupDetails = (groupId) => {
+const togglePhotoGroupDetails = async (groupId) => {
   if (selectedPhotoGroup.value && selectedPhotoGroup.value.id === groupId) {
     selectedPhotoGroup.value = null
   } else {
-    const group = photoGroups.value.find(g => g.id === groupId)
-    if (group) {
-      selectedPhotoGroup.value = group
+    try {
+      // 사진 그룹 정보와 사진 목록을 함께 로드
+      const [groupResponse, photosResponse] = await Promise.all([
+        axios.get(`/api/media/photo-groups/${groupId}`),
+        axios.get(`/api/media/photo-groups/${groupId}/photos`)
+      ])
+      
+      selectedPhotoGroup.value = {
+        ...groupResponse.data,
+        photos: photosResponse.data
+      }
+      console.log('선택된 사진 그룹:', selectedPhotoGroup.value)
+    } catch (error) {
+      console.error('사진 그룹 상세 로드 실패:', error)
+      alert('사진 그룹 정보를 불러오는데 실패했습니다.')
     }
   }
 }
@@ -1565,25 +1561,78 @@ const resetPhotoAddForm = () => {
     title: '',
     displayOrder: 0
   }
+  selectedPhotoFiles.value = []
+  photoPreviewUrls.value = []
+  // 파일 input 초기화
+  const fileInput = document.getElementById('photoFile')
+  if (fileInput) {
+    fileInput.value = ''
+  }
 }
 
-// 사진 추가
+// 사진 추가 (여러 개)
 const addPhotoToGroup = async () => {
+  if (selectedPhotoFiles.value.length === 0) {
+    alert('업로드할 사진을 선택해주세요.')
+    return
+  }
+
+  if (!photoAddForm.value.photoGroupId) {
+    alert('사진 그룹을 선택해주세요.')
+    return
+  }
+
+  isUploadingPhotos.value = true
+  let successCount = 0
+  let failCount = 0
+
   try {
-    await axios.post('/api/media/photos', photoAddForm.value)
-    resetPhotoAddForm()
-    loadPhotoGroups()
-    // 선택된 그룹이 있으면 해당 그룹의 사진 목록도 새로고침
-    if (selectedPhotoGroup.value) {
-      const updatedGroup = photoGroups.value.find(g => g.id === selectedPhotoGroup.value.id)
-      if (updatedGroup) {
-        selectedPhotoGroup.value = updatedGroup
+    // 각 파일을 순차적으로 업로드
+    for (let i = 0; i < selectedPhotoFiles.value.length; i++) {
+      const file = selectedPhotoFiles.value[i]
+      
+      try {
+        // 파일 업로드
+            const imageUrl = await uploadImage(file)
+        
+            if (imageUrl) {
+          // 사진 정보 저장
+          await axios.post(`/api/media/photo-groups/${photoAddForm.value.photoGroupId}/photos`, {
+            imageUrl: imageUrl,
+            title: photoAddForm.value.title ? `${photoAddForm.value.title} ${i + 1}` : file.name,
+            displayOrder: photoAddForm.value.displayOrder + i
+          })
+          successCount++
+        } else {
+          failCount++
+        }
+      } catch (error) {
+        console.error(`사진 ${i + 1} 추가 실패:`, error)
+        failCount++
       }
     }
-    alert('사진이 추가되었습니다.')
+
+    // 결과 메시지 (그룹 단위 1회)
+    if (successCount > 0) {
+      alert(`사진 그룹에 ${successCount}개의 사진이 추가되었습니다.${failCount > 0 ? ` (${failCount}개 실패)` : ''}`)
+      resetPhotoAddForm()
+      loadPhotoGroups()
+      
+      // 선택된 그룹이 있으면 해당 그룹의 사진 목록도 새로고침
+      if (selectedPhotoGroup.value) {
+        const updatedGroup = photoGroups.value.find(g => g.id === selectedPhotoGroup.value.id)
+        if (updatedGroup) {
+          selectedPhotoGroup.value = updatedGroup
+        }
+      }
+    } else {
+      alert('모든 사진 추가에 실패했습니다.')
+    }
   } catch (error) {
     console.error('사진 추가 실패:', error)
-    alert('사진 추가에 실패했습니다.')
+    alert('사진 추가 중 오류가 발생했습니다.')
+  } finally {
+    isUploadingPhotos.value = false
   }
 }
 
@@ -1615,11 +1664,15 @@ const savePhoto = async () => {
     await axios.put(`/api/media/photos/${photoEditForm.value.id}`, photoEditForm.value)
     cancelPhotoEdit()
     loadPhotoGroups()
+    
     // 선택된 그룹이 있으면 해당 그룹의 사진 목록도 새로고침
     if (selectedPhotoGroup.value) {
-      const updatedGroup = photoGroups.value.find(g => g.id === selectedPhotoGroup.value.id)
-      if (updatedGroup) {
-        selectedPhotoGroup.value = updatedGroup
+      try {
+        const photosResponse = await axios.get(`/api/media/photo-groups/${selectedPhotoGroup.value.id}/photos`)
+        selectedPhotoGroup.value.photos = photosResponse.data
+        console.log('사진 수정 후 그룹 사진 목록 업데이트:', selectedPhotoGroup.value.photos.length, '개')
+      } catch (error) {
+        console.error('사진 목록 새로고침 실패:', error)
       }
     }
     alert('사진이 수정되었습니다.')
@@ -1635,11 +1688,15 @@ const deletePhoto = async (photoId) => {
     try {
       await axios.delete(`/api/media/photos/${photoId}`)
       loadPhotoGroups()
+      
       // 선택된 그룹이 있으면 해당 그룹의 사진 목록도 새로고침
       if (selectedPhotoGroup.value) {
-        const updatedGroup = photoGroups.value.find(g => g.id === selectedPhotoGroup.value.id)
-        if (updatedGroup) {
-          selectedPhotoGroup.value = updatedGroup
+        try {
+          const photosResponse = await axios.get(`/api/media/photo-groups/${selectedPhotoGroup.value.id}/photos`)
+          selectedPhotoGroup.value.photos = photosResponse.data
+          console.log('사진 삭제 후 그룹 사진 목록 업데이트:', selectedPhotoGroup.value.photos.length, '개')
+        } catch (error) {
+          console.error('사진 목록 새로고침 실패:', error)
         }
       }
       alert('사진이 삭제되었습니다.')
@@ -1652,10 +1709,14 @@ const deletePhoto = async (photoId) => {
 
 const loadNews = async () => {
   try {
+    console.log('Admin: 뉴스 로드 시작...')
     const response = await axios.get('/api/media/news')
+    console.log('Admin: 뉴스 API 응답:', response.data)
     newsList.value = response.data
+    console.log('Admin: 뉴스 리스트 업데이트 완료:', newsList.value.length, '개')
   } catch (error) {
-    console.error('뉴스 로드 실패:', error)
+    console.error('Admin: 뉴스 로드 실패:', error)
+    console.error('Admin: 에러 상세:', error.response?.data)
   }
 }
 
@@ -1727,10 +1788,14 @@ const deleteNews = async (id) => {
 
 const loadEquipment = async () => {
   try {
+    console.log('Admin: 장비 로드 시작...')
     const response = await axios.get('/api/media/equipment')
+    console.log('Admin: 장비 API 응답:', response.data)
     equipmentList.value = response.data
+    console.log('Admin: 장비 리스트 업데이트 완료:', equipmentList.value.length, '개')
   } catch (error) {
-    console.error('장비 로드 실패:', error)
+    console.error('Admin: 장비 로드 실패:', error)
+    console.error('Admin: 에러 상세:', error.response?.data)
   }
 }
 
@@ -1797,7 +1862,7 @@ const deleteEquipment = async (id) => {
 
 const loadContact = async () => {
   try {
-    const response = await axios.get('/api/contact')
+    const response = await axios.get('/api/media/contacts')
     contactList.value = response.data
   } catch (error) {
     console.error('연락처 로드 실패:', error)
@@ -1812,7 +1877,7 @@ const searchContacts = async () => {
     if (contactSearchFilters.value.role) params.append('role', contactSearchFilters.value.role)
     if (contactSearchFilters.value.email) params.append('email', contactSearchFilters.value.email)
     
-    const response = await axios.get(`/api/contact?${params.toString()}`)
+    const response = await axios.get(`/api/media/contacts?${params.toString()}`)
     contactList.value = response.data
   } catch (error) {
     console.error('연락처 검색 실패:', error)
@@ -1841,34 +1906,60 @@ const cancelContactEdit = () => {
     name: '',
     role: '',
     email: '',
-    introText: '',
-    portfolioEnUrl: '',
-    portfolioDeUrl: '',
-    portfolioKrUrl: '',
-    stageRiderUrl: '',
-    cvUrl: '',
     displayOrder: 0
   }
+  console.log('Contact 폼 초기화 완료:', contactForm.value)
+}
+
+// Contact 폼 제출 핸들러
+const handleContactSubmit = (event) => {
+  console.log('Contact 폼 제출 이벤트 발생')
+  console.log('현재 contactForm 값:', contactForm.value)
+  console.log('editingContact 상태:', editingContact.value)
+  saveContact()
 }
 
 const saveContact = async () => {
   try {
-    if (editingContact.value) {
-      await axios.put(`/api/contact/${editingContact.value.id}`, contactForm.value)
-    } else {
-      await axios.post('/api/contact', contactForm.value)
+    console.log('Contact 저장 시작:', contactForm.value)
+    
+    // 필수 필드 검증
+    if (!contactForm.value.name || !contactForm.value.email) {
+      alert('이름과 이메일은 필수 입력 항목입니다.')
+      return
     }
+    
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(contactForm.value.email)) {
+      alert('올바른 이메일 형식을 입력해주세요.')
+      return
+    }
+    
+    if (editingContact.value) {
+      console.log('Contact 수정 중...')
+      await axios.put(`/api/media/contacts/${editingContact.value.id}`, contactForm.value)
+      console.log('Contact 수정 완료')
+    } else {
+      console.log('Contact 생성 중...')
+      await axios.post('/api/media/contacts', contactForm.value)
+      console.log('Contact 생성 완료')
+    }
+    
     cancelContactEdit()
     loadContact()
+    alert('연락처가 성공적으로 저장되었습니다.')
   } catch (error) {
     console.error('연락처 저장 실패:', error)
+    console.error('에러 상세:', error.response?.data)
+    alert('연락처 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 
 const deleteContact = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await axios.delete(`/api/contact/${id}`)
+      await axios.delete(`/api/media/contacts/${id}`)
       loadContact()
     } catch (error) {
       console.error('연락처 삭제 실패:', error)
@@ -1876,8 +1967,276 @@ const deleteContact = async (id) => {
   }
 }
 
+// 자동으로 Past Event로 이동하는 함수
+const autoMovePastEvents = async () => {
+  try {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // 오늘 자정으로 설정
+    
+    // 어제까지의 콘서트들을 Past Event로 이동
+    const response = await axios.put('/api/concerts/auto-move-past', {
+      currentDate: today.toISOString().split('T')[0]
+    })
+    
+    if (response.data.movedCount > 0) {
+      console.log(`${response.data.movedCount}개의 콘서트가 자동으로 Past Event로 이동되었습니다.`)
+      loadConcerts() // 목록 새로고침
+    }
+  } catch (error) {
+    console.error('자동 이동 실패:', error)
+  }
+}
+
+// 수동으로 자동 이동 실행
+const triggerAutoMove = async () => {
+  if (confirm('어제까지의 모든 콘서트를 Past Event로 자동 이동하시겠습니까?')) {
+    await autoMovePastEvents()
+    alert('자동 이동이 완료되었습니다.')
+  }
+}
+
+// 파일 업로드 처리 (공통)
+const uploadImage = async (file) => {
+  // 파일 크기 확인 (15MB 제한)
+  if (file.size > 15 * 1024 * 1024) {
+    alert('파일 크기는 15MB를 초과할 수 없습니다.')
+    return null
+  }
+  
+  // 이미지 파일인지 확인
+  if (!file.type.startsWith('image/')) {
+    alert('이미지 파일만 업로드 가능합니다.')
+    return null
+  }
+  
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await axios.post('/api/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    // 성공 시 알림은 그룹 단위로만 표시하기 위해 여기서는 반환만 합니다
+    return response.data.url
+  } catch (error) {
+    console.error('파일 업로드 실패:', error)
+    return null
+  }
+}
+
+// 일반 파일 업로드 처리 (PDF, 이미지)
+const uploadFile = async (file) => {
+  // 파일 크기 확인 (15MB 제한)
+  if (file.size > 15 * 1024 * 1024) {
+    alert('파일 크기는 15MB를 초과할 수 없습니다.')
+    return null
+  }
+  
+  // 허용된 파일 타입 확인 (PDF, 이미지)
+  if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+    alert('이미지 파일 또는 PDF 파일만 업로드 가능합니다.')
+    return null
+  }
+  
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    
+    const response = await axios.post('/api/upload/file', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data.url
+  } catch (error) {
+    console.error('파일 업로드 실패:', error)
+    alert('파일 업로드에 실패했습니다: ' + (error.response?.data || error.message))
+    return null
+  }
+}
+
+// Music 커버 이미지 업로드
+const handleMusicFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  const url = await uploadImage(file)
+  if (url) {
+    musicForm.value.coverUrl = toAbsoluteUrl(url)
+  }
+}
+
+// Photo 추가 파일 업로드 (여러 개)
+const handleMultiplePhotoFileUpload = (event) => {
+  const files = Array.from(event.target.files)
+  if (files.length === 0) return
+  
+  selectedPhotoFiles.value = files
+  
+  // 미리보기 URL 생성
+  photoPreviewUrls.value = files.map(file => URL.createObjectURL(file))
+}
+
+// 선택된 파일 제거
+const removePhotoFile = (index) => {
+  // 미리보기 URL 해제
+  URL.revokeObjectURL(photoPreviewUrls.value[index])
+  
+  // 배열에서 제거
+  selectedPhotoFiles.value.splice(index, 1)
+  photoPreviewUrls.value.splice(index, 1)
+  
+  // 파일 input 업데이트 (선택된 파일들로 재설정)
+  const fileInput = document.getElementById('photoFile')
+  if (fileInput && selectedPhotoFiles.value.length === 0) {
+    fileInput.value = ''
+  }
+}
+
+// Photo 수정 파일 업로드
+const handlePhotoEditFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  const url = await uploadImage(file)
+  if (url) {
+    photoEditForm.value.imageUrl = toAbsoluteUrl(url)
+  }
+}
+
+// Equipment 이미지 업로드
+const handleEquipmentFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  const url = await uploadImage(file)
+  if (url) {
+    equipmentForm.value.imageUrl = url
+  }
+}
+
+// Download Files 관련 함수들
+const loadDownloadFiles = async () => {
+  try {
+    const response = await axios.get('/api/media/download-files')
+    // displayOrder 순으로 정렬
+    downloadFileList.value = response.data.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+  } catch (error) {
+    console.error('다운로드 파일 로드 실패:', error)
+  }
+}
+
+const searchDownloadFiles = async () => {
+  try {
+    const params = new URLSearchParams()
+    if (downloadFileSearchFilters.value.name) params.append('name', downloadFileSearchFilters.value.name)
+    
+    const response = await axios.get(`/api/media/download-files?${params.toString()}`)
+    downloadFileList.value = response.data
+  } catch (error) {
+    console.error('다운로드 파일 검색 실패:', error)
+  }
+}
+
+const resetDownloadFileFilters = () => {
+  downloadFileSearchFilters.value = {
+    name: ''
+  }
+  loadDownloadFiles()
+}
+
+const editDownloadFile = (file) => {
+  editingDownloadFile.value = file
+  downloadFileForm.value = { ...file }
+}
+
+const cancelDownloadFileEdit = () => {
+  editingDownloadFile.value = null
+  downloadFileForm.value = {
+    name: '',
+    fileUrl: '',
+    displayOrder: 0
+  }
+}
+
+// Download File 폼 제출 핸들러
+const handleDownloadFileSubmit = (event) => {
+  console.log('Download File 폼 제출 이벤트 발생')
+  console.log('현재 downloadFileForm 값:', downloadFileForm.value)
+  console.log('editingDownloadFile 상태:', editingDownloadFile.value)
+  saveDownloadFile()
+}
+
+const saveDownloadFile = async () => {
+  try {
+    console.log('Download File 저장 시작:', downloadFileForm.value)
+    
+    // 필수 필드 검증
+    if (!downloadFileForm.value.name || !downloadFileForm.value.fileUrl) {
+      alert('파일명과 파일 업로드는 필수 항목입니다.')
+      return
+    }
+    
+    if (editingDownloadFile.value) {
+      console.log('Download File 수정 중...')
+      await axios.put(`/api/media/download-files/${editingDownloadFile.value.id}`, downloadFileForm.value)
+      console.log('Download File 수정 완료')
+    } else {
+      console.log('Download File 생성 중...')
+      await axios.post('/api/media/download-files', downloadFileForm.value)
+      console.log('Download File 생성 완료')
+    }
+    
+    cancelDownloadFileEdit()
+    loadDownloadFiles()
+    alert('다운로드 파일이 성공적으로 저장되었습니다.')
+  } catch (error) {
+    console.error('다운로드 파일 저장 실패:', error)
+    console.error('에러 상세:', error.response?.data)
+    alert('다운로드 파일 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
+  }
+}
+
+const deleteDownloadFile = async (id) => {
+  if (confirm('정말 삭제하시겠습니까?')) {
+    try {
+      await axios.delete(`/api/media/download-files/${id}`)
+      loadDownloadFiles()
+    } catch (error) {
+      console.error('다운로드 파일 삭제 실패:', error)
+    }
+  }
+}
+
+const handleDownloadFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  console.log('PDF 파일 업로드 시작:', file.name, file.type)
+  
+  // PDF 파일인지 확인
+  if (file.type !== 'application/pdf') {
+    alert('PDF 파일만 업로드 가능합니다.')
+    return
+  }
+  
+  const url = await uploadFile(file)
+  if (url) {
+    downloadFileForm.value.fileUrl = toAbsoluteUrl(url)
+    // 파일명이 비어있을 때만 파일명으로 설정 (사용자가 입력한 제목을 유지)
+    if (!downloadFileForm.value.name) {
+      downloadFileForm.value.name = file.name.replace('.pdf', '')
+    }
+    console.log('PDF 파일 업로드 성공:', url)
+    alert('PDF 파일이 성공적으로 업로드되었습니다.')
+  } else {
+    console.log('PDF 파일 업로드 실패')
+  }
+}
+
 onMounted(() => {
-  loadProjects()
   loadConcerts()
   loadMusic()
   loadVideos()
@@ -1885,6 +2244,7 @@ onMounted(() => {
   loadNews()
   loadEquipment()
   loadContact()
+  loadDownloadFiles()
 })
 </script>
 
@@ -1969,24 +2329,193 @@ onMounted(() => {
 }
 
 /* Dashboard */
-.dashboard-card {
-  background: #ecf0f1;
-  padding: 2rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.dashboard-card h3 {
-  margin-bottom: 1rem;
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.stat-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #3498db;
+  margin: 0;
+  line-height: 1;
+}
+
+.stat-label {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.dashboard-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dashboard-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 0.5rem;
+}
+
+.activity-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.activity-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.activity-content h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.activity-content p {
+  margin: 0.25rem 0;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.quick-action-btn:hover {
+  background: #3498db;
+  color: white;
+  border-color: #3498db;
+  transform: translateY(-2px);
+}
+
+.quick-action-icon {
+  font-size: 2rem;
+}
+
+.quick-action-btn span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.system-status {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.status-label {
+  flex: 1;
+  font-weight: 500;
   color: #2c3e50;
 }
 
-.stats-placeholder {
-  background: white;
-  padding: 2rem;
-  border-radius: 4px;
-  text-align: center;
+.status-indicator {
+  font-size: 1.2rem;
+}
+
+.status-indicator.success {
+  color: #27ae60;
+}
+
+.status-indicator.warning {
+  color: #f39c12;
+}
+
+.status-indicator.error {
+  color: #e74c3c;
+}
+
+.status-text {
   color: #7f8c8d;
+  font-size: 0.9rem;
 }
 
 /* 탭 */
@@ -2104,6 +2633,7 @@ tbody tr:hover {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-right: 0.5rem;
   transition: background 0.3s;
 }
 
@@ -2222,6 +2752,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
@@ -2351,6 +2882,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
@@ -2375,14 +2907,65 @@ tbody tr:hover {
   border: 1px solid #e9ecef;
 }
 
-.concerts-list h2 {
+.concerts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.concerts-header h2 {
+  margin: 0;
   color: #2c3e50;
   font-size: 1.5rem;
 }
 
+.btn-auto-move {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-auto-move:hover {
+  background: #138496;
+}
+
 .concerts-table {
   overflow-x: auto;
+}
+
+.btn-move-past {
+  background: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.btn-move-past:hover {
+  background: #e0a800;
+}
+
+.btn-move-upcoming {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.btn-move-upcoming:hover {
+  background: #218838;
 }
 
 /* 연락처 폼 섹션 */
@@ -2390,7 +2973,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 2rem;
   border: 1px solid #e9ecef;
 }
 
@@ -2398,6 +2981,48 @@ tbody tr:hover {
   margin-bottom: 1.5rem;
   color: #2c3e50;
   font-size: 1.5rem;
+}
+
+/* Download Files 관련 스타일 */
+.download-files-list {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.download-files-list h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.download-files-table {
+  overflow-x: auto;
+}
+
+.download-file-form-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-top: 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.download-file-form-section h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.file-preview {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #e9ecef;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #666;
 }
 
 .contact-form {
@@ -2411,6 +3036,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
 
@@ -2429,6 +3055,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
@@ -2468,6 +3095,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
@@ -2507,6 +3135,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
@@ -2546,6 +3175,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
@@ -2585,6 +3215,7 @@ tbody tr:hover {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 2rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
   border: 1px solid #e9ecef;
 }
@@ -2756,6 +3387,14 @@ tbody tr:hover {
   font-size: 0.9rem;
 }
 
+/* 사진 그룹 액션 버튼 크기 통일 */
+.photo-groups-table .btn-edit,
+.photo-groups-table .btn-delete,
+.photo-groups-table .btn-manage {
+  min-width: 88px;
+  text-align: center;
+}
+
 .btn-manage:hover {
   opacity: 0.8;
 }
@@ -2774,22 +3413,113 @@ tbody tr:hover {
   opacity: 0.8;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
-  .search-filters {
-    grid-template-columns: 1fr;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-  
-  .filter-actions {
-    justify-content: stretch;
-  }
-  
-  .btn-reset, .btn-search {
-    flex: 1;
-  }
+/* 파일 업로드 스타일 */
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
+
+.file-input {
+  display: none;
+}
+
+.file-upload-btn {
+  padding: 0.5rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.file-upload-btn:hover {
+  background: #2980b9;
+}
+
+.url-input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.image-preview {
+  margin-top: 0.5rem;
+}
+
+.image-preview img {
+  max-width: 200px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* 여러 파일 선택 정보 */
+.selected-files-info {
+  margin-top: 1rem;
+}
+
+.selected-files-info p {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* 여러 이미지 미리보기 */
+.multiple-image-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.preview-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e9ecef;
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-remove-preview {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+.btn-remove-preview:hover {
+  background: rgba(192, 57, 43, 1);
+}
+
 </style>

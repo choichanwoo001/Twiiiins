@@ -118,11 +118,13 @@
 
       <!-- EQUIPMENT 섹션 -->
       <div v-if="activeSection === 'equipment'" class="content-section">
-        <div class="equipment-item">
-          <div class="equipment-image">
-            <img src="../imgs/exphoto1.png" alt="BOSS RC-600 LOOP STATION">
+        <div class="equipment-grid">
+          <div class="equipment-item" v-for="equipment in equipmentList" :key="equipment.id">
+            <div class="equipment-image">
+              <img :src="equipment.imageUrl || '../imgs/exphoto1.png'" :alt="equipment.name">
+            </div>
+            <div class="equipment-name">{{ equipment.name }}</div>
           </div>
-          <div class="equipment-name">Loopstation RC 600</div>
         </div>
       </div>
     </div>
@@ -130,7 +132,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from '../api/axios'
+
+// 백엔드 절대 URL 생성 유틸
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+const toAbsoluteUrl = (url) => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
+  return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+}
 
 // 활성 섹션 상태
 const activeSection = ref('')
@@ -145,124 +156,186 @@ const artistProfileImage = computed(() => {
   return new URL('../imgs/home.png', import.meta.url).href
 })
 
-// 음악 데이터 (앨범들만)
-const musicItems = ref([
-  {
-    id: 1,
-    title: 'Time',
-    artist: 'TWIIIINS',
-    cover: new URL('../imgs/music/time.png', import.meta.url).href
-  },
-  {
-    id: 2,
-    title: 'Common Room',
-    artist: 'TWIIIINS',
-    cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
-  }
-])
+// 음악 데이터
+const musicItems = ref([])
 
 // 비디오 데이터
-const videos = ref([
-  {
-    id: 1,
-    title: 'TWIIIINS Performance 1',
-    embedUrl: 'https://www.youtube.com/embed/7D3tv-8Fmlw?si=J9m58u_Y8H1LPnIj'
-  },
-  {
-    id: 2,
-    title: 'TWIIIINS Performance 2',
-    embedUrl: 'https://www.youtube.com/embed/QSG4jJmb5mA?si=Hs3oEZhQR3WPRXa4'
-  },
-  {
-    id: 3,
-    title: 'TWIIIINS Performance 3',
-    embedUrl: 'https://www.youtube.com/embed/qj-EO0di6S4?si=QELDshOJkoC_ON7x'
-  },
-  {
-    id: 4,
-    title: 'TWIIIINS Performance 4',
-    embedUrl: 'https://www.youtube.com/embed/anb6UtTP-wE?si=dCaJRmd-NTWoEJyA'
+const videos = ref([])
+
+// 장비 데이터
+const equipmentList = ref([])
+
+// 음악 데이터 로드
+const loadMusic = async () => {
+  try {
+    console.log('음악 데이터 로드 시작...')
+    const response = await axios.get('/api/media/music')
+    console.log('API 응답:', response.data)
+    
+    if (response.data && response.data.length > 0) {
+      musicItems.value = response.data.map(music => ({
+        id: music.id,
+        title: music.title,
+        artist: music.artist,
+        cover: music.coverUrl ? toAbsoluteUrl(music.coverUrl) : new URL('../imgs/music/time.png', import.meta.url).href
+      }))
+      console.log('음악 데이터 매핑 완료:', musicItems.value)
+    } else {
+      console.log('음악 데이터가 비어있음, 기본 데이터 사용')
+      musicItems.value = [
+        {
+          id: 1,
+          title: 'Time',
+          artist: 'TWIIIINS',
+          cover: new URL('../imgs/music/time.png', import.meta.url).href
+        },
+        {
+          id: 2,
+          title: 'Common Room',
+          artist: 'TWIIIINS',
+          cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
+        }
+      ]
+    }
+  } catch (error) {
+    console.error('음악 로드 실패:', error)
+    console.error('에러 상세:', error.response?.data)
+    // 에러 시 기본 데이터 사용
+    musicItems.value = [
+      {
+        id: 1,
+        title: 'Time',
+        artist: 'TWIIIINS',
+        cover: new URL('../imgs/music/time.png', import.meta.url).href
+      },
+      {
+        id: 2,
+        title: 'Common Room',
+        artist: 'TWIIIINS',
+        cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
+      }
+    ]
   }
-])
-
-// 동적 이미지 로딩을 위한 import.meta.glob 사용 (자산 URL로 반환)
-const photoModules = import.meta.glob('../imgs/Photos/**/*.{jpg,jpeg,png,JPG,JPEG,PNG}', { as: 'url', eager: true })
-
-// 폴더별로 사진들을 그룹화하는 함수
-const groupPhotosByFolder = () => {
-  const groups = {}
-  
-  Object.keys(photoModules).forEach(path => {
-    // 경로에서 폴더명 추출 (예: ../imgs/Photos/001 02.08.2025 in Flensburg by Flensburger Hofkultur/filename.jpg)
-    const pathParts = path.split('/')
-    const folderName = pathParts[pathParts.length - 2] // 폴더명
-    
-    if (!groups[folderName]) {
-      groups[folderName] = []
-    }
-    
-    // 폴더명에서 날짜와 장소 정보 추출
-    const folderInfo = folderName.match(/^\d+\s+(.+?)\s+by\s+/)
-    const title = folderInfo ? folderInfo[1] : folderName
-    
-    groups[folderName].push({
-      src: photoModules[path],
-      alt: `TWIIIINS Performance ${title}`,
-      folderName: folderName,
-      title: title
-    })
-  })
-  
-  // 그룹을 배열로 변환하고 정렬
-  // 폴더명 앞의 번호로 정렬
-  const sortedFolderNames = Object.keys(groups).sort((a, b) => {
-    const na = parseInt(a.split(' ')[0], 10)
-    const nb = parseInt(b.split(' ')[0], 10)
-    return na - nb
-  })
-
-  return sortedFolderNames.map((folderName, index) => {
-    const folderInfo = folderName.match(/^\d+\s+(.+?)\s+by\s+/)
-    const title = folderInfo ? folderInfo[1] : folderName
-    
-    return {
-      id: index + 1,
-      title: title,
-      photos: groups[folderName]
-    }
-  }).sort((a, b) => a.id - b.id) // 폴더 번호순으로 정렬
 }
 
-// 사진 데이터 (동적 로딩)
-const photoGroups = ref(groupPhotosByFolder())
+// 비디오 데이터 로드
+const loadVideos = async () => {
+  try {
+    const response = await axios.get('/api/media/videos')
+    videos.value = response.data.map(video => ({
+      id: video.id,
+      title: video.title,
+      embedUrl: video.embedUrl
+    }))
+  } catch (error) {
+    console.error('비디오 로드 실패:', error)
+    // 에러 시 기본 데이터 사용
+    videos.value = [
+      {
+        id: 1,
+        title: 'TWIIIINS Performance 1',
+        embedUrl: 'https://www.youtube.com/embed/7D3tv-8Fmlw?si=J9m58u_Y8H1LPnIj'
+      },
+      {
+        id: 2,
+        title: 'TWIIIINS Performance 2',
+        embedUrl: 'https://www.youtube.com/embed/QSG4jJmb5mA?si=Hs3oEZhQR3WPRXa4'
+      },
+      {
+        id: 3,
+        title: 'TWIIIINS Performance 3',
+        embedUrl: 'https://www.youtube.com/embed/qj-EO0di6S4?si=QELDshOJkoC_ON7x'
+      },
+      {
+        id: 4,
+        title: 'TWIIIINS Performance 4',
+        embedUrl: 'https://www.youtube.com/embed/anb6UtTP-wE?si=dCaJRmd-NTWoEJyA'
+      }
+    ]
+  }
+}
+
+// 페이지 로드 시 데이터 가져오기
+onMounted(() => {
+  loadMusic()
+  loadVideos()
+  loadPhotoGroups()
+  loadNews()
+  loadEquipment()
+})
+
+// 사진 그룹 데이터
+const photoGroups = ref([])
+
+// 사진 그룹 데이터 로드
+const loadPhotoGroups = async () => {
+  try {
+    const response = await axios.get('/api/media/photo-groups')
+    photoGroups.value = response.data.map(group => ({
+      id: group.id,
+      title: group.title,
+      photos: group.photos ? group.photos.map(photo => ({
+        src: toAbsoluteUrl(photo.imageUrl),
+        alt: photo.title || `Photo from ${group.title}`
+      })) : []
+    }))
+  } catch (error) {
+    console.error('사진 그룹 로드 실패:', error)
+    // 에러 시 기본 데이터 사용
+    photoGroups.value = []
+  }
+}
+
+// 장비 데이터 로드
+const loadEquipment = async () => {
+  try {
+    const response = await axios.get('/api/media/equipment')
+    equipmentList.value = response.data.map(equipment => ({
+      id: equipment.id,
+      name: equipment.name,
+      imageUrl: toAbsoluteUrl(equipment.imageUrl)
+    }))
+  } catch (error) {
+    console.error('장비 로드 실패:', error)
+    // 에러 시 기본 데이터 사용
+    equipmentList.value = [
+      {
+        id: 1,
+        name: 'Loopstation RC 600',
+        imageUrl: '../imgs/exphoto1.png'
+      }
+    ]
+  }
+}
 
 // 뉴스 데이터
-const newsList = ref([
-  {
-    id: 1,
-    date: '15.09.25',
-    title: 'Concert announcement',
-    description: "We're thrilled to announce that we are returning to Japan for the third time! This time, we'll be performing in Tokyo, Niigata, Nagoya, Sendai, Hyogo, and Yokohama - and we couldn't be"
-  },
-  {
-    id: 2,
-    date: '15.09.25',
-    title: 'Concert announcement',
-    description: "We're thrilled to announce that we are returning to Japan for the third time! This time, we'll be performing in Tokyo, Niigata, Nagoya, Sendai, Hyogo, and Yokohama - and we couldn't be"
-  },
-  {
-    id: 3,
-    date: '15.09.25',
-    title: 'Concert announcement',
-    description: "We're thrilled to announce that we are returning to Japan for the third time! This time, we'll be performing in Tokyo, Niigata, Nagoya, Sendai, Hyogo, and Yokohama - and we couldn't be"
-  },
-  {
-    id: 4,
-    date: '15.09.25',
-    title: 'Concert announcement',
-    description: "We're thrilled to announce that we are returning to Japan for the third time! This time, we'll be performing in Tokyo, Niigata, Nagoya, Sendai, Hyogo, and Yokohama - and we couldn't be"
+const newsList = ref([])
+
+// 뉴스 데이터 로드
+const loadNews = async () => {
+  try {
+    const response = await axios.get('/api/media/news')
+    newsList.value = response.data.map(news => ({
+      id: news.id,
+      date: formatNewsDate(news.date),
+      title: news.title,
+      description: news.description
+    }))
+  } catch (error) {
+    console.error('뉴스 로드 실패:', error)
+    newsList.value = []
   }
-])
+}
+
+// 뉴스 날짜 포맷팅
+const formatNewsDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = String(date.getFullYear()).slice(-2)
+  return `${day}.${month}.${year}`
+}
 </script>
 
 <style scoped>
@@ -534,6 +607,13 @@ const newsList = ref([
 }
 
 /* EQUIPMENT 섹션 */
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
 .equipment-item {
   display: flex;
   flex-direction: column;
