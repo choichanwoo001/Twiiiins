@@ -2,13 +2,13 @@
   <div class="data-list">
     <h2>{{ title }}</h2>
     <div class="data-table">
-      <table>
+      <table role="table" :aria-label="`${title} 데이터 테이블`">
         <thead>
           <tr>
-            <th v-for="column in columns" :key="column.key">
+            <th v-for="column in columns" :key="column.key" scope="col">
               {{ column.label }}
             </th>
-            <th v-if="actions.length > 0">작업</th>
+            <th v-if="actions.length > 0" scope="col">작업</th>
           </tr>
         </thead>
         <tbody>
@@ -29,6 +29,7 @@
                 :key="action.key"
                 :class="action.class"
                 @click="handleAction(action.key, item)"
+                :aria-label="`${getItemName(item)} ${action.label}`"
               >
                 {{ action.label }}
               </button>
@@ -72,6 +73,11 @@ const getItemKey = (item) => {
 
 const getColumnValue = (item, key) => {
   return item[key]
+}
+
+const getItemName = (item) => {
+  // 아이템의 이름을 가져오는 함수 (title, name, 또는 첫 번째 컬럼 값)
+  return item.title || item.name || item[Object.keys(item)[0]] || '항목'
 }
 
 const handleAction = (actionKey, item) => {

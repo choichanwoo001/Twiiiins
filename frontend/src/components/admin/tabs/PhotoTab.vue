@@ -29,14 +29,21 @@
     >
       <div v-if="selectedGroup">
         <!-- 사진 목록 -->
-        <div class="photos-grid">
-          <div v-for="photo in selectedGroup.photos" :key="photo.id" class="photo-item">
-            <img :src="getImageUrl(photo.imageUrl)" :alt="photo.altText || 'Photo'" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'150\'%3E%3Crect width=\'150\' height=\'150\' fill=\'%23ddd\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3ENo Image%3C/text%3E%3C/svg%3E'" />
-            <div class="photo-actions">
-              <button class="btn-delete-small" @click="deletePhoto(photo.id)">삭제</button>
-            </div>
-          </div>
-        </div>
+         <div class="photos-grid">
+           <div v-for="photo in selectedGroup.photos" :key="photo.id" class="photo-item">
+             <LazyImage
+               :src="getImageUrl(photo.imageUrl)"
+               :alt="photo.altText || 'Photo'"
+               width="150px"
+               height="150px"
+               image-class="photo-image"
+               placeholder-class="photo-placeholder"
+             />
+             <div class="photo-actions">
+               <button class="btn-delete-small" @click="deletePhoto(photo.id)">삭제</button>
+             </div>
+           </div>
+         </div>
 
         <!-- 사진 업로드 -->
         <div class="photo-upload">
@@ -62,6 +69,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { photoService } from '../../../services'
+import LazyImage from '../../common/LazyImage.vue'
 import { 
   createPhotoGroupSearchFilters, 
   createPhotoGroupForm,
@@ -267,10 +275,15 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.photo-item img {
+.photo-image {
   width: 100%;
   height: 150px;
   object-fit: cover;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 150px;
 }
 
 .photo-actions {
