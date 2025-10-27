@@ -62,6 +62,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { photoService } from '../../../services'
+import { 
+  createPhotoGroupSearchFilters, 
+  createPhotoGroupForm,
+  resetPhotoGroupSearchFilters,
+  resetPhotoGroupForm
+} from '../../../types/dto/photo'
+import { getOptimizedImageUrl, getPlaceholderImage } from '../../../utils/imageOptimization'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
@@ -92,8 +99,8 @@ const formFields = [
 ]
 
 // 반응형 데이터
-const searchFilters = ref({ title: '' })
-const form = ref({ title: '', displayOrder: 0 })
+const searchFilters = ref(createPhotoGroupSearchFilters())
+const form = ref(createPhotoGroupForm())
 const photoGroups = ref([])
 const editingGroup = ref(null)
 const selectedGroup = ref(null)
@@ -118,7 +125,7 @@ const searchPhotoGroups = async () => {
 }
 
 const resetFilters = () => {
-  searchFilters.value = { title: '' }
+  resetPhotoGroupSearchFilters(searchFilters.value)
   loadPhotoGroups()
 }
 
@@ -146,7 +153,7 @@ const editGroup = (group) => {
 
 const cancelEdit = () => {
   editingGroup.value = null
-  form.value = { title: '', displayOrder: 0 }
+  resetPhotoGroupForm(form.value)
 }
 
 const saveGroup = async () => {
@@ -228,28 +235,10 @@ const deletePhoto = async (photoId) => {
 
 const getImageUrl = (fileUrl) => {
   if (!fileUrl) {
-    console.log('No fileUrl provided')
-    return ''
+    return getPlaceholderImage(150, 150)
   }
   
-  console.log('Original fileUrl:', fileUrl)
-  
-  // 이미 전체 URL인 경우
-  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
-    console.log('Already full URL:', fileUrl)
-    return fileUrl
-  }
-  
-  // 상대 경로인 경우
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-  console.log('Base URL:', baseURL)
-  
-  // fileUrl이 /uploads/... 형태가 아닌 경우 / 추가
-  const path = fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`
-  const fullUrl = `${baseURL}${path}`
-  console.log('Generated full URL:', fullUrl)
-  
-  return fullUrl
+  return getOptimizedImageUrl(fileUrl, { width: 150, height: 150 })
 }
 
 onMounted(() => {

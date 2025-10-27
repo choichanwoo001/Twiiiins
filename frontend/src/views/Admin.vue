@@ -176,21 +176,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from '../api/axios'
+import { ref, onMounted, computed } from 'vue'
+import { useConcertStore, useMediaStore, useAppStore } from '../stores'
 import ConcertAdmin from '../components/admin/ConcertAdmin.vue'
 import MediaAdmin from '../components/admin/MediaAdmin.vue'
 import ContactAdmin from '../components/admin/ContactAdmin.vue'
 import DownloadFilesAdmin from '../components/admin/DownloadFilesAdmin.vue'
 
+// 스토어 사용
+const concertStore = useConcertStore()
+const mediaStore = useMediaStore()
+const appStore = useAppStore()
+
 // Reactive data
 const activeSection = ref('dashboard')
 
-// Dashboard data
-const concerts = ref([])
-const photoGroups = ref([])
-const musicList = ref([])
-const videos = ref([])
+// Dashboard data (스토어에서 가져온 데이터)
+const concerts = computed(() => concertStore.concerts)
+const photoGroups = computed(() => mediaStore.photoGroups)
+const musicList = computed(() => mediaStore.musicItems)
+const videos = computed(() => mediaStore.videos)
 const newsList = ref([])
 const equipmentList = ref([])
 const contacts = ref([])
@@ -199,27 +204,17 @@ const downloadFiles = ref([])
 // Methods
 const loadDashboardData = async () => {
   try {
-    const [concertsRes, photoGroupsRes, musicRes, videosRes, newsRes, equipmentRes, contactsRes, downloadFilesRes] = await Promise.all([
-      axios.get('/api/concerts'),
-      axios.get('/api/media/photo-groups'),
-      axios.get('/api/media/music'),
-      axios.get('/api/media/videos'),
-      axios.get('/api/media/news'),
-      axios.get('/api/media/equipment'),
-      axios.get('/api/media/contacts'),
-      axios.get('/api/media/download-files')
+    appStore.setLoading(true)
+    // 스토어를 통해 데이터 로드
+    await Promise.all([
+      concertStore.loadConcerts(),
+      mediaStore.loadAllMedia()
     ])
-    
-    concerts.value = concertsRes.data
-    photoGroups.value = photoGroupsRes.data
-    musicList.value = musicRes.data
-    videos.value = videosRes.data
-    newsList.value = newsRes.data
-    equipmentList.value = equipmentRes.data
-    contacts.value = contactsRes.data
-    downloadFiles.value = downloadFilesRes.data
   } catch (error) {
+    appStore.setError('대시보드 데이터 로드에 실패했습니다.')
     console.error('대시보드 데이터 로드 실패:', error)
+  } finally {
+    appStore.setLoading(false)
   }
 }
 

@@ -38,33 +38,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import axios from '../api/axios'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useConcertStore } from '../stores'
 
-// 이벤트 데이터
-const events = ref([])
+// 스토어 사용
+const concertStore = useConcertStore()
+
+// 이벤트 데이터 (스토어에서 가져온 데이터를 변환)
+const events = computed(() => {
+  return concertStore.upcomingConcerts.map(concert => ({
+    id: concert.id,
+    date: new Date(concert.date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }),
+    location: concert.location,
+    name: concert.name
+  }))
+})
 
 // 콘서트 데이터 로드
 const loadEvents = async () => {
-  try {
-    const response = await axios.get('/api/concerts')
-    // 다가오는 이벤트만 필터링 (isPast: false)
-    events.value = response.data
-      .filter(concert => !concert.isPast)
-      .map(concert => ({
-        id: concert.id,
-        date: new Date(concert.date).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-        location: concert.location,
-        name: concert.name
-      }))
-  } catch (error) {
-    // 에러 시 빈 배열로 설정
-    events.value = []
-  }
+  await concertStore.loadConcerts()
 }
 
 // 페이지 인디케이터 관련
