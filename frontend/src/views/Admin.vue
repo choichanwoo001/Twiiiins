@@ -2146,12 +2146,7 @@ onMounted(() => {
   color: #2c3e50;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
+/* section-header 스타일은 필요시 추가 */
 
 /* Dashboard */
 .dashboard-stats {
@@ -2330,13 +2325,7 @@ onMounted(() => {
   color: #27ae60;
 }
 
-.status-indicator.warning {
-  color: #f39c12;
-}
-
-.status-indicator.error {
-  color: #e74c3c;
-}
+/* status-indicator warning/error 스타일은 필요시 추가 */
 
 .status-text {
   color: #7f8c8d;
@@ -2405,36 +2394,7 @@ tbody tr:hover {
   background: #f8f9fa;
 }
 
-/* 버튼 */
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s;
-}
-
-.btn-primary:hover {
-  background: #2980b9;
-}
-
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  background: #95a5a6;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s;
-}
-
-.btn-secondary:hover {
-  background: #7f8c8d;
-}
+/* 버튼 기본 스타일은 각 버튼별로 정의 */
 
 .btn-edit {
   padding: 0.5rem 1rem;
@@ -2467,33 +2427,7 @@ tbody tr:hover {
 }
 
 /* 모달 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  overflow-y: auto;
-  padding: 2rem;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-content h2 {
-  margin-bottom: 1.5rem;
-  color: #2c3e50;
-}
+/* 모달 스타일은 필요시 추가 */
 
 /* 검색 섹션 */
 .search-section {
@@ -2694,9 +2628,7 @@ tbody tr:hover {
   color: white;
 }
 
-.status-badge.active {
-  background: #27ae60;
-}
+/* status-badge.active 스타일은 필요시 추가 */
 
 .status-badge.past {
   background: #95a5a6;
