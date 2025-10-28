@@ -178,37 +178,11 @@ const loadMusic = async () => {
         cover: music.coverUrl ? toAbsoluteUrl(music.coverUrl) : new URL('../imgs/music/time.png', import.meta.url).href
       }))
     } else {
-      musicItems.value = [
-        {
-          id: 1,
-          title: 'Time',
-          artist: 'TWIIIINS',
-          cover: new URL('../imgs/music/time.png', import.meta.url).href
-        },
-        {
-          id: 2,
-          title: 'Common Room',
-          artist: 'TWIIIINS',
-          cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
-        }
-      ]
+      musicItems.value = []
     }
   } catch (error) {
-    // 에러 시 기본 데이터 사용
-    musicItems.value = [
-      {
-        id: 1,
-        title: 'Time',
-        artist: 'TWIIIINS',
-        cover: new URL('../imgs/music/time.png', import.meta.url).href
-      },
-      {
-        id: 2,
-        title: 'Common Room',
-        artist: 'TWIIIINS',
-        cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
-      }
-    ]
+    console.error('음악 데이터 로드 실패:', error)
+    musicItems.value = []
   }
 }
 
@@ -222,29 +196,8 @@ const loadVideos = async () => {
       embedUrl: video.embedUrl
     }))
   } catch (error) {
-    // 에러 시 기본 데이터 사용
-    videos.value = [
-      {
-        id: 1,
-        title: 'TWIIIINS Performance 1',
-        embedUrl: 'https://www.youtube.com/embed/7D3tv-8Fmlw?si=J9m58u_Y8H1LPnIj'
-      },
-      {
-        id: 2,
-        title: 'TWIIIINS Performance 2',
-        embedUrl: 'https://www.youtube.com/embed/QSG4jJmb5mA?si=Hs3oEZhQR3WPRXa4'
-      },
-      {
-        id: 3,
-        title: 'TWIIIINS Performance 3',
-        embedUrl: 'https://www.youtube.com/embed/qj-EO0di6S4?si=QELDshOJkoC_ON7x'
-      },
-      {
-        id: 4,
-        title: 'TWIIIINS Performance 4',
-        embedUrl: 'https://www.youtube.com/embed/anb6UtTP-wE?si=dCaJRmd-NTWoEJyA'
-      }
-    ]
+    console.error('비디오 데이터 로드 실패:', error)
+    videos.value = []
   }
 }
 
@@ -273,7 +226,7 @@ const loadPhotoGroups = async () => {
       })) : []
     }))
   } catch (error) {
-    // 에러 시 기본 데이터 사용
+    console.error('사진 그룹 데이터 로드 실패:', error)
     photoGroups.value = []
   }
 }
@@ -288,14 +241,8 @@ const loadEquipment = async () => {
       imageUrl: toAbsoluteUrl(equipment.imageUrl)
     }))
   } catch (error) {
-    // 에러 시 기본 데이터 사용
-    equipmentList.value = [
-      {
-        id: 1,
-        name: 'Loopstation RC 600',
-        imageUrl: '../imgs/exphoto1.png'
-      }
-    ]
+    console.error('장비 데이터 로드 실패:', error)
+    equipmentList.value = []
   }
 }
 
@@ -313,6 +260,7 @@ const loadNews = async () => {
       description: news.description
     }))
   } catch (error) {
+    console.error('뉴스 데이터 로드 실패:', error)
     newsList.value = []
   }
 }

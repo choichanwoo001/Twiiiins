@@ -134,22 +134,9 @@ const loadConcerts = async () => {
     upcomingEvents.value = allConcerts.filter(concert => !concert.isPast)
     pastEvents.value = allConcerts.filter(concert => concert.isPast)
   } catch (error) {
-    // 에러 시 기본 데이터 사용
-    upcomingEvents.value = [
-      {
-        id: 1,
-        date: 'October 25, 2025',
-        location: 'Schloss Salon, Linz [AT]',
-        name: 'TWIIIINS Concert',
-        expanded: false,
-        startTime: '20:30',
-        ticketInfo: 'https://aeskil.at/',
-        fullLocation: 'Schloss Eschelberg, Eschelberg 1, 4112 St. Gotthard im Mühlkreis',
-        googleMap: 'https://maps.app.goo.gl/qSDyev6zUo7BP1YEA',
-        collaborationInfo: '',
-        isPast: false
-      }
-    ]
+    console.error('콘서트 데이터 로드 실패:', error)
+    // 에러 시 빈 배열로 초기화
+    upcomingEvents.value = []
     pastEvents.value = []
   }
 }
