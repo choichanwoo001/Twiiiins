@@ -4,11 +4,11 @@ import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.PhotoDto;
 import com.twiiiins.dto.PhotoGroupDto;
 import com.twiiiins.service.PhotoService;
+import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +31,7 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<List<PhotoGroupDto>>> getAllPhotoGroups() {
         List<PhotoGroupDto> groups = photoService.getAllPhotoGroups();
-        return ResponseEntity.ok(ApiResponse.success(groups, "사진 그룹 목록을 성공적으로 조회했습니다."));
+        return ResponseUtil.listSuccess(groups, "사진 그룹 목록을 성공적으로 조회했습니다.");
     }
     
     @GetMapping("/groups/{id}")
@@ -43,7 +43,7 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<PhotoGroupDto>> getPhotoGroupById(@PathVariable Long id) {
         PhotoGroupDto group = photoService.getPhotoGroupById(id);
-        return ResponseEntity.ok(ApiResponse.success(group, "사진 그룹 정보를 성공적으로 조회했습니다."));
+        return ResponseUtil.success(group, "사진 그룹 정보를 성공적으로 조회했습니다.");
     }
     
     @PostMapping("/groups")
@@ -55,8 +55,7 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<PhotoGroupDto>> createPhotoGroup(@RequestBody PhotoGroupDto photoGroupDto) {
         PhotoGroupDto createdGroup = photoService.createPhotoGroup(photoGroupDto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(createdGroup, "사진 그룹이 성공적으로 생성되었습니다."));
+        return ResponseUtil.created(createdGroup, "사진 그룹이 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/groups/{id}")
@@ -71,7 +70,7 @@ public class PhotoController {
             @PathVariable Long id,
             @RequestBody PhotoGroupDto photoGroupDto) {
         PhotoGroupDto updatedGroup = photoService.updatePhotoGroup(id, photoGroupDto);
-        return ResponseEntity.ok(ApiResponse.success(updatedGroup, "사진 그룹이 성공적으로 수정되었습니다."));
+        return ResponseUtil.success(updatedGroup, "사진 그룹이 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/groups/{id}")
@@ -83,7 +82,7 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<Void>> deletePhotoGroup(@PathVariable Long id) {
         photoService.deletePhotoGroup(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "사진 그룹이 성공적으로 삭제되었습니다."));
+        return ResponseUtil.deleted("사진 그룹이 성공적으로 삭제되었습니다.");
     }
     
     // Photo endpoints
@@ -96,7 +95,7 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<List<PhotoDto>>> getPhotosByGroupId(@PathVariable Long groupId) {
         List<PhotoDto> photos = photoService.getPhotosByGroupId(groupId);
-        return ResponseEntity.ok(ApiResponse.success(photos, "그룹별 사진 목록을 성공적으로 조회했습니다."));
+        return ResponseUtil.listSuccess(photos, "그룹별 사진 목록을 성공적으로 조회했습니다.");
     }
     
     @GetMapping("/{id}")
@@ -108,7 +107,7 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<PhotoDto>> getPhotoById(@PathVariable Long id) {
         PhotoDto photo = photoService.getPhotoById(id);
-        return ResponseEntity.ok(ApiResponse.success(photo, "사진 정보를 성공적으로 조회했습니다."));
+        return ResponseUtil.success(photo, "사진 정보를 성공적으로 조회했습니다.");
     }
     
     @PostMapping("/groups/{groupId}/photos")
@@ -123,8 +122,7 @@ public class PhotoController {
             @PathVariable Long groupId,
             @RequestBody PhotoDto photoDto) {
         PhotoDto createdPhoto = photoService.createPhoto(groupId, photoDto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(createdPhoto, "사진이 성공적으로 생성되었습니다."));
+        return ResponseUtil.created(createdPhoto, "사진이 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
@@ -139,7 +137,7 @@ public class PhotoController {
             @PathVariable Long id,
             @RequestBody PhotoDto photoDto) {
         PhotoDto updatedPhoto = photoService.updatePhoto(id, photoDto);
-        return ResponseEntity.ok(ApiResponse.success(updatedPhoto, "사진이 성공적으로 수정되었습니다."));
+        return ResponseUtil.success(updatedPhoto, "사진이 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -151,6 +149,6 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<Void>> deletePhoto(@PathVariable Long id) {
         photoService.deletePhoto(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "사진이 성공적으로 삭제되었습니다."));
+        return ResponseUtil.deleted("사진이 성공적으로 삭제되었습니다.");
     }
 }

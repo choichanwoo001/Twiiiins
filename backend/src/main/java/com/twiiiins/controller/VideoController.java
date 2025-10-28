@@ -3,11 +3,11 @@ package com.twiiiins.controller;
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.VideoDto;
 import com.twiiiins.service.VideoService;
+import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +29,7 @@ public class VideoController {
     })
     public ResponseEntity<ApiResponse<List<VideoDto>>> getAllVideos() {
         List<VideoDto> videos = videoService.getAllVideos();
-        return ResponseEntity.ok(ApiResponse.success(videos, "동영상 목록을 성공적으로 조회했습니다."));
+        return ResponseUtil.listSuccess(videos, "동영상 목록을 성공적으로 조회했습니다.");
     }
     
     @GetMapping("/{id}")
@@ -41,7 +41,7 @@ public class VideoController {
     })
     public ResponseEntity<ApiResponse<VideoDto>> getVideoById(@PathVariable Long id) {
         VideoDto video = videoService.getVideoById(id);
-        return ResponseEntity.ok(ApiResponse.success(video, "동영상 정보를 성공적으로 조회했습니다."));
+        return ResponseUtil.success(video, "동영상 정보를 성공적으로 조회했습니다.");
     }
     
     @PostMapping
@@ -53,8 +53,7 @@ public class VideoController {
     })
     public ResponseEntity<ApiResponse<VideoDto>> createVideo(@RequestBody VideoDto videoDto) {
         VideoDto createdVideo = videoService.createVideo(videoDto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(createdVideo, "동영상이 성공적으로 생성되었습니다."));
+        return ResponseUtil.created(createdVideo, "동영상이 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
@@ -69,7 +68,7 @@ public class VideoController {
             @PathVariable Long id,
             @RequestBody VideoDto videoDto) {
         VideoDto updatedVideo = videoService.updateVideo(id, videoDto);
-        return ResponseEntity.ok(ApiResponse.success(updatedVideo, "동영상이 성공적으로 수정되었습니다."));
+        return ResponseUtil.success(updatedVideo, "동영상이 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -81,6 +80,6 @@ public class VideoController {
     })
     public ResponseEntity<ApiResponse<Void>> deleteVideo(@PathVariable Long id) {
         videoService.deleteVideo(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "동영상이 성공적으로 삭제되었습니다."));
+        return ResponseUtil.deleted("동영상이 성공적으로 삭제되었습니다.");
     }
 }

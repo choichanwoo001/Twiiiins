@@ -3,11 +3,11 @@ package com.twiiiins.controller;
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.ConcertDto;
 import com.twiiiins.service.ConcertService;
+import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,19 +24,19 @@ public class ConcertController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<ConcertDto>>> getAllConcerts() {
         List<ConcertDto> concerts = concertService.getAllConcerts();
-        return ResponseEntity.ok(ApiResponse.success(concerts, "공연 목록을 성공적으로 조회했습니다."));
+        return ResponseUtil.listSuccess(concerts, "공연 목록을 성공적으로 조회했습니다.");
     }
     
     @GetMapping("/upcoming")
     public ResponseEntity<ApiResponse<List<ConcertDto>>> getUpcomingConcerts() {
         List<ConcertDto> concerts = concertService.getUpcomingConcerts();
-        return ResponseEntity.ok(ApiResponse.success(concerts, "예정 공연 목록을 성공적으로 조회했습니다."));
+        return ResponseUtil.listSuccess(concerts, "예정 공연 목록을 성공적으로 조회했습니다.");
     }
     
     @GetMapping("/past")
     public ResponseEntity<ApiResponse<List<ConcertDto>>> getPastConcerts() {
         List<ConcertDto> concerts = concertService.getPastConcerts();
-        return ResponseEntity.ok(ApiResponse.success(concerts, "과거 공연 목록을 성공적으로 조회했습니다."));
+        return ResponseUtil.listSuccess(concerts, "과거 공연 목록을 성공적으로 조회했습니다.");
     }
     
     @GetMapping("/{id}")
@@ -48,7 +48,7 @@ public class ConcertController {
     })
     public ResponseEntity<ApiResponse<ConcertDto>> getConcertById(@PathVariable Long id) {
         ConcertDto concert = concertService.getConcertById(id);
-        return ResponseEntity.ok(ApiResponse.success(concert, "공연 정보를 성공적으로 조회했습니다."));
+        return ResponseUtil.success(concert, "공연 정보를 성공적으로 조회했습니다.");
     }
     
     @PostMapping
@@ -60,8 +60,7 @@ public class ConcertController {
     })
     public ResponseEntity<ApiResponse<ConcertDto>> createConcert(@RequestBody ConcertDto concertDto) {
         ConcertDto createdConcert = concertService.createConcert(concertDto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(createdConcert, "공연이 성공적으로 생성되었습니다."));
+        return ResponseUtil.created(createdConcert, "공연이 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
@@ -76,7 +75,7 @@ public class ConcertController {
             @PathVariable Long id,
             @RequestBody ConcertDto concertDto) {
         ConcertDto updatedConcert = concertService.updateConcert(id, concertDto);
-        return ResponseEntity.ok(ApiResponse.success(updatedConcert, "공연이 성공적으로 수정되었습니다."));
+        return ResponseUtil.success(updatedConcert, "공연이 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -88,7 +87,7 @@ public class ConcertController {
     })
     public ResponseEntity<ApiResponse<Void>> deleteConcert(@PathVariable Long id) {
         concertService.deleteConcert(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "공연이 성공적으로 삭제되었습니다."));
+        return ResponseUtil.deleted("공연이 성공적으로 삭제되었습니다.");
     }
     
     @PutMapping("/{id}/move-to-past")
@@ -100,7 +99,7 @@ public class ConcertController {
     })
     public ResponseEntity<ApiResponse<ConcertDto>> moveToPastEvent(@PathVariable Long id) {
         ConcertDto movedConcert = concertService.moveToPastEvent(id);
-        return ResponseEntity.ok(ApiResponse.success(movedConcert, "공연이 과거 공연으로 이동되었습니다."));
+        return ResponseUtil.success(movedConcert, "공연이 과거 공연으로 이동되었습니다.");
     }
     
     @PutMapping("/{id}/move-to-upcoming")
@@ -112,7 +111,7 @@ public class ConcertController {
     })
     public ResponseEntity<ApiResponse<ConcertDto>> moveToUpcomingEvent(@PathVariable Long id) {
         ConcertDto movedConcert = concertService.moveToUpcomingEvent(id);
-        return ResponseEntity.ok(ApiResponse.success(movedConcert, "공연이 예정 공연으로 이동되었습니다."));
+        return ResponseUtil.success(movedConcert, "공연이 예정 공연으로 이동되었습니다.");
     }
     
     @PutMapping("/auto-move-past")
@@ -125,7 +124,7 @@ public class ConcertController {
     public ResponseEntity<ApiResponse<AutoMoveResponse>> autoMovePastEvents(@RequestBody AutoMoveRequest request) {
         int movedCount = concertService.autoMovePastEvents(request.getCurrentDate());
         AutoMoveResponse response = new AutoMoveResponse(movedCount);
-        return ResponseEntity.ok(ApiResponse.success(response, "자동 이동이 완료되었습니다."));
+        return ResponseUtil.success(response, "자동 이동이 완료되었습니다.");
     }
     
     // DTO 클래스들
