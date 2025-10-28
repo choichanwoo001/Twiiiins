@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.Project;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,12 @@ public class ProjectService {
     
     public Project getProjectById(Long id) {
         return projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
     }
     
     public Project getProjectBySlug(String slug) {
         return projectRepository.findByUrlSlug(slug)
-                .orElseThrow(() -> new RuntimeException("Project not found with slug: " + slug));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with slug: " + slug));
     }
     
     public Project createProject(Project project) {

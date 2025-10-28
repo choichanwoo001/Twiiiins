@@ -2,6 +2,7 @@ package com.twiiiins.service;
 
 import com.twiiiins.entity.Photo;
 import com.twiiiins.entity.PhotoGroup;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.PhotoGroupRepository;
 import com.twiiiins.repository.PhotoRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class PhotoService {
     
     public PhotoGroup getPhotoGroupById(Long id) {
         return photoGroupRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("PhotoGroup not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + id));
     }
     
     public PhotoGroup createPhotoGroup(PhotoGroup photoGroup) {
@@ -50,7 +51,7 @@ public class PhotoService {
     
     public Photo getPhotoById(Long id) {
         return photoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Photo not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Photo not found with id: " + id));
     }
     
     public Photo createPhoto(Long groupId, Photo photo) {

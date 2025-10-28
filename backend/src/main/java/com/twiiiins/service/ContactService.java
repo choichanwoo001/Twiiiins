@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.ContactInfo;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.ContactInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class ContactService {
     
     public ContactInfo getContactInfoById(Long id) {
         return contactInfoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ContactInfo not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ContactInfo not found with id: " + id));
     }
     
     public ContactInfo createContactInfo(ContactInfo contactInfo) {

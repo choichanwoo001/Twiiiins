@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.Equipment;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.EquipmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class EquipmentService {
     
     public Equipment getEquipmentById(Long id) {
         return equipmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Equipment not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
     }
     
     public Equipment createEquipment(Equipment equipment) {

@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.Video;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class VideoService {
     
     public Video getVideoById(Long id) {
         return videoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Video not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + id));
     }
     
     public Video createVideo(Video video) {

@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.Concert;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.ConcertRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class ConcertService {
     
     public Concert getConcertById(Long id) {
         return concertRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Concert not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
     }
     
     public Concert createConcert(Concert concert) {

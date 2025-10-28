@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.Music;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.MusicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class MusicService {
     
     public Music getMusicById(Long id) {
         return musicRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Music not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Music not found with id: " + id));
     }
     
     public Music createMusic(Music music) {

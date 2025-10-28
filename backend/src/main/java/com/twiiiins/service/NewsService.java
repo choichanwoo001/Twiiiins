@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.News;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class NewsService {
     
     public News getNewsById(Long id) {
         return newsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("News not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
     }
     
     public News createNews(News news) {

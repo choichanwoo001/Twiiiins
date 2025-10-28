@@ -1,6 +1,7 @@
 package com.twiiiins.service;
 
 import com.twiiiins.entity.DownloadFile;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.DownloadFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class DownloadFileService {
     
     public DownloadFile getDownloadFileById(Long id) {
         return downloadFileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("DownloadFile not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("DownloadFile not found with id: " + id));
     }
     
     public DownloadFile createDownloadFile(DownloadFile downloadFile) {
