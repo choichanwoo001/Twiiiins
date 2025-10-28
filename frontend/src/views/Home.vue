@@ -18,7 +18,7 @@
               <div class="event-location">{{ event.location }}</div>
               <div class="event-name">{{ event.name }}</div>
             </div>
-            <div class="event-arrow">→</div>
+            <div class="event-arrow" @click="goToConcert">→</div>
           </div>
         </div>
       </div>
@@ -40,9 +40,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useConcertStore } from '../stores'
+import { useRouter } from 'vue-router'
 
 // 스토어 사용
 const concertStore = useConcertStore()
+const router = useRouter()
 
 // 이벤트 데이터 (스토어에서 가져온 데이터를 변환)
 const events = computed(() => {
@@ -93,6 +95,11 @@ const handleScroll = () => {
       document.body.classList.remove('events-section-active')
     }
   }
+}
+
+// Concert 페이지로 이동하는 함수
+const goToConcert = () => {
+  router.push('/concerts')
 }
 
 // 페이지 진입 시 body에 클래스 추가, 페이지 나갈 때 제거
@@ -158,7 +165,7 @@ onUnmounted(() => {
 .events-section {
   height: 100vh;
   scroll-snap-align: start;
-  background-color: #8B0000;
+  background-color: #943C31;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -239,6 +246,13 @@ onUnmounted(() => {
   min-width: 1.25rem;
   text-align: right;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.event-arrow:hover {
+  transform: scale(1.2);
+  color: #ffd700;
 }
 
 /* 페이지 인디케이터 */
@@ -260,6 +274,7 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   border: 0.125rem solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
 }
 
 .indicator:hover {

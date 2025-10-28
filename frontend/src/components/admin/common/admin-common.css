@@ -257,12 +257,12 @@
 }
 
 .btn-delete {
-  background: #e74c3c;
+  background: #943C31;
   color: white;
 }
 
 .btn-delete:hover {
-  background: #c0392b;
+  background: #7a2f26;
 }
 
 .btn-manage {
@@ -319,7 +319,7 @@
 }
 
 .btn-delete-small {
-  background: #e74c3c;
+  background: #943C31;
   color: white;
   padding: 0.25rem 0.75rem;
   border: none;
@@ -330,5 +330,5 @@
 }
 
 .btn-delete-small:hover {
-  background: #c0392b;
+  background: #7a2f26;
 }

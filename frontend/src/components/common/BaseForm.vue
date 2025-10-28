@@ -281,7 +281,7 @@ onMounted(() => {
 .form-group.has-error .form-input,
 .form-group.has-error .form-textarea,
 .form-group.has-error .form-select {
-  border-color: #ef4444;
+  border-color: #943C31;
 }
 
 .form-label {
@@ -292,7 +292,7 @@ onMounted(() => {
 }
 
 .required {
-  color: #ef4444;
+  color: #943C31;
   margin-left: 2px;
 }
 
@@ -318,7 +318,7 @@ onMounted(() => {
 .form-input.error,
 .form-textarea.error,
 .form-select.error {
-  border-color: #ef4444;
+  border-color: #943C31;
 }
 
 .form-textarea {
@@ -346,7 +346,7 @@ onMounted(() => {
 .error-message {
   margin-top: 4px;
   font-size: 12px;
-  color: #ef4444;
+  color: #943C31;
 }
 
 .form-footer {

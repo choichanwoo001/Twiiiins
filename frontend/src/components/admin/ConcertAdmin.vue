@@ -499,12 +499,12 @@ onMounted(() => {
 }
 
 .btn-delete {
-  background: #e74c3c;
+  background: #943C31;
   color: white;
 }
 
 .btn-delete:hover {
-  background: #c0392b;
+  background: #7a2f26;
 }
 
 .btn-move-past {

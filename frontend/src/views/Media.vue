@@ -361,7 +361,7 @@ const formatNewsDate = (dateString) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: #D4AF37;
+  color: #FBCE7B;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
@@ -378,18 +378,18 @@ const formatNewsDate = (dateString) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: #D4AF37;
+  color: #FBCE7B;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
 }
 
 .nav-item:hover {
-  color: #E6B800;
+  color: #F9D89C;
 }
 
 .nav-item.active {
-  color: #D4AF37;
+  color: #FBCE7B;
 }
 
 /* 메인 콘텐츠 영역 */
@@ -518,7 +518,7 @@ const formatNewsDate = (dateString) => {
 .photo-group-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #D4AF37;
+  color: #FBCE7B;
   text-align: left;
   margin-bottom: 0.5rem;
 }

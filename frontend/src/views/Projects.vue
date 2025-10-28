@@ -124,7 +124,7 @@ const goToProjectDetail = (urlSlug) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color:#6f93a0;               /* 이미지처럼 청록빛 톤 */
+  color:#5B8793;
   text-transform: uppercase;
   line-height:1;
   margin:0;

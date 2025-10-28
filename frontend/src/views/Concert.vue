@@ -206,7 +206,7 @@ onMounted(() => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: #D4AF37;
+  color: #CEC0A3;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
