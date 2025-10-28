@@ -8,22 +8,22 @@ export const photoService = {
   },
 
   async getPhotoGroup(id) {
-    const response = await axios.get(`/api/media/photo-groups/${id}`)
+    const response = await axios.get(`/api/media/photos/groups/${id}`)
     return response.data.data || response.data
   },
 
   async createPhotoGroup(data) {
-    const response = await axios.post('/api/media/photo-groups', data)
+    const response = await axios.post('/api/media/photos/groups', data)
     return response.data.data || response.data
   },
 
   async updatePhotoGroup(id, data) {
-    const response = await axios.put(`/api/media/photo-groups/${id}`, data)
+    const response = await axios.put(`/api/media/photos/groups/${id}`, data)
     return response.data.data || response.data
   },
 
   async deletePhotoGroup(id) {
-    const response = await axios.delete(`/api/media/photo-groups/${id}`)
+    const response = await axios.delete(`/api/media/photos/groups/${id}`)
     return response.data.data || response.data
   },
 

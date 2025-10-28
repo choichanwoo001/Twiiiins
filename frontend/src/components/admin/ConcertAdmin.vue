@@ -153,6 +153,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useConcertStore } from '../../stores'
 import { BaseButton } from '../common'
+import { formatDate } from '../../utils/commonHelpers'
 import {
   createConcertSearchFilters,
   createConcertForm,
@@ -272,10 +273,6 @@ const triggerAutoMove = async () => {
   }
 }
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('ko-KR')
-}
-
 // Lifecycle
 onMounted(() => {
   // 스토어에서 자동으로 로드되므로 별도 로드 불필요
@@ -283,7 +280,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 콘서트 관리 스타일은 Admin.vue에서 가져와서 여기에 정의 */
+@import './common/admin-common.css';
+
 .content-section {
   padding: 2rem;
 }
@@ -294,47 +292,9 @@ onMounted(() => {
   color: #333;
 }
 
-.search-section {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 2rem;
-}
-
-.search-filters {
-  display: flex;
-  gap: 1rem;
-  align-items: end;
-  flex-wrap: wrap;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.filter-group label {
-  font-weight: 500;
-  color: #555;
-}
-
-.filter-group input {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
-  font-size: 0.9rem;
-}
-
 .date-range {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.filter-actions {
-  display: flex;
   gap: 0.5rem;
 }
 
@@ -407,171 +367,6 @@ onMounted(() => {
   max-width: 50rem;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #555;
-}
-
-.form-group input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
-  font-size: 1rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-/* 버튼 스타일 */
-.btn-reset, .btn-search {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-reset {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-reset:hover {
-  background: #7f8c8d;
-}
-
-.btn-search {
-  background: #3498db;
-  color: white;
-}
-
-.btn-search:hover {
-  background: #2980b9;
-}
-
-.btn-auto-move {
-  background: #17a2b8;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-auto-move:hover {
-  background: #138496;
-}
-
-.btn-edit, .btn-delete {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-right: 0.5rem;
-}
-
-.btn-edit {
-  background: #f39c12;
-  color: white;
-}
-
-.btn-edit:hover {
-  background: #e67e22;
-}
-
-.btn-delete {
-  background: #943C31;
-  color: white;
-}
-
-.btn-delete:hover {
-  background: #7a2f26;
-}
-
-.btn-move-past {
-  background: #ffc107;
-  color: #212529;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-right: 0.5rem;
-}
-
-.btn-move-past:hover {
-  background: #e0a800;
-}
-
-.btn-move-upcoming {
-  background: #28a745;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-right: 0.5rem;
-}
-
-.btn-move-upcoming:hover {
-  background: #218838;
-}
-
-.btn-save {
-  padding: 0.75rem 2rem;
-  background: #27ae60;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-save:hover {
-  background: #229954;
-}
-
-.btn-cancel {
-  padding: 0.75rem 2rem;
-  background: #95a5a6;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-cancel:hover {
-  background: #7f8c8d;
-}
-
-/* 액션 버튼 컨테이너 */
 .action-buttons {
   display: flex;
   gap: 0.5rem;
