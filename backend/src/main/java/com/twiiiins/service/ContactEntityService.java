@@ -1,5 +1,6 @@
 package com.twiiiins.service;
 
+import com.twiiiins.dto.ContactDto;
 import com.twiiiins.entity.Contact;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.ContactRepository;
@@ -16,29 +17,58 @@ public class ContactEntityService {
     
     private final ContactRepository contactRepository;
     
-    public List<Contact> getAllContacts() {
-        return contactRepository.findAllByOrderByDisplayOrderAsc();
+    public List<ContactDto> getAllContacts() {
+        return contactRepository.findAllByOrderByDisplayOrderAsc()
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public Contact getContactById(Long id) {
-        return contactRepository.findById(id)
+    public ContactDto getContactById(Long id) {
+        Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
+        return convertToDto(contact);
     }
     
-    public Contact createContact(Contact contact) {
-        return contactRepository.save(contact);
+    public ContactDto createContact(ContactDto contactDto) {
+        Contact contact = convertToEntity(contactDto);
+        Contact savedContact = contactRepository.save(contact);
+        return convertToDto(savedContact);
     }
     
-    public Contact updateContact(Long id, Contact contactDetails) {
-        Contact contact = getContactById(id);
-        contact.setName(contactDetails.getName());
-        contact.setRole(contactDetails.getRole());
-        contact.setEmail(contactDetails.getEmail());
-        contact.setDisplayOrder(contactDetails.getDisplayOrder());
-        return contactRepository.save(contact);
+    public ContactDto updateContact(Long id, ContactDto contactDto) {
+        Contact contact = contactRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
+        
+        contact.setName(contactDto.getName());
+        contact.setRole(contactDto.getRole());
+        contact.setEmail(contactDto.getEmail());
+        contact.setDisplayOrder(contactDto.getDisplayOrder());
+        
+        Contact savedContact = contactRepository.save(contact);
+        return convertToDto(savedContact);
     }
     
     public void deleteContact(Long id) {
         contactRepository.deleteById(id);
+    }
+    
+    private ContactDto convertToDto(Contact contact) {
+        return new ContactDto(
+            contact.getId(),
+            contact.getName(),
+            contact.getRole(),
+            contact.getEmail(),
+            contact.getDisplayOrder()
+        );
+    }
+    
+    private Contact convertToEntity(ContactDto contactDto) {
+        Contact contact = new Contact();
+        contact.setName(contactDto.getName());
+        contact.setRole(contactDto.getRole());
+        contact.setEmail(contactDto.getEmail());
+        contact.setDisplayOrder(contactDto.getDisplayOrder());
+        return contact;
     }
 }

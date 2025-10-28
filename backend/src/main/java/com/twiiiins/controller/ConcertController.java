@@ -1,6 +1,6 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.Concert;
+import com.twiiiins.dto.ConcertDto;
 import com.twiiiins.service.ConcertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,36 +17,36 @@ public class ConcertController {
     private final ConcertService concertService;
     
     @GetMapping
-    public ResponseEntity<List<Concert>> getAllConcerts() {
+    public ResponseEntity<List<ConcertDto>> getAllConcerts() {
         return ResponseEntity.ok(concertService.getAllConcerts());
     }
     
     @GetMapping("/upcoming")
-    public ResponseEntity<List<Concert>> getUpcomingConcerts() {
+    public ResponseEntity<List<ConcertDto>> getUpcomingConcerts() {
         return ResponseEntity.ok(concertService.getUpcomingConcerts());
     }
     
     @GetMapping("/past")
-    public ResponseEntity<List<Concert>> getPastConcerts() {
+    public ResponseEntity<List<ConcertDto>> getPastConcerts() {
         return ResponseEntity.ok(concertService.getPastConcerts());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Concert> getConcertById(@PathVariable Long id) {
+    public ResponseEntity<ConcertDto> getConcertById(@PathVariable Long id) {
         return ResponseEntity.ok(concertService.getConcertById(id));
     }
     
     @PostMapping
-    public ResponseEntity<Concert> createConcert(@RequestBody Concert concert) {
+    public ResponseEntity<ConcertDto> createConcert(@RequestBody ConcertDto concertDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(concertService.createConcert(concert));
+                .body(concertService.createConcert(concertDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Concert> updateConcert(
+    public ResponseEntity<ConcertDto> updateConcert(
             @PathVariable Long id,
-            @RequestBody Concert concert) {
-        return ResponseEntity.ok(concertService.updateConcert(id, concert));
+            @RequestBody ConcertDto concertDto) {
+        return ResponseEntity.ok(concertService.updateConcert(id, concertDto));
     }
     
     @DeleteMapping("/{id}")
@@ -56,12 +56,12 @@ public class ConcertController {
     }
     
     @PutMapping("/{id}/move-to-past")
-    public ResponseEntity<Concert> moveToPastEvent(@PathVariable Long id) {
+    public ResponseEntity<ConcertDto> moveToPastEvent(@PathVariable Long id) {
         return ResponseEntity.ok(concertService.moveToPastEvent(id));
     }
     
     @PutMapping("/{id}/move-to-upcoming")
-    public ResponseEntity<Concert> moveToUpcomingEvent(@PathVariable Long id) {
+    public ResponseEntity<ConcertDto> moveToUpcomingEvent(@PathVariable Long id) {
         return ResponseEntity.ok(concertService.moveToUpcomingEvent(id));
     }
     

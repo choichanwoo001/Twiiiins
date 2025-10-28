@@ -1,7 +1,7 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.Photo;
-import com.twiiiins.entity.PhotoGroup;
+import com.twiiiins.dto.PhotoDto;
+import com.twiiiins.dto.PhotoGroupDto;
 import com.twiiiins.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,26 +19,26 @@ public class PhotoController {
     
     // PhotoGroup endpoints
     @GetMapping("/groups")
-    public ResponseEntity<List<PhotoGroup>> getAllPhotoGroups() {
+    public ResponseEntity<List<PhotoGroupDto>> getAllPhotoGroups() {
         return ResponseEntity.ok(photoService.getAllPhotoGroups());
     }
     
     @GetMapping("/groups/{id}")
-    public ResponseEntity<PhotoGroup> getPhotoGroupById(@PathVariable Long id) {
+    public ResponseEntity<PhotoGroupDto> getPhotoGroupById(@PathVariable Long id) {
         return ResponseEntity.ok(photoService.getPhotoGroupById(id));
     }
     
     @PostMapping("/groups")
-    public ResponseEntity<PhotoGroup> createPhotoGroup(@RequestBody PhotoGroup photoGroup) {
+    public ResponseEntity<PhotoGroupDto> createPhotoGroup(@RequestBody PhotoGroupDto photoGroupDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(photoService.createPhotoGroup(photoGroup));
+                .body(photoService.createPhotoGroup(photoGroupDto));
     }
     
     @PutMapping("/groups/{id}")
-    public ResponseEntity<PhotoGroup> updatePhotoGroup(
+    public ResponseEntity<PhotoGroupDto> updatePhotoGroup(
             @PathVariable Long id,
-            @RequestBody PhotoGroup photoGroup) {
-        return ResponseEntity.ok(photoService.updatePhotoGroup(id, photoGroup));
+            @RequestBody PhotoGroupDto photoGroupDto) {
+        return ResponseEntity.ok(photoService.updatePhotoGroup(id, photoGroupDto));
     }
     
     @DeleteMapping("/groups/{id}")
@@ -49,28 +49,28 @@ public class PhotoController {
     
     // Photo endpoints
     @GetMapping("/groups/{groupId}/photos")
-    public ResponseEntity<List<Photo>> getPhotosByGroupId(@PathVariable Long groupId) {
+    public ResponseEntity<List<PhotoDto>> getPhotosByGroupId(@PathVariable Long groupId) {
         return ResponseEntity.ok(photoService.getPhotosByGroupId(groupId));
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Photo> getPhotoById(@PathVariable Long id) {
+    public ResponseEntity<PhotoDto> getPhotoById(@PathVariable Long id) {
         return ResponseEntity.ok(photoService.getPhotoById(id));
     }
     
     @PostMapping("/groups/{groupId}/photos")
-    public ResponseEntity<Photo> createPhoto(
+    public ResponseEntity<PhotoDto> createPhoto(
             @PathVariable Long groupId,
-            @RequestBody Photo photo) {
+            @RequestBody PhotoDto photoDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(photoService.createPhoto(groupId, photo));
+                .body(photoService.createPhoto(groupId, photoDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Photo> updatePhoto(
+    public ResponseEntity<PhotoDto> updatePhoto(
             @PathVariable Long id,
-            @RequestBody Photo photo) {
-        return ResponseEntity.ok(photoService.updatePhoto(id, photo));
+            @RequestBody PhotoDto photoDto) {
+        return ResponseEntity.ok(photoService.updatePhoto(id, photoDto));
     }
     
     @DeleteMapping("/{id}")

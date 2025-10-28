@@ -1,5 +1,6 @@
 package com.twiiiins.service;
 
+import com.twiiiins.dto.NewsDto;
 import com.twiiiins.entity.News;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.NewsRepository;
@@ -16,29 +17,58 @@ public class NewsService {
     
     private final NewsRepository newsRepository;
     
-    public List<News> getAllNews() {
-        return newsRepository.findAllByOrderByDateDesc();
+    public List<NewsDto> getAllNews() {
+        return newsRepository.findAllByOrderByDateDesc()
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public News getNewsById(Long id) {
-        return newsRepository.findById(id)
+    public NewsDto getNewsById(Long id) {
+        News news = newsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
+        return convertToDto(news);
     }
     
-    public News createNews(News news) {
-        return newsRepository.save(news);
+    public NewsDto createNews(NewsDto newsDto) {
+        News news = convertToEntity(newsDto);
+        News savedNews = newsRepository.save(news);
+        return convertToDto(savedNews);
     }
     
-    public News updateNews(Long id, News newsDetails) {
-        News news = getNewsById(id);
-        news.setDate(newsDetails.getDate());
-        news.setTitle(newsDetails.getTitle());
-        news.setDescription(newsDetails.getDescription());
-        news.setDisplayOrder(newsDetails.getDisplayOrder());
-        return newsRepository.save(news);
+    public NewsDto updateNews(Long id, NewsDto newsDto) {
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
+        
+        news.setDate(newsDto.getDate());
+        news.setTitle(newsDto.getTitle());
+        news.setDescription(newsDto.getDescription());
+        news.setDisplayOrder(newsDto.getDisplayOrder());
+        
+        News savedNews = newsRepository.save(news);
+        return convertToDto(savedNews);
     }
     
     public void deleteNews(Long id) {
         newsRepository.deleteById(id);
+    }
+    
+    private NewsDto convertToDto(News news) {
+        return new NewsDto(
+            news.getId(),
+            news.getDate(),
+            news.getTitle(),
+            news.getDescription(),
+            news.getDisplayOrder()
+        );
+    }
+    
+    private News convertToEntity(NewsDto newsDto) {
+        News news = new News();
+        news.setDate(newsDto.getDate());
+        news.setTitle(newsDto.getTitle());
+        news.setDescription(newsDto.getDescription());
+        news.setDisplayOrder(newsDto.getDisplayOrder());
+        return news;
     }
 }

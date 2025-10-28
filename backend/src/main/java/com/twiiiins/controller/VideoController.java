@@ -1,6 +1,6 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.Video;
+import com.twiiiins.dto.VideoDto;
 import com.twiiiins.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,26 +17,26 @@ public class VideoController {
     private final VideoService videoService;
     
     @GetMapping
-    public ResponseEntity<List<Video>> getAllVideos() {
+    public ResponseEntity<List<VideoDto>> getAllVideos() {
         return ResponseEntity.ok(videoService.getAllVideos());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Video> getVideoById(@PathVariable Long id) {
+    public ResponseEntity<VideoDto> getVideoById(@PathVariable Long id) {
         return ResponseEntity.ok(videoService.getVideoById(id));
     }
     
     @PostMapping
-    public ResponseEntity<Video> createVideo(@RequestBody Video video) {
+    public ResponseEntity<VideoDto> createVideo(@RequestBody VideoDto videoDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(videoService.createVideo(video));
+                .body(videoService.createVideo(videoDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Video> updateVideo(
+    public ResponseEntity<VideoDto> updateVideo(
             @PathVariable Long id,
-            @RequestBody Video video) {
-        return ResponseEntity.ok(videoService.updateVideo(id, video));
+            @RequestBody VideoDto videoDto) {
+        return ResponseEntity.ok(videoService.updateVideo(id, videoDto));
     }
     
     @DeleteMapping("/{id}")

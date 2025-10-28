@@ -1,6 +1,6 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.Music;
+import com.twiiiins.dto.MusicDto;
 import com.twiiiins.service.MusicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,26 +17,26 @@ public class MusicController {
     private final MusicService musicService;
     
     @GetMapping
-    public ResponseEntity<List<Music>> getAllMusic() {
+    public ResponseEntity<List<MusicDto>> getAllMusic() {
         return ResponseEntity.ok(musicService.getAllMusic());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Music> getMusicById(@PathVariable Long id) {
+    public ResponseEntity<MusicDto> getMusicById(@PathVariable Long id) {
         return ResponseEntity.ok(musicService.getMusicById(id));
     }
     
     @PostMapping
-    public ResponseEntity<Music> createMusic(@RequestBody Music music) {
+    public ResponseEntity<MusicDto> createMusic(@RequestBody MusicDto musicDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(musicService.createMusic(music));
+                .body(musicService.createMusic(musicDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Music> updateMusic(
+    public ResponseEntity<MusicDto> updateMusic(
             @PathVariable Long id,
-            @RequestBody Music music) {
-        return ResponseEntity.ok(musicService.updateMusic(id, music));
+            @RequestBody MusicDto musicDto) {
+        return ResponseEntity.ok(musicService.updateMusic(id, musicDto));
     }
     
     @DeleteMapping("/{id}")

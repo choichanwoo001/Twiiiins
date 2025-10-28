@@ -1,6 +1,6 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.DownloadFile;
+import com.twiiiins.dto.DownloadFileDto;
 import com.twiiiins.service.DownloadFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,26 +17,26 @@ public class DownloadFileController {
     private final DownloadFileService downloadFileService;
     
     @GetMapping
-    public ResponseEntity<List<DownloadFile>> getAllDownloadFiles() {
+    public ResponseEntity<List<DownloadFileDto>> getAllDownloadFiles() {
         return ResponseEntity.ok(downloadFileService.getAllDownloadFiles());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<DownloadFile> getDownloadFileById(@PathVariable Long id) {
+    public ResponseEntity<DownloadFileDto> getDownloadFileById(@PathVariable Long id) {
         return ResponseEntity.ok(downloadFileService.getDownloadFileById(id));
     }
     
     @PostMapping
-    public ResponseEntity<DownloadFile> createDownloadFile(@RequestBody DownloadFile downloadFile) {
+    public ResponseEntity<DownloadFileDto> createDownloadFile(@RequestBody DownloadFileDto downloadFileDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(downloadFileService.createDownloadFile(downloadFile));
+                .body(downloadFileService.createDownloadFile(downloadFileDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<DownloadFile> updateDownloadFile(
+    public ResponseEntity<DownloadFileDto> updateDownloadFile(
             @PathVariable Long id,
-            @RequestBody DownloadFile downloadFile) {
-        return ResponseEntity.ok(downloadFileService.updateDownloadFile(id, downloadFile));
+            @RequestBody DownloadFileDto downloadFileDto) {
+        return ResponseEntity.ok(downloadFileService.updateDownloadFile(id, downloadFileDto));
     }
     
     @DeleteMapping("/{id}")

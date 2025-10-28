@@ -1,5 +1,6 @@
 package com.twiiiins.service;
 
+import com.twiiiins.dto.MusicDto;
 import com.twiiiins.entity.Music;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.MusicRepository;
@@ -16,30 +17,61 @@ public class MusicService {
     
     private final MusicRepository musicRepository;
     
-    public List<Music> getAllMusic() {
-        return musicRepository.findAllByOrderByDisplayOrderAsc();
+    public List<MusicDto> getAllMusic() {
+        return musicRepository.findAllByOrderByDisplayOrderAsc()
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public Music getMusicById(Long id) {
-        return musicRepository.findById(id)
+    public MusicDto getMusicById(Long id) {
+        Music music = musicRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Music not found with id: " + id));
+        return convertToDto(music);
     }
     
-    public Music createMusic(Music music) {
-        return musicRepository.save(music);
+    public MusicDto createMusic(MusicDto musicDto) {
+        Music music = convertToEntity(musicDto);
+        Music savedMusic = musicRepository.save(music);
+        return convertToDto(savedMusic);
     }
     
-    public Music updateMusic(Long id, Music musicDetails) {
-        Music music = getMusicById(id);
-        music.setTitle(musicDetails.getTitle());
-        music.setArtist(musicDetails.getArtist());
-        music.setCoverUrl(musicDetails.getCoverUrl());
-        music.setLinkUrl(musicDetails.getLinkUrl());
-        music.setDisplayOrder(musicDetails.getDisplayOrder());
-        return musicRepository.save(music);
+    public MusicDto updateMusic(Long id, MusicDto musicDto) {
+        Music music = musicRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Music not found with id: " + id));
+        
+        music.setTitle(musicDto.getTitle());
+        music.setArtist(musicDto.getArtist());
+        music.setCoverUrl(musicDto.getCoverUrl());
+        music.setLinkUrl(musicDto.getLinkUrl());
+        music.setDisplayOrder(musicDto.getDisplayOrder());
+        
+        Music savedMusic = musicRepository.save(music);
+        return convertToDto(savedMusic);
     }
     
     public void deleteMusic(Long id) {
         musicRepository.deleteById(id);
+    }
+    
+    private MusicDto convertToDto(Music music) {
+        return new MusicDto(
+            music.getId(),
+            music.getTitle(),
+            music.getArtist(),
+            music.getCoverUrl(),
+            music.getLinkUrl(),
+            music.getDisplayOrder()
+        );
+    }
+    
+    private Music convertToEntity(MusicDto musicDto) {
+        Music music = new Music();
+        music.setTitle(musicDto.getTitle());
+        music.setArtist(musicDto.getArtist());
+        music.setCoverUrl(musicDto.getCoverUrl());
+        music.setLinkUrl(musicDto.getLinkUrl());
+        music.setDisplayOrder(musicDto.getDisplayOrder());
+        return music;
     }
 }

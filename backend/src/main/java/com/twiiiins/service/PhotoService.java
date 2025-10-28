@@ -1,5 +1,7 @@
 package com.twiiiins.service;
 
+import com.twiiiins.dto.PhotoDto;
+import com.twiiiins.dto.PhotoGroupDto;
 import com.twiiiins.entity.Photo;
 import com.twiiiins.entity.PhotoGroup;
 import com.twiiiins.exception.ResourceNotFoundException;
@@ -20,24 +22,34 @@ public class PhotoService {
     private final PhotoRepository photoRepository;
     
     // PhotoGroup 관련
-    public List<PhotoGroup> getAllPhotoGroups() {
-        return photoGroupRepository.findAllByOrderByDisplayOrderAsc();
+    public List<PhotoGroupDto> getAllPhotoGroups() {
+        return photoGroupRepository.findAllByOrderByDisplayOrderAsc()
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public PhotoGroup getPhotoGroupById(Long id) {
-        return photoGroupRepository.findById(id)
+    public PhotoGroupDto getPhotoGroupById(Long id) {
+        PhotoGroup photoGroup = photoGroupRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + id));
+        return convertToDto(photoGroup);
     }
     
-    public PhotoGroup createPhotoGroup(PhotoGroup photoGroup) {
-        return photoGroupRepository.save(photoGroup);
+    public PhotoGroupDto createPhotoGroup(PhotoGroupDto photoGroupDto) {
+        PhotoGroup photoGroup = convertToEntity(photoGroupDto);
+        PhotoGroup savedPhotoGroup = photoGroupRepository.save(photoGroup);
+        return convertToDto(savedPhotoGroup);
     }
     
-    public PhotoGroup updatePhotoGroup(Long id, PhotoGroup photoGroupDetails) {
-        PhotoGroup photoGroup = getPhotoGroupById(id);
-        photoGroup.setTitle(photoGroupDetails.getTitle());
-        photoGroup.setDisplayOrder(photoGroupDetails.getDisplayOrder());
-        return photoGroupRepository.save(photoGroup);
+    public PhotoGroupDto updatePhotoGroup(Long id, PhotoGroupDto photoGroupDto) {
+        PhotoGroup photoGroup = photoGroupRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + id));
+        
+        photoGroup.setTitle(photoGroupDto.getTitle());
+        photoGroup.setDisplayOrder(photoGroupDto.getDisplayOrder());
+        
+        PhotoGroup savedPhotoGroup = photoGroupRepository.save(photoGroup);
+        return convertToDto(savedPhotoGroup);
     }
     
     public void deletePhotoGroup(Long id) {
@@ -45,29 +57,73 @@ public class PhotoService {
     }
     
     // Photo 관련
-    public List<Photo> getPhotosByGroupId(Long groupId) {
-        return photoRepository.findByPhotoGroupId(groupId);
+    public List<PhotoDto> getPhotosByGroupId(Long groupId) {
+        return photoRepository.findByPhotoGroupId(groupId)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public Photo getPhotoById(Long id) {
-        return photoRepository.findById(id)
+    public PhotoDto getPhotoById(Long id) {
+        Photo photo = photoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Photo not found with id: " + id));
+        return convertToDto(photo);
     }
     
-    public Photo createPhoto(Long groupId, Photo photo) {
-        PhotoGroup photoGroup = getPhotoGroupById(groupId);
+    public PhotoDto createPhoto(Long groupId, PhotoDto photoDto) {
+        PhotoGroup photoGroup = photoGroupRepository.findById(groupId)
+                .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + groupId));
+        
+        Photo photo = convertToEntity(photoDto);
         photo.setPhotoGroup(photoGroup);
-        return photoRepository.save(photo);
+        
+        Photo savedPhoto = photoRepository.save(photo);
+        return convertToDto(savedPhoto);
     }
     
-    public Photo updatePhoto(Long id, Photo photoDetails) {
-        Photo photo = getPhotoById(id);
-        photo.setImageUrl(photoDetails.getImageUrl());
-        photo.setAltText(photoDetails.getAltText());
-        return photoRepository.save(photo);
+    public PhotoDto updatePhoto(Long id, PhotoDto photoDto) {
+        Photo photo = photoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Photo not found with id: " + id));
+        
+        photo.setImageUrl(photoDto.getImageUrl());
+        photo.setAltText(photoDto.getAltText());
+        
+        Photo savedPhoto = photoRepository.save(photo);
+        return convertToDto(savedPhoto);
     }
     
     public void deletePhoto(Long id) {
         photoRepository.deleteById(id);
+    }
+    
+    private PhotoGroupDto convertToDto(PhotoGroup photoGroup) {
+        return new PhotoGroupDto(
+            photoGroup.getId(),
+            photoGroup.getTitle(),
+            photoGroup.getDisplayOrder()
+        );
+    }
+    
+    private PhotoGroup convertToEntity(PhotoGroupDto photoGroupDto) {
+        PhotoGroup photoGroup = new PhotoGroup();
+        photoGroup.setTitle(photoGroupDto.getTitle());
+        photoGroup.setDisplayOrder(photoGroupDto.getDisplayOrder());
+        return photoGroup;
+    }
+    
+    private PhotoDto convertToDto(Photo photo) {
+        return new PhotoDto(
+            photo.getId(),
+            photo.getImageUrl(),
+            photo.getAltText(),
+            photo.getPhotoGroup() != null ? photo.getPhotoGroup().getId() : null
+        );
+    }
+    
+    private Photo convertToEntity(PhotoDto photoDto) {
+        Photo photo = new Photo();
+        photo.setImageUrl(photoDto.getImageUrl());
+        photo.setAltText(photoDto.getAltText());
+        return photo;
     }
 }

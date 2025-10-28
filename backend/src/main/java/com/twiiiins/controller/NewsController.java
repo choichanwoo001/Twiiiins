@@ -1,6 +1,6 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.News;
+import com.twiiiins.dto.NewsDto;
 import com.twiiiins.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,26 +17,26 @@ public class NewsController {
     private final NewsService newsService;
     
     @GetMapping
-    public ResponseEntity<List<News>> getAllNews() {
+    public ResponseEntity<List<NewsDto>> getAllNews() {
         return ResponseEntity.ok(newsService.getAllNews());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<News> getNewsById(@PathVariable Long id) {
+    public ResponseEntity<NewsDto> getNewsById(@PathVariable Long id) {
         return ResponseEntity.ok(newsService.getNewsById(id));
     }
     
     @PostMapping
-    public ResponseEntity<News> createNews(@RequestBody News news) {
+    public ResponseEntity<NewsDto> createNews(@RequestBody NewsDto newsDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(newsService.createNews(news));
+                .body(newsService.createNews(newsDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<News> updateNews(
+    public ResponseEntity<NewsDto> updateNews(
             @PathVariable Long id,
-            @RequestBody News news) {
-        return ResponseEntity.ok(newsService.updateNews(id, news));
+            @RequestBody NewsDto newsDto) {
+        return ResponseEntity.ok(newsService.updateNews(id, newsDto));
     }
     
     @DeleteMapping("/{id}")

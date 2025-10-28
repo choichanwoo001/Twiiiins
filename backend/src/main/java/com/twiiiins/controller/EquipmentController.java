@@ -1,6 +1,6 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.Equipment;
+import com.twiiiins.dto.EquipmentDto;
 import com.twiiiins.service.EquipmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,26 +17,26 @@ public class EquipmentController {
     private final EquipmentService equipmentService;
     
     @GetMapping
-    public ResponseEntity<List<Equipment>> getAllEquipment() {
+    public ResponseEntity<List<EquipmentDto>> getAllEquipment() {
         return ResponseEntity.ok(equipmentService.getAllEquipment());
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Equipment> getEquipmentById(@PathVariable Long id) {
+    public ResponseEntity<EquipmentDto> getEquipmentById(@PathVariable Long id) {
         return ResponseEntity.ok(equipmentService.getEquipmentById(id));
     }
     
     @PostMapping
-    public ResponseEntity<Equipment> createEquipment(@RequestBody Equipment equipment) {
+    public ResponseEntity<EquipmentDto> createEquipment(@RequestBody EquipmentDto equipmentDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(equipmentService.createEquipment(equipment));
+                .body(equipmentService.createEquipment(equipmentDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Equipment> updateEquipment(
+    public ResponseEntity<EquipmentDto> updateEquipment(
             @PathVariable Long id,
-            @RequestBody Equipment equipment) {
-        return ResponseEntity.ok(equipmentService.updateEquipment(id, equipment));
+            @RequestBody EquipmentDto equipmentDto) {
+        return ResponseEntity.ok(equipmentService.updateEquipment(id, equipmentDto));
     }
     
     @DeleteMapping("/{id}")
