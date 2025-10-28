@@ -29,28 +29,39 @@ public class FileUploadService {
     );
     
     public FileUploadResponseDto uploadImage(MultipartFile file) {
+        log.info("이미지 파일 업로드 시작: 원본 파일명 = {}, 크기 = {} bytes", 
+                file.getOriginalFilename(), file.getSize());
         validateFile(file, ALLOWED_IMAGE_TYPES, "이미지 파일만 업로드 가능합니다.");
         return uploadFile(file, "image");
     }
     
     public FileUploadResponseDto uploadFile(MultipartFile file) {
+        log.info("파일 업로드 시작: 원본 파일명 = {}, 크기 = {} bytes, MIME 타입 = {}", 
+                file.getOriginalFilename(), file.getSize(), file.getContentType());
         validateFile(file, ALLOWED_FILE_TYPES, "이미지 파일 또는 PDF 파일만 업로드 가능합니다.");
         return uploadFile(file, "file");
     }
     
     private void validateFile(MultipartFile file, List<String> allowedTypes, String errorMessage) {
+        log.debug("파일 검증 시작: 파일명 = {}, 크기 = {} bytes", file.getOriginalFilename(), file.getSize());
+        
         if (file.isEmpty()) {
+            log.warn("빈 파일 업로드 시도: {}", file.getOriginalFilename());
             throw new FileUploadException("파일이 비어있습니다.");
         }
         
         if (file.getSize() > MAX_FILE_SIZE) {
+            log.warn("파일 크기 초과: {} bytes (최대: {} bytes)", file.getSize(), MAX_FILE_SIZE);
             throw new FileUploadException("파일 크기는 15MB를 초과할 수 없습니다.");
         }
         
         String contentType = file.getContentType();
         if (contentType == null || !allowedTypes.contains(contentType)) {
+            log.warn("허용되지 않은 파일 타입: {} (허용 타입: {})", contentType, allowedTypes);
             throw new FileUploadException(errorMessage);
         }
+        
+        log.debug("파일 검증 완료: 파일명 = {}, 타입 = {}", file.getOriginalFilename(), contentType);
     }
     
     private FileUploadResponseDto uploadFile(MultipartFile file, String uploadType) {
