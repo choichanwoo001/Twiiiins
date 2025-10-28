@@ -109,7 +109,7 @@ const goToProjectDetail = (urlSlug) => {
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 3.75rem);
   overflow: hidden;
 }
 
@@ -124,7 +124,7 @@ const goToProjectDetail = (urlSlug) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color:#6f93a0;               /* 이미지처럼 청록빛 톤 */
+  color:#5B8793;
   text-transform: uppercase;
   line-height:1;
   margin:0;
@@ -132,7 +132,7 @@ const goToProjectDetail = (urlSlug) => {
 
 /* 우측 콘텐츠 */
 .projects-content{
-  max-width: 800px; /* 이미지 크기 줄임 */
+  max-width: 50rem; /* 이미지 크기 줄임 */
   width: 100%;
   margin-right: 2rem;
   justify-self: end;           /* 우측 정렬 느낌 */
@@ -155,7 +155,7 @@ const goToProjectDetail = (urlSlug) => {
 }
 
 .project-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-0.125rem);
 }
 
 /* 이미지 컨테이너 */

@@ -57,7 +57,7 @@
   background-color: white;
   color: #333;
   font-family: 'Arial', sans-serif;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 3.75rem);
   overflow-y: auto;
   padding-top: 6rem;
   padding-left: 2rem;
@@ -82,7 +82,7 @@
 
 .about-content {
   text-align: left;
-  max-width: 800px;
+  max-width: 50rem;
 }
 
 .about-content p {
@@ -97,7 +97,7 @@
 /* 이미지 그리드 섹션 */
 .about-images {
   padding: 4rem 2rem;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
   display: flex;
   justify-content: center;
@@ -107,18 +107,18 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-width: 1000px;
+  max-width: 62.5rem;
   width: 100%;
 }
 
 .image-row {
   display: flex;
   gap: 0.5rem;
-  height: 300px;
+  height: 18.75rem;
 }
 
 .image-row:nth-child(2) {
-  height: 250px;
+  height: 15.625rem;
 }
 
 .image-item {

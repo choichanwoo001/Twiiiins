@@ -63,9 +63,9 @@ const downloadFiles = ref([])
 const loadContacts = async () => {
   try {
     const response = await axios.get('/api/media/contacts')
-    contacts.value = response.data
+    contacts.value = response.data.data || response.data
   } catch (error) {
-    console.error('연락처 로드 실패:', error)
+    // 연락처 로드 실패
   }
 }
 
@@ -73,10 +73,11 @@ const loadContacts = async () => {
 const loadDownloadFiles = async () => {
   try {
     const response = await axios.get('/api/media/download-files')
+    const files = response.data.data || response.data
     // displayOrder 순으로 정렬
-    downloadFiles.value = response.data.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+    downloadFiles.value = files.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
   } catch (error) {
-    console.error('다운로드 파일 로드 실패:', error)
+    // 다운로드 파일 로드 실패
   }
 }
 
@@ -127,7 +128,7 @@ onMounted(() => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: #8B4513;
+  color: #815D47;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
@@ -135,7 +136,7 @@ onMounted(() => {
 
 /* 우측 콘텐츠 */
 .contact-content {
-  max-width: 800px;
+  max-width: 50rem;
   width: 100%;
   margin-right: 2rem;
   justify-self: end;
@@ -172,7 +173,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 2rem;
   flex: 1;
-  max-width: 400px;
+  max-width: 25rem;
 }
 
 .contact-item {
@@ -202,8 +203,8 @@ onMounted(() => {
 /* 다운로드 섹션 */
 .download-section {
   margin-top: 0;
-  min-width: 240px;
-  max-width: 300px;
+  min-width: 15rem;
+  max-width: 18.75rem;
 }
 
 .download-section h2 {
