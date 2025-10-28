@@ -1,8 +1,12 @@
 package com.twiiiins.controller;
 
+import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.PhotoDto;
 import com.twiiiins.dto.PhotoGroupDto;
 import com.twiiiins.service.PhotoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,69 +17,140 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/photos")
 @RequiredArgsConstructor
+@Tag(name = "사진 관리", description = "사진 및 사진 그룹 관리 API")
 public class PhotoController {
     
     private final PhotoService photoService;
     
     // PhotoGroup endpoints
     @GetMapping("/groups")
-    public ResponseEntity<List<PhotoGroupDto>> getAllPhotoGroups() {
-        return ResponseEntity.ok(photoService.getAllPhotoGroups());
+    @Operation(summary = "사진 그룹 목록 조회", description = "모든 사진 그룹을 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<List<PhotoGroupDto>>> getAllPhotoGroups() {
+        List<PhotoGroupDto> groups = photoService.getAllPhotoGroups();
+        return ResponseEntity.ok(ApiResponse.success(groups, "사진 그룹 목록을 성공적으로 조회했습니다."));
     }
     
     @GetMapping("/groups/{id}")
-    public ResponseEntity<PhotoGroupDto> getPhotoGroupById(@PathVariable Long id) {
-        return ResponseEntity.ok(photoService.getPhotoGroupById(id));
+    @Operation(summary = "사진 그룹 상세 조회", description = "특정 사진 그룹의 상세 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<PhotoGroupDto>> getPhotoGroupById(@PathVariable Long id) {
+        PhotoGroupDto group = photoService.getPhotoGroupById(id);
+        return ResponseEntity.ok(ApiResponse.success(group, "사진 그룹 정보를 성공적으로 조회했습니다."));
     }
     
     @PostMapping("/groups")
-    public ResponseEntity<PhotoGroupDto> createPhotoGroup(@RequestBody PhotoGroupDto photoGroupDto) {
+    @Operation(summary = "사진 그룹 생성", description = "새로운 사진 그룹을 생성합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "성공적으로 생성됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<PhotoGroupDto>> createPhotoGroup(@RequestBody PhotoGroupDto photoGroupDto) {
+        PhotoGroupDto createdGroup = photoService.createPhotoGroup(photoGroupDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(photoService.createPhotoGroup(photoGroupDto));
+                .body(ApiResponse.success(createdGroup, "사진 그룹이 성공적으로 생성되었습니다."));
     }
     
     @PutMapping("/groups/{id}")
-    public ResponseEntity<PhotoGroupDto> updatePhotoGroup(
+    @Operation(summary = "사진 그룹 수정", description = "기존 사진 그룹 정보를 수정합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 수정됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<PhotoGroupDto>> updatePhotoGroup(
             @PathVariable Long id,
             @RequestBody PhotoGroupDto photoGroupDto) {
-        return ResponseEntity.ok(photoService.updatePhotoGroup(id, photoGroupDto));
+        PhotoGroupDto updatedGroup = photoService.updatePhotoGroup(id, photoGroupDto);
+        return ResponseEntity.ok(ApiResponse.success(updatedGroup, "사진 그룹이 성공적으로 수정되었습니다."));
     }
     
     @DeleteMapping("/groups/{id}")
-    public ResponseEntity<Void> deletePhotoGroup(@PathVariable Long id) {
+    @Operation(summary = "사진 그룹 삭제", description = "사진 그룹을 삭제합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 삭제됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<Void>> deletePhotoGroup(@PathVariable Long id) {
         photoService.deletePhotoGroup(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success(null, "사진 그룹이 성공적으로 삭제되었습니다."));
     }
     
     // Photo endpoints
     @GetMapping("/groups/{groupId}/photos")
-    public ResponseEntity<List<PhotoDto>> getPhotosByGroupId(@PathVariable Long groupId) {
-        return ResponseEntity.ok(photoService.getPhotosByGroupId(groupId));
+    @Operation(summary = "그룹별 사진 조회", description = "특정 그룹의 사진 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<List<PhotoDto>>> getPhotosByGroupId(@PathVariable Long groupId) {
+        List<PhotoDto> photos = photoService.getPhotosByGroupId(groupId);
+        return ResponseEntity.ok(ApiResponse.success(photos, "그룹별 사진 목록을 성공적으로 조회했습니다."));
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<PhotoDto> getPhotoById(@PathVariable Long id) {
-        return ResponseEntity.ok(photoService.getPhotoById(id));
+    @Operation(summary = "사진 상세 조회", description = "특정 사진의 상세 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<PhotoDto>> getPhotoById(@PathVariable Long id) {
+        PhotoDto photo = photoService.getPhotoById(id);
+        return ResponseEntity.ok(ApiResponse.success(photo, "사진 정보를 성공적으로 조회했습니다."));
     }
     
     @PostMapping("/groups/{groupId}/photos")
-    public ResponseEntity<PhotoDto> createPhoto(
+    @Operation(summary = "사진 생성", description = "새로운 사진을 생성합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "성공적으로 생성됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<PhotoDto>> createPhoto(
             @PathVariable Long groupId,
             @RequestBody PhotoDto photoDto) {
+        PhotoDto createdPhoto = photoService.createPhoto(groupId, photoDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(photoService.createPhoto(groupId, photoDto));
+                .body(ApiResponse.success(createdPhoto, "사진이 성공적으로 생성되었습니다."));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<PhotoDto> updatePhoto(
+    @Operation(summary = "사진 수정", description = "기존 사진 정보를 수정합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 수정됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<PhotoDto>> updatePhoto(
             @PathVariable Long id,
             @RequestBody PhotoDto photoDto) {
-        return ResponseEntity.ok(photoService.updatePhoto(id, photoDto));
+        PhotoDto updatedPhoto = photoService.updatePhoto(id, photoDto);
+        return ResponseEntity.ok(ApiResponse.success(updatedPhoto, "사진이 성공적으로 수정되었습니다."));
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePhoto(@PathVariable Long id) {
+    @Operation(summary = "사진 삭제", description = "사진을 삭제합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 삭제됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진을 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<Void>> deletePhoto(@PathVariable Long id) {
         photoService.deletePhoto(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success(null, "사진이 성공적으로 삭제되었습니다."));
     }
 }

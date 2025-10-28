@@ -22,8 +22,8 @@
           </div>
         </div>
         <div class="filter-actions">
-          <button class="btn-reset" @click="resetFilters">초기화</button>
-          <button class="btn-search" @click="searchConcerts">검색</button>
+          <BaseButton variant="secondary" @click="resetFilters">초기화</BaseButton>
+          <BaseButton variant="primary" @click="searchConcerts">검색</BaseButton>
         </div>
       </div>
     </div>
@@ -32,9 +32,9 @@
     <div class="concerts-list">
       <div class="concerts-header">
         <h2>전체 목록</h2>
-        <button class="btn-auto-move" @click="triggerAutoMove">
+        <BaseButton variant="warning" @click="triggerAutoMove">
           자동 이동 실행
-        </button>
+        </BaseButton>
       </div>
       <div class="concerts-table">
         <table>
@@ -60,22 +60,24 @@
                 </span>
               </td>
               <td>
-                <button class="btn-edit" @click="editConcert(concert)">수정</button>
-                <button class="btn-delete" @click="deleteConcert(concert.id)">삭제</button>
-                <button 
+                <BaseButton size="small" variant="secondary" @click="editConcert(concert)">수정</BaseButton>
+                <BaseButton size="small" variant="danger" @click="deleteConcert(concert.id)">삭제</BaseButton>
+                <BaseButton 
                   v-if="!concert.isPast" 
-                  class="btn-move-past" 
+                  size="small"
+                  variant="warning" 
                   @click="moveToPastEvent(concert.id)"
                 >
                   Past Event로 이동
-                </button>
-                <button 
+                </BaseButton>
+                <BaseButton 
                   v-if="concert.isPast" 
-                  class="btn-move-upcoming" 
+                  size="small"
+                  variant="success" 
                   @click="moveToUpcomingEvent(concert.id)"
                 >
                   Upcoming으로 이동
-                </button>
+                </BaseButton>
               </td>
             </tr>
           </tbody>
@@ -137,8 +139,8 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-save">{{ editingConcert ? '수정' : '등록' }}</button>
-          <button type="button" class="btn-cancel" @click="cancelEdit" v-if="editingConcert">취소</button>
+          <BaseButton type="submit" variant="primary">{{ editingConcert ? '수정' : '등록' }}</BaseButton>
+          <BaseButton type="button" variant="secondary" @click="cancelEdit" v-if="editingConcert">취소</BaseButton>
         </div>
       </form>
     </div>
@@ -148,6 +150,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { concertService } from '../../services'
+import { BaseButton } from '../common'
 import {
   createConcertSearchFilters,
   createConcertForm,

@@ -247,24 +247,27 @@ const totalPhotosCount = computed(() =>
 }
 
 .activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .activity-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background: #f8f9fa;
   border-radius: 0.5rem;
+  min-height: 200px;
 }
 
 .activity-icon {
-  font-size: 1.5rem;
-  width: 3rem;
-  height: 3rem;
+  font-size: 2rem;
+  width: 4rem;
+  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -273,15 +276,17 @@ const totalPhotosCount = computed(() =>
 }
 
 .activity-content h4 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 1rem 0;
   color: #333;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .activity-content p {
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .quick-actions {

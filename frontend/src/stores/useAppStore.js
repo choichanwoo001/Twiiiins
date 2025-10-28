@@ -21,6 +21,14 @@ export const useAppStore = defineStore('app', () => {
     error.value = errorMessage
   }
 
+  const showError = (errorMessage) => {
+    error.value = errorMessage
+    // 5초 후 자동으로 에러 메시지 제거
+    setTimeout(() => {
+      clearError()
+    }, 5000)
+  }
+
   const clearError = () => {
     error.value = null
   }
@@ -63,6 +71,7 @@ export const useAppStore = defineStore('app', () => {
     // 액션
     setLoading,
     setError,
+    showError,
     clearError,
     setUser,
     logout,

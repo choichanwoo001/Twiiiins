@@ -2,64 +2,150 @@ package com.twiiiins.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * 표준화된 API 응답 DTO
+ */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
+    
     private boolean success;
-    private String message;
     private T data;
-    private String error;
+    private String message;
+    private ErrorInfo error;
     private LocalDateTime timestamp;
-    private Integer code;
-
+    
+    /**
+     * 성공 응답 생성
+     */
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(true, "요청이 성공적으로 처리되었습니다.", data, null, LocalDateTime.now(), 200);
+        return ApiResponse.<T>builder()
+                .success(true)
+                .data(data)
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
+    
+    /**
+     * 성공 응답 생성 (메시지 포함)
+     */
     public static <T> ApiResponse<T> success(T data, String message) {
-        return new ApiResponse<>(true, message, data, null, LocalDateTime.now(), 200);
+        return ApiResponse.<T>builder()
+                .success(true)
+                .data(data)
+                .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
+    
+    /**
+     * 성공 응답 생성 (데이터 없음)
+     */
     public static <T> ApiResponse<T> success(String message) {
-        return new ApiResponse<>(true, message, null, null, LocalDateTime.now(), 200);
+        return ApiResponse.<T>builder()
+                .success(true)
+                .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
-    public static <T> ApiResponse<T> error(String error, int code) {
-        return new ApiResponse<>(false, null, null, error, LocalDateTime.now(), code);
+    
+    /**
+     * 에러 응답 생성
+     */
+    public static <T> ApiResponse<T> error(String code, String message) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .error(ErrorInfo.builder()
+                        .code(code)
+                        .message(message)
+                        .build())
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
-    public static <T> ApiResponse<T> error(String error, String message, int code) {
-        return new ApiResponse<>(false, message, null, error, LocalDateTime.now(), code);
-    }
-
+    
+    /**
+     * 201 Created 응답 생성
+     */
     public static <T> ApiResponse<T> created(T data) {
-        return new ApiResponse<>(true, "리소스가 성공적으로 생성되었습니다.", data, null, LocalDateTime.now(), 201);
+        return ApiResponse.<T>builder()
+                .success(true)
+                .data(data)
+                .message("리소스가 성공적으로 생성되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
-    public static <T> ApiResponse<T> created(T data, String message) {
-        return new ApiResponse<>(true, message, data, null, LocalDateTime.now(), 201);
-    }
-
+    
+    /**
+     * 204 No Content 응답 생성
+     */
     public static <T> ApiResponse<T> noContent() {
-        return new ApiResponse<>(true, "요청이 성공적으로 처리되었습니다.", null, null, LocalDateTime.now(), 204);
+        return ApiResponse.<T>builder()
+                .success(true)
+                .message("요청이 성공적으로 처리되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
+    
+    /**
+     * 404 Not Found 에러 응답 생성
+     */
     public static <T> ApiResponse<T> notFound(String message) {
-        return new ApiResponse<>(false, message, null, "RESOURCE_NOT_FOUND", LocalDateTime.now(), 404);
+        return ApiResponse.<T>builder()
+                .success(false)
+                .error(ErrorInfo.builder()
+                        .code("NOT_FOUND")
+                        .message(message)
+                        .build())
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
+    
+    /**
+     * 400 Bad Request 에러 응답 생성
+     */
     public static <T> ApiResponse<T> badRequest(String message) {
-        return new ApiResponse<>(false, message, null, "BAD_REQUEST", LocalDateTime.now(), 400);
+        return ApiResponse.<T>builder()
+                .success(false)
+                .error(ErrorInfo.builder()
+                        .code("BAD_REQUEST")
+                        .message(message)
+                        .build())
+                .timestamp(LocalDateTime.now())
+                .build();
     }
-
+    
+    /**
+     * 500 Internal Server Error 에러 응답 생성
+     */
     public static <T> ApiResponse<T> internalError(String message) {
-        return new ApiResponse<>(false, message, null, "INTERNAL_SERVER_ERROR", LocalDateTime.now(), 500);
+        return ApiResponse.<T>builder()
+                .success(false)
+                .error(ErrorInfo.builder()
+                        .code("INTERNAL_ERROR")
+                        .message(message)
+                        .build())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+    
+    /**
+     * 에러 정보 DTO
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ErrorInfo {
+        private String code;
+        private String message;
     }
 }

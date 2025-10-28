@@ -10,8 +10,7 @@ import jakarta.annotation.PostConstruct;
 @Slf4j
 public class EnvironmentConfig {
 
-    @PostConstruct
-    public void loadEnvironmentVariables() {
+    static {
         try {
             Dotenv dotenv = Dotenv.configure()
                     .directory("./")
@@ -23,9 +22,9 @@ public class EnvironmentConfig {
                 System.setProperty(entry.getKey(), entry.getValue())
             );
             
-            log.info("환경변수 로드 완료: {} 개의 변수 로드됨", dotenv.entries().size());
+            System.out.println("환경변수 로드 완료: " + dotenv.entries().size() + " 개의 변수 로드됨");
         } catch (Exception e) {
-            log.warn(".env 파일을 찾을 수 없거나 로드할 수 없습니다: {}", e.getMessage());
+            System.err.println(".env 파일을 찾을 수 없거나 로드할 수 없습니다: " + e.getMessage());
         }
     }
 }

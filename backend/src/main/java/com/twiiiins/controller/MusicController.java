@@ -5,6 +5,7 @@ import com.twiiiins.dto.MusicDto;
 import com.twiiiins.service.MusicService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,8 @@ public class MusicController {
         log.info("음악 생성 요청: {}", musicDto.getTitle());
         MusicDto createdMusic = musicService.createMusic(musicDto);
         log.info("음악 생성 완료: ID = {}, 제목 = {}", createdMusic.getId(), createdMusic.getTitle());
-        return ResponseEntity.ok(ApiResponse.created(createdMusic));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(createdMusic, "음악이 성공적으로 생성되었습니다."));
     }
     
     @PutMapping("/{id}")
@@ -57,6 +59,6 @@ public class MusicController {
         log.info("음악 삭제 요청: ID = {}", id);
         musicService.deleteMusic(id);
         log.info("음악 삭제 완료: ID = {}", id);
-        return ResponseEntity.ok(ApiResponse.noContent());
+        return ResponseEntity.ok(ApiResponse.success(null, "음악이 성공적으로 삭제되었습니다."));
     }
 }

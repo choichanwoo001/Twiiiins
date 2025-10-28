@@ -1,51 +1,10 @@
 <template>
   <div class="admin">
-    <!-- 왼쪽 사이드바 -->
-    <aside class="admin-sidebar" role="navigation" aria-label="관리자 메뉴">
-      <h2 class="sidebar-title">ADMIN</h2>
-      <nav class="sidebar-nav" role="tablist">
-        <button 
-          :class="['nav-item', { active: activeSection === 'dashboard' }]"
-          @click="activeSection = 'dashboard'"
-          role="tab"
-          :aria-selected="activeSection === 'dashboard'"
-          aria-label="대시보드 메뉴">
-          Dashboard
-        </button>
-        <button 
-          :class="['nav-item', { active: activeSection === 'concerts' }]"
-          @click="activeSection = 'concerts'"
-          role="tab"
-          :aria-selected="activeSection === 'concerts'"
-          aria-label="콘서트 관리 메뉴">
-          Concerts
-        </button>
-        <button 
-          :class="['nav-item', { active: activeSection === 'media' }]"
-          @click="activeSection = 'media'"
-          role="tab"
-          :aria-selected="activeSection === 'media'"
-          aria-label="미디어 관리 메뉴">
-          Media
-        </button>
-        <button 
-          :class="['nav-item', { active: activeSection === 'contact' }]"
-          @click="activeSection = 'contact'"
-          role="tab"
-          :aria-selected="activeSection === 'contact'"
-          aria-label="연락처 관리 메뉴">
-          Contact
-        </button>
-        <button 
-          :class="['nav-item', { active: activeSection === 'download-files' }]"
-          @click="activeSection = 'download-files'"
-          role="tab"
-          :aria-selected="activeSection === 'download-files'"
-          aria-label="다운로드 파일 관리 메뉴">
-          Download Files
-        </button>
-      </nav>
-    </aside>
+    <!-- 사이드바 컴포넌트 -->
+    <AdminSidebar 
+      :active-section="activeSection"
+      @update:active-section="activeSection = $event"
+    />
 
     <!-- 메인 콘텐츠 영역 -->
     <main class="admin-content" role="tabpanel" :aria-label="`${activeSection} 관리 섹션`">
@@ -91,6 +50,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useConcertStore, useMediaStore, useAppStore } from '../stores'
+import AdminSidebar from '../components/admin/AdminSidebar.vue'
 import DashboardSection from '../components/admin/DashboardSection.vue'
 import ConcertAdmin from '../components/admin/ConcertAdmin.vue'
 import MediaAdmin from '../components/admin/MediaAdmin.vue'
@@ -145,50 +105,6 @@ onMounted(() => {
   background: #f8f9fa;
 }
 
-.admin-sidebar {
-  width: 15rem;
-  background: #2c3e50;
-  color: white;
-  padding: 2rem 0;
-  position: fixed;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.sidebar-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 0 1rem;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-}
-
-.nav-item {
-  padding: 1rem 2rem;
-  background: none;
-  border: none;
-  color: #bdc3c7;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 1rem;
-}
-
-.nav-item:hover {
-  background: #34495e;
-  color: white;
-}
-
-.nav-item.active {
-  background: #3498db;
-  color: white;
-}
-
 .admin-content {
   flex: 1;
   margin-left: 15rem;
@@ -204,5 +120,4 @@ onMounted(() => {
   margin-bottom: 2rem;
   color: #333;
 }
-
 </style>
