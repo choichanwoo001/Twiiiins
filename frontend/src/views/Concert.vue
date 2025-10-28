@@ -112,7 +112,7 @@ const pastEvents = ref([])
 const loadConcerts = async () => {
   try {
     const response = await axios.get('/api/concerts')
-    const allConcerts = response.data.map(concert => ({
+    const allConcerts = response.data.data.map(concert => ({
       id: concert.id,
       date: new Date(concert.date).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -130,27 +130,18 @@ const loadConcerts = async () => {
       isPast: concert.isPast
     }))
     
-    // 다가오는 이벤트와 과거 이벤트로 분리
-    upcomingEvents.value = allConcerts.filter(concert => !concert.isPast)
-    pastEvents.value = allConcerts.filter(concert => concert.isPast)
+    // 다가오는 이벤트와 과거 이벤트로 분리하고 날짜순으로 정렬
+    upcomingEvents.value = allConcerts
+      .filter(concert => !concert.isPast)
+      .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
+    
+    pastEvents.value = allConcerts
+      .filter(concert => concert.isPast)
+      .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
   } catch (error) {
-    console.error('콘서트 로드 실패:', error)
-    // 에러 시 기본 데이터 사용
-    upcomingEvents.value = [
-      {
-        id: 1,
-        date: 'October 25, 2025',
-        location: 'Schloss Salon, Linz [AT]',
-        name: 'TWIIIINS Concert',
-        expanded: false,
-        startTime: '20:30',
-        ticketInfo: 'https://aeskil.at/',
-        fullLocation: 'Schloss Eschelberg, Eschelberg 1, 4112 St. Gotthard im Mühlkreis',
-        googleMap: 'https://maps.app.goo.gl/qSDyev6zUo7BP1YEA',
-        collaborationInfo: '',
-        isPast: false
-      }
-    ]
+    console.error('콘서트 데이터 로드 실패:', error)
+    // 에러 시 빈 배열로 초기화
+    upcomingEvents.value = []
     pastEvents.value = []
   }
 }
@@ -183,7 +174,7 @@ onMounted(() => {
   background: #fafafa;
   color: #222;
   padding-top: 6rem;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 3.75rem);
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -207,7 +198,7 @@ onMounted(() => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: #D4AF37;
+  color: #CEC0A3;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
@@ -229,7 +220,7 @@ onMounted(() => {
 /* 섹션 레이아웃 (좌우 배치) */
 .section-layout {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 12.5rem 1fr;
   gap: 2rem;
   align-items: start;
 }
@@ -250,7 +241,7 @@ onMounted(() => {
 }
 
 .event-item {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 0.0625rem solid #e0e0e0;
   transition: background-color 0.3s ease;
 }
 
@@ -274,7 +265,7 @@ onMounted(() => {
 .event-date {
   font-size: 1rem;
   color: #555;
-  min-width: 150px;
+  min-width: 9.375rem;
   text-align: left;
 }
 
@@ -299,7 +290,7 @@ onMounted(() => {
 .event-expand {
   color: #999;
   transition: all 0.3s ease;
-  min-width: 30px;
+  min-width: 1.875rem;
   text-align: right;
 }
 
@@ -315,7 +306,7 @@ onMounted(() => {
 .event-details {
   padding: 1.5rem 0 2rem 0;
   background-color: #f8f8f8;
-  border-top: 1px solid #e0e0e0;
+  border-top: 0.0625rem solid #e0e0e0;
 }
 
 .detail-row {
@@ -332,7 +323,7 @@ onMounted(() => {
 .detail-label {
   font-size: 0.9rem;
   color: #666;
-  min-width: 200px;
+  min-width: 12.5rem;
   font-weight: 500;
   flex-shrink: 0;
 }

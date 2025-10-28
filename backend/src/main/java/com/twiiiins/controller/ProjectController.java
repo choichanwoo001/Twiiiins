@@ -1,6 +1,6 @@
 package com.twiiiins.controller;
 
-import com.twiiiins.entity.Project;
+import com.twiiiins.dto.ProjectDto;
 import com.twiiiins.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ public class ProjectController {
     private final ProjectService projectService;
     
     @GetMapping
-    public ResponseEntity<List<Project>> getAllProjects(
+    public ResponseEntity<List<ProjectDto>> getAllProjects(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) LocalDate startDate,
@@ -33,26 +33,26 @@ public class ProjectController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<ProjectDto> getProjectById(@PathVariable Long id) {
         return ResponseEntity.ok(projectService.getProjectById(id));
     }
     
     @GetMapping("/slug/{slug}")
-    public ResponseEntity<Project> getProjectBySlug(@PathVariable String slug) {
+    public ResponseEntity<ProjectDto> getProjectBySlug(@PathVariable String slug) {
         return ResponseEntity.ok(projectService.getProjectBySlug(slug));
     }
     
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project project) {
+    public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(projectService.createProject(project));
+                .body(projectService.createProject(projectDto));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Project> updateProject(
+    public ResponseEntity<ProjectDto> updateProject(
             @PathVariable Long id,
-            @RequestBody Project project) {
-        return ResponseEntity.ok(projectService.updateProject(id, project));
+            @RequestBody ProjectDto projectDto) {
+        return ResponseEntity.ok(projectService.updateProject(id, projectDto));
     }
     
     @DeleteMapping("/{id}")

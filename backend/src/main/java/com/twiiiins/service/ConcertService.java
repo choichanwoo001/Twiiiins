@@ -1,6 +1,8 @@
 package com.twiiiins.service;
 
+import com.twiiiins.dto.ConcertDto;
 import com.twiiiins.entity.Concert;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.ConcertRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,58 +19,77 @@ public class ConcertService {
     
     private final ConcertRepository concertRepository;
     
-    public List<Concert> getAllConcerts() {
-        return concertRepository.findAllByOrderByDateDesc();
+    public List<ConcertDto> getAllConcerts() {
+        return concertRepository.findAllByOrderByDateDesc()
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public List<Concert> getUpcomingConcerts() {
-        return concertRepository.findByIsPastOrderByDateAsc(false);
+    public List<ConcertDto> getUpcomingConcerts() {
+        return concertRepository.findByIsPastOrderByDateAsc(false)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public List<Concert> getPastConcerts() {
-        return concertRepository.findByIsPastOrderByDateAsc(true);
+    public List<ConcertDto> getPastConcerts() {
+        return concertRepository.findByIsPastOrderByDateAsc(true)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
     }
     
-    public Concert getConcertById(Long id) {
-        return concertRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Concert not found with id: " + id));
+    public ConcertDto getConcertById(Long id) {
+        Concert concert = concertRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
+        return convertToDto(concert);
     }
     
-    public Concert createConcert(Concert concert) {
-        return concertRepository.save(concert);
+    public ConcertDto createConcert(ConcertDto concertDto) {
+        Concert concert = convertToEntity(concertDto);
+        Concert savedConcert = concertRepository.save(concert);
+        return convertToDto(savedConcert);
     }
     
-    public Concert updateConcert(Long id, Concert concertDetails) {
-        Concert concert = getConcertById(id);
+    public ConcertDto updateConcert(Long id, ConcertDto concertDto) {
+        Concert concert = concertRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         
-        concert.setDate(concertDetails.getDate());
-        concert.setLocation(concertDetails.getLocation());
-        concert.setName(concertDetails.getName());
-        concert.setStartTime(concertDetails.getStartTime());
-        concert.setTicketInfo(concertDetails.getTicketInfo());
-        concert.setFullLocation(concertDetails.getFullLocation());
-        concert.setGoogleMapUrl(concertDetails.getGoogleMapUrl());
-        concert.setCollaborationInfo(concertDetails.getCollaborationInfo());
-        concert.setIsPast(concertDetails.getIsPast());
+        concert.setDate(concertDto.getDate());
+        concert.setLocation(concertDto.getLocation());
+        concert.setName(concertDto.getName());
+        concert.setStartTime(concertDto.getStartTime());
+        concert.setTicketInfo(concertDto.getTicketInfo());
+        concert.setFullLocation(concertDto.getFullLocation());
+        concert.setGoogleMapUrl(concertDto.getGoogleMapUrl());
+        concert.setCollaborationInfo(concertDto.getCollaborationInfo());
+        concert.setIsPast(concertDto.getIsPast());
         
-        return concertRepository.save(concert);
+        Concert savedConcert = concertRepository.save(concert);
+        return convertToDto(savedConcert);
     }
     
     public void deleteConcert(Long id) {
-        Concert concert = getConcertById(id);
+        Concert concert = concertRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concertRepository.delete(concert);
     }
     
-    public Concert moveToPastEvent(Long id) {
-        Concert concert = getConcertById(id);
+    public ConcertDto moveToPastEvent(Long id) {
+        Concert concert = concertRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concert.setIsPast(true);
-        return concertRepository.save(concert);
+        Concert savedConcert = concertRepository.save(concert);
+        return convertToDto(savedConcert);
     }
     
-    public Concert moveToUpcomingEvent(Long id) {
-        Concert concert = getConcertById(id);
+    public ConcertDto moveToUpcomingEvent(Long id) {
+        Concert concert = concertRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concert.setIsPast(false);
-        return concertRepository.save(concert);
+        Concert savedConcert = concertRepository.save(concert);
+        return convertToDto(savedConcert);
     }
     
     public int autoMovePastEvents(String currentDateStr) {
@@ -83,6 +104,35 @@ public class ConcertService {
         }
         
         return concertsToMove.size();
+    }
+    
+    private ConcertDto convertToDto(Concert concert) {
+        return new ConcertDto(
+            concert.getId(),
+            concert.getDate(),
+            concert.getLocation(),
+            concert.getName(),
+            concert.getStartTime(),
+            concert.getTicketInfo(),
+            concert.getFullLocation(),
+            concert.getGoogleMapUrl(),
+            concert.getCollaborationInfo(),
+            concert.getIsPast()
+        );
+    }
+    
+    private Concert convertToEntity(ConcertDto concertDto) {
+        Concert concert = new Concert();
+        concert.setDate(concertDto.getDate());
+        concert.setLocation(concertDto.getLocation());
+        concert.setName(concertDto.getName());
+        concert.setStartTime(concertDto.getStartTime());
+        concert.setTicketInfo(concertDto.getTicketInfo());
+        concert.setFullLocation(concertDto.getFullLocation());
+        concert.setGoogleMapUrl(concertDto.getGoogleMapUrl());
+        concert.setCollaborationInfo(concertDto.getCollaborationInfo());
+        concert.setIsPast(concertDto.getIsPast());
+        return concert;
     }
 }
 

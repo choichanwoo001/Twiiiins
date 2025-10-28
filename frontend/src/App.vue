@@ -37,8 +37,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAppStore } from './stores'
 
 const route = useRoute()
+const appStore = useAppStore()
 const showScrollUp = ref(false)
 
 // 현재 페이지가 관리자 페이지인지 확인
@@ -55,6 +57,9 @@ const updateScrollUpVisibility = () => {
 }
 
 onMounted(() => {
+  // 앱 스토어 초기화
+  appStore.initialize()
+  
   updateScrollUpVisibility()
   window.addEventListener('scroll', updateScrollUpVisibility, { passive: true })
   window.addEventListener('resize', updateScrollUpVisibility)

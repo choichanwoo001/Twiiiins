@@ -168,53 +168,21 @@ const equipmentList = ref([])
 // 음악 데이터 로드
 const loadMusic = async () => {
   try {
-    console.log('음악 데이터 로드 시작...')
     const response = await axios.get('/api/media/music')
-    console.log('API 응답:', response.data)
     
-    if (response.data && response.data.length > 0) {
-      musicItems.value = response.data.map(music => ({
+    if (response.data.data && response.data.data.length > 0) {
+      musicItems.value = response.data.data.map(music => ({
         id: music.id,
         title: music.title,
         artist: music.artist,
         cover: music.coverUrl ? toAbsoluteUrl(music.coverUrl) : new URL('../imgs/music/time.png', import.meta.url).href
       }))
-      console.log('음악 데이터 매핑 완료:', musicItems.value)
     } else {
-      console.log('음악 데이터가 비어있음, 기본 데이터 사용')
-      musicItems.value = [
-        {
-          id: 1,
-          title: 'Time',
-          artist: 'TWIIIINS',
-          cover: new URL('../imgs/music/time.png', import.meta.url).href
-        },
-        {
-          id: 2,
-          title: 'Common Room',
-          artist: 'TWIIIINS',
-          cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
-        }
-      ]
+      musicItems.value = []
     }
   } catch (error) {
-    console.error('음악 로드 실패:', error)
-    console.error('에러 상세:', error.response?.data)
-    // 에러 시 기본 데이터 사용
-    musicItems.value = [
-      {
-        id: 1,
-        title: 'Time',
-        artist: 'TWIIIINS',
-        cover: new URL('../imgs/music/time.png', import.meta.url).href
-      },
-      {
-        id: 2,
-        title: 'Common Room',
-        artist: 'TWIIIINS',
-        cover: new URL('../imgs/music/commonRoom.png', import.meta.url).href
-      }
-    ]
+    console.error('음악 데이터 로드 실패:', error)
+    musicItems.value = []
   }
 }
 
@@ -222,36 +190,14 @@ const loadMusic = async () => {
 const loadVideos = async () => {
   try {
     const response = await axios.get('/api/media/videos')
-    videos.value = response.data.map(video => ({
+    videos.value = response.data.data.map(video => ({
       id: video.id,
       title: video.title,
       embedUrl: video.embedUrl
     }))
   } catch (error) {
-    console.error('비디오 로드 실패:', error)
-    // 에러 시 기본 데이터 사용
-    videos.value = [
-      {
-        id: 1,
-        title: 'TWIIIINS Performance 1',
-        embedUrl: 'https://www.youtube.com/embed/7D3tv-8Fmlw?si=J9m58u_Y8H1LPnIj'
-      },
-      {
-        id: 2,
-        title: 'TWIIIINS Performance 2',
-        embedUrl: 'https://www.youtube.com/embed/QSG4jJmb5mA?si=Hs3oEZhQR3WPRXa4'
-      },
-      {
-        id: 3,
-        title: 'TWIIIINS Performance 3',
-        embedUrl: 'https://www.youtube.com/embed/qj-EO0di6S4?si=QELDshOJkoC_ON7x'
-      },
-      {
-        id: 4,
-        title: 'TWIIIINS Performance 4',
-        embedUrl: 'https://www.youtube.com/embed/anb6UtTP-wE?si=dCaJRmd-NTWoEJyA'
-      }
-    ]
+    console.error('비디오 데이터 로드 실패:', error)
+    videos.value = []
   }
 }
 
@@ -271,7 +217,7 @@ const photoGroups = ref([])
 const loadPhotoGroups = async () => {
   try {
     const response = await axios.get('/api/media/photo-groups')
-    photoGroups.value = response.data.map(group => ({
+    photoGroups.value = response.data.data.map(group => ({
       id: group.id,
       title: group.title,
       photos: group.photos ? group.photos.map(photo => ({
@@ -280,8 +226,7 @@ const loadPhotoGroups = async () => {
       })) : []
     }))
   } catch (error) {
-    console.error('사진 그룹 로드 실패:', error)
-    // 에러 시 기본 데이터 사용
+    console.error('사진 그룹 데이터 로드 실패:', error)
     photoGroups.value = []
   }
 }
@@ -290,21 +235,14 @@ const loadPhotoGroups = async () => {
 const loadEquipment = async () => {
   try {
     const response = await axios.get('/api/media/equipment')
-    equipmentList.value = response.data.map(equipment => ({
+    equipmentList.value = response.data.data.map(equipment => ({
       id: equipment.id,
       name: equipment.name,
       imageUrl: toAbsoluteUrl(equipment.imageUrl)
     }))
   } catch (error) {
-    console.error('장비 로드 실패:', error)
-    // 에러 시 기본 데이터 사용
-    equipmentList.value = [
-      {
-        id: 1,
-        name: 'Loopstation RC 600',
-        imageUrl: '../imgs/exphoto1.png'
-      }
-    ]
+    console.error('장비 데이터 로드 실패:', error)
+    equipmentList.value = []
   }
 }
 
@@ -315,14 +253,14 @@ const newsList = ref([])
 const loadNews = async () => {
   try {
     const response = await axios.get('/api/media/news')
-    newsList.value = response.data.map(news => ({
+    newsList.value = response.data.data.map(news => ({
       id: news.id,
       date: formatNewsDate(news.date),
       title: news.title,
       description: news.description
     }))
   } catch (error) {
-    console.error('뉴스 로드 실패:', error)
+    console.error('뉴스 데이터 로드 실패:', error)
     newsList.value = []
   }
 }
@@ -343,13 +281,13 @@ const formatNewsDate = (dateString) => {
   display: flex;
   background-color: white;
   padding-top: 6rem;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 3.75rem);
   overflow: hidden;
 }
 
 /* 왼쪽 네비게이션 */
 .media-nav {
-  width: 550px;
+  width: 34.375rem;
   padding: 2rem 2rem;
   background-color: white;
   display: flex;
@@ -371,7 +309,7 @@ const formatNewsDate = (dateString) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: #D4AF37;
+  color: #FBCE7B;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
@@ -388,18 +326,18 @@ const formatNewsDate = (dateString) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: #D4AF37;
+  color: #FBCE7B;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
 }
 
 .nav-item:hover {
-  color: #E6B800;
+  color: #F9D89C;
 }
 
 .nav-item.active {
-  color: #D4AF37;
+  color: #FBCE7B;
 }
 
 /* 메인 콘텐츠 영역 */
@@ -425,7 +363,7 @@ const formatNewsDate = (dateString) => {
 
 .artist-profile-item {
   text-align: center;
-  flex: 0 0 280px;
+  flex: 0 0 17.5rem;
 }
 
 .albums-grid {
@@ -441,12 +379,12 @@ const formatNewsDate = (dateString) => {
 
 .music-cover {
   width: 100%;
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 12.5rem;
+  max-height: 12.5rem;
   aspect-ratio: 1;
   overflow: hidden;
   margin-bottom: 1rem;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   margin: 0 auto;
 }
 
@@ -484,7 +422,7 @@ const formatNewsDate = (dateString) => {
 .video-embed {
   position: relative;
   width: 100%;
-  max-width: 960px;
+  max-width: 60rem;
   aspect-ratio: 16 / 9;
   background: #000;
 }
@@ -528,14 +466,14 @@ const formatNewsDate = (dateString) => {
 .photo-group-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #D4AF37;
+  color: #FBCE7B;
   text-align: left;
   margin-bottom: 0.5rem;
 }
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 1rem;
 }
 
@@ -543,7 +481,7 @@ const formatNewsDate = (dateString) => {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease;
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 
 .photo-item:hover {
@@ -552,7 +490,7 @@ const formatNewsDate = (dateString) => {
 
 .photo-item img {
   width: 100%;
-  height: 200px;
+  height: 12.5rem;
   object-fit: cover;
   display: block;
 }
@@ -568,7 +506,7 @@ const formatNewsDate = (dateString) => {
   display: flex;
   align-items: center;
   padding: 1.5rem 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 0.0625rem solid #e0e0e0;
 }
 
 .news-item:last-child {
@@ -578,7 +516,7 @@ const formatNewsDate = (dateString) => {
 .news-date {
   font-size: 1rem;
   color: #666;
-  min-width: 80px;
+  min-width: 5rem;
   text-align: left;
 }
 
@@ -602,14 +540,14 @@ const formatNewsDate = (dateString) => {
 .news-expand {
   color: #999;
   cursor: pointer;
-  min-width: 30px;
+  min-width: 1.875rem;
   text-align: right;
 }
 
 /* EQUIPMENT 섹션 */
 .equipment-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
   gap: 2rem;
   padding: 2rem 0;
 }
@@ -623,7 +561,7 @@ const formatNewsDate = (dateString) => {
 
 .equipment-image {
   width: 100%;
-  max-width: 600px;
+  max-width: 37.5rem;
   overflow: hidden;
 }
 

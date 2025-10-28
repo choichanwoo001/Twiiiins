@@ -129,15 +129,15 @@ const formatDate = (dateString) => {
   background-color: white;
   color: #333;
   font-family: 'Arial', sans-serif;
-  min-height: calc(100vh - 60px); /* 헤더 높이 제외 */
-  margin-top: -60px; /* 헤더 패딩 상쇄 */
-  padding-top: 60px; /* 헤더 높이만큼 상단 패딩 */
+  min-height: calc(100vh - 3.75rem); /* 헤더 높이 제외 */
+  margin-top: -3.75rem; /* 헤더 패딩 상쇄 */
+  padding-top: 3.75rem; /* 헤더 높이만큼 상단 패딩 */
 }
 
 /* 프로젝트 헤더 */
 .project-header {
   padding: 6rem 2rem 1rem 2rem;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
 }
 
@@ -175,7 +175,7 @@ const formatDate = (dateString) => {
 /* 메인 이미지 */
 .main-image {
   padding: 0 2rem 2rem 2rem;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
 }
 
@@ -188,7 +188,7 @@ const formatDate = (dateString) => {
 /* 텍스트 블록 */
 .text-block {
   padding: 0 2rem 3rem 2rem;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
 }
 
@@ -197,7 +197,7 @@ const formatDate = (dateString) => {
   line-height: 1.6;
   color: #555;
   margin: 0;
-  max-width: 600px;
+  max-width: 37.5rem;
   margin-left: auto;
   text-align: right;
 }
@@ -205,7 +205,7 @@ const formatDate = (dateString) => {
 /* 이미지 분할 블록 */
 .image-split {
   padding: 0 2rem 3rem 2rem;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -237,7 +237,7 @@ const formatDate = (dateString) => {
 /* 이미지 트리오 블록 */
 .image-trio {
   padding: 0 2rem 4rem 2rem;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1.5fr 1fr;
@@ -272,7 +272,7 @@ const formatDate = (dateString) => {
   line-height: 1.6;
   color: #555;
   margin: 0 0 1.5rem 0;
-  max-width: 500px;
+  max-width: 31.25rem;
 }
 
 .more-info {
@@ -295,7 +295,7 @@ const formatDate = (dateString) => {
 /* 리뷰 섹션 */
 .reviews-section {
   padding: 4rem 2rem;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
   background-color: #f8f8f8;
 }
@@ -319,8 +319,8 @@ const formatDate = (dateString) => {
 .review-item {
   background-color: white;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
 }
 
 .review-item blockquote {
@@ -329,7 +329,7 @@ const formatDate = (dateString) => {
   color: #555;
   margin: 0 0 1.5rem 0;
   font-style: italic;
-  border-left: 3px solid #8B0000;
+  border-left: 0.1875rem solid #8B0000;
   padding-left: 1rem;
 }
 
