@@ -1,71 +1,44 @@
 <template>
   <div class="equipment-tab">
     <!-- 검색/필터 섹션 -->
-    <div class="search-section">
-      <div class="search-filters">
-        <div class="filter-group">
-          <label>제목</label>
-          <input v-model="searchFilters.title" placeholder="제목을 입력하세요" />
-        </div>
-        <div class="filter-actions">
-          <button class="btn-reset" @click="resetFilters">초기화</button>
-          <button class="btn-search" @click="searchEquipment">검색</button>
-        </div>
-      </div>
-    </div>
+    <SearchFilters
+      v-model="searchFilters"
+      :filters="searchFilterConfig"
+      @search="searchEquipment"
+      @reset="resetFilters"
+    />
 
     <!-- 장비 목록 -->
-    <div class="equipment-list">
-      <h2>전체 목록</h2>
-      <div class="equipment-table">
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>제목</th>
-              <th>작업</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(equipment, index) in equipmentList" :key="equipment.id">
-              <td>{{ index + 1 }}</td>
-              <td>{{ equipment.title }}</td>
-              <td>
-                <button class="btn-edit" @click="editEquipment(equipment)">수정</button>
-                <button class="btn-delete" @click="deleteEquipment(equipment.id)">삭제</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataTable
+      title="전체 목록"
+      :data="equipmentList"
+      :columns="tableColumns"
+      :actions="tableActions"
+      @action="handleTableAction"
+    >
+      <template #cell-no="{ index }">
+        {{ index + 1 }}
+      </template>
+    </DataTable>
 
     <!-- 장비 등록/수정 폼 -->
-    <div class="equipment-form-section">
-      <h2>{{ editingEquipment ? '장비 수정' : '새 장비 등록' }}</h2>
-      <form @submit.prevent="saveEquipment" class="equipment-form">
-        <div class="form-group">
-          <label>제목 *</label>
-          <input v-model="form.title" required />
-        </div>
-
-        <div class="form-group">
-          <label>표시 순서</label>
-          <input type="number" v-model="form.displayOrder" min="0" />
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-save">{{ editingEquipment ? '수정' : '등록' }}</button>
-          <button type="button" class="btn-cancel" @click="cancelEdit" v-if="editingEquipment">취소</button>
-        </div>
-      </form>
-    </div>
+    <CrudForm
+      title="장비"
+      :fields="formFields"
+      v-model="form"
+      :editing-item="editingEquipment"
+      @submit="saveEquipment"
+      @cancel="cancelEdit"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useMediaStore } from '../../../stores'
+import SearchFilters from '../common/SearchFilters.vue'
+import DataTable from '../common/DataTable.vue'
+import CrudForm from '../common/CrudForm.vue'
 
 // 스토어 사용
 const mediaStore = useMediaStore()
@@ -73,10 +46,35 @@ const mediaStore = useMediaStore()
 // Computed properties
 const equipmentList = computed(() => mediaStore.equipmentItems)
 
+// 검색 필터 설정
+const searchFilterConfig = [
+  { key: 'title', label: '제목', placeholder: '제목을 입력하세요' }
+]
+
+// 테이블 컬럼 설정
+const tableColumns = [
+  { key: 'no', label: 'No' },
+  { key: 'title', label: '제목' }
+]
+
+// 테이블 액션 설정
+const tableActions = [
+  { key: 'edit', label: '수정', class: 'btn-edit' },
+  { key: 'delete', label: '삭제', class: 'btn-delete' }
+]
+
+// 폼 필드 설정
+const formFields = [
+  { key: 'title', label: '제목', type: 'text', required: true, placeholder: '제목을 입력하세요' },
+  { key: 'displayOrder', label: '표시 순서', type: 'number', min: 0 }
+]
+
+// 반응형 데이터
 const searchFilters = ref({ title: '' })
 const form = ref({ title: '', displayOrder: 0 })
 const editingEquipment = ref(null)
 
+// 메서드
 const loadEquipment = async () => {
   try {
     await mediaStore.loadEquipment()
@@ -92,6 +90,17 @@ const searchEquipment = async () => {
 const resetFilters = () => {
   searchFilters.value = { title: '' }
   loadEquipment()
+}
+
+const handleTableAction = (action, item) => {
+  switch (action) {
+    case 'edit':
+      editEquipment(item)
+      break
+    case 'delete':
+      deleteEquipment(item.id)
+      break
+  }
 }
 
 const editEquipment = (equipment) => {
@@ -137,209 +146,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import '../common/admin-common.css';
+
 .equipment-tab {
   padding: 0;
-}
-
-.search-section {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 2rem;
-}
-
-.search-filters {
-  display: flex;
-  gap: 1rem;
-  align-items: end;
-  flex-wrap: wrap;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.filter-group label {
-  font-weight: 500;
-  color: #555;
-}
-
-.filter-group input {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
-  font-size: 0.9rem;
-}
-
-.filter-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.equipment-list {
-  margin-bottom: 2rem;
-  background: white;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.equipment-list h2 {
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-.equipment-table {
-  overflow-x: auto;
-}
-
-.equipment-table table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.equipment-table th,
-.equipment-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.equipment-table th {
-  background: #f8f9fa;
-  font-weight: 600;
-  color: #555;
-}
-
-.equipment-table tr:hover {
-  background: #f8f9fa;
-}
-
-.equipment-form-section {
-  background: white;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.equipment-form {
-  max-width: 50rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #555;
-}
-
-.form-group input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
-  font-size: 1rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.btn-reset, .btn-search {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-reset {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-reset:hover {
-  background: #7f8c8d;
-}
-
-.btn-search {
-  background: #3498db;
-  color: white;
-}
-
-.btn-search:hover {
-  background: #2980b9;
-}
-
-.btn-edit, .btn-delete {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-right: 0.5rem;
-}
-
-.btn-edit {
-  background: #f39c12;
-  color: white;
-}
-
-.btn-edit:hover {
-  background: #e67e22;
-}
-
-.btn-delete {
-  background: #943C31;
-  color: white;
-}
-
-.btn-delete:hover {
-  background: #7a2f26;
-}
-
-.btn-save {
-  padding: 0.75rem 2rem;
-  background: #27ae60;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-save:hover {
-  background: #229954;
-}
-
-.btn-cancel {
-  padding: 0.75rem 2rem;
-  background: #95a5a6;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-cancel:hover {
-  background: #7f8c8d;
 }
 </style>
