@@ -23,8 +23,6 @@
       <!-- Concerts 관리 -->
       <ConcertAdmin 
         v-if="activeSection === 'concerts'"
-        :concerts="concerts"
-        @update:concerts="concerts = $event"
       />
 
       <!-- Media 관리 -->
@@ -33,15 +31,11 @@
       <!-- Contact 관리 -->
       <ContactAdmin 
         v-if="activeSection === 'contact'"
-        :contacts="contacts"
-        @update:contacts="contacts = $event"
       />
 
       <!-- Download Files 관리 -->
       <DownloadFilesAdmin 
         v-if="activeSection === 'download-files'"
-        :files="downloadFiles"
-        @update:files="downloadFiles = $event"
       />
     </main>
   </div>
@@ -70,10 +64,10 @@ const concerts = computed(() => concertStore.concerts)
 const photoGroups = computed(() => mediaStore.photoGroups)
 const musicList = computed(() => mediaStore.musicItems)
 const videos = computed(() => mediaStore.videos)
-const newsList = ref([])
-const equipmentList = ref([])
-const contacts = ref([])
-const downloadFiles = ref([])
+const newsList = computed(() => mediaStore.newsItems)
+const equipmentList = computed(() => mediaStore.equipmentItems)
+const contacts = ref([]) // Contact 스토어가 있다면 사용
+const downloadFiles = ref([]) // DownloadFiles 스토어가 있다면 사용
 
 // Methods
 const loadDashboardData = async () => {

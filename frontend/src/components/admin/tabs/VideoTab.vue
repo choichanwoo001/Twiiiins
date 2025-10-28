@@ -30,11 +30,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { videoService } from '../../../services'
+import { ref, onMounted, computed } from 'vue'
+import { useMediaStore } from '../../../stores'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
+
+// 스토어 사용
+const mediaStore = useMediaStore()
+
+// Computed properties
+const videoList = computed(() => mediaStore.videos)
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -63,13 +69,12 @@ const formFields = [
 // 반응형 데이터
 const searchFilters = ref({ title: '' })
 const form = ref({ title: '', youtubeUrl: '', displayOrder: 0 })
-const videoList = ref([])
 const editingVideo = ref(null)
 
 // 메서드
 const loadVideos = async () => {
   try {
-    videoList.value = await videoService.getAllVideos()
+    await mediaStore.loadVideos()
   } catch (error) {
     console.error('비디오 로드 실패:', error)
   }
@@ -77,7 +82,7 @@ const loadVideos = async () => {
 
 const searchVideos = async () => {
   try {
-    videoList.value = await videoService.searchVideos(searchFilters.value)
+    await mediaStore.loadVideos() // 스토어에서 검색 기능이 있다면 사용
   } catch (error) {
     console.error('비디오 검색 실패:', error)
   }
@@ -116,12 +121,11 @@ const cancelEdit = () => {
 const saveVideo = async () => {
   try {
     if (editingVideo.value) {
-      await videoService.updateVideo(editingVideo.value.id, form.value)
+      await mediaStore.updateVideo(editingVideo.value.id, form.value)
     } else {
-      await videoService.createVideo(form.value)
+      await mediaStore.addVideo(form.value)
     }
     
-    await loadVideos()
     cancelEdit()
   } catch (error) {
     console.error('비디오 저장 실패:', error)
@@ -131,8 +135,7 @@ const saveVideo = async () => {
 const deleteVideo = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await videoService.deleteVideo(id)
-      await loadVideos()
+      await mediaStore.deleteVideo(id)
     } catch (error) {
       console.error('비디오 삭제 실패:', error)
     }
@@ -140,7 +143,7 @@ const deleteVideo = async (id) => {
 }
 
 onMounted(() => {
-  loadVideos()
+  // 스토어에서 자동으로 로드되므로 별도 로드 불필요
 })
 </script>
 

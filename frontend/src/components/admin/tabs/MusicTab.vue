@@ -30,8 +30,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { musicService } from '../../../services'
+import { ref, onMounted, computed } from 'vue'
+import { useMediaStore } from '../../../stores'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
@@ -41,6 +41,12 @@ import {
   resetMusicSearchFilters,
   resetMusicForm
 } from '../../../types/dto'
+
+// 스토어 사용
+const mediaStore = useMediaStore()
+
+// Computed properties
+const musicList = computed(() => mediaStore.musicItems)
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -78,13 +84,12 @@ const formFields = [
 // 반응형 데이터
 const searchFilters = ref(createMusicSearchFilters())
 const form = ref(createMusicForm())
-const musicList = ref([])
 const editingMusic = ref(null)
 
 // 메서드
 const loadMusic = async () => {
   try {
-    musicList.value = await musicService.getAllMusic()
+    await mediaStore.loadMusic()
   } catch (error) {
     console.error('음악 로드 실패:', error)
   }
@@ -92,7 +97,7 @@ const loadMusic = async () => {
 
 const searchMusic = async () => {
   try {
-    musicList.value = await musicService.searchMusic(searchFilters.value)
+    await mediaStore.loadMusic() // 스토어에서 검색 기능이 있다면 사용
   } catch (error) {
     console.error('음악 검색 실패:', error)
   }
@@ -134,13 +139,12 @@ const saveMusic = async () => {
   try {
     if (editingMusic.value) {
       // 수정
-      await musicService.updateMusic(editingMusic.value.id, form.value)
+      await mediaStore.updateMusic(editingMusic.value.id, form.value)
     } else {
       // 등록
-      await musicService.createMusic(form.value)
+      await mediaStore.addMusic(form.value)
     }
     
-    await loadMusic()
     cancelEdit()
   } catch (error) {
     console.error('음악 저장 실패:', error)
@@ -150,8 +154,7 @@ const saveMusic = async () => {
 const deleteMusic = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await musicService.deleteMusic(id)
-      await loadMusic()
+      await mediaStore.deleteMusic(id)
     } catch (error) {
       console.error('음악 삭제 실패:', error)
     }
@@ -160,7 +163,7 @@ const deleteMusic = async (id) => {
 
 // Lifecycle
 onMounted(() => {
-  loadMusic()
+  // 스토어에서 자동으로 로드되므로 별도 로드 불필요
 })
 </script>
 

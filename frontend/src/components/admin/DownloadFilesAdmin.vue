@@ -93,18 +93,8 @@ import {
   resetDownloadFileForm
 } from '../../types/dto'
 
-// Props
-const props = defineProps({
-  files: {
-    type: Array,
-    default: () => []
-  }
-})
-
-// Emits
-const emit = defineEmits(['update:files'])
-
 // Reactive data
+const files = ref([])
 const searchFilters = ref(createDownloadFileSearchFilters())
 const form = ref(createDownloadFileForm())
 const editingFile = ref(null)
@@ -112,8 +102,7 @@ const editingFile = ref(null)
 // Methods
 const loadFiles = async () => {
   try {
-    const files = await downloadFileService.getAllDownloadFiles()
-    emit('update:files', files)
+    files.value = await downloadFileService.getAllDownloadFiles()
   } catch (error) {
     console.error('파일 로드 실패:', error)
   }
@@ -121,8 +110,7 @@ const loadFiles = async () => {
 
 const searchFiles = async () => {
   try {
-    const files = await downloadFileService.searchDownloadFiles(searchFilters.value)
-    emit('update:files', files)
+    files.value = await downloadFileService.searchDownloadFiles(searchFilters.value)
   } catch (error) {
     console.error('파일 검색 실패:', error)
   }

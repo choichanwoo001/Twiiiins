@@ -63,7 +63,7 @@ const downloadFiles = ref([])
 const loadContacts = async () => {
   try {
     const response = await axios.get('/api/media/contacts')
-    contacts.value = response.data
+    contacts.value = response.data.data || response.data
   } catch (error) {
     // 연락처 로드 실패
   }
@@ -73,8 +73,9 @@ const loadContacts = async () => {
 const loadDownloadFiles = async () => {
   try {
     const response = await axios.get('/api/media/download-files')
+    const files = response.data.data || response.data
     // displayOrder 순으로 정렬
-    downloadFiles.value = response.data.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+    downloadFiles.value = files.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
   } catch (error) {
     // 다운로드 파일 로드 실패
   }

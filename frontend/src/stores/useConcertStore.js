@@ -131,6 +131,29 @@ export const useConcertStore = defineStore('concert', () => {
     }
   }
 
+  const moveToPastEvent = async (id) => {
+    return await moveToPast(id)
+  }
+
+  const moveToUpcomingEvent = async (id) => {
+    return await moveToUpcoming(id)
+  }
+
+  const triggerAutoMove = async () => {
+    try {
+      setLoading(true)
+      clearError()
+      await concertService.triggerAutoMove()
+      await loadConcerts() // 전체 목록 다시 로드
+    } catch (err) {
+      setError('자동 이동 실행에 실패했습니다.')
+      console.error('자동 이동 실행 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     // 상태
     concerts,
@@ -149,6 +172,9 @@ export const useConcertStore = defineStore('concert', () => {
     deleteConcert,
     moveToPast,
     moveToUpcoming,
+    moveToPastEvent,
+    moveToUpcomingEvent,
+    triggerAutoMove,
     setLoading,
     setError,
     clearError

@@ -112,7 +112,7 @@ const pastEvents = ref([])
 const loadConcerts = async () => {
   try {
     const response = await axios.get('/api/concerts')
-    const allConcerts = response.data.map(concert => ({
+    const allConcerts = response.data.data.map(concert => ({
       id: concert.id,
       date: new Date(concert.date).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -130,9 +130,14 @@ const loadConcerts = async () => {
       isPast: concert.isPast
     }))
     
-    // 다가오는 이벤트와 과거 이벤트로 분리
-    upcomingEvents.value = allConcerts.filter(concert => !concert.isPast)
-    pastEvents.value = allConcerts.filter(concert => concert.isPast)
+    // 다가오는 이벤트와 과거 이벤트로 분리하고 날짜순으로 정렬
+    upcomingEvents.value = allConcerts
+      .filter(concert => !concert.isPast)
+      .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
+    
+    pastEvents.value = allConcerts
+      .filter(concert => concert.isPast)
+      .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
   } catch (error) {
     console.error('콘서트 데이터 로드 실패:', error)
     // 에러 시 빈 배열로 초기화

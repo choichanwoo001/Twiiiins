@@ -82,70 +82,127 @@ const handleClick = (event) => {
 
 <style scoped>
 .base-button {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.base-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
 /* Variants */
 .base-button--primary {
-  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+  background-color: #2563eb;
+  color: white;
+}
+
+.base-button--primary:hover {
+  background-color: #1d4ed8;
 }
 
 .base-button--secondary {
-  @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.base-button--secondary:hover {
+  background-color: #d1d5db;
 }
 
 .base-button--danger {
-  @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  background-color: #dc2626;
+  color: white;
+}
+
+.base-button--danger:hover {
+  background-color: #b91c1c;
 }
 
 .base-button--success {
-  @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+  background-color: #16a34a;
+  color: white;
+}
+
+.base-button--success:hover {
+  background-color: #15803d;
 }
 
 .base-button--warning {
-  @apply bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500;
+  background-color: #ca8a04;
+  color: white;
+}
+
+.base-button--warning:hover {
+  background-color: #a16207;
 }
 
 .base-button--ghost {
-  @apply bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500;
+  background-color: transparent;
+  color: #374151;
+}
+
+.base-button--ghost:hover {
+  background-color: #f3f4f6;
 }
 
 /* Sizes */
 .base-button--small {
-  @apply px-3 py-1.5 text-sm;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .base-button--medium {
-  @apply px-4 py-2 text-base;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .base-button--large {
-  @apply px-6 py-3 text-lg;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
 }
 
 /* States */
 .base-button--disabled {
-  @apply opacity-50 cursor-not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .base-button--loading {
-  @apply cursor-wait;
+  cursor: wait;
 }
 
 .base-button--full-width {
-  @apply w-full;
+  width: 100%;
 }
 
 .button-loading {
-  @apply flex items-center;
+  display: flex;
+  align-items: center;
 }
 
 .button-icon {
-  @apply flex items-center;
+  display: flex;
+  align-items: center;
 }
 
 .button-text {
-  @apply flex items-center;
+  display: flex;
+  align-items: center;
 }
 
 /* Animation */

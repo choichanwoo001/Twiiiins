@@ -97,10 +97,16 @@ public class PhotoService {
     }
     
     private PhotoGroupDto convertToDto(PhotoGroup photoGroup) {
+        List<PhotoDto> photos = photoRepository.findByPhotoGroupId(photoGroup.getId())
+                .stream()
+                .map(this::convertToDto)
+                .toList();
+        
         return new PhotoGroupDto(
             photoGroup.getId(),
             photoGroup.getTitle(),
-            photoGroup.getDisplayOrder()
+            photoGroup.getDisplayOrder(),
+            photos
         );
     }
     

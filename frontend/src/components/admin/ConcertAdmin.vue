@@ -60,24 +60,26 @@
                 </span>
               </td>
               <td>
-                <BaseButton size="small" variant="secondary" @click="editConcert(concert)">수정</BaseButton>
-                <BaseButton size="small" variant="danger" @click="deleteConcert(concert.id)">삭제</BaseButton>
-                <BaseButton 
-                  v-if="!concert.isPast" 
-                  size="small"
-                  variant="warning" 
-                  @click="moveToPastEvent(concert.id)"
-                >
-                  Past Event로 이동
-                </BaseButton>
-                <BaseButton 
-                  v-if="concert.isPast" 
-                  size="small"
-                  variant="success" 
-                  @click="moveToUpcomingEvent(concert.id)"
-                >
-                  Upcoming으로 이동
-                </BaseButton>
+                <div class="action-buttons">
+                  <BaseButton size="small" variant="secondary" @click="editConcert(concert)">수정</BaseButton>
+                  <BaseButton size="small" variant="danger" @click="deleteConcert(concert.id)">삭제</BaseButton>
+                  <BaseButton 
+                    v-if="!concert.isPast" 
+                    size="small"
+                    variant="warning" 
+                    @click="moveToPastEvent(concert.id)"
+                  >
+                    Past Event로 이동
+                  </BaseButton>
+                  <BaseButton 
+                    v-if="concert.isPast" 
+                    size="small"
+                    variant="success" 
+                    @click="moveToUpcomingEvent(concert.id)"
+                  >
+                    Upcoming으로 이동
+                  </BaseButton>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -148,8 +150,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { concertService } from '../../services'
+import { ref, onMounted, computed } from 'vue'
+import { useConcertStore } from '../../stores'
 import { BaseButton } from '../common'
 import {
   createConcertSearchFilters,
@@ -158,16 +160,20 @@ import {
   resetConcertForm
 } from '../../types/dto'
 
-// Props
-const props = defineProps({
-  concerts: {
-    type: Array,
-    default: () => []
-  }
-})
+// 스토어 사용
+const concertStore = useConcertStore()
 
-// Emits
-const emit = defineEmits(['update:concerts'])
+// Computed properties
+const concerts = computed(() => {
+  return [...concertStore.concerts].sort((a, b) => {
+    // 날짜를 Date 객체로 변환하여 비교
+    const dateA = new Date(a.date)
+    const dateB = new Date(b.date)
+    
+    // 오름차순 정렬 (가장 이른 날짜가 위로)
+    return dateA - dateB
+  })
+})
 
 // Reactive data
 const searchFilters = ref(createConcertSearchFilters())
@@ -177,8 +183,7 @@ const editingConcert = ref(null)
 // Methods
 const loadConcerts = async () => {
   try {
-    const concerts = await concertService.getAllConcerts()
-    emit('update:concerts', concerts)
+    await concertStore.loadConcerts()
   } catch (error) {
     console.error('콘서트 로드 실패:', error)
   }
@@ -186,8 +191,7 @@ const loadConcerts = async () => {
 
 const searchConcerts = async () => {
   try {
-    const concerts = await concertService.searchConcerts(searchFilters.value)
-    emit('update:concerts', concerts)
+    await concertStore.loadConcerts() // 스토어에서 검색 기능이 있다면 사용, 없으면 전체 로드
   } catch (error) {
     console.error('콘서트 검색 실패:', error)
   }
@@ -222,13 +226,12 @@ const saveConcert = async () => {
   try {
     if (editingConcert.value) {
       // 수정
-      await concertService.updateConcert(editingConcert.value.id, form.value)
+      await concertStore.updateConcert(editingConcert.value.id, form.value)
     } else {
       // 등록
-      await concertService.createConcert(form.value)
+      await concertStore.addConcert(form.value)
     }
     
-    await loadConcerts()
     cancelEdit()
   } catch (error) {
     console.error('콘서트 저장 실패:', error)
@@ -238,8 +241,7 @@ const saveConcert = async () => {
 const deleteConcert = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await concertService.deleteConcert(id)
-      await loadConcerts()
+      await concertStore.deleteConcert(id)
     } catch (error) {
       console.error('콘서트 삭제 실패:', error)
     }
@@ -248,8 +250,7 @@ const deleteConcert = async (id) => {
 
 const moveToPastEvent = async (id) => {
   try {
-    await concertService.moveToPastEvent(id)
-    await loadConcerts()
+    await concertStore.moveToPastEvent(id)
   } catch (error) {
     console.error('Past Event 이동 실패:', error)
   }
@@ -257,8 +258,7 @@ const moveToPastEvent = async (id) => {
 
 const moveToUpcomingEvent = async (id) => {
   try {
-    await concertService.moveToUpcomingEvent(id)
-    await loadConcerts()
+    await concertStore.moveToUpcomingEvent(id)
   } catch (error) {
     console.error('Upcoming 이동 실패:', error)
   }
@@ -266,8 +266,7 @@ const moveToUpcomingEvent = async (id) => {
 
 const triggerAutoMove = async () => {
   try {
-    await concertService.triggerAutoMove()
-    await loadConcerts()
+    await concertStore.triggerAutoMove()
   } catch (error) {
     console.error('자동 이동 실행 실패:', error)
   }
@@ -279,7 +278,7 @@ const formatDate = (dateString) => {
 
 // Lifecycle
 onMounted(() => {
-  loadConcerts()
+  // 스토어에서 자동으로 로드되므로 별도 로드 불필요
 })
 </script>
 
@@ -570,5 +569,13 @@ onMounted(() => {
 
 .btn-cancel:hover {
   background: #7f8c8d;
+}
+
+/* 액션 버튼 컨테이너 */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 </style>

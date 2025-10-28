@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/music")
+@RequestMapping("/api/media/music")
 @RequiredArgsConstructor
 @Slf4j
 public class MusicController {

@@ -69,18 +69,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from '../../../api/axios'
+import { ref, onMounted, computed } from 'vue'
+import { useMediaStore } from '../../../stores'
+
+// 스토어 사용
+const mediaStore = useMediaStore()
+
+// Computed properties
+const newsList = computed(() => mediaStore.newsItems)
 
 const searchFilters = ref({ title: '' })
 const form = ref({ title: '', linkUrl: '', displayOrder: 0 })
-const newsList = ref([])
 const editingNews = ref(null)
 
 const loadNews = async () => {
   try {
-    const res = await axios.get('/api/media/news')
-    newsList.value = res.data
+    await mediaStore.loadNews()
   } catch (error) {
     console.error('뉴스 로드 실패:', error)
   }
@@ -112,12 +116,11 @@ const cancelEdit = () => {
 const saveNews = async () => {
   try {
     if (editingNews.value) {
-      await axios.put(`/api/media/news/${editingNews.value.id}`, form.value)
+      await mediaStore.updateNews(editingNews.value.id, form.value)
     } else {
-      await axios.post('/api/media/news', form.value)
+      await mediaStore.addNews(form.value)
     }
     
-    await loadNews()
     cancelEdit()
   } catch (error) {
     console.error('뉴스 저장 실패:', error)
@@ -127,8 +130,7 @@ const saveNews = async () => {
 const deleteNews = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await axios.delete(`/api/media/news/${id}`)
-      await loadNews()
+      await mediaStore.deleteNews(id)
     } catch (error) {
       console.error('뉴스 삭제 실패:', error)
     }
@@ -136,7 +138,7 @@ const deleteNews = async (id) => {
 }
 
 onMounted(() => {
-  loadNews()
+  // 스토어에서 자동으로 로드되므로 별도 로드 불필요
 })
 </script>
 

@@ -170,8 +170,8 @@ const loadMusic = async () => {
   try {
     const response = await axios.get('/api/media/music')
     
-    if (response.data && response.data.length > 0) {
-      musicItems.value = response.data.map(music => ({
+    if (response.data.data && response.data.data.length > 0) {
+      musicItems.value = response.data.data.map(music => ({
         id: music.id,
         title: music.title,
         artist: music.artist,
@@ -190,7 +190,7 @@ const loadMusic = async () => {
 const loadVideos = async () => {
   try {
     const response = await axios.get('/api/media/videos')
-    videos.value = response.data.map(video => ({
+    videos.value = response.data.data.map(video => ({
       id: video.id,
       title: video.title,
       embedUrl: video.embedUrl
@@ -217,7 +217,7 @@ const photoGroups = ref([])
 const loadPhotoGroups = async () => {
   try {
     const response = await axios.get('/api/media/photo-groups')
-    photoGroups.value = response.data.map(group => ({
+    photoGroups.value = response.data.data.map(group => ({
       id: group.id,
       title: group.title,
       photos: group.photos ? group.photos.map(photo => ({
@@ -235,7 +235,7 @@ const loadPhotoGroups = async () => {
 const loadEquipment = async () => {
   try {
     const response = await axios.get('/api/media/equipment')
-    equipmentList.value = response.data.map(equipment => ({
+    equipmentList.value = response.data.data.map(equipment => ({
       id: equipment.id,
       name: equipment.name,
       imageUrl: toAbsoluteUrl(equipment.imageUrl)
@@ -253,7 +253,7 @@ const newsList = ref([])
 const loadNews = async () => {
   try {
     const response = await axios.get('/api/media/news')
-    newsList.value = response.data.map(news => ({
+    newsList.value = response.data.data.map(news => ({
       id: news.id,
       date: formatNewsDate(news.date),
       title: news.title,

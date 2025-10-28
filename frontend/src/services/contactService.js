@@ -4,13 +4,13 @@ export const contactService = {
   // 연락처 목록 조회
   async getAllContacts() {
     const response = await axios.get('/api/media/contacts')
-    return response.data
+    return response.data.data || response.data
   },
 
   // 연락처 상세 조회
   async getContactById(id) {
     const response = await axios.get(`/api/media/contacts/${id}`)
-    return response.data
+    return response.data.data || response.data
   },
 
   // 연락처 검색
@@ -20,19 +20,19 @@ export const contactService = {
     if (filters.role) params.append('role', filters.role)
     
     const response = await axios.get(`/api/media/contacts?${params.toString()}`)
-    return response.data
+    return response.data.data || response.data
   },
 
   // 연락처 생성
   async createContact(contactData) {
     const response = await axios.post('/api/media/contacts', contactData)
-    return response.data
+    return response.data.data || response.data
   },
 
   // 연락처 수정
   async updateContact(id, contactData) {
     const response = await axios.put(`/api/media/contacts/${id}`, contactData)
-    return response.data
+    return response.data.data || response.data
   },
 
   // 연락처 삭제

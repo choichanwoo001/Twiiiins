@@ -64,18 +64,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from '../../../api/axios'
+import { ref, onMounted, computed } from 'vue'
+import { useMediaStore } from '../../../stores'
+
+// 스토어 사용
+const mediaStore = useMediaStore()
+
+// Computed properties
+const equipmentList = computed(() => mediaStore.equipmentItems)
 
 const searchFilters = ref({ title: '' })
 const form = ref({ title: '', displayOrder: 0 })
-const equipmentList = ref([])
 const editingEquipment = ref(null)
 
 const loadEquipment = async () => {
   try {
-    const res = await axios.get('/api/media/equipment')
-    equipmentList.value = res.data
+    await mediaStore.loadEquipment()
   } catch (error) {
     console.error('장비 로드 실패:', error)
   }
@@ -106,12 +110,11 @@ const cancelEdit = () => {
 const saveEquipment = async () => {
   try {
     if (editingEquipment.value) {
-      await axios.put(`/api/media/equipment/${editingEquipment.value.id}`, form.value)
+      await mediaStore.updateEquipment(editingEquipment.value.id, form.value)
     } else {
-      await axios.post('/api/media/equipment', form.value)
+      await mediaStore.addEquipment(form.value)
     }
     
-    await loadEquipment()
     cancelEdit()
   } catch (error) {
     console.error('장비 저장 실패:', error)
@@ -121,8 +124,7 @@ const saveEquipment = async () => {
 const deleteEquipment = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await axios.delete(`/api/media/equipment/${id}`)
-      await loadEquipment()
+      await mediaStore.deleteEquipment(id)
     } catch (error) {
       console.error('장비 삭제 실패:', error)
     }
@@ -130,7 +132,7 @@ const deleteEquipment = async (id) => {
 }
 
 onMounted(() => {
-  loadEquipment()
+  // 스토어에서 자동으로 로드되므로 별도 로드 불필요
 })
 </script>
 

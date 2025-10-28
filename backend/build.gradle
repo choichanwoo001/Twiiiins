@@ -58,3 +58,9 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+// JVM 인코딩 설정
+tasks.named('bootRun') {
+	systemProperty 'file.encoding', 'UTF-8'
+	systemProperty 'sun.jnu.encoding', 'UTF-8'
+}
+

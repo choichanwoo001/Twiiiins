@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/videos")
+@RequestMapping("/api/media/videos")
 @RequiredArgsConstructor
 @Tag(name = "동영상 관리", description = "동영상 관리 API")
 public class VideoController {

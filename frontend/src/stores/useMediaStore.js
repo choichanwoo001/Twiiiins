@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { photoService, videoService, musicService } from '../services'
+import { photoService, videoService, musicService, newsService, equipmentService } from '../services'
 
 export const useMediaStore = defineStore('media', () => {
   // 상태
   const photoGroups = ref([])
   const videos = ref([])
   const musicItems = ref([])
+  const newsItems = ref([])
+  const equipmentItems = ref([])
   const isLoading = ref(false)
   const error = ref(null)
 
@@ -14,6 +16,8 @@ export const useMediaStore = defineStore('media', () => {
   const photoGroupCount = computed(() => photoGroups.value.length)
   const videoCount = computed(() => videos.value.length)
   const musicCount = computed(() => musicItems.value.length)
+  const newsCount = computed(() => newsItems.value.length)
+  const equipmentCount = computed(() => equipmentItems.value.length)
 
   // 액션
   const setLoading = (loading) => {
@@ -123,12 +127,44 @@ export const useMediaStore = defineStore('media', () => {
     }
   }
 
+  // 뉴스 관련
+  const loadNews = async () => {
+    try {
+      setLoading(true)
+      clearError()
+      const data = await newsService.getAllNews()
+      newsItems.value = data
+    } catch (err) {
+      setError('뉴스 목록을 불러오는데 실패했습니다.')
+      console.error('뉴스 로드 실패:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 장비 관련
+  const loadEquipment = async () => {
+    try {
+      setLoading(true)
+      clearError()
+      const data = await equipmentService.getAllEquipment()
+      equipmentItems.value = data
+    } catch (err) {
+      setError('장비 목록을 불러오는데 실패했습니다.')
+      console.error('장비 로드 실패:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // 전체 미디어 로드
   const loadAllMedia = async () => {
     await Promise.all([
       loadPhotoGroups(),
       loadVideos(),
-      loadMusic()
+      loadMusic(),
+      loadNews(),
+      loadEquipment()
     ])
   }
 
@@ -137,12 +173,16 @@ export const useMediaStore = defineStore('media', () => {
     photoGroups,
     videos,
     musicItems,
+    newsItems,
+    equipmentItems,
     isLoading,
     error,
     // 게터
     photoGroupCount,
     videoCount,
     musicCount,
+    newsCount,
+    equipmentCount,
     // 액션
     loadPhotoGroups,
     addPhotoGroup,
@@ -150,6 +190,8 @@ export const useMediaStore = defineStore('media', () => {
     deletePhotoGroup,
     loadVideos,
     loadMusic,
+    loadNews,
+    loadEquipment,
     loadAllMedia,
     setLoading,
     setError,

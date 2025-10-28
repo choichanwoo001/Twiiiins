@@ -67,8 +67,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { photoService } from '../../../services'
+import { ref, onMounted, computed } from 'vue'
+import { useMediaStore } from '../../../stores'
 import LazyImage from '../../common/LazyImage.vue'
 import { 
   createPhotoGroupSearchFilters, 
@@ -81,6 +81,12 @@ import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
 import Modal from '../common/Modal.vue'
+
+// 스토어 사용
+const mediaStore = useMediaStore()
+
+// Computed properties
+const photoGroups = computed(() => mediaStore.photoGroups)
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -109,7 +115,6 @@ const formFields = [
 // 반응형 데이터
 const searchFilters = ref(createPhotoGroupSearchFilters())
 const form = ref(createPhotoGroupForm())
-const photoGroups = ref([])
 const editingGroup = ref(null)
 const selectedGroup = ref(null)
 const fileInput = ref(null)
@@ -167,12 +172,11 @@ const cancelEdit = () => {
 const saveGroup = async () => {
   try {
     if (editingGroup.value) {
-      await photoService.updatePhotoGroup(editingGroup.value.id, form.value)
+      await mediaStore.updatePhotoGroup(editingGroup.value.id, form.value)
     } else {
-      await photoService.createPhotoGroup(form.value)
+      await mediaStore.addPhotoGroup(form.value)
     }
     
-    await loadPhotoGroups()
     cancelEdit()
   } catch (error) {
     console.error('그룹 저장 실패:', error)

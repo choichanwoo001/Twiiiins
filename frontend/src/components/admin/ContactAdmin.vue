@@ -94,18 +94,8 @@ import {
   resetContactForm
 } from '../../types/dto'
 
-// Props
-const props = defineProps({
-  contacts: {
-    type: Array,
-    default: () => []
-  }
-})
-
-// Emits
-const emit = defineEmits(['update:contacts'])
-
 // Reactive data
+const contacts = ref([])
 const searchFilters = ref(createContactSearchFilters())
 const form = ref(createContactForm())
 const editingContact = ref(null)
@@ -113,8 +103,7 @@ const editingContact = ref(null)
 // Methods
 const loadContacts = async () => {
   try {
-    const contacts = await contactService.getAllContacts()
-    emit('update:contacts', contacts)
+    contacts.value = await contactService.getAllContacts()
   } catch (error) {
     console.error('연락처 로드 실패:', error)
   }
@@ -122,8 +111,7 @@ const loadContacts = async () => {
 
 const searchContacts = async () => {
   try {
-    const contacts = await contactService.searchContacts(searchFilters.value)
-    emit('update:contacts', contacts)
+    contacts.value = await contactService.searchContacts(searchFilters.value)
   } catch (error) {
     console.error('연락처 검색 실패:', error)
   }

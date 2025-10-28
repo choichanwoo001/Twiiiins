@@ -60,6 +60,9 @@ logging:
     max-size: ${LOG_FILE_MAX_SIZE:10MB}
     max-history: ${LOG_FILE_MAX_HISTORY:30}
     total-size-cap: ${LOG_FILE_TOTAL_SIZE_CAP:1GB}
+  charset:
+    console: UTF-8
+    file: UTF-8
 
 app:
   jwt:

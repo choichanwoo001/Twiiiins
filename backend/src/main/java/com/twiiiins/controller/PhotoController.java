@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/photos")
+@RequestMapping("/api/media")
 @RequiredArgsConstructor
 @Tag(name = "사진 관리", description = "사진 및 사진 그룹 관리 API")
 public class PhotoController {
@@ -23,7 +23,7 @@ public class PhotoController {
     private final PhotoService photoService;
     
     // PhotoGroup endpoints
-    @GetMapping("/groups")
+    @GetMapping({"/photos/groups", "/photo-groups"})
     @Operation(summary = "사진 그룹 목록 조회", description = "모든 사진 그룹을 조회합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
@@ -34,7 +34,7 @@ public class PhotoController {
         return ResponseUtil.listSuccess(groups, "사진 그룹 목록을 성공적으로 조회했습니다.");
     }
     
-    @GetMapping("/groups/{id}")
+    @GetMapping("/photos/groups/{id}")
     @Operation(summary = "사진 그룹 상세 조회", description = "특정 사진 그룹의 상세 정보를 조회합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
@@ -46,7 +46,7 @@ public class PhotoController {
         return ResponseUtil.success(group, "사진 그룹 정보를 성공적으로 조회했습니다.");
     }
     
-    @PostMapping("/groups")
+    @PostMapping("/photos/groups")
     @Operation(summary = "사진 그룹 생성", description = "새로운 사진 그룹을 생성합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "성공적으로 생성됨"),
@@ -58,7 +58,7 @@ public class PhotoController {
         return ResponseUtil.created(createdGroup, "사진 그룹이 성공적으로 생성되었습니다.");
     }
     
-    @PutMapping("/groups/{id}")
+    @PutMapping("/photos/groups/{id}")
     @Operation(summary = "사진 그룹 수정", description = "기존 사진 그룹 정보를 수정합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 수정됨"),
@@ -73,7 +73,7 @@ public class PhotoController {
         return ResponseUtil.success(updatedGroup, "사진 그룹이 성공적으로 수정되었습니다.");
     }
     
-    @DeleteMapping("/groups/{id}")
+    @DeleteMapping("/photos/groups/{id}")
     @Operation(summary = "사진 그룹 삭제", description = "사진 그룹을 삭제합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 삭제됨"),
@@ -86,7 +86,7 @@ public class PhotoController {
     }
     
     // Photo endpoints
-    @GetMapping("/groups/{groupId}/photos")
+    @GetMapping("/photos/groups/{groupId}/photos")
     @Operation(summary = "그룹별 사진 조회", description = "특정 그룹의 사진 목록을 조회합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
@@ -98,7 +98,7 @@ public class PhotoController {
         return ResponseUtil.listSuccess(photos, "그룹별 사진 목록을 성공적으로 조회했습니다.");
     }
     
-    @GetMapping("/{id}")
+    @GetMapping("/photos/{id}")
     @Operation(summary = "사진 상세 조회", description = "특정 사진의 상세 정보를 조회합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
@@ -110,7 +110,7 @@ public class PhotoController {
         return ResponseUtil.success(photo, "사진 정보를 성공적으로 조회했습니다.");
     }
     
-    @PostMapping("/groups/{groupId}/photos")
+    @PostMapping("/photos/groups/{groupId}/photos")
     @Operation(summary = "사진 생성", description = "새로운 사진을 생성합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "성공적으로 생성됨"),
@@ -125,7 +125,7 @@ public class PhotoController {
         return ResponseUtil.created(createdPhoto, "사진이 성공적으로 생성되었습니다.");
     }
     
-    @PutMapping("/{id}")
+    @PutMapping("/photos/{id}")
     @Operation(summary = "사진 수정", description = "기존 사진 정보를 수정합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 수정됨"),
@@ -140,7 +140,7 @@ public class PhotoController {
         return ResponseUtil.success(updatedPhoto, "사진이 성공적으로 수정되었습니다.");
     }
     
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/photos/{id}")
     @Operation(summary = "사진 삭제", description = "사진을 삭제합니다.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 삭제됨"),
