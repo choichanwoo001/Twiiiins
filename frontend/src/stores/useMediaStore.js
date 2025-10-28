@@ -112,6 +112,56 @@ export const useMediaStore = defineStore('media', () => {
     }
   }
 
+  const addVideo = async (videoData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const newVideo = await videoService.createVideo(videoData)
+      videos.value.push(newVideo)
+      return newVideo
+    } catch (err) {
+      setError('비디오 생성에 실패했습니다.')
+      console.error('비디오 생성 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateVideo = async (id, videoData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const updatedVideo = await videoService.updateVideo(id, videoData)
+      const index = videos.value.findIndex(video => video.id === id)
+      if (index !== -1) {
+        videos.value[index] = updatedVideo
+      }
+      return updatedVideo
+    } catch (err) {
+      setError('비디오 수정에 실패했습니다.')
+      console.error('비디오 수정 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteVideo = async (id) => {
+    try {
+      setLoading(true)
+      clearError()
+      await videoService.deleteVideo(id)
+      videos.value = videos.value.filter(video => video.id !== id)
+    } catch (err) {
+      setError('비디오 삭제에 실패했습니다.')
+      console.error('비디오 삭제 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // 음악 관련
   const loadMusic = async () => {
     try {
@@ -122,6 +172,56 @@ export const useMediaStore = defineStore('media', () => {
     } catch (err) {
       setError('음악 목록을 불러오는데 실패했습니다.')
       console.error('음악 로드 실패:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const addMusic = async (musicData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const newMusic = await musicService.createMusic(musicData)
+      musicItems.value.push(newMusic)
+      return newMusic
+    } catch (err) {
+      setError('음악 생성에 실패했습니다.')
+      console.error('음악 생성 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateMusic = async (id, musicData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const updatedMusic = await musicService.updateMusic(id, musicData)
+      const index = musicItems.value.findIndex(music => music.id === id)
+      if (index !== -1) {
+        musicItems.value[index] = updatedMusic
+      }
+      return updatedMusic
+    } catch (err) {
+      setError('음악 수정에 실패했습니다.')
+      console.error('음악 수정 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteMusic = async (id) => {
+    try {
+      setLoading(true)
+      clearError()
+      await musicService.deleteMusic(id)
+      musicItems.value = musicItems.value.filter(music => music.id !== id)
+    } catch (err) {
+      setError('음악 삭제에 실패했습니다.')
+      console.error('음악 삭제 실패:', err)
+      throw err
     } finally {
       setLoading(false)
     }
@@ -142,6 +242,56 @@ export const useMediaStore = defineStore('media', () => {
     }
   }
 
+  const addNews = async (newsData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const newNews = await newsService.createNews(newsData)
+      newsItems.value.push(newNews)
+      return newNews
+    } catch (err) {
+      setError('뉴스 생성에 실패했습니다.')
+      console.error('뉴스 생성 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateNews = async (id, newsData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const updatedNews = await newsService.updateNews(id, newsData)
+      const index = newsItems.value.findIndex(news => news.id === id)
+      if (index !== -1) {
+        newsItems.value[index] = updatedNews
+      }
+      return updatedNews
+    } catch (err) {
+      setError('뉴스 수정에 실패했습니다.')
+      console.error('뉴스 수정 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteNews = async (id) => {
+    try {
+      setLoading(true)
+      clearError()
+      await newsService.deleteNews(id)
+      newsItems.value = newsItems.value.filter(news => news.id !== id)
+    } catch (err) {
+      setError('뉴스 삭제에 실패했습니다.')
+      console.error('뉴스 삭제 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // 장비 관련
   const loadEquipment = async () => {
     try {
@@ -152,6 +302,56 @@ export const useMediaStore = defineStore('media', () => {
     } catch (err) {
       setError('장비 목록을 불러오는데 실패했습니다.')
       console.error('장비 로드 실패:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const addEquipment = async (equipmentData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const newEquipment = await equipmentService.createEquipment(equipmentData)
+      equipmentItems.value.push(newEquipment)
+      return newEquipment
+    } catch (err) {
+      setError('장비 생성에 실패했습니다.')
+      console.error('장비 생성 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateEquipment = async (id, equipmentData) => {
+    try {
+      setLoading(true)
+      clearError()
+      const updatedEquipment = await equipmentService.updateEquipment(id, equipmentData)
+      const index = equipmentItems.value.findIndex(equipment => equipment.id === id)
+      if (index !== -1) {
+        equipmentItems.value[index] = updatedEquipment
+      }
+      return updatedEquipment
+    } catch (err) {
+      setError('장비 수정에 실패했습니다.')
+      console.error('장비 수정 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteEquipment = async (id) => {
+    try {
+      setLoading(true)
+      clearError()
+      await equipmentService.deleteEquipment(id)
+      equipmentItems.value = equipmentItems.value.filter(equipment => equipment.id !== id)
+    } catch (err) {
+      setError('장비 삭제에 실패했습니다.')
+      console.error('장비 삭제 실패:', err)
+      throw err
     } finally {
       setLoading(false)
     }
@@ -189,9 +389,21 @@ export const useMediaStore = defineStore('media', () => {
     updatePhotoGroup,
     deletePhotoGroup,
     loadVideos,
+    addVideo,
+    updateVideo,
+    deleteVideo,
     loadMusic,
+    addMusic,
+    updateMusic,
+    deleteMusic,
     loadNews,
+    addNews,
+    updateNews,
+    deleteNews,
     loadEquipment,
+    addEquipment,
+    updateEquipment,
+    deleteEquipment,
     loadAllMedia,
     setLoading,
     setError,
