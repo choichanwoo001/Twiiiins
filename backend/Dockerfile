@@ -11,6 +11,7 @@ RUN ./gradlew dependencies --no-daemon || true
 
 # 소스 코드 복사 및 빌드
 COPY . .
+RUN chmod +x gradlew
 RUN ./gradlew build -x test --no-daemon
 
 # 실행 스테이지
