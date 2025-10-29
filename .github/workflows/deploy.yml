@@ -96,7 +96,7 @@ jobs:
           chmod 600 ec2-key.pem
           
           # EC2에 배포 스크립트 실행
-          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} '
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} '
             cd /opt/twiiiins &&
             git pull origin main &&
             docker-compose down &&
