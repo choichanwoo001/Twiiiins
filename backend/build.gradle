@@ -68,3 +68,13 @@ tasks.named('bootRun') {
 	systemProperty 'sun.jnu.encoding', 'UTF-8'
 }
 
+// JAR 파일명 설정
+jar {
+	enabled = false
+	archiveClassifier = ''
+}
+
+bootJar {
+	archiveFileName = 'twiiiins-backend-${version}.jar'
+}
+
