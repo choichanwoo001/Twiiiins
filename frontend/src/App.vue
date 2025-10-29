@@ -1,15 +1,16 @@
 <template>
   <div id="app">
-    <nav class="navbar">
+    <!-- 관리자 페이지가 아닐 때만 네비게이션 표시 -->
+    <nav v-if="!isAdminPage" class="navbar">
       <div class="container">
         <router-link to="/" class="logo">TWIIIINS</router-link>
         <div class="nav-links">
           <router-link to="/about">ABOUT</router-link>
-          <router-link to="/gallery">PROJECTS</router-link>
-          <router-link to="/gallery">CONCERTS</router-link>
-          <router-link to="/gallery">MEDIA</router-link>
-          <router-link to="/store">SHOP</router-link>
-          <router-link to="/about">CONTACT</router-link>
+          <router-link to="/projects">PROJECTS</router-link>
+          <router-link to="/concerts">CONCERTS</router-link>
+          <router-link to="/media">MEDIA</router-link>
+          <router-link to="/shop">SHOP</router-link>
+          <router-link to="/contact">CONTACT</router-link>
         </div>
       </div>
     </nav>
@@ -18,22 +19,57 @@
       <router-view />
     </main>
     
-    <!-- SNS 링크 (왼쪽 하단) -->
-    <div class="sns-links">
+    <!-- SNS 링크 (왼쪽 하단) - 홈 페이지에서만 표시 -->
+    <div v-if="isHomePage" class="sns-links">
       <a href="#" class="sns-link">INSTAGRAM</a>
       <a href="#" class="sns-link">YOUTUBE</a>
       <a href="#" class="sns-link">SPOTIFY</a>
       <a href="#" class="sns-link">APPLE MUSIC</a>
     </div>
 
-    <!-- 스크롤 업 버튼 (오른쪽 하단) -->
-    <button class="scroll-up-button" @click="scrollToTop">
+    <!-- 스크롤 업 버튼 (오른쪽 하단) - 관리자 페이지가 아닐 때만 표시 -->
+    <button v-if="!isAdminPage && showScrollUp" class="scroll-up-button" @click="scrollToTop" aria-label="Scroll to top">
       ↑
     </button>
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAppStore } from './stores'
+
+const route = useRoute()
+const appStore = useAppStore()
+const showScrollUp = ref(false)
+
+// 현재 페이지가 관리자 페이지인지 확인
+const isAdminPage = computed(() => route.path.startsWith('/admin'))
+
+// 현재 페이지가 홈 페이지인지 확인
+const isHomePage = computed(() => route.path === '/')
+
+const updateScrollUpVisibility = () => {
+  const { scrollHeight, clientHeight } = document.documentElement
+  const isScrollable = scrollHeight > clientHeight + 1
+  const hasScrolled = window.scrollY > 100
+  showScrollUp.value = isScrollable && hasScrolled
+}
+
+onMounted(() => {
+  // 앱 스토어 초기화
+  appStore.initialize()
+  
+  updateScrollUpVisibility()
+  window.addEventListener('scroll', updateScrollUpVisibility, { passive: true })
+  window.addEventListener('resize', updateScrollUpVisibility)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', updateScrollUpVisibility)
+  window.removeEventListener('resize', updateScrollUpVisibility)
+})
+
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
