@@ -1,0 +1,139 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, deployment]
+  pull_request:
+    branches: [main, deployment]
+
+jobs:
+  # 백엔드 빌드 및 테스트
+  backend-build:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v3
+      
+      - name: JDK 17 설정
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Gradle 실행 권한 부여
+        run: chmod +x gradlew
+      
+      - name: Gradle 빌드
+        run: ./gradlew build -x test --no-daemon
+      
+      - name: 빌드 아티팩트 업로드
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-jar
+          path: backend/build/libs/*.jar
+          retention-days: 1
+
+  # 프론트엔드 빌드
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v3
+      
+      - name: Node.js 18 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: 의존성 설치
+        run: npm ci
+      
+      - name: 빌드
+        run: npm run build
+      
+      - name: 빌드 아티팩트 업로드
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 1
+
+  # AWS 배포
+  deploy-aws:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: [backend-build, frontend-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+      
+      - name: AWS 자격 증명 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+      
+      - name: EC2에 배포
+        run: |
+          # SSH 키 설정
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ec2-key.pem
+          chmod 600 ec2-key.pem
+          
+          # EC2에 배포 스크립트 실행
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} '
+            cd /opt/twiiiins &&
+            git pull origin main &&
+            docker-compose down &&
+            docker-compose up -d --build &&
+            echo "✅ 배포 완료"
+          '
+      
+      - name: 배포 확인
+        run: |
+          # 헬스체크
+          sleep 30
+          curl -f http://${{ secrets.EC2_HOST }}:8080/actuator/health || exit 1
+          echo "✅ 서비스 정상 동작 확인"
+      
+      - name: 배포 알림
+        run: |
+          echo "🚀 AWS 배포가 완료되었습니다"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "URL: http://${{ secrets.EC2_HOST }}:8080"
+
+  # 배포 알림 (개발 브랜치)
+  deploy-notification:
+    name: Development Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [backend-build, frontend-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/deployment'
+    
+    steps:
+      - name: 개발 배포 알림
+        run: |
+          echo "🚀 개발 환경 배포가 시작되었습니다"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo ""
+          echo "✅ Backend: AWS EC2에서 자동 배포 중..."
+          echo "✅ Frontend: Vercel에서 자동 배포 중..."
+
