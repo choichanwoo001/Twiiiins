@@ -13,7 +13,7 @@ COPY . .
 RUN ./gradlew build -x test --no-daemon
 
 # 실행 스테이지
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
