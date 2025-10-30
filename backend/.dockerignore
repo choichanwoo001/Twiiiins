@@ -1,3 +1,33 @@
+# Exclude VCS and IDE files
+.git
+.gitignore
+**/.DS_Store
+**/.idea/
+**/.vscode/
+
+# Build outputs and caches
+build/
+.gradle/
+.out/
+.tmp/
+
+# Logs
+**/*.log
+logs/
+
+# Local env and secrets
+.env
+*.env
+
+# Test artifacts
+reports/
+
+# Node/Frontend artifacts if any copied here by mistake
+node_modules/
+dist/
+
+# Uploaded or runtime files
+uploads/
 # Gradle
 .gradle
 build/
