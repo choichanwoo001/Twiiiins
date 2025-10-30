@@ -83,3 +83,13 @@ cors:
   allowed-headers: ${CORS_HEADERS:*}
   allow-credentials: ${CORS_CREDENTIALS:true}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
