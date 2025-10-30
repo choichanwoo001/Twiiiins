@@ -94,22 +94,37 @@ jobs:
           # SSH 키 설정
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > ec2-key.pem
           chmod 600 ec2-key.pem
-          
-          # EC2에 배포 스크립트 실행
+
+          # 1) 원격 저장소 최신화 및 정리, dist 대상 디렉터리 생성
           ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} '
             set -e
             cd "$HOME/twiiiins/Twiiiins" &&
             git pull origin main &&
+            mkdir -p frontend/dist &&
             echo "🧹 Docker cleanup 시작" &&
-            # 안전 종료
-            docker-compose down || true
-            # 불필요 리소스 정리(중지 컨테이너/이미지/네트워크/볼륨)
-            docker container prune -f || true
-            docker image prune -a -f || true
-            docker network prune -f || true
-            docker volume prune -f || true
-            echo "🧹 Docker cleanup 완료" &&
-            # 재빌드 및 기동
+            docker-compose down || true &&
+            docker container prune -f || true &&
+            docker image prune -a -f || true &&
+            docker network prune -f || true &&
+            docker volume prune -f || true &&
+            echo "🧹 Docker cleanup 완료"
+          '
+
+      - name: 프론트엔드 산출물 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend-dist
+
+      - name: 프론트엔드 dist 전송 (EC2)
+        run: |
+          rsync -az -e "ssh -i ec2-key.pem -o StrictHostKeyChecking=no" frontend-dist/ ubuntu@${{ secrets.EC2_HOST }}:~/twiiiins/Twiiiins/frontend/dist/
+
+      - name: 원격 기동 (compose up)
+        run: |
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} '
+            set -e
+            cd "$HOME/twiiiins/Twiiiins" &&
             docker-compose up -d --build &&
             echo "✅ 배포 완료"
           '
