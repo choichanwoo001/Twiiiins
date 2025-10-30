@@ -101,6 +101,9 @@ jobs:
             cd "$HOME/twiiiins/Twiiiins" &&
             git pull origin main &&
             mkdir -p frontend/dist &&
+            # 권한 보정: 이전 컨테이너 마운트로 root가 소유했을 수 있음
+            sudo chown -R ubuntu:ubuntu frontend/dist || true &&
+            sudo chmod -R u+rwX frontend/dist || true &&
             echo "🧹 Docker cleanup 시작" &&
             docker-compose down || true &&
             docker container prune -f || true &&
