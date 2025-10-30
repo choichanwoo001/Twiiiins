@@ -97,9 +97,19 @@ jobs:
           
           # EC2에 배포 스크립트 실행
           ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} '
-            cd /opt/twiiiins &&
+            set -e
+            cd "$HOME/twiiiins/Twiiiins" &&
             git pull origin main &&
-            docker-compose down &&
+            echo "🧹 Docker cleanup 시작" &&
+            # 안전 종료
+            docker-compose down || true
+            # 불필요 리소스 정리(중지 컨테이너/이미지/네트워크/볼륨)
+            docker container prune -f || true
+            docker image prune -a -f || true
+            docker network prune -f || true
+            docker volume prune -f || true
+            echo "🧹 Docker cleanup 완료" &&
+            # 재빌드 및 기동
             docker-compose up -d --build &&
             echo "✅ 배포 완료"
           '
