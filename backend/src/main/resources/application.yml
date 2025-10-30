@@ -3,9 +3,9 @@ spring:
     name: twiiiins-backend
   
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/twiiiins?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -29,8 +29,8 @@ spring:
   
   servlet:
     multipart:
-      max-file-size: ${MAX_FILE_SIZE:15MB}
-      max-request-size: ${MAX_REQUEST_SIZE:15MB}
+      max-file-size: ${UPLOAD_MAX_SIZE}
+      max-request-size: ${UPLOAD_MAX_SIZE}
       enabled: true
 
 server:
@@ -65,10 +65,6 @@ logging:
     file: UTF-8
 
 app:
-  jwt:
-    secret: ${JWT_SECRET:default-secret-key-change-in-production}
-    expiration: ${JWT_EXPIRATION:86400000}  # 24시간 (밀리초)
-  
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
@@ -82,7 +78,7 @@ app:
     max-size: ${FILE_MAX_SIZE:15728640}  # 15MB in bytes
 
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+  allowed-origins: ${CORS_ORIGINS}
   allowed-methods: ${CORS_METHODS:GET,POST,PUT,DELETE,OPTIONS}
   allowed-headers: ${CORS_HEADERS:*}
   allow-credentials: ${CORS_CREDENTIALS:true}

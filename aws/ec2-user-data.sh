@@ -35,48 +35,25 @@ cd /opt/twiiiins
 # 환경 변수 파일 생성
 cat > .env << EOF
 # 데이터베이스 설정
-DB_URL=jdbc:mysql://localhost:3306/twiiiins?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-DB_USERNAME=twiiiins_user
-DB_PASSWORD=your_secure_password_here
+DB_URL=${DB_URL}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
 
-# JWT 설정
-JWT_SECRET=your_jwt_secret_key_here_32_chars_minimum
-
-# Stripe 설정 (선택사항)
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-
-# CORS 설정
-CORS_ORIGINS=http://localhost:3000,https://your-domain.com
+# CORS 설정 (도메인 연결 전 임시 IP 및 로컬 허용)
+CORS_ORIGINS=http://35.159.96.92,http://localhost:5173
 
 # 서버 설정
 PORT=8080
 SERVER_CONTEXT_PATH=
+UPLOAD_MAX_SIZE=100MB
 EOF
 
-# Docker Compose 파일 생성
+# Docker Compose 파일 생성 (RDS 사용, 로컬 MySQL 제거)
 cat > docker-compose.yml << 'EOF'
 version: '3.8'
 
 services:
-  # MySQL 데이터베이스
-  mysql:
-    image: mysql:8.0
-    container_name: twiiiins-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: twiiiins
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
-    command: --default-authentication-plugin=mysql_native_password
-
-  # Spring Boot 백엔드
+  # Spring Boot 백엔드 (RDS 연결)
   backend:
     build: 
       context: ./backend
@@ -86,21 +63,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_URL=jdbc:mysql://mysql:3306/twiiiins?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - DB_URL=${DB_URL}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
       - CORS_ORIGINS=${CORS_ORIGINS}
       - PORT=8080
-    depends_on:
-      - mysql
+      - UPLOAD_MAX_SIZE=${UPLOAD_MAX_SIZE}
     volumes:
       - ./uploads:/app/uploads
-
-volumes:
-  mysql_data:
 EOF
 
 # MySQL 초기화 스크립트 디렉토리 생성
@@ -113,7 +83,7 @@ echo "   - SSH (22): 0.0.0.0/0"
 echo "   - HTTP (80): 0.0.0.0/0"
 echo "   - HTTPS (443): 0.0.0.0/0"
 echo "   - Custom TCP (8080): 0.0.0.0/0"
-echo "   - MySQL (3306): EC2 보안 그룹 내부만"
+echo "   - RDS (3306): EC2 <-> RDS 보안 그룹 간 허용"
 
 # 서비스 시작 스크립트 생성
 cat > start-services.sh << 'EOF'
@@ -132,7 +102,6 @@ docker-compose ps
 
 echo "=== 로그 확인 ==="
 echo "백엔드 로그: docker-compose logs -f backend"
-echo "MySQL 로그: docker-compose logs -f mysql"
 EOF
 
 chmod +x start-services.sh

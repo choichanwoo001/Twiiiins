@@ -19,6 +19,12 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
+# Install curl for runtime health checks
+USER root
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends curl \
+  && rm -rf /var/lib/apt/lists/*
+
 # 비-루트 유저 생성
 RUN addgroup --system spring && adduser --system --group spring
 USER spring:spring
@@ -33,9 +39,9 @@ ENV PORT=8080 \
 # 포트 노출
 EXPOSE ${PORT}
 
-# 헬스체크 추가 (wget 사용)
+# 헬스체크 추가 (curl 사용)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/actuator/health || exit 1
+  CMD curl -fsS http://localhost:${PORT}/actuator/health > /dev/null || exit 1
 
 # 애플리케이션 실행
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]
