@@ -89,28 +89,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
       
-      - name: EC2에 배포
+      - name: EC2 준비 (리포 최신화, dist 디렉토리/권한 확인)
         run: |
           # SSH 키 설정
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > ec2-key.pem
           chmod 600 ec2-key.pem
 
-          # 1) 원격 저장소 최신화 및 정리, dist 대상 디렉터리 생성
+          # 1) 원격 저장소 최신화 및 dist 대상 디렉터리 생성/권한/쓰기 테스트
           ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} '
-            set -e
-            cd "$HOME/twiiiins/Twiiiins" &&
-            git pull origin main &&
-            mkdir -p frontend/dist &&
+            set -euo pipefail
+            cd "$HOME/twiiiins/Twiiiins"
+            git pull origin main
+            mkdir -p frontend/dist
             # 권한 보정: 이전 컨테이너 마운트로 root가 소유했을 수 있음
-            sudo chown -R ubuntu:ubuntu frontend/dist || true &&
-            sudo chmod -R u+rwX frontend/dist || true &&
-            echo "🧹 Docker cleanup 시작" &&
-            docker-compose down || true &&
-            docker container prune -f || true &&
-            docker image prune -a -f || true &&
-            docker network prune -f || true &&
-            docker volume prune -f || true &&
-            echo "🧹 Docker cleanup 완료"
+            sudo chown -R ubuntu:ubuntu frontend/dist || true
+            sudo chmod -R u+rwX frontend/dist || true
+            echo test > frontend/dist/.write_test && rm -f frontend/dist/.write_test
+            echo "✅ remote preflight: dist writable"
           '
 
       - name: 프론트엔드 산출물 다운로드
@@ -121,14 +116,23 @@ jobs:
 
       - name: 프론트엔드 dist 전송 (EC2)
         run: |
-          rsync -az -e "ssh -i ec2-key.pem -o StrictHostKeyChecking=no" frontend-dist/ ubuntu@${{ secrets.EC2_HOST }}:~/twiiiins/Twiiiins/frontend/dist/
+          set -euo pipefail
+          rsync -az --delete -e "ssh -i ec2-key.pem -o StrictHostKeyChecking=no" frontend-dist/ ubuntu@${{ secrets.EC2_HOST }}:~/twiiiins/Twiiiins/frontend/dist/
+          echo "✅ dist synced"
 
       - name: 원격 기동 (compose up)
         run: |
           ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} '
-            set -e
-            cd "$HOME/twiiiins/Twiiiins" &&
-            docker-compose up -d --build &&
+            set -euo pipefail
+            cd "$HOME/twiiiins/Twiiiins"
+            echo "🧹 Docker cleanup 시작"
+            docker-compose down || true
+            docker container prune -f || true
+            docker image prune -a -f || true
+            docker network prune -f || true
+            docker volume prune -f || true
+            echo "🧹 Docker cleanup 완료"
+            docker-compose up -d --build
             echo "✅ 배포 완료"
           '
       
