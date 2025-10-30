@@ -116,10 +116,14 @@ jobs:
       
       - name: 배포 확인
         run: |
-          # 헬스체크
+          # 헬스체크: EC2 내부에서 직접 확인(8080이 외부에 닫혀 있어도 OK)
           sleep 30
-          curl -f http://${{ secrets.EC2_HOST }}:8080/actuator/health || exit 1
-          echo "✅ 서비스 정상 동작 확인"
+          ssh -i ec2-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} '
+            set -e
+            echo "[EC2] localhost:8080 헬스체크" && \
+            curl -fsS http://localhost:8080/actuator/health >/dev/null || (echo "backend 8080 health FAILED" && exit 1)
+          '
+          echo "✅ 서비스 정상 동작 확인 (localhost:8080)"
       
       - name: 배포 알림
         run: |
