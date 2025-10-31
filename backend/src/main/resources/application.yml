@@ -64,6 +64,15 @@ logging:
     console: UTF-8
     file: UTF-8
 
+# AWS S3 설정
+aws:
+  access-key-id: ${AWS_ACCESS_KEY_ID:}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
+  region: ${AWS_REGION:ap-northeast-2}
+
+s3:
+  bucket-name: ${S3_BUCKET_NAME:}
+
 app:
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:}
