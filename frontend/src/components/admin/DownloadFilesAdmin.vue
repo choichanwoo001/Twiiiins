@@ -25,6 +25,7 @@
 
     <!-- 파일 등록/수정 폼 -->
     <CrudForm
+      ref="crudFormRef"
       title="파일"
       :fields="formFields"
       v-model="form"
@@ -37,6 +38,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from '../../api/axios'
 import { downloadFileService } from '../../services'
 import SearchFilters from './common/SearchFilters.vue'
 import DataTable from './common/DataTable.vue'
@@ -78,6 +80,7 @@ const files = ref([])
 const searchFilters = ref(createDownloadFileSearchFilters())
 const form = ref(createDownloadFileForm())
 const editingFile = ref(null)
+const crudFormRef = ref(null)
 
 // 메서드
 const loadFiles = async () => {
@@ -128,6 +131,29 @@ const cancelEdit = () => {
 
 const saveFile = async () => {
   try {
+    // 파일이 선택된 경우 먼저 업로드
+    const fileObject = crudFormRef.value?.getFileObject('fileUrl')
+    
+    if (fileObject) {
+      // FormData로 파일 업로드
+      const formData = new FormData()
+      formData.append('file', fileObject)
+      
+      // 파일 업로드 API 호출 (axios 인터셉터에서 FormData 자동 처리)
+      const uploadResponse = await axios.post('/api/upload/file', formData)
+      
+      // 업로드된 파일의 S3 URL 저장
+      if (uploadResponse.data && uploadResponse.data.url) {
+        form.value.fileUrl = uploadResponse.data.url
+      } else if (uploadResponse.data && uploadResponse.data.data && uploadResponse.data.data.url) {
+        form.value.fileUrl = uploadResponse.data.data.url
+      }
+      
+      // 파일 객체 제거
+      crudFormRef.value?.clearFileObject('fileUrl')
+    }
+    
+    // 파일 정보 저장
     if (editingFile.value) {
       // 수정
       await downloadFileService.updateDownloadFile(editingFile.value.id, form.value)
@@ -140,6 +166,7 @@ const saveFile = async () => {
     cancelEdit()
   } catch (error) {
     console.error('파일 저장 실패:', error)
+    alert('파일 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 

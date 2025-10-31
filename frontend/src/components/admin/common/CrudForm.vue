@@ -93,6 +93,7 @@ const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
 
 const formValues = ref({ ...props.modelValue })
 const fileInputs = ref({})
+const fileObjects = ref({}) // 실제 파일 객체 저장
 
 // 부모의 modelValue가 변경되면 로컬 값도 업데이트 (실제 변경사항이 있을 때만)
 watch(() => props.modelValue, (newValue) => {
@@ -133,10 +134,27 @@ const handleCancel = () => {
 const handleFileUpload = (fieldKey, event) => {
   const file = event.target.files[0]
   if (file) {
-    formValues.value[fieldKey] = file.name
-    // 실제 파일 업로드 로직은 부모 컴포넌트에서 처리
+    formValues.value[fieldKey] = file.name // 파일명 표시용
+    fileObjects.value[fieldKey] = file // 실제 파일 객체 저장
+    emit('update:modelValue', { ...formValues.value })
   }
 }
+
+// 파일 객체를 부모에게 전달하기 위한 메서드
+const getFileObject = (fieldKey) => {
+  return fileObjects.value[fieldKey] || null
+}
+
+// 파일 객체 제거
+const clearFileObject = (fieldKey) => {
+  delete fileObjects.value[fieldKey]
+}
+
+// expose 메서드를 통해 부모에서 접근 가능하게 함
+defineExpose({
+  getFileObject,
+  clearFileObject
+})
 </script>
 
 <style scoped>
@@ -248,3 +266,4 @@ const handleFileUpload = (fieldKey, event) => {
   background: #7f8c8d;
 }
 </style>
+
