@@ -44,13 +44,13 @@ public class S3FileService {
             String fileName = UUID.randomUUID().toString() + extension;
             String key = folder + "/" + fileName;
 
-            // S3에 파일 업로드 (공개 읽기 권한으로 설정)
+            // S3에 파일 업로드 (ACL은 사용하지 않음 - 버킷 정책으로 공개 접근 관리)
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
                     .contentType(file.getContentType())
                     .contentLength(file.getSize())
-                    .acl(ObjectCannedACL.PUBLIC_READ) // 공개 읽기 권한 설정
+                    // ACL 제거: 최신 S3 버킷은 ACL을 허용하지 않으므로 버킷 정책 사용
                     .build();
 
             // MultipartFile의 inputStream은 한 번만 읽을 수 있으므로 바이트 배열로 먼저 읽기

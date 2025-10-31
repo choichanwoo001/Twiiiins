@@ -7,10 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +18,6 @@ public class FileUploadService {
     
     private final S3FileService s3FileService;
     
-    private static final String UPLOAD_DIR = "uploads/";
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(
         "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"
@@ -92,37 +87,10 @@ public class FileUploadService {
             log.warn("S3 업로드 시도 중 오류 (로컬로 fallback): {}", s3Error.getMessage());
         }
         
-        // S3 업로드 실패 시 로컬 저장소 사용
-        try {
-            log.warn("S3 업로드 실패, 로컬 저장소 사용: {}", originalFilename);
-            
-            // 업로드 디렉토리 생성
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            
-            // 파일 저장 (inputStream은 S3 업로드에서 이미 소비되었을 수 있으므로 getBytes 사용)
-            Path filePath = uploadPath.resolve(filename);
-            Files.write(filePath, file.getBytes());
-            
-            // 접근 가능한 URL 반환 (상대 경로)
-            fileUrl = "/uploads/" + filename;
-            
-            log.info("파일 업로드 성공 (로컬): {} -> {}", originalFilename, filename);
-            
-            return new FileUploadResponseDto(
-                fileUrl, 
-                filename, 
-                originalFilename, 
-                file.getSize(), 
-                file.getContentType()
-            );
-            
-        } catch (IOException e) {
-            log.error("파일 업로드 실패: {}", e.getMessage(), e);
-            throw new FileUploadException("파일 업로드 중 오류가 발생했습니다: " + e.getMessage());
-        }
+        // S3 업로드 실패 시 로컬 저장소 사용 (하지만 S3가 필수이므로 실패 시 에러)
+        log.error("S3 업로드 실패: {} - S3 업로드는 필수입니다. 버킷 정책을 확인해주세요.", originalFilename);
+        throw new FileUploadException("S3 업로드에 실패했습니다. AWS 설정을 확인해주세요: " + 
+                (fileUrl != null ? "ACL이 허용되지 않는 버킷입니다. 버킷 정책으로 공개 접근을 허용해야 합니다." : "S3 업로드 중 오류가 발생했습니다."));
     }
     
     private String getFileExtension(String filename) {
