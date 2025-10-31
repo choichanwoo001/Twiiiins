@@ -58,8 +58,7 @@ const searchFilterConfig = [
 // 테이블 컬럼 설정
 const tableColumns = [
   { key: 'no', label: 'No' },
-  { key: 'name', label: '파일명' },
-  { key: 'fileUrl', label: '파일 URL' }
+  { key: 'name', label: '파일명' }
 ]
 
 // 테이블 액션 설정

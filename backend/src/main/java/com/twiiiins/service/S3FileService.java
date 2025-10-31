@@ -44,12 +44,13 @@ public class S3FileService {
             String fileName = UUID.randomUUID().toString() + extension;
             String key = folder + "/" + fileName;
 
-            // S3에 파일 업로드
+            // S3에 파일 업로드 (공개 읽기 권한으로 설정)
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
                     .contentType(file.getContentType())
                     .contentLength(file.getSize())
+                    .acl(ObjectCannedACL.PUBLIC_READ) // 공개 읽기 권한 설정
                     .build();
 
             // MultipartFile의 inputStream은 한 번만 읽을 수 있으므로 바이트 배열로 먼저 읽기
