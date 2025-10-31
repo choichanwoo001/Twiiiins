@@ -21,7 +21,7 @@ services:
       # AWS S3 설정 (Spring Boot는 환경 변수를 자동으로 매핑: AWS_ACCESS_KEY_ID -> aws.access-key-id)
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION:-ap-northeast-2}
+      - AWS_REGION=${AWS_REGION}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME}
     volumes:
       - ./uploads:/app/uploads

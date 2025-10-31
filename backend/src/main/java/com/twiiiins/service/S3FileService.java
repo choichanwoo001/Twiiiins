@@ -33,7 +33,7 @@ public class S3FileService {
     public String uploadFile(MultipartFile file, String folder) {
         try {
             String bucketName = s3Config.getBucketName();
-            if (bucketName.isEmpty()) {
+            if (bucketName == null || bucketName.isEmpty()) {
                 log.warn("S3 버킷 이름이 설정되지 않았습니다. 로컬 저장을 사용합니다.");
                 return null;
             }
@@ -52,8 +52,9 @@ public class S3FileService {
                     .contentLength(file.getSize())
                     .build();
 
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(
-                    file.getInputStream(), file.getSize()));
+            // MultipartFile의 inputStream은 한 번만 읽을 수 있으므로 바이트 배열로 먼저 읽기
+            byte[] fileBytes = file.getBytes();
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileBytes));
 
             // 업로드된 파일의 URL 생성
             String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", 
@@ -62,9 +63,17 @@ public class S3FileService {
             log.info("파일이 S3에 성공적으로 업로드되었습니다: {}", fileUrl);
             return fileUrl;
 
+        } catch (S3Exception e) {
+            log.error("S3 업로드 중 오류 발생 (버킷: {}, 에러 코드: {}): {}", 
+                    s3Config.getBucketName(), e.awsErrorDetails().errorCode(), e.getMessage());
+            log.error("S3 예외 상세:", e);
+            return null; // null 반환하여 로컬 저장소로 fallback
         } catch (IOException e) {
-            log.error("파일 업로드 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+            log.error("파일 읽기 중 오류 발생: {}", e.getMessage(), e);
+            return null; // null 반환하여 로컬 저장소로 fallback
+        } catch (Exception e) {
+            log.error("S3 업로드 중 예상치 못한 오류 발생: {}", e.getMessage(), e);
+            return null; // null 반환하여 로컬 저장소로 fallback
         }
     }
 

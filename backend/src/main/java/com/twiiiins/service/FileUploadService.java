@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -69,35 +68,48 @@ public class FileUploadService {
     }
     
     private FileUploadResponseDto uploadFile(MultipartFile file, String uploadType) {
+        String originalFilename = file.getOriginalFilename();
+        String extension = getFileExtension(originalFilename);
+        String filename = UUID.randomUUID().toString() + extension;
+        String fileUrl = null;
+        
         try {
-            String originalFilename = file.getOriginalFilename();
-            String extension = getFileExtension(originalFilename);
-            String filename = UUID.randomUUID().toString() + extension;
-            
             // S3에 파일 업로드 시도
-            String fileUrl = s3FileService.uploadFile(file, uploadType);
+            fileUrl = s3FileService.uploadFile(file, uploadType);
             
-            // S3 업로드가 실패한 경우 (버킷이 설정되지 않은 경우) 로컬 저장소 사용
-            if (fileUrl == null || fileUrl.isEmpty()) {
-                log.warn("S3 업로드 실패, 로컬 저장소 사용: {}", originalFilename);
-                
-                // 업로드 디렉토리 생성
-                Path uploadPath = Paths.get(UPLOAD_DIR);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
-                
-                // 파일 저장
-                Path filePath = uploadPath.resolve(filename);
-                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                
-                // 접근 가능한 URL 반환 (상대 경로)
-                fileUrl = "/uploads/" + filename;
-            } else {
+            // S3 업로드 성공
+            if (fileUrl != null && !fileUrl.isEmpty()) {
                 log.info("파일이 S3에 업로드되었습니다: {} -> {}", originalFilename, fileUrl);
+                return new FileUploadResponseDto(
+                    fileUrl, 
+                    filename, 
+                    originalFilename, 
+                    file.getSize(), 
+                    file.getContentType()
+                );
+            }
+        } catch (Exception s3Error) {
+            log.warn("S3 업로드 시도 중 오류 (로컬로 fallback): {}", s3Error.getMessage());
+        }
+        
+        // S3 업로드 실패 시 로컬 저장소 사용
+        try {
+            log.warn("S3 업로드 실패, 로컬 저장소 사용: {}", originalFilename);
+            
+            // 업로드 디렉토리 생성
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
             }
             
-            log.info("파일 업로드 성공: {} -> {}", originalFilename, filename);
+            // 파일 저장 (inputStream은 S3 업로드에서 이미 소비되었을 수 있으므로 getBytes 사용)
+            Path filePath = uploadPath.resolve(filename);
+            Files.write(filePath, file.getBytes());
+            
+            // 접근 가능한 URL 반환 (상대 경로)
+            fileUrl = "/uploads/" + filename;
+            
+            log.info("파일 업로드 성공 (로컬): {} -> {}", originalFilename, filename);
             
             return new FileUploadResponseDto(
                 fileUrl, 
