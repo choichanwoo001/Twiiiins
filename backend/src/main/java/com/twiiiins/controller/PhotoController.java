@@ -3,6 +3,7 @@ package com.twiiiins.controller;
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.PhotoDto;
 import com.twiiiins.dto.PhotoGroupDto;
+import com.twiiiins.service.FileUploadService;
 import com.twiiiins.service.PhotoService;
 import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,6 +24,7 @@ import java.util.List;
 public class PhotoController {
     
     private final PhotoService photoService;
+    private final FileUploadService fileUploadService;
     
     // PhotoGroup endpoints
     @GetMapping({"/photos/groups", "/photo-groups"})
@@ -111,18 +115,41 @@ public class PhotoController {
     }
     
     @PostMapping("/photos/groups/{groupId}/photos")
-    @Operation(summary = "사진 생성", description = "새로운 사진을 생성합니다.")
+    @Operation(summary = "사진 생성", description = "새로운 사진을 생성합니다. (파일 업로드 지원)")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "성공적으로 생성됨"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<PhotoDto>> createPhoto(
+    public ResponseEntity<ApiResponse<List<PhotoDto>>> createPhoto(
             @PathVariable Long groupId,
-            @RequestBody PhotoDto photoDto) {
-        PhotoDto createdPhoto = photoService.createPhoto(groupId, photoDto);
-        return ResponseUtil.created(createdPhoto, "사진이 성공적으로 생성되었습니다.");
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            @RequestParam(value = "altText", required = false) String altText) {
+        
+        List<PhotoDto> createdPhotos = new ArrayList<>();
+        
+        // 파일 업로드가 있는 경우
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                // 파일을 S3에 업로드
+                var uploadResponse = fileUploadService.uploadImage(file);
+                String imageUrl = uploadResponse.getUrl();
+                
+                // PhotoDto 생성
+                PhotoDto newPhotoDto = new PhotoDto();
+                newPhotoDto.setImageUrl(imageUrl);
+                if (altText != null) {
+                    newPhotoDto.setAltText(altText);
+                }
+                
+                // 사진 생성
+                PhotoDto createdPhoto = photoService.createPhoto(groupId, newPhotoDto);
+                createdPhotos.add(createdPhoto);
+            }
+        }
+        
+        return ResponseUtil.created(createdPhotos, "사진이 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/photos/{id}")

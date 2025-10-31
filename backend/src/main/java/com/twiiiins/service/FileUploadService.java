@@ -2,6 +2,7 @@ package com.twiiiins.service;
 
 import com.twiiiins.dto.FileUploadResponseDto;
 import com.twiiiins.exception.FileUploadException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,10 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileUploadService {
+    
+    private final S3FileService s3FileService;
     
     private static final String UPLOAD_DIR = "uploads/";
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -66,23 +70,32 @@ public class FileUploadService {
     
     private FileUploadResponseDto uploadFile(MultipartFile file, String uploadType) {
         try {
-            // 고유한 파일명 생성
             String originalFilename = file.getOriginalFilename();
             String extension = getFileExtension(originalFilename);
             String filename = UUID.randomUUID().toString() + extension;
             
-            // 업로드 디렉토리 생성
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            // S3에 파일 업로드 시도
+            String fileUrl = s3FileService.uploadFile(file, uploadType);
+            
+            // S3 업로드가 실패한 경우 (버킷이 설정되지 않은 경우) 로컬 저장소 사용
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                log.warn("S3 업로드 실패, 로컬 저장소 사용: {}", originalFilename);
+                
+                // 업로드 디렉토리 생성
+                Path uploadPath = Paths.get(UPLOAD_DIR);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                
+                // 파일 저장
+                Path filePath = uploadPath.resolve(filename);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                
+                // 접근 가능한 URL 반환 (상대 경로)
+                fileUrl = "/uploads/" + filename;
+            } else {
+                log.info("파일이 S3에 업로드되었습니다: {} -> {}", originalFilename, fileUrl);
             }
-            
-            // 파일 저장
-            Path filePath = uploadPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            // 접근 가능한 URL 반환
-            String fileUrl = "/uploads/" + filename;
             
             log.info("파일 업로드 성공: {} -> {}", originalFilename, filename);
             

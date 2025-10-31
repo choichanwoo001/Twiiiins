@@ -47,11 +47,17 @@
 import { ref, onMounted } from 'vue'
 import axios from '../api/axios'
 
-// 백엔드 절대 URL 생성 유틸
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+// 파일 URL 처리 유틸 (S3 URL이 이미 완전한 경우 그대로 반환)
 const toAbsoluteUrl = (url) => {
   if (!url) return ''
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
+  // 이미 완전한 URL인 경우 (http://, https://, data:) 그대로 반환
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url
+  }
+  // 상대 경로인 경우에만 백엔드 URL 추가 (하지만 S3를 사용하므로 이런 경우는 없어야 함)
+  // 백엔드에서 S3 전체 URL을 반환해야 하므로 경고 로그 추가
+  console.warn('상대 경로로 된 파일 URL이 감지되었습니다. 백엔드에서 S3 전체 URL을 반환해야 합니다:', url)
+  const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
   return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
