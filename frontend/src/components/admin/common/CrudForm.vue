@@ -28,12 +28,12 @@
           <div v-else-if="subField.type === 'file'" class="file-upload-container">
             <input 
               type="file" 
-              :ref="`fileInput-${subField.key}`"
+              :ref="el => { if (el) fileInputs[subField.key] = el }"
               @change="handleFileUpload(subField.key, $event)" 
               :accept="subField.accept"
               style="display: none"
             />
-            <button type="button" class="btn-upload" @click="$refs[`fileInput-${subField.key}`][0].click()">
+            <button type="button" class="btn-upload" @click="fileInputs[subField.key]?.click()">
               파일 선택
             </button>
             <span v-if="formValues[subField.key]" class="file-name">{{ formValues[subField.key] }}</span>
@@ -92,6 +92,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
 
 const formValues = ref({ ...props.modelValue })
+const fileInputs = ref({})
 
 // 부모의 modelValue가 변경되면 로컬 값도 업데이트
 watch(() => props.modelValue, (newValue) => {
