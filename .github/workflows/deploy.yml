@@ -127,10 +127,8 @@ jobs:
             cd "$HOME/twiiiins/Twiiiins"
             echo "🧹 Docker cleanup 시작"
             docker-compose down || true
-            docker container prune -f || true
-            docker image prune -a -f || true
-            docker network prune -f || true
-            docker volume prune -f || true
+            # 모든 미사용 리소스 일괄 삭제 (컨테이너, 이미지, 네트워크, 빌드 캐시, 볼륨)
+            docker system prune -a --volumes -f || true
             echo "🧹 Docker cleanup 완료"
             docker-compose up -d --build
             echo "✅ 배포 완료"
