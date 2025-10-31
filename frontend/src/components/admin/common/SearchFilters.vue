@@ -39,14 +39,32 @@ const emit = defineEmits(['update:modelValue', 'search', 'reset'])
 
 const filterValues = ref({ ...props.modelValue })
 
-// 부모의 modelValue가 변경되면 로컬 값도 업데이트
+// 부모의 modelValue가 변경되면 로컬 값도 업데이트 (실제 변경사항이 있을 때만)
 watch(() => props.modelValue, (newValue) => {
-  filterValues.value = { ...newValue }
+  try {
+    const currentStr = JSON.stringify(filterValues.value) || '{}'
+    const newStr = JSON.stringify(newValue) || '{}'
+    if (currentStr !== newStr) {
+      filterValues.value = { ...newValue }
+    }
+  } catch (e) {
+    // JSON 변환 실패 시 안전하게 처리
+    filterValues.value = { ...newValue }
+  }
 }, { deep: true })
 
-// 로컬 값이 변경되면 부모에게 알림
+// 로컬 값이 변경되면 부모에게 알림 (부모 값과 다를 때만)
 watch(filterValues, (newValue) => {
-  emit('update:modelValue', newValue)
+  try {
+    const currentStr = JSON.stringify(props.modelValue) || '{}'
+    const newStr = JSON.stringify(newValue) || '{}'
+    if (currentStr !== newStr) {
+      emit('update:modelValue', { ...newValue })
+    }
+  } catch (e) {
+    // JSON 변환 실패 시 안전하게 처리
+    emit('update:modelValue', { ...newValue })
+  }
 }, { deep: true })
 
 const handleSearch = () => {
