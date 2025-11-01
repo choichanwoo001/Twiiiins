@@ -54,8 +54,9 @@ const searchFilterConfig = [
 // 테이블 컬럼 설정
 const tableColumns = [
   { key: 'no', label: 'No' },
+  { key: 'date', label: '날짜' },
   { key: 'title', label: '제목' },
-  { key: 'linkUrl', label: '링크 URL' }
+  { key: 'description', label: '설명' }
 ]
 
 // 테이블 액션 설정
@@ -66,14 +67,15 @@ const tableActions = [
 
 // 폼 필드 설정
 const formFields = [
+  { key: 'date', label: '날짜', type: 'date', required: true },
   { key: 'title', label: '제목', type: 'text', required: true, placeholder: '제목을 입력하세요' },
-  { key: 'linkUrl', label: '링크 URL', type: 'text', required: true, placeholder: '링크 URL을 입력하세요' },
+  { key: 'description', label: '설명', type: 'textarea', placeholder: '설명을 입력하세요' },
   { key: 'displayOrder', label: '표시 순서', type: 'number', min: 0 }
 ]
 
 // 반응형 데이터
 const searchFilters = ref({ title: '' })
-const form = ref({ title: '', linkUrl: '', displayOrder: 0 })
+const form = ref({ date: '', title: '', description: '', displayOrder: 0 })
 const editingNews = ref(null)
 
 // 메서드
@@ -108,23 +110,30 @@ const handleTableAction = (action, item) => {
 const editNews = (news) => {
   editingNews.value = news
   form.value = {
-    title: news.title,
-    linkUrl: news.linkUrl,
+    date: news.date || '',
+    title: news.title || '',
+    description: news.description || '',
     displayOrder: news.displayOrder || 0
   }
 }
 
 const cancelEdit = () => {
   editingNews.value = null
-  form.value = { title: '', linkUrl: '', displayOrder: 0 }
+  form.value = { date: '', title: '', description: '', displayOrder: 0 }
 }
 
 const saveNews = async () => {
   try {
+    // 날짜가 없으면 오늘 날짜로 설정
+    const newsData = {
+      ...form.value,
+      date: form.value.date || new Date().toISOString().split('T')[0]
+    }
+    
     if (editingNews.value) {
-      await mediaStore.updateNews(editingNews.value.id, form.value)
+      await mediaStore.updateNews(editingNews.value.id, newsData)
     } else {
-      await mediaStore.addNews(form.value)
+      await mediaStore.addNews(newsData)
     }
     
     cancelEdit()

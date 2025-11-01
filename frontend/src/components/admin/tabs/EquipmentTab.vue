@@ -50,13 +50,13 @@ const equipmentList = computed(() => mediaStore.equipmentItems)
 
 // 검색 필터 설정
 const searchFilterConfig = [
-  { key: 'title', label: '제목', placeholder: '제목을 입력하세요' }
+  { key: 'name', label: '장비명', placeholder: '장비명을 입력하세요' }
 ]
 
 // 테이블 컬럼 설정
 const tableColumns = [
   { key: 'no', label: 'No' },
-  { key: 'title', label: '제목' }
+  { key: 'name', label: '장비명' }
 ]
 
 // 테이블 액션 설정
@@ -67,14 +67,14 @@ const tableActions = [
 
 // 폼 필드 설정
 const formFields = [
-  { key: 'title', label: '제목', type: 'text', required: true, placeholder: '제목을 입력하세요' },
+  { key: 'name', label: '장비명', type: 'text', required: true, placeholder: '장비명을 입력하세요' },
   { key: 'imageUrl', label: '이미지', type: 'file', required: true, accept: 'image/*' },
   { key: 'displayOrder', label: '표시 순서', type: 'number', min: 0 }
 ]
 
 // 반응형 데이터
-const searchFilters = ref({ title: '' })
-const form = ref({ title: '', imageUrl: '', displayOrder: 0 })
+const searchFilters = ref({ name: '' })
+const form = ref({ name: '', imageUrl: '', displayOrder: 0 })
 const editingEquipment = ref(null)
 const crudFormRef = ref(null)
 
@@ -92,7 +92,7 @@ const searchEquipment = async () => {
 }
 
 const resetFilters = () => {
-  searchFilters.value = { title: '' }
+  searchFilters.value = { name: '' }
   loadEquipment()
 }
 
@@ -110,7 +110,7 @@ const handleTableAction = (action, item) => {
 const editEquipment = (equipment) => {
   editingEquipment.value = equipment
   form.value = {
-    title: equipment.title,
+    name: equipment.name || '',
     imageUrl: equipment.imageUrl || '',
     displayOrder: equipment.displayOrder || 0
   }
@@ -118,7 +118,7 @@ const editEquipment = (equipment) => {
 
 const cancelEdit = () => {
   editingEquipment.value = null
-  form.value = { title: '', imageUrl: '', displayOrder: 0 }
+  form.value = { name: '', imageUrl: '', displayOrder: 0 }
 }
 
 const saveEquipment = async () => {
