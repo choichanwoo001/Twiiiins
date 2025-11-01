@@ -19,6 +19,7 @@
 
     <!-- 음악 등록/수정 폼 -->
     <CrudForm
+      ref="crudFormRef"
       title="음악"
       :fields="formFields"
       v-model="form"
@@ -31,6 +32,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
@@ -85,6 +87,7 @@ const formFields = [
 const searchFilters = ref(createMusicSearchFilters())
 const form = ref(createMusicForm())
 const editingMusic = ref(null)
+const crudFormRef = ref(null)
 
 // 메서드
 const loadMusic = async () => {
@@ -137,6 +140,29 @@ const cancelEdit = () => {
 
 const saveMusic = async () => {
   try {
+    // 커버 이미지가 선택된 경우 먼저 업로드
+    const fileObject = crudFormRef.value?.getFileObject('coverUrl')
+    
+    if (fileObject) {
+      // FormData로 파일 업로드
+      const formData = new FormData()
+      formData.append('file', fileObject)
+      
+      // 파일 업로드 API 호출
+      const uploadResponse = await axios.post('/api/upload/image', formData)
+      
+      // 업로드된 파일의 S3 URL 저장
+      if (uploadResponse.data && uploadResponse.data.url) {
+        form.value.coverUrl = uploadResponse.data.url
+      } else if (uploadResponse.data && uploadResponse.data.data && uploadResponse.data.data.url) {
+        form.value.coverUrl = uploadResponse.data.data.url
+      }
+      
+      // 파일 객체 제거
+      crudFormRef.value?.clearFileObject('coverUrl')
+    }
+    
+    // 음악 정보 저장
     if (editingMusic.value) {
       // 수정
       await mediaStore.updateMusic(editingMusic.value.id, form.value)
@@ -148,6 +174,7 @@ const saveMusic = async () => {
     cancelEdit()
   } catch (error) {
     console.error('음악 저장 실패:', error)
+    alert('음악 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 

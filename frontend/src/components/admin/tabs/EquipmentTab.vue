@@ -23,6 +23,7 @@
 
     <!-- 장비 등록/수정 폼 -->
     <CrudForm
+      ref="crudFormRef"
       title="장비"
       :fields="formFields"
       v-model="form"
@@ -35,6 +36,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
@@ -66,13 +68,15 @@ const tableActions = [
 // 폼 필드 설정
 const formFields = [
   { key: 'title', label: '제목', type: 'text', required: true, placeholder: '제목을 입력하세요' },
+  { key: 'imageUrl', label: '이미지', type: 'file', required: true, accept: 'image/*' },
   { key: 'displayOrder', label: '표시 순서', type: 'number', min: 0 }
 ]
 
 // 반응형 데이터
 const searchFilters = ref({ title: '' })
-const form = ref({ title: '', displayOrder: 0 })
+const form = ref({ title: '', imageUrl: '', displayOrder: 0 })
 const editingEquipment = ref(null)
+const crudFormRef = ref(null)
 
 // 메서드
 const loadEquipment = async () => {
@@ -107,17 +111,41 @@ const editEquipment = (equipment) => {
   editingEquipment.value = equipment
   form.value = {
     title: equipment.title,
+    imageUrl: equipment.imageUrl || '',
     displayOrder: equipment.displayOrder || 0
   }
 }
 
 const cancelEdit = () => {
   editingEquipment.value = null
-  form.value = { title: '', displayOrder: 0 }
+  form.value = { title: '', imageUrl: '', displayOrder: 0 }
 }
 
 const saveEquipment = async () => {
   try {
+    // 이미지가 선택된 경우 먼저 업로드
+    const fileObject = crudFormRef.value?.getFileObject('imageUrl')
+    
+    if (fileObject) {
+      // FormData로 파일 업로드
+      const formData = new FormData()
+      formData.append('file', fileObject)
+      
+      // 파일 업로드 API 호출
+      const uploadResponse = await axios.post('/api/upload/image', formData)
+      
+      // 업로드된 파일의 S3 URL 저장
+      if (uploadResponse.data && uploadResponse.data.url) {
+        form.value.imageUrl = uploadResponse.data.url
+      } else if (uploadResponse.data && uploadResponse.data.data && uploadResponse.data.data.url) {
+        form.value.imageUrl = uploadResponse.data.data.url
+      }
+      
+      // 파일 객체 제거
+      crudFormRef.value?.clearFileObject('imageUrl')
+    }
+    
+    // 장비 정보 저장
     if (editingEquipment.value) {
       await mediaStore.updateEquipment(editingEquipment.value.id, form.value)
     } else {
@@ -127,6 +155,7 @@ const saveEquipment = async () => {
     cancelEdit()
   } catch (error) {
     console.error('장비 저장 실패:', error)
+    alert('장비 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 
