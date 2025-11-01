@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class PhotoDto {
     private Long id;
     private String imageUrl;
+    private String thumbnailUrl;
     private String altText;
     private Long photoGroupId;
 }

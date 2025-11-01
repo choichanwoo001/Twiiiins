@@ -20,6 +20,9 @@ public class Photo {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
     
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+    
     @Column(name = "alt_text")
     private String altText;
     

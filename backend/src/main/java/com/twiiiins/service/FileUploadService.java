@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class FileUploadService {
     
     private final S3FileService s3FileService;
+    private final ImageResizeService imageResizeService;
     
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(
@@ -31,6 +34,18 @@ public class FileUploadService {
                 file.getOriginalFilename(), file.getSize());
         validateFile(file, ALLOWED_IMAGE_TYPES, "이미지 파일만 업로드 가능합니다.");
         return uploadFile(file, "image");
+    }
+    
+    /**
+     * 이미지와 썸네일을 함께 업로드
+     * @param file 원본 이미지 파일
+     * @return 원본 URL과 썸네일 URL을 포함한 응답 (thumbnailUrl 필드 추가 필요 시 별도 DTO 사용)
+     */
+    public FileUploadResponseDto uploadImageWithThumbnail(MultipartFile file) {
+        log.info("이미지 및 썸네일 업로드 시작: 원본 파일명 = {}, 크기 = {} bytes", 
+                file.getOriginalFilename(), file.getSize());
+        validateFile(file, ALLOWED_IMAGE_TYPES, "이미지 파일만 업로드 가능합니다.");
+        return uploadFileWithThumbnail(file, "image");
     }
     
     public FileUploadResponseDto uploadFile(MultipartFile file) {
@@ -76,7 +91,8 @@ public class FileUploadService {
             if (fileUrl != null && !fileUrl.isEmpty()) {
                 log.info("파일이 S3에 업로드되었습니다: {} -> {}", originalFilename, fileUrl);
                 return new FileUploadResponseDto(
-                    fileUrl, 
+                    fileUrl,
+                    null, // thumbnailUrl은 이미지만 지원
                     filename, 
                     originalFilename, 
                     file.getSize(), 
@@ -93,11 +109,144 @@ public class FileUploadService {
                 (fileUrl != null ? "ACL이 허용되지 않는 버킷입니다. 버킷 정책으로 공개 접근을 허용해야 합니다." : "S3 업로드 중 오류가 발생했습니다."));
     }
     
+    /**
+     * 이미지와 썸네일을 함께 업로드하는 메서드
+     */
+    private FileUploadResponseDto uploadFileWithThumbnail(MultipartFile file, String uploadType) {
+        String originalFilename = file.getOriginalFilename();
+        String extension = getFileExtension(originalFilename);
+        String filename = UUID.randomUUID().toString() + extension;
+        String fileUrl = null;
+        String thumbnailUrl = null;
+        
+        try {
+            // 원본 이미지를 S3에 업로드
+            fileUrl = s3FileService.uploadFile(file, uploadType);
+            
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                throw new FileUploadException("원본 이미지 업로드 실패");
+            }
+            
+            log.info("원본 이미지가 S3에 업로드되었습니다: {} -> {}", originalFilename, fileUrl);
+            
+            // 썸네일 생성 및 업로드 (150x150, 품질 0.85)
+            try {
+                byte[] thumbnailBytes = imageResizeService.generateThumbnail(file, 150, 150, 0.85f);
+                
+                // 썸네일을 MultipartFile로 변환
+                MultipartFile thumbnailFile = new ThumbnailMultipartFile(
+                    "thumb_" + filename, 
+                    "thumb_" + originalFilename,
+                    file.getContentType(),
+                    thumbnailBytes
+                );
+                
+                // 썸네일을 S3에 업로드 (thumbnails 폴더)
+                thumbnailUrl = s3FileService.uploadFile(thumbnailFile, uploadType + "/thumbnails");
+                
+                if (thumbnailUrl == null || thumbnailUrl.isEmpty()) {
+                    log.warn("썸네일 업로드 실패 (원본은 업로드됨): {}", fileUrl);
+                } else {
+                    log.info("썸네일이 S3에 업로드되었습니다: {}", thumbnailUrl);
+                }
+            } catch (Exception thumbnailError) {
+                log.warn("썸네일 생성/업로드 실패 (원본은 업로드됨): {}", thumbnailError.getMessage());
+                // 썸네일 생성 실패해도 원본은 업로드되므로 계속 진행
+            }
+            
+            return new FileUploadResponseDto(
+                fileUrl,
+                thumbnailUrl,
+                filename,
+                originalFilename,
+                file.getSize(),
+                file.getContentType()
+            );
+            
+        } catch (FileUploadException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("이미지 업로드 중 오류 발생: {}", e.getMessage(), e);
+            throw new FileUploadException("이미지 업로드에 실패했습니다: " + e.getMessage());
+        }
+    }
+    
     private String getFileExtension(String filename) {
         if (filename == null || filename.isEmpty()) {
             return "";
         }
         int lastDotIndex = filename.lastIndexOf(".");
         return lastDotIndex > 0 ? filename.substring(lastDotIndex) : "";
+    }
+    
+    /**
+     * 썸네일을 MultipartFile로 변환하기 위한 래퍼 클래스
+     */
+    private static class ThumbnailMultipartFile implements MultipartFile {
+        private final String name;
+        private final String originalFilename;
+        private final String contentType;
+        private final byte[] content;
+        
+        public ThumbnailMultipartFile(String name, String originalFilename, String contentType, byte[] content) {
+            this.name = name;
+            this.originalFilename = originalFilename;
+            this.contentType = contentType;
+            this.content = content;
+        }
+        
+        @Override
+        public String getName() { 
+            return name != null ? name : ""; 
+        }
+        
+        @Override
+        public String getOriginalFilename() { 
+            return originalFilename != null ? originalFilename : ""; 
+        }
+        
+        @Override
+        public String getContentType() { 
+            return contentType; 
+        }
+        
+        @Override
+        public boolean isEmpty() { 
+            return content == null || content.length == 0; 
+        }
+        
+        @Override
+        public long getSize() { 
+            return content != null ? content.length : 0; 
+        }
+        
+        @Override
+        public byte[] getBytes() throws IOException { 
+            if (content == null) {
+                throw new IOException("Content is null");
+            }
+            return content; 
+        }
+        
+        @Override
+        public InputStream getInputStream() throws IOException {
+            if (content == null) {
+                throw new IOException("Content is null");
+            }
+            return new java.io.ByteArrayInputStream(content);
+        }
+        
+        @Override
+        public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
+            if (content == null) {
+                throw new IOException("Content is null");
+            }
+            if (dest == null) {
+                throw new IllegalArgumentException("Destination file cannot be null");
+            }
+            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(dest)) {
+                fos.write(content);
+            }
+        }
     }
 }

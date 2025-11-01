@@ -132,13 +132,15 @@ public class PhotoController {
         // 파일 업로드가 있는 경우
         if (files != null && !files.isEmpty()) {
             for (MultipartFile file : files) {
-                // 파일을 S3에 업로드
-                var uploadResponse = fileUploadService.uploadImage(file);
+                // 파일과 썸네일을 S3에 업로드
+                var uploadResponse = fileUploadService.uploadImageWithThumbnail(file);
                 String imageUrl = uploadResponse.getUrl();
+                String thumbnailUrl = uploadResponse.getThumbnailUrl();
                 
                 // PhotoDto 생성
                 PhotoDto newPhotoDto = new PhotoDto();
                 newPhotoDto.setImageUrl(imageUrl);
+                newPhotoDto.setThumbnailUrl(thumbnailUrl);
                 if (altText != null) {
                     newPhotoDto.setAltText(altText);
                 }

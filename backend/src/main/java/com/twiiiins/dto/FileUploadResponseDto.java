@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FileUploadResponseDto {
     private String url;
+    private String thumbnailUrl;
     private String filename;
     private String originalFilename;
     private Long fileSize;

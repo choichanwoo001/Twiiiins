@@ -86,6 +86,7 @@ public class PhotoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Photo not found with id: " + id));
         
         photo.setImageUrl(photoDto.getImageUrl());
+        photo.setThumbnailUrl(photoDto.getThumbnailUrl());
         photo.setAltText(photoDto.getAltText());
         
         Photo savedPhoto = photoRepository.save(photo);
@@ -121,6 +122,7 @@ public class PhotoService {
         return new PhotoDto(
             photo.getId(),
             photo.getImageUrl(),
+            photo.getThumbnailUrl(),
             photo.getAltText(),
             photo.getPhotoGroup() != null ? photo.getPhotoGroup().getId() : null
         );
@@ -129,6 +131,7 @@ public class PhotoService {
     private Photo convertToEntity(PhotoDto photoDto) {
         Photo photo = new Photo();
         photo.setImageUrl(photoDto.getImageUrl());
+        photo.setThumbnailUrl(photoDto.getThumbnailUrl());
         photo.setAltText(photoDto.getAltText());
         return photo;
     }

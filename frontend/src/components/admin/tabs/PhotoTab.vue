@@ -31,14 +31,16 @@
         <!-- 사진 목록 -->
          <div class="photos-grid">
            <div v-for="photo in selectedGroup.photos" :key="photo.id" class="photo-item">
-             <LazyImage
-               :src="getImageUrl(photo.imageUrl)"
-               :alt="photo.altText || 'Photo'"
-               width="150px"
-               height="150px"
-               image-class="photo-image"
-               placeholder-class="photo-placeholder"
-             />
+             <div class="photo-image-wrapper" @click="openImageModal(photo)">
+               <LazyImage
+                 :src="getImageUrl(photo)"
+                 :alt="photo.altText || 'Photo'"
+                 width="150px"
+                 height="150px"
+                 image-class="photo-image"
+                 placeholder-class="photo-placeholder"
+               />
+             </div>
              <div class="photo-actions">
                <button class="btn-delete-small" @click="deletePhoto(photo.id)">삭제</button>
              </div>
@@ -51,6 +53,26 @@
           <input type="file" ref="fileInput" multiple @change="handleFileSelect" accept="image/*" />
           <button class="btn-upload" @click="uploadPhotos">업로드</button>
         </div>
+      </div>
+    </Modal>
+
+    <!-- 원본 이미지 보기 모달 -->
+    <Modal
+      :is-visible="!!selectedPhoto"
+      :title="selectedPhoto ? '원본 이미지' : ''"
+      :show-footer="false"
+      @close="closeImageModal"
+    >
+      <div v-if="selectedPhoto" class="image-viewer">
+        <img 
+          :src="getOriginalImageUrl(selectedPhoto)" 
+          :alt="selectedPhoto.altText || 'Photo'"
+          class="full-size-image"
+          @load="onImageLoad"
+          @error="onImageError"
+        />
+        <div v-if="imageLoading" class="image-loading">이미지 로딩 중...</div>
+        <div v-if="imageError" class="image-error">이미지를 불러올 수 없습니다.</div>
       </div>
     </Modal>
 
@@ -67,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { photoService } from '../../../services'
 import { filterData } from '../../../utils'
@@ -126,6 +148,9 @@ const editingGroup = ref(null)
 const selectedGroup = ref(null)
 const fileInput = ref(null)
 const selectedFiles = ref([])
+const selectedPhoto = ref(null)
+const imageLoading = ref(false)
+const imageError = ref(false)
 
 // 메서드
 const loadPhotoGroups = async () => {
@@ -256,16 +281,61 @@ const deletePhoto = async (photoId) => {
   }
 }
 
-const getImageUrl = (fileUrl) => {
-  if (!fileUrl) {
+const getImageUrl = (photo) => {
+  // 썸네일 URL이 있으면 우선 사용, 없으면 원본 이미지 URL 사용
+  const imageUrl = photo.thumbnailUrl || photo.imageUrl
+  if (!imageUrl) {
     return getPlaceholderImage(150, 150)
   }
   
-  return getOptimizedImageUrl(fileUrl, { width: 150, height: 150 })
+  return getOptimizedImageUrl(imageUrl, { width: 150, height: 150 })
+}
+
+const getOriginalImageUrl = (photo) => {
+  // 원본 이미지 URL 사용 (썸네일이 아닌)
+  if (!photo || !photo.imageUrl) {
+    return getPlaceholderImage(800, 600)
+  }
+  
+  return getOptimizedImageUrl(photo.imageUrl)
+}
+
+const openImageModal = (photo) => {
+  selectedPhoto.value = photo
+  imageLoading.value = true
+  imageError.value = false
+}
+
+const closeImageModal = () => {
+  selectedPhoto.value = null
+  imageLoading.value = false
+  imageError.value = false
+}
+
+const onImageLoad = () => {
+  imageLoading.value = false
+  imageError.value = false
+}
+
+const onImageError = () => {
+  imageLoading.value = false
+  imageError.value = true
+}
+
+// ESC 키로 모달 닫기
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape' && selectedPhoto.value) {
+    closeImageModal()
+  }
 }
 
 onMounted(() => {
   loadPhotoGroups()
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
@@ -281,6 +351,8 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
+  /* 이미지 로딩 시 레이아웃 시프트 방지 */
+  contain: layout;
 }
 
 .photo-item {
@@ -288,12 +360,31 @@ onMounted(() => {
   border: 1px solid #ddd;
   border-radius: 0.25rem;
   overflow: hidden;
+  /* 이미지 로딩 최적화 */
+  contain: layout style;
+  will-change: contents;
+}
+
+.photo-image-wrapper {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.photo-image-wrapper:hover {
+  opacity: 0.8;
 }
 
 .photo-image {
   width: 100%;
   height: 150px;
   object-fit: cover;
+  /* 이미지 로딩 성능 최적화 */
+  image-rendering: auto;
+  /* GPU 가속으로 스크롤 성능 개선 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* 이미지 로딩 최적화 */
+  loading: lazy;
 }
 
 .photo-placeholder {
@@ -318,5 +409,41 @@ onMounted(() => {
 
 .photo-upload h4 {
   margin-bottom: 1rem;
+}
+
+/* 원본 이미지 뷰어 */
+.image-viewer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background: #f5f5f5;
+}
+
+.full-size-image {
+  max-width: 100%;
+  max-height: 80vh;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.image-loading,
+.image-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.image-error {
+  background: rgba(220, 53, 69, 0.9);
 }
 </style>

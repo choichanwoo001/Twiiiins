@@ -1,5 +1,5 @@
 <template>
-  <div class="lazy-image-container" :style="{ width: width, height: height }">
+  <div ref="containerRef" class="lazy-image-container" :style="{ width: width, height: height }">
     <img
       v-if="isLoaded"
       :src="src"
@@ -124,13 +124,23 @@ const setupIntersectionObserver = () => {
     })
   }, options)
   
-  observer.value.observe(containerRef.value)
+  // 현재 요소를 관찰 대상으로 설정
+  const element = containerRef.value
+  if (element) {
+    observer.value.observe(element)
+  }
 }
 
 // Lifecycle
 onMounted(() => {
-  containerRef.value = document.querySelector('.lazy-image-container')
-  setupIntersectionObserver()
+  nextTick(() => {
+    if (containerRef.value) {
+      setupIntersectionObserver()
+    } else {
+      // 요소를 찾을 수 없으면 즉시 로드 시도
+      loadImage()
+    }
+  })
 })
 
 onUnmounted(() => {
