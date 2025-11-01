@@ -69,6 +69,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useMediaStore } from '../../../stores'
+import { photoService } from '../../../services'
 import LazyImage from '../../common/LazyImage.vue'
 import { 
   createPhotoGroupSearchFilters, 
@@ -123,7 +124,7 @@ const selectedFiles = ref([])
 // 메서드
 const loadPhotoGroups = async () => {
   try {
-    photoGroups.value = await photoService.getAllPhotoGroups()
+    await mediaStore.loadPhotoGroups()
   } catch (error) {
     console.error('사진 그룹 로드 실패:', error)
   }
@@ -131,7 +132,8 @@ const loadPhotoGroups = async () => {
 
 const searchPhotoGroups = async () => {
   try {
-    photoGroups.value = await photoService.searchPhotoGroups(searchFilters.value)
+    await mediaStore.loadPhotoGroups()
+    // 검색은 클라이언트 사이드에서 처리 (computed로 필터링 가능)
   } catch (error) {
     console.error('사진 그룹 검색 실패:', error)
   }
@@ -180,16 +182,17 @@ const saveGroup = async () => {
     cancelEdit()
   } catch (error) {
     console.error('그룹 저장 실패:', error)
+    alert('그룹 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 
 const deleteGroup = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
-      await photoService.deletePhotoGroup(id)
-      await loadPhotoGroups()
+      await mediaStore.deletePhotoGroup(id)
     } catch (error) {
       console.error('그룹 삭제 실패:', error)
+      alert('그룹 삭제에 실패했습니다: ' + (error.response?.data?.message || error.message))
     }
   }
 }
@@ -212,21 +215,27 @@ const handleFileSelect = (event) => {
 }
 
 const uploadPhotos = async () => {
-  if (!selectedFiles.value.length || !selectedGroup.value) return
+  if (!selectedFiles.value.length || !selectedGroup.value) {
+    alert('파일을 선택해주세요.')
+    return
+  }
 
   try {
     await photoService.uploadPhotos(selectedGroup.value.id, selectedFiles.value)
-    await loadPhotoGroups()
+    await mediaStore.loadPhotoGroups()
     // 그룹 정보 갱신
     if (selectedGroup.value) {
-      selectedGroup.value = await photoService.getPhotoGroup(selectedGroup.value.id)
+      const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
+      selectedGroup.value = updatedGroup
     }
     selectedFiles.value = []
     if (fileInput.value) {
       fileInput.value.value = ''
     }
+    alert('사진이 성공적으로 업로드되었습니다.')
   } catch (error) {
     console.error('사진 업로드 실패:', error)
+    alert('사진 업로드에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 
@@ -234,13 +243,15 @@ const deletePhoto = async (photoId) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
       await photoService.deletePhoto(photoId)
-      await loadPhotoGroups()
+      await mediaStore.loadPhotoGroups()
       // 그룹 정보 갱신
       if (selectedGroup.value) {
-        selectedGroup.value = await photoService.getPhotoGroup(selectedGroup.value.id)
+        const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
+        selectedGroup.value = updatedGroup
       }
     } catch (error) {
       console.error('사진 삭제 실패:', error)
+      alert('사진 삭제에 실패했습니다: ' + (error.response?.data?.message || error.message))
     }
   }
 }

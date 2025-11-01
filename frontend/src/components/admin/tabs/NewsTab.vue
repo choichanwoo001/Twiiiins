@@ -130,6 +130,7 @@ const saveNews = async () => {
     cancelEdit()
   } catch (error) {
     console.error('뉴스 저장 실패:', error)
+    alert('뉴스 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
   }
 }
 
@@ -139,6 +140,7 @@ const deleteNews = async (id) => {
       await mediaStore.deleteNews(id)
     } catch (error) {
       console.error('뉴스 삭제 실패:', error)
+      alert('뉴스 삭제에 실패했습니다: ' + (error.response?.data?.message || error.message))
     }
   }
 }

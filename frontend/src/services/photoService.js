@@ -45,11 +45,8 @@ export const photoService = {
       formData.append('files', file)
     })
 
-    const response = await axios.post(`/api/media/photos/groups/${groupId}/photos`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    // axios 인터셉터에서 FormData일 때 Content-Type을 자동으로 제거하므로 헤더 설정 불필요
+    const response = await axios.post(`/api/media/photos/groups/${groupId}/photos`, formData)
     return response.data.data || response.data
   },
 
