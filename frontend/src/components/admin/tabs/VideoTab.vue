@@ -79,32 +79,55 @@ const editingVideo = ref(null)
 
 // YouTube URL을 Embed URL로 변환하는 함수
 const convertToEmbedUrl = (url) => {
-  if (!url) return ''
+  if (!url || typeof url !== 'string') return ''
   
-  // 이미 embed URL인 경우 그대로 반환
-  if (url.includes('youtube.com/embed/')) {
-    return url.split('?')[0] // 쿼리 파라미터 제거
+  const trimmedUrl = url.trim()
+  if (trimmedUrl === '') return ''
+  
+  // 이미 embed URL인 경우 쿼리 파라미터 제거 후 반환
+  if (trimmedUrl.includes('youtube.com/embed/')) {
+    const embedMatch = trimmedUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/)
+    if (embedMatch && embedMatch[1]) {
+      return `https://www.youtube.com/embed/${embedMatch[1]}`
+    }
   }
   
   // YouTube URL에서 video ID 추출
-  // 형식: https://www.youtube.com/watch?v=VIDEO_ID
-  // 또는: https://youtu.be/VIDEO_ID
+  // 지원 형식:
+  // - https://www.youtube.com/watch?v=VIDEO_ID
+  // - https://youtu.be/VIDEO_ID
+  // - https://youtube.com/watch?v=VIDEO_ID&feature=...
+  // - https://youtu.be/VIDEO_ID?si=...
+  
   let videoId = null
   
-  if (url.includes('youtube.com/watch?v=')) {
-    videoId = url.split('watch?v=')[1]?.split('&')[0]
-  } else if (url.includes('youtu.be/')) {
-    videoId = url.split('youtu.be/')[1]?.split('?')[0]
-  } else if (url.includes('youtube.com/embed/')) {
-    videoId = url.split('embed/')[1]?.split('?')[0]
+  // youtube.com/watch?v= 형식
+  const watchMatch = trimmedUrl.match(/[?&]v=([a-zA-Z0-9_-]+)/)
+  if (watchMatch && watchMatch[1]) {
+    videoId = watchMatch[1]
+  }
+  // youtu.be/ 형식
+  else if (trimmedUrl.includes('youtu.be/')) {
+    const shortMatch = trimmedUrl.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
+    if (shortMatch && shortMatch[1]) {
+      videoId = shortMatch[1]
+    }
+  }
+  // youtube.com/embed/ 형식 (다시 한번 확인)
+  else if (trimmedUrl.includes('youtube.com/embed/')) {
+    const embedMatch = trimmedUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/)
+    if (embedMatch && embedMatch[1]) {
+      videoId = embedMatch[1]
+    }
   }
   
   if (videoId) {
     return `https://www.youtube.com/embed/${videoId}`
   }
   
-  // 변환 실패 시 원본 반환
-  return url
+  // 변환 실패 시 빈 문자열 반환 (에러 방지)
+  console.error('YouTube URL 변환 실패:', trimmedUrl)
+  return ''
 }
 
 // 메서드
@@ -153,6 +176,12 @@ const saveVideo = async () => {
   try {
     // YouTube URL을 Embed URL로 변환
     const embedUrl = convertToEmbedUrl(form.value.youtubeUrl)
+    
+    // embedUrl이 비어있으면 에러
+    if (!embedUrl) {
+      alert('유효한 YouTube URL을 입력해주세요.\n\n지원 형식:\n- https://www.youtube.com/watch?v=VIDEO_ID\n- https://youtu.be/VIDEO_ID\n- https://www.youtube.com/embed/VIDEO_ID')
+      return
+    }
     
     // embedUrl 필드로 변환하여 저장
     const videoData = {

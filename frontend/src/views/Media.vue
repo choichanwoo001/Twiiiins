@@ -201,14 +201,33 @@ const loadMusic = async () => {
 
 // embedUrl 유효성 검사
 const isValidEmbedUrl = (url) => {
-  if (!url || typeof url !== 'string') return false
+  if (!url || typeof url !== 'string') {
+    return false
+  }
+  
   const trimmedUrl = url.trim()
-  if (trimmedUrl === '') return false
+  if (trimmedUrl === '') {
+    return false
+  }
   
   // YouTube embed URL 패턴 확인
   // 올바른 형식: https://www.youtube.com/embed/VIDEO_ID
-  const youtubeEmbedPattern = /^https?:\/\/(www\.)?youtube\.com\/embed\/[a-zA-Z0-9_-]+/
-  return youtubeEmbedPattern.test(trimmedUrl)
+  // YouTube 비디오 ID는 11자리의 영숫자와 하이픈, 언더스코어만 포함 (실제로는 더 유연하게 처리)
+  // 쿼리 파라미터나 해시가 있어도 허용 (split으로 처리)
+  const cleanUrl = trimmedUrl.split('?')[0].split('#')[0]
+  const youtubeEmbedPattern = /^https?:\/\/(www\.)?youtube\.com\/embed\/[\w-]+/
+  const isValid = youtubeEmbedPattern.test(cleanUrl)
+  
+  // 디버깅용 (개발 환경에서만)
+  if (import.meta.env.DEV && !isValid) {
+    console.log('embedUrl 검사 실패:', {
+      originalUrl: trimmedUrl,
+      cleanUrl: cleanUrl,
+      pattern: youtubeEmbedPattern.toString()
+    })
+  }
+  
+  return isValid
 }
 
 // 비디오 데이터 로드
@@ -220,13 +239,29 @@ const loadVideos = async () => {
     if (Array.isArray(videoData)) {
       videos.value = videoData
         .filter(video => {
-          if (!video || !video.id || !video.title) return false
-          // embedUrl이 있어도 유효한지 확인
-          if (!video.embedUrl || !isValidEmbedUrl(video.embedUrl)) {
-            console.warn('유효하지 않은 embedUrl:', video.embedUrl, 'video id:', video.id)
+          if (!video || !video.id || !video.title) {
+            if (import.meta.env.DEV) {
+              console.warn('비디오 필수 필드 누락:', video)
+            }
             return false
           }
-          return true
+          
+          if (!video.embedUrl) {
+            if (import.meta.env.DEV) {
+              console.warn('비디오 embedUrl 없음:', video.id, video.title)
+            }
+            return false
+          }
+          
+          const isValid = isValidEmbedUrl(video.embedUrl)
+          if (!isValid && import.meta.env.DEV) {
+            console.warn('유효하지 않은 embedUrl:', {
+              id: video.id,
+              title: video.title,
+              embedUrl: video.embedUrl
+            })
+          }
+          return isValid
         })
         .map(video => ({
           id: video.id,
