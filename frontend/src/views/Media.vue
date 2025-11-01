@@ -62,9 +62,9 @@
 
       <!-- VIDEOS 섹션 -->
       <div v-if="activeSection === 'videos'" class="content-section">
-        <div class="video-list">
+        <div class="video-list" v-if="videos.length > 0">
           <div class="video-item" v-for="video in videos" :key="video.id">
-            <div class="video-embed">
+            <div class="video-embed" v-if="video.embedUrl">
               <iframe
                 :src="video.embedUrl"
                 title="YouTube video player"
@@ -79,6 +79,9 @@
               <div class="video-channel">TWIIIINS</div>
             </div>
           </div>
+        </div>
+        <div v-else class="empty-state">
+          <p>등록된 비디오가 없습니다.</p>
         </div>
       </div>
 
@@ -190,11 +193,19 @@ const loadMusic = async () => {
 const loadVideos = async () => {
   try {
     const response = await axios.get('/api/media/videos')
-    videos.value = response.data.data.map(video => ({
-      id: video.id,
-      title: video.title,
-      embedUrl: video.embedUrl
-    }))
+    const videoData = response.data?.data || []
+    
+    if (Array.isArray(videoData)) {
+      videos.value = videoData
+        .filter(video => video && video.id && video.title && video.embedUrl)
+        .map(video => ({
+          id: video.id,
+          title: video.title,
+          embedUrl: video.embedUrl
+        }))
+    } else {
+      videos.value = []
+    }
   } catch (error) {
     console.error('비디오 데이터 로드 실패:', error)
     videos.value = []
@@ -448,6 +459,16 @@ const formatNewsDate = (dateString) => {
 .video-channel {
   font-size: 1rem;
   color: #666;
+}
+
+/* 비디오 없음 상태 */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20rem;
+  color: #999;
+  font-size: 1.2rem;
 }
 
 /* PHOTOS 섹션 - 폴더별 그룹화 */

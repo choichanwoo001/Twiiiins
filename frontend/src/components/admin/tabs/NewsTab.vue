@@ -36,6 +36,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useMediaStore } from '../../../stores'
+import { filterData } from '../../../utils'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
@@ -43,8 +44,14 @@ import CrudForm from '../common/CrudForm.vue'
 // 스토어 사용
 const mediaStore = useMediaStore()
 
-// Computed properties
-const newsList = computed(() => mediaStore.newsItems)
+// 검색 필터
+const searchFilters = ref({ title: '' })
+
+// Computed properties - 검색 필터 적용
+const newsList = computed(() => {
+  const allNews = mediaStore.newsItems
+  return filterData(allNews, searchFilters.value)
+})
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -74,7 +81,6 @@ const formFields = [
 ]
 
 // 반응형 데이터
-const searchFilters = ref({ title: '' })
 const form = ref({ date: '', title: '', description: '', displayOrder: 0 })
 const editingNews = ref(null)
 
@@ -88,12 +94,11 @@ const loadNews = async () => {
 }
 
 const searchNews = async () => {
-  loadNews()
+  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
 }
 
 const resetFilters = () => {
   searchFilters.value = { title: '' }
-  loadNews()
 }
 
 const handleTableAction = (action, item) => {

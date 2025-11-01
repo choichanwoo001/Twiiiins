@@ -38,6 +38,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
+import { filterData } from '../../../utils'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
@@ -45,8 +46,14 @@ import CrudForm from '../common/CrudForm.vue'
 // 스토어 사용
 const mediaStore = useMediaStore()
 
-// Computed properties
-const equipmentList = computed(() => mediaStore.equipmentItems)
+// 검색 필터
+const searchFilters = ref({ name: '' })
+
+// Computed properties - 검색 필터 적용
+const equipmentList = computed(() => {
+  const allEquipment = mediaStore.equipmentItems
+  return filterData(allEquipment, searchFilters.value)
+})
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -73,7 +80,6 @@ const formFields = [
 ]
 
 // 반응형 데이터
-const searchFilters = ref({ name: '' })
 const form = ref({ name: '', imageUrl: '', displayOrder: 0 })
 const editingEquipment = ref(null)
 const crudFormRef = ref(null)
@@ -88,12 +94,11 @@ const loadEquipment = async () => {
 }
 
 const searchEquipment = async () => {
-  loadEquipment()
+  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
 }
 
 const resetFilters = () => {
   searchFilters.value = { name: '' }
-  loadEquipment()
 }
 
 const handleTableAction = (action, item) => {

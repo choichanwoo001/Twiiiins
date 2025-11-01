@@ -34,6 +34,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
+import { filterData } from '../../../utils'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
@@ -47,8 +48,14 @@ import {
 // 스토어 사용
 const mediaStore = useMediaStore()
 
-// Computed properties
-const musicList = computed(() => mediaStore.musicItems)
+// 검색 필터
+const searchFilters = ref(createMusicSearchFilters())
+
+// Computed properties - 검색 필터 적용
+const musicList = computed(() => {
+  const allMusic = mediaStore.musicItems
+  return filterData(allMusic, searchFilters.value)
+})
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -84,7 +91,6 @@ const formFields = [
 ]
 
 // 반응형 데이터
-const searchFilters = ref(createMusicSearchFilters())
 const form = ref(createMusicForm())
 const editingMusic = ref(null)
 const crudFormRef = ref(null)
@@ -99,16 +105,11 @@ const loadMusic = async () => {
 }
 
 const searchMusic = async () => {
-  try {
-    await mediaStore.loadMusic() // 스토어에서 검색 기능이 있다면 사용
-  } catch (error) {
-    console.error('음악 검색 실패:', error)
-  }
+  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
 }
 
 const resetFilters = () => {
   resetMusicSearchFilters(searchFilters.value)
-  loadMusic()
 }
 
 const handleTableAction = (action, item) => {

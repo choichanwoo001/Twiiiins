@@ -70,6 +70,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { photoService } from '../../../services'
+import { filterData } from '../../../utils'
 import LazyImage from '../../common/LazyImage.vue'
 import { 
   createPhotoGroupSearchFilters, 
@@ -86,8 +87,14 @@ import Modal from '../common/Modal.vue'
 // 스토어 사용
 const mediaStore = useMediaStore()
 
-// Computed properties
-const photoGroups = computed(() => mediaStore.photoGroups)
+// 검색 필터
+const searchFilters = ref(createPhotoGroupSearchFilters())
+
+// Computed properties - 검색 필터 적용
+const photoGroups = computed(() => {
+  const allGroups = mediaStore.photoGroups
+  return filterData(allGroups, searchFilters.value)
+})
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -114,7 +121,6 @@ const formFields = [
 ]
 
 // 반응형 데이터
-const searchFilters = ref(createPhotoGroupSearchFilters())
 const form = ref(createPhotoGroupForm())
 const editingGroup = ref(null)
 const selectedGroup = ref(null)
@@ -131,17 +137,11 @@ const loadPhotoGroups = async () => {
 }
 
 const searchPhotoGroups = async () => {
-  try {
-    await mediaStore.loadPhotoGroups()
-    // 검색은 클라이언트 사이드에서 처리 (computed로 필터링 가능)
-  } catch (error) {
-    console.error('사진 그룹 검색 실패:', error)
-  }
+  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
 }
 
 const resetFilters = () => {
   resetPhotoGroupSearchFilters(searchFilters.value)
-  loadPhotoGroups()
 }
 
 const handleTableAction = (action, item) => {
