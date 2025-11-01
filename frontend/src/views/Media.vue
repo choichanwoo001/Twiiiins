@@ -64,15 +64,19 @@
       <div v-if="activeSection === 'videos'" class="content-section">
         <div class="video-list" v-if="videos.length > 0">
           <div class="video-item" v-for="video in videos" :key="video.id">
-            <div class="video-embed" v-if="video.embedUrl">
+            <div class="video-embed" v-if="isValidEmbedUrl(video.embedUrl)">
               <iframe
                 :src="video.embedUrl"
                 title="YouTube video player"
-                frameborder="0"
+                style="border: none;"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen
+                loading="lazy"
               ></iframe>
+            </div>
+            <div v-else class="video-error">
+              <p>비디오 URL이 유효하지 않습니다.</p>
             </div>
             <div class="video-info">
               <div class="video-title">{{ video.title }}</div>
@@ -105,15 +109,21 @@
       <div v-if="activeSection === 'news'" class="content-section">
         <div class="news-list">
           <div class="news-item" v-for="news in newsList" :key="news.id">
-            <div class="news-date">{{ news.date }}</div>
-            <div class="news-content">
-              <div class="news-title">{{ news.title }}</div>
-              <div class="news-description">{{ news.description }}</div>
+            <div class="news-preview" @click="toggleNews(news.id)">
+              <div class="news-date">{{ news.date }}</div>
+              <div class="news-content">
+                <div class="news-title">{{ news.title }}</div>
+              </div>
+              <div class="news-expand" :class="{ 'expanded': news.expanded }">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
             </div>
-            <div class="news-expand">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+            
+            <!-- 상세 정보 -->
+            <div class="news-details" v-if="news.expanded">
+              <div class="news-description">{{ news.description }}</div>
             </div>
           </div>
         </div>
@@ -189,6 +199,18 @@ const loadMusic = async () => {
   }
 }
 
+// embedUrl 유효성 검사
+const isValidEmbedUrl = (url) => {
+  if (!url || typeof url !== 'string') return false
+  const trimmedUrl = url.trim()
+  if (trimmedUrl === '') return false
+  
+  // YouTube embed URL 패턴 확인
+  // 올바른 형식: https://www.youtube.com/embed/VIDEO_ID
+  const youtubeEmbedPattern = /^https?:\/\/(www\.)?youtube\.com\/embed\/[a-zA-Z0-9_-]+/
+  return youtubeEmbedPattern.test(trimmedUrl)
+}
+
 // 비디오 데이터 로드
 const loadVideos = async () => {
   try {
@@ -197,11 +219,19 @@ const loadVideos = async () => {
     
     if (Array.isArray(videoData)) {
       videos.value = videoData
-        .filter(video => video && video.id && video.title && video.embedUrl)
+        .filter(video => {
+          if (!video || !video.id || !video.title) return false
+          // embedUrl이 있어도 유효한지 확인
+          if (!video.embedUrl || !isValidEmbedUrl(video.embedUrl)) {
+            console.warn('유효하지 않은 embedUrl:', video.embedUrl, 'video id:', video.id)
+            return false
+          }
+          return true
+        })
         .map(video => ({
           id: video.id,
           title: video.title,
-          embedUrl: video.embedUrl
+          embedUrl: video.embedUrl.trim()
         }))
     } else {
       videos.value = []
@@ -268,11 +298,20 @@ const loadNews = async () => {
       id: news.id,
       date: formatNewsDate(news.date),
       title: news.title,
-      description: news.description
+      description: news.description,
+      expanded: false
     }))
   } catch (error) {
     console.error('뉴스 데이터 로드 실패:', error)
     newsList.value = []
+  }
+}
+
+// 뉴스 토글 함수
+const toggleNews = (newsId) => {
+  const news = newsList.value.find(n => n.id === newsId)
+  if (news) {
+    news.expanded = !news.expanded
   }
 }
 
@@ -443,6 +482,15 @@ const formatNewsDate = (dateString) => {
   inset: 0;
   width: 100%;
   height: 100%;
+  border: none;
+}
+
+.video-error {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+  background: #f5f5f5;
+  border-radius: 0.5rem;
 }
 
 .video-info {
@@ -524,14 +572,24 @@ const formatNewsDate = (dateString) => {
 }
 
 .news-item {
-  display: flex;
-  align-items: center;
-  padding: 1.5rem 0;
   border-bottom: 0.0625rem solid #e0e0e0;
+  transition: background-color 0.3s ease;
 }
 
 .news-item:last-child {
   border-bottom: none;
+}
+
+.news-preview {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.news-preview:hover {
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 .news-date {
@@ -549,20 +607,35 @@ const formatNewsDate = (dateString) => {
 .news-title {
   font-size: 1.1rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
+}
+
+.news-expand {
+  color: #999;
+  transition: all 0.3s ease;
+  min-width: 1.875rem;
+  text-align: right;
+}
+
+.news-expand.expanded {
+  transform: rotate(180deg);
+}
+
+.news-expand:hover {
+  color: #666;
+}
+
+/* 상세 정보 스타일 */
+.news-details {
+  padding: 1.5rem 0 2rem 0;
+  padding-left: calc(5rem + 2rem); /* news-date width + margin-left */
+  background-color: #f8f8f8;
+  border-top: 0.0625rem solid #e0e0e0;
 }
 
 .news-description {
   font-size: 0.9rem;
   color: #666;
   line-height: 1.5;
-}
-
-.news-expand {
-  color: #999;
-  cursor: pointer;
-  min-width: 1.875rem;
-  text-align: right;
 }
 
 /* EQUIPMENT 섹션 */

@@ -14,14 +14,15 @@
         >
           <label>{{ subField.label }}<span v-if="subField.required"> *</span></label>
           
-          <!-- 텍스트 입력 -->
+          <!-- 텍스트 입력 (text, number, date 등) -->
           <input 
-            v-if="subField.type === 'text' || subField.type === 'number'"
+            v-if="isInputField(subField.type)"
             v-model="formValues[subField.key]"
             :type="subField.type"
             :placeholder="subField.placeholder"
             :required="subField.required"
             :min="subField.min"
+            :max="subField.max"
           />
           
           <!-- 파일 업로드 -->
@@ -94,6 +95,12 @@ const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
 const formValues = ref({ ...props.modelValue })
 const fileInputs = ref({})
 const fileObjects = ref({}) // 실제 파일 객체 저장
+
+// 입력 필드 타입인지 확인
+const isInputField = (type) => {
+  const inputTypes = ['text', 'number', 'date', 'datetime-local', 'time', 'email', 'url', 'password', 'tel', 'search']
+  return inputTypes.includes(type)
+}
 
 // 부모의 modelValue가 변경되면 로컬 값도 업데이트 (실제 변경사항이 있을 때만)
 watch(() => props.modelValue, (newValue) => {
