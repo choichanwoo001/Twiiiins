@@ -54,11 +54,12 @@ apiClient.interceptors.response.use(
         // 인증 실패 - 토큰 제거 및 로그인 페이지로 리다이렉트
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-        appStore.showError('로그인이 필요합니다.')
-        // Vue Router를 사용하여 로그인 페이지로 리다이렉트
-        if (window.location.pathname !== '/admin') {
-          window.location.href = '/admin'
+        appStore.logout()
+        // 관리자 페이지에서만 로그인 페이지로 리다이렉트
+        if (window.location.pathname.startsWith('/admin')) {
+          window.location.href = '/login'
         }
+        // 일반 페이지에서는 에러 메시지만 표시 (페이지 접근은 허용)
         break
         
       case 403:

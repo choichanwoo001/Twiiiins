@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAppStore } from '../stores'
 import Home from '../views/Home.vue'
 import About from '../views/About.vue'
 import Projects from '../views/Projects.vue'
@@ -71,7 +72,6 @@ const router = createRouter({
 
 // 인증 가드
 router.beforeEach((to, from, next) => {
-  const { useAppStore } = require('../stores')
   const appStore = useAppStore()
   
   // 저장된 사용자 정보 복원

@@ -11,7 +11,7 @@
     <section class="events-section">
       <div class="events-container">
         <h2 class="events-title">UPCOMING EVENTS</h2>
-        <div class="events-list">
+        <div class="events-list" v-if="events && events.length > 0">
           <div class="event-item" v-for="event in events" :key="event.id">
             <div class="event-date">{{ event.date }}</div>
             <div class="event-info">
@@ -20,6 +20,9 @@
             </div>
             <div class="event-arrow" @click="goToConcert">→</div>
           </div>
+        </div>
+        <div v-else class="no-events">
+          <p>예정된 공연이 없습니다.</p>
         </div>
       </div>
     </section>
@@ -62,7 +65,12 @@ const events = computed(() => {
 
 // 콘서트 데이터 로드
 const loadEvents = async () => {
-  await concertStore.loadConcerts()
+  try {
+    await concertStore.loadConcerts()
+  } catch (error) {
+    // API 호출 실패해도 화면은 표시되도록 함
+    console.error('공연 정보 로드 실패:', error)
+  }
 }
 
 // 페이지 인디케이터 관련
@@ -286,6 +294,16 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 1);
   transform: scale(1.3);
   box-shadow: 0 0 0.625rem rgba(255, 255, 255, 0.5);
+}
+
+.no-events {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 2rem;
+}
+
+.no-events p {
+  font-size: 1rem;
 }
 </style>
 
