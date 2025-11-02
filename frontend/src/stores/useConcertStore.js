@@ -37,7 +37,6 @@ export const useConcertStore = defineStore('concert', () => {
       updateFilteredConcerts()
     } catch (err) {
       setError('콘서트 목록을 불러오는데 실패했습니다.')
-      console.error('콘서트 로드 실패:', err)
     } finally {
       setLoading(false)
     }
@@ -58,7 +57,6 @@ export const useConcertStore = defineStore('concert', () => {
       return newConcert
     } catch (err) {
       setError('콘서트 생성에 실패했습니다.')
-      console.error('콘서트 생성 실패:', err)
       throw err
     } finally {
       setLoading(false)
@@ -78,7 +76,6 @@ export const useConcertStore = defineStore('concert', () => {
       return updatedConcert
     } catch (err) {
       setError('콘서트 수정에 실패했습니다.')
-      console.error('콘서트 수정 실패:', err)
       throw err
     } finally {
       setLoading(false)
@@ -94,7 +91,6 @@ export const useConcertStore = defineStore('concert', () => {
       updateFilteredConcerts()
     } catch (err) {
       setError('콘서트 삭제에 실패했습니다.')
-      console.error('콘서트 삭제 실패:', err)
       throw err
     } finally {
       setLoading(false)
@@ -109,7 +105,6 @@ export const useConcertStore = defineStore('concert', () => {
       await loadConcerts() // 전체 목록 다시 로드
     } catch (err) {
       setError('콘서트 이동에 실패했습니다.')
-      console.error('콘서트 이동 실패:', err)
       throw err
     } finally {
       setLoading(false)
@@ -124,7 +119,6 @@ export const useConcertStore = defineStore('concert', () => {
       await loadConcerts() // 전체 목록 다시 로드
     } catch (err) {
       setError('콘서트 이동에 실패했습니다.')
-      console.error('콘서트 이동 실패:', err)
       throw err
     } finally {
       setLoading(false)
@@ -147,7 +141,6 @@ export const useConcertStore = defineStore('concert', () => {
       await loadConcerts() // 전체 목록 다시 로드
     } catch (err) {
       setError('자동 이동 실행에 실패했습니다.')
-      console.error('자동 이동 실행 실패:', err)
       throw err
     } finally {
       setLoading(false)

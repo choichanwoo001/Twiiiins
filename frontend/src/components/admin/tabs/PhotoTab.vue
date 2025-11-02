@@ -85,6 +85,27 @@
       @submit="saveGroup"
       @cancel="cancelEdit"
     />
+
+    <!-- 공통 다이얼로그 -->
+    <ConfirmDialog
+      :is-visible="confirmDialog.isVisible"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      :confirm-text="confirmDialog.confirmText"
+      :cancel-text="confirmDialog.cancelText"
+      :confirm-variant="confirmDialog.confirmVariant"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
+
+    <AlertDialog
+      :is-visible="alertDialog.isVisible"
+      :title="alertDialog.title"
+      :message="alertDialog.message"
+      :button-text="alertDialog.buttonText"
+      :button-variant="alertDialog.buttonVariant"
+      @close="handleAlertClose"
+    />
   </div>
 </template>
 
@@ -93,6 +114,8 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { photoService } from '../../../services'
 import { filterData } from '../../../utils'
+import { logError, getErrorMessage } from '../../../utils/errorHandler'
+import { ConfirmDialog, AlertDialog } from '../../common'
 import LazyImage from '../../common/LazyImage.vue'
 import { 
   createPhotoGroupSearchFilters, 
@@ -152,12 +175,84 @@ const selectedPhoto = ref(null)
 const imageLoading = ref(false)
 const imageError = ref(false)
 
+// 다이얼로그 상태
+const confirmDialog = ref({
+  isVisible: false,
+  title: '확인',
+  message: '',
+  confirmText: '확인',
+  cancelText: '취소',
+  confirmVariant: 'danger',
+  resolve: null,
+  reject: null
+})
+
+const alertDialog = ref({
+  isVisible: false,
+  title: '알림',
+  message: '',
+  buttonText: '확인',
+  buttonVariant: 'primary',
+  resolve: null
+})
+
+// 다이얼로그 헬퍼 함수
+const showConfirm = (message, title = '확인') => {
+  return new Promise((resolve, reject) => {
+    confirmDialog.value = {
+      isVisible: true,
+      title,
+      message,
+      confirmText: '확인',
+      cancelText: '취소',
+      confirmVariant: 'danger',
+      resolve,
+      reject
+    }
+  })
+}
+
+const showAlert = (message, title = '알림', variant = 'primary') => {
+  return new Promise((resolve) => {
+    alertDialog.value = {
+      isVisible: true,
+      title,
+      message,
+      buttonText: '확인',
+      buttonVariant: variant,
+      resolve
+    }
+  })
+}
+
+const handleConfirm = () => {
+  if (confirmDialog.value.resolve) {
+    confirmDialog.value.resolve(true)
+  }
+  confirmDialog.value.isVisible = false
+}
+
+const handleCancel = () => {
+  if (confirmDialog.value.reject) {
+    confirmDialog.value.reject(false)
+  }
+  confirmDialog.value.isVisible = false
+}
+
+const handleAlertClose = () => {
+  if (alertDialog.value.resolve) {
+    alertDialog.value.resolve()
+  }
+  alertDialog.value.isVisible = false
+}
+
 // 메서드
 const loadPhotoGroups = async () => {
   try {
     await mediaStore.loadPhotoGroups()
   } catch (error) {
-    console.error('사진 그룹 로드 실패:', error)
+    logError(error, '사진 그룹 로드')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
@@ -206,19 +301,20 @@ const saveGroup = async () => {
     
     cancelEdit()
   } catch (error) {
-    console.error('그룹 저장 실패:', error)
-    alert('그룹 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
+    logError(error, '그룹 저장')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
 const deleteGroup = async (id) => {
-  if (confirm('정말 삭제하시겠습니까?')) {
-    try {
+  try {
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
+    if (confirmed) {
       await mediaStore.deletePhotoGroup(id)
-    } catch (error) {
-      console.error('그룹 삭제 실패:', error)
-      alert('그룹 삭제에 실패했습니다: ' + (error.response?.data?.message || error.message))
     }
+  } catch (error) {
+    logError(error, '그룹 삭제')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
@@ -241,7 +337,7 @@ const handleFileSelect = (event) => {
 
 const uploadPhotos = async () => {
   if (!selectedFiles.value.length || !selectedGroup.value) {
-    alert('파일을 선택해주세요.')
+    await showAlert('파일을 선택해주세요.', '알림', 'warning')
     return
   }
 
@@ -257,16 +353,17 @@ const uploadPhotos = async () => {
     if (fileInput.value) {
       fileInput.value.value = ''
     }
-    alert('사진이 성공적으로 업로드되었습니다.')
+    await showAlert('사진이 성공적으로 업로드되었습니다.', '성공', 'success')
   } catch (error) {
-    console.error('사진 업로드 실패:', error)
-    alert('사진 업로드에 실패했습니다: ' + (error.response?.data?.message || error.message))
+    logError(error, '사진 업로드')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
 const deletePhoto = async (photoId) => {
-  if (confirm('정말 삭제하시겠습니까?')) {
-    try {
+  try {
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
+    if (confirmed) {
       await photoService.deletePhoto(photoId)
       await mediaStore.loadPhotoGroups()
       // 그룹 정보 갱신
@@ -274,10 +371,10 @@ const deletePhoto = async (photoId) => {
         const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
         selectedGroup.value = updatedGroup
       }
-    } catch (error) {
-      console.error('사진 삭제 실패:', error)
-      alert('사진 삭제에 실패했습니다: ' + (error.response?.data?.message || error.message))
     }
+  } catch (error) {
+    logError(error, '사진 삭제')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 

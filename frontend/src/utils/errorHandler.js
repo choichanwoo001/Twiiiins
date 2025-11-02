@@ -47,13 +47,16 @@ export function getErrorMessage(error) {
  * @param {string} context - 에러가 발생한 컨텍스트
  */
 export function logError(error, context = '') {
-  console.error(`[${context}] 에러 발생:`, {
-    message: error.message,
-    code: error.code,
-    status: error.status,
-    stack: error.stack,
-    originalError: error.originalError
-  })
+  // 에러 로깅은 개발 환경에서만 사용
+  if (import.meta.env.DEV) {
+    console.error(`[${context}] 에러 발생:`, {
+      message: error.message,
+      code: error.code,
+      status: error.status,
+      stack: error.stack,
+      originalError: error.originalError
+    })
+  }
 }
 
 /**

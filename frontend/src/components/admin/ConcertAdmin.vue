@@ -146,14 +146,37 @@
         </div>
       </form>
     </div>
+
+    <!-- 공통 다이얼로그 -->
+    <ConfirmDialog
+      :is-visible="confirmDialog.isVisible"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      :confirm-text="confirmDialog.confirmText"
+      :cancel-text="confirmDialog.cancelText"
+      :confirm-variant="confirmDialog.confirmVariant"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
+
+    <AlertDialog
+      :is-visible="alertDialog.isVisible"
+      :title="alertDialog.title"
+      :message="alertDialog.message"
+      :button-text="alertDialog.buttonText"
+      :button-variant="alertDialog.buttonVariant"
+      @close="handleAlertClose"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useConcertStore } from '../../stores'
-import { BaseButton } from '../common'
+import { BaseButton, ConfirmDialog, AlertDialog } from '../common'
 import { formatDate } from '../../utils/commonHelpers'
+import { logError, getErrorMessage } from '../../utils/errorHandler'
+import { filterData } from '../../utils/searchHelpers'
 import {
   createConcertSearchFilters,
   createConcertForm,
@@ -164,14 +187,40 @@ import {
 // 스토어 사용
 const concertStore = useConcertStore()
 
-// Computed properties
+// Computed properties - 검색 필터 적용
 const concerts = computed(() => {
-  return [...concertStore.concerts].sort((a, b) => {
-    // 날짜를 Date 객체로 변환하여 비교
+  let filtered = [...concertStore.concerts]
+  
+  // 기본 필터링 (콘서트명, 장소)
+  const basicFilters = {
+    name: searchFilters.value.name,
+    location: searchFilters.value.location
+  }
+  filtered = filterData(filtered, basicFilters)
+  
+  // 날짜 범위 필터링
+  if (searchFilters.value.startDate) {
+    filtered = filtered.filter(concert => {
+      const concertDate = new Date(concert.date)
+      const startDate = new Date(searchFilters.value.startDate)
+      startDate.setHours(0, 0, 0, 0)
+      return concertDate >= startDate
+    })
+  }
+  
+  if (searchFilters.value.endDate) {
+    filtered = filtered.filter(concert => {
+      const concertDate = new Date(concert.date)
+      const endDate = new Date(searchFilters.value.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      return concertDate <= endDate
+    })
+  }
+  
+  // 날짜 오름차순 정렬
+  return filtered.sort((a, b) => {
     const dateA = new Date(a.date)
     const dateB = new Date(b.date)
-    
-    // 오름차순 정렬 (가장 이른 날짜가 위로)
     return dateA - dateB
   })
 })
@@ -181,20 +230,95 @@ const searchFilters = ref(createConcertSearchFilters())
 const form = ref(createConcertForm())
 const editingConcert = ref(null)
 
+// 다이얼로그 상태
+const confirmDialog = ref({
+  isVisible: false,
+  title: '확인',
+  message: '',
+  confirmText: '확인',
+  cancelText: '취소',
+  confirmVariant: 'danger',
+  resolve: null,
+  reject: null
+})
+
+const alertDialog = ref({
+  isVisible: false,
+  title: '알림',
+  message: '',
+  buttonText: '확인',
+  buttonVariant: 'primary',
+  resolve: null
+})
+
+// 다이얼로그 헬퍼 함수
+const showConfirm = (message, title = '확인') => {
+  return new Promise((resolve, reject) => {
+    confirmDialog.value = {
+      isVisible: true,
+      title,
+      message,
+      confirmText: '확인',
+      cancelText: '취소',
+      confirmVariant: 'danger',
+      resolve,
+      reject
+    }
+  })
+}
+
+const showAlert = (message, title = '알림', variant = 'primary') => {
+  return new Promise((resolve) => {
+    alertDialog.value = {
+      isVisible: true,
+      title,
+      message,
+      buttonText: '확인',
+      buttonVariant: variant,
+      resolve
+    }
+  })
+}
+
+const handleConfirm = () => {
+  if (confirmDialog.value.resolve) {
+    confirmDialog.value.resolve(true)
+  }
+  confirmDialog.value.isVisible = false
+}
+
+const handleCancel = () => {
+  if (confirmDialog.value.reject) {
+    confirmDialog.value.reject(false)
+  }
+  confirmDialog.value.isVisible = false
+}
+
+const handleAlertClose = () => {
+  if (alertDialog.value.resolve) {
+    alertDialog.value.resolve()
+  }
+  alertDialog.value.isVisible = false
+}
+
 // Methods
 const loadConcerts = async () => {
   try {
     await concertStore.loadConcerts()
   } catch (error) {
-    console.error('콘서트 로드 실패:', error)
+    logError(error, '콘서트 로드')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
 const searchConcerts = async () => {
+  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
+  // 데이터를 최신으로 갱신하려면 전체 로드
   try {
-    await concertStore.loadConcerts() // 스토어에서 검색 기능이 있다면 사용, 없으면 전체 로드
+    await concertStore.loadConcerts()
   } catch (error) {
-    console.error('콘서트 검색 실패:', error)
+    logError(error, '콘서트 검색')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
@@ -235,17 +359,20 @@ const saveConcert = async () => {
     
     cancelEdit()
   } catch (error) {
-    console.error('콘서트 저장 실패:', error)
+    logError(error, '콘서트 저장')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
 const deleteConcert = async (id) => {
-  if (confirm('정말 삭제하시겠습니까?')) {
-    try {
+  try {
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
+    if (confirmed) {
       await concertStore.deleteConcert(id)
-    } catch (error) {
-      console.error('콘서트 삭제 실패:', error)
     }
+  } catch (error) {
+    logError(error, '콘서트 삭제')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
@@ -253,7 +380,8 @@ const moveToPastEvent = async (id) => {
   try {
     await concertStore.moveToPastEvent(id)
   } catch (error) {
-    console.error('Past Event 이동 실패:', error)
+    logError(error, 'Past Event 이동')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
@@ -261,7 +389,8 @@ const moveToUpcomingEvent = async (id) => {
   try {
     await concertStore.moveToUpcomingEvent(id)
   } catch (error) {
-    console.error('Upcoming 이동 실패:', error)
+    logError(error, 'Upcoming 이동')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
@@ -269,14 +398,11 @@ const triggerAutoMove = async () => {
   try {
     await concertStore.triggerAutoMove()
   } catch (error) {
-    console.error('자동 이동 실행 실패:', error)
+    logError(error, '자동 이동 실행')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
 
-// Lifecycle
-onMounted(() => {
-  // 스토어에서 자동으로 로드되므로 별도 로드 불필요
-})
 </script>
 
 <style scoped>

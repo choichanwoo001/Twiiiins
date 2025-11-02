@@ -231,7 +231,7 @@ export const storage = {
     try {
       localStorage.setItem(key, JSON.stringify(value))
     } catch (error) {
-      console.error('Storage set error:', error)
+      // 로컬 스토리지 저장 실패 (용량 초과 등)
     }
   },
 
@@ -240,7 +240,7 @@ export const storage = {
       const item = localStorage.getItem(key)
       return item ? JSON.parse(item) : defaultValue
     } catch (error) {
-      console.error('Storage get error:', error)
+      // 로컬 스토리지 읽기 실패
       return defaultValue
     }
   },
@@ -249,7 +249,7 @@ export const storage = {
     try {
       localStorage.removeItem(key)
     } catch (error) {
-      console.error('Storage remove error:', error)
+      // 로컬 스토리지 삭제 실패
     }
   },
 
@@ -257,7 +257,7 @@ export const storage = {
     try {
       localStorage.clear()
     } catch (error) {
-      console.error('Storage clear error:', error)
+      // 로컬 스토리지 전체 삭제 실패
     }
   }
 }

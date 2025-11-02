@@ -10,7 +10,7 @@ Twiiiins는 아티스트의 다양한 콘텐츠를 관리하고 팬들과 소통
 
 ```
 twiiiins/
-├── backend/          # Spring Boot 3 + PostgreSQL
+├── backend/          # Spring Boot 3
 │   ├── src/main/java/com/twiiiins/
 │   │   ├── controller/     # REST API 컨트롤러
 │   │   ├── service/        # 비즈니스 로직
@@ -42,16 +42,14 @@ twiiiins/
 - **Pinia** - 상태 관리
 - **Axios** - HTTP 클라이언트
 - **Stripe.js** - 결제 처리
-- **배포**: Vercel
 
 ### 백엔드
 - **Spring Boot 3** - Java 웹 프레임워크
-- **Spring Security** + **JWT** - 인증/인가
+- **Spring Security** - 보안 프레임워크
 - **Spring Data JPA** - 데이터 접근 계층
-- **PostgreSQL** - 관계형 데이터베이스
+- **MySQL** - 관계형 데이터베이스
 - **Gradle** - 빌드 도구
 - **Swagger/OpenAPI** - API 문서화
-- **배포**: Railway
 
 ### 미디어 서비스
 - **Cloudflare Stream** - 동영상 스트리밍
@@ -96,7 +94,6 @@ twiiiins/
 ### 기본 정보
 - **Base URL**: `http://localhost:8080/api` (개발), `https://your-domain.com/api` (프로덕션)
 - **Content-Type**: `application/json`
-- **인증**: JWT Bearer Token
 
 ### 주요 엔드포인트
 
@@ -180,13 +177,9 @@ npm run dev
 ### 백엔드 (.env)
 ```env
 # 데이터베이스 설정
-DB_URL=jdbc:postgresql://localhost:5432/twiiiins
-DB_USERNAME=postgres
+DB_URL=jdbc:mysql://localhost:3306/twiiiins
+DB_USERNAME=root
 DB_PASSWORD=your_password
-
-# JWT 설정
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRATION=86400000
 
 # Stripe 결제 설정
 STRIPE_SECRET_KEY=sk_test_...
@@ -233,18 +226,7 @@ VITE_CLOUDFLARE_STREAM_URL=https://customer-...
 
 ## 배포
 
-### Vercel (프론트엔드)
-- GitHub 연동 후 자동 배포
-- Root Directory: `frontend`
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- 환경변수 설정 필요
-
-### Railway (백엔드)
-- GitHub 연동 후 자동 배포
-- Root Directory: `backend`
-- PostgreSQL 프로비저닝 자동 연결
-- 환경변수 설정 필요
+현재 AWS EC2 + Nginx 환경에서 배포 중입니다.
 
 ## 라이선스
 

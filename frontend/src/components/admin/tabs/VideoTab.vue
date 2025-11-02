@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { filterData } from '../../../utils'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -213,9 +213,6 @@ const deleteVideo = async (id) => {
   }
 }
 
-onMounted(() => {
-  // 스토어에서 자동으로 로드되므로 별도 로드 불필요
-})
 </script>
 
 <style scoped>

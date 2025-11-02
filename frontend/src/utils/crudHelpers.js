@@ -22,7 +22,6 @@ export const createCrudHelpers = (service, itemName) => {
         items.value = data
       } catch (err) {
         error.value = `${itemName} 목록을 불러오는데 실패했습니다.`
-        console.error(`${itemName} 로드 실패:`, err)
       } finally {
         loading.value = false
       }
@@ -45,7 +44,6 @@ export const createCrudHelpers = (service, itemName) => {
         return newItem
       } catch (err) {
         error.value = `${itemName} 생성에 실패했습니다.`
-        console.error(`${itemName} 생성 실패:`, err)
         throw err
       } finally {
         loading.value = false
@@ -73,7 +71,6 @@ export const createCrudHelpers = (service, itemName) => {
         return updatedItem
       } catch (err) {
         error.value = `${itemName} 수정에 실패했습니다.`
-        console.error(`${itemName} 수정 실패:`, err)
         throw err
       } finally {
         loading.value = false
@@ -95,7 +92,6 @@ export const createCrudHelpers = (service, itemName) => {
         items.value = items.value.filter(item => item.id !== id)
       } catch (err) {
         error.value = `${itemName} 삭제에 실패했습니다.`
-        console.error(`${itemName} 삭제 실패:`, err)
         throw err
       } finally {
         loading.value = false
@@ -117,7 +113,6 @@ export const createCrudHelpers = (service, itemName) => {
         items.value = data
       } catch (err) {
         error.value = `${itemName} 검색에 실패했습니다.`
-        console.error(`${itemName} 검색 실패:`, err)
       } finally {
         loading.value = false
       }
@@ -169,8 +164,6 @@ export const validateForm = (form, rules) => {
  * @returns {string} 사용자 친화적인 에러 메시지
  */
 export const handleError = (error, defaultMessage = '오류가 발생했습니다.') => {
-  console.error('Error:', error)
-  
   if (error.response) {
     // 서버 응답 에러
     const status = error.response.status

@@ -23,7 +23,6 @@ apiClient.interceptors.request.use(
     return config
   },
   error => {
-    console.error('요청 인터셉터 오류:', error)
     return Promise.reject(error)
   }
 )
@@ -39,7 +38,6 @@ apiClient.interceptors.response.use(
     
     // 네트워크 오류 처리
     if (!error.response) {
-      console.error('네트워크 오류:', error.message)
       appStore.showError('네트워크 연결을 확인해주세요.')
       return Promise.reject({
         code: 'NETWORK_ERROR',
