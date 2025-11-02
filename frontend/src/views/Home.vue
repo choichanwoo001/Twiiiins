@@ -220,10 +220,12 @@ onUnmounted(() => {
 .event-date {
   font-size: 0.9rem;
   font-weight: 500;
-  width: 7.5rem;
+  width: 12rem;
+  min-width: 12rem;
   text-align: left;
   flex-shrink: 0;
   margin-right: 1.25rem;
+  white-space: nowrap;
 }
 
 .event-info {
