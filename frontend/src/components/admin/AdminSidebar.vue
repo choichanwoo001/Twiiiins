@@ -14,11 +14,18 @@
         {{ item.label }}
       </button>
     </nav>
+    <div class="sidebar-footer">
+      <button class="logout-button" @click="handleLogout">
+        로그아웃
+      </button>
+    </div>
   </aside>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { logout } from '../../services/authService'
 
 // Props
 const props = defineProps({
@@ -61,8 +68,15 @@ const menuItems = computed(() => [
 ])
 
 // Methods
+const router = useRouter()
+
 const handleMenuClick = (sectionKey) => {
   emit('update:activeSection', sectionKey)
+}
+
+const handleLogout = () => {
+  logout()
+  router.push('/login')
 }
 </script>
 
@@ -109,5 +123,30 @@ const handleMenuClick = (sectionKey) => {
 .nav-item.active {
   background: #3498db;
   color: white;
+}
+
+.sidebar-footer {
+  position: absolute;
+  bottom: 2rem;
+  left: 0;
+  right: 0;
+  padding: 0 2rem;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background: #c0392b;
 }
 </style>

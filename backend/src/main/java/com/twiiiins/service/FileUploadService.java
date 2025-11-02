@@ -4,7 +4,9 @@ import com.twiiiins.dto.FileUploadResponseDto;
 import com.twiiiins.exception.FileUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,7 +23,17 @@ public class FileUploadService {
     private final S3FileService s3FileService;
     private final ImageResizeService imageResizeService;
     
-    private static final long MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+    @Value("${UPLOAD_MAX_SIZE:15MB}")
+    private String uploadMaxSize;
+    
+    private long getMaxFileSize() {
+        try {
+            return DataSize.parse(uploadMaxSize).toBytes();
+        } catch (Exception e) {
+            log.warn("UPLOAD_MAX_SIZE 파싱 실패, 기본값 15MB 사용: {}", e.getMessage());
+            return 15 * 1024 * 1024; // 기본값 15MB
+        }
+    }
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(
         "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"
     );
@@ -63,9 +75,10 @@ public class FileUploadService {
             throw new FileUploadException("파일이 비어있습니다.");
         }
         
-        if (file.getSize() > MAX_FILE_SIZE) {
-            log.warn("파일 크기 초과: {} bytes (최대: {} bytes)", file.getSize(), MAX_FILE_SIZE);
-            throw new FileUploadException("파일 크기는 15MB를 초과할 수 없습니다.");
+        long maxFileSize = getMaxFileSize();
+        if (file.getSize() > maxFileSize) {
+            log.warn("파일 크기 초과: {} bytes (최대: {} bytes)", file.getSize(), maxFileSize);
+            throw new FileUploadException(String.format("파일 크기는 %s를 초과할 수 없습니다.", uploadMaxSize));
         }
         
         String contentType = file.getContentType();

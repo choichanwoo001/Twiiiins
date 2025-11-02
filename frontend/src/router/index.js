@@ -8,6 +8,7 @@ import Media from '../views/Media.vue'
 import Shop from '../views/Shop.vue'
 import Contact from '../views/Contact.vue'
 import Admin from '../views/Admin.vue'
+import Login from '../views/Login.vue'
 
 const routes = [
   {
@@ -51,15 +52,53 @@ const routes = [
     component: Contact
   },
   {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
     path: '/admin',
     name: 'Admin',
-    component: Admin
+    component: Admin,
+    meta: { requiresAuth: true }
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+// 인증 가드
+router.beforeEach((to, from, next) => {
+  const { useAppStore } = require('../stores')
+  const appStore = useAppStore()
+  
+  // 저장된 사용자 정보 복원
+  const savedUser = localStorage.getItem('user')
+  if (savedUser) {
+    try {
+      appStore.setUser(JSON.parse(savedUser))
+    } catch (e) {
+      localStorage.removeItem('user')
+    }
+  }
+  
+  // 인증이 필요한 페이지인지 확인
+  if (to.meta.requiresAuth) {
+    if (!appStore.isAuthenticated) {
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+    } else {
+      next()
+    }
+  } else {
+    // 로그인 페이지에서 이미 로그인된 경우 admin으로 리다이렉트
+    if (to.name === 'Login' && appStore.isAuthenticated) {
+      next({ name: 'Admin' })
+    } else {
+      next()
+    }
+  }
 })
 
 export default router
