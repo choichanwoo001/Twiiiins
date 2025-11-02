@@ -65,7 +65,21 @@ const handleLogin = async () => {
     await login(form.value.username, form.value.password)
     router.push('/admin')
   } catch (err) {
-    error.value = err.message || err.response?.data?.error?.message || '로그인에 실패했습니다.'
+    // 에러 메시지 추출
+    let errorMessage = '로그인에 실패했습니다.'
+    
+    if (err.message) {
+      errorMessage = err.message
+    } else if (err.response?.data?.error?.message) {
+      errorMessage = err.response.data.error.message
+    } else if (err.response?.data?.message) {
+      errorMessage = err.response.data.message
+    } else if (typeof err === 'string') {
+      errorMessage = err
+    }
+    
+    error.value = errorMessage
+    console.error('로그인 오류:', err)
   } finally {
     isLoading.value = false
   }
