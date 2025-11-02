@@ -149,30 +149,4 @@ public class S3FileService {
         return null;
     }
 
-    /**
-     * S3 버킷 존재 여부 확인
-     * @return 버킷 존재 여부
-     */
-    public boolean isBucketAvailable() {
-        try {
-            String bucketName = s3Config.getBucketName();
-            if (bucketName.isEmpty()) {
-                return false;
-            }
-
-            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()
-                    .bucket(bucketName)
-                    .build();
-
-            s3Client.headBucket(headBucketRequest);
-            return true;
-
-        } catch (NoSuchBucketException e) {
-            log.warn("S3 버킷이 존재하지 않습니다: {}", s3Config.getBucketName());
-            return false;
-        } catch (Exception e) {
-            log.error("S3 버킷 확인 중 오류 발생: {}", e.getMessage());
-            return false;
-        }
-    }
 }
