@@ -171,7 +171,7 @@ onMounted(() => {
 <style scoped>
 /* 레이아웃 */
 .concert {
-  background: #fafafa;
+  background: #fff;
   color: #222;
   padding-top: 6rem;
   height: calc(100vh - 3.75rem);
