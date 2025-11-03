@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,4 +17,5 @@ public class NewsDto {
     private String title;
     private String description;
     private Integer displayOrder;
+    private List<String> imageUrls = new ArrayList<>();
 }

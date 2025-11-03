@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "news")
@@ -29,5 +31,10 @@ public class News {
     
     @Column(name = "display_order")
     private Integer displayOrder;
+    
+    @ElementCollection
+    @CollectionTable(name = "news_images", joinColumns = @JoinColumn(name = "news_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls = new ArrayList<>();
 }
 

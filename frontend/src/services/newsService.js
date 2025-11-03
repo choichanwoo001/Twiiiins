@@ -39,5 +39,16 @@ export const newsService = {
   // 뉴스 삭제
   async deleteNews(id) {
     await axios.delete(`/media/news/${id}`)
+  },
+
+  // 뉴스 사진 업로드
+  async uploadNewsImages(newsId, files) {
+    const formData = new FormData()
+    files.forEach(file => {
+      formData.append('files', file)
+    })
+
+    const response = await axios.post(`/media/news/${newsId}/images`, formData)
+    return response.data.data || response.data
   }
 }

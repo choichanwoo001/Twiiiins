@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -52,6 +53,9 @@ public class NewsService {
         news.setTitle(newsDto.getTitle());
         news.setDescription(newsDto.getDescription());
         news.setDisplayOrder(newsDto.getDisplayOrder());
+        if (newsDto.getImageUrls() != null) {
+            news.setImageUrls(newsDto.getImageUrls());
+        }
         
         News savedNews = newsRepository.save(news);
         return convertToDto(savedNews);
@@ -67,7 +71,8 @@ public class NewsService {
             news.getDate(),
             news.getTitle(),
             news.getDescription(),
-            news.getDisplayOrder()
+            news.getDisplayOrder(),
+            news.getImageUrls() != null ? news.getImageUrls() : new ArrayList<>()
         );
     }
     
@@ -77,6 +82,9 @@ public class NewsService {
         news.setTitle(newsDto.getTitle());
         news.setDescription(newsDto.getDescription());
         news.setDisplayOrder(newsDto.getDisplayOrder());
+        if (newsDto.getImageUrls() != null) {
+            news.setImageUrls(newsDto.getImageUrls());
+        }
         return news;
     }
 }

@@ -110,6 +110,17 @@
             <!-- 상세 정보 -->
             <div class="news-details" v-if="news.expanded">
               <div class="news-description">{{ news.description }}</div>
+              
+              <!-- 사진 섹션 -->
+              <div class="news-images" v-if="news.imageUrls && news.imageUrls.length > 0">
+                <div class="image-grid">
+                  <div class="image-row" v-for="(row, rowIndex) in getImageRows(news.imageUrls)" :key="rowIndex">
+                    <div class="image-item" v-for="(imageUrl, imgIndex) in row" :key="imgIndex">
+                      <img :src="toAbsoluteUrl(imageUrl)" :alt="`News image ${imgIndex + 1}`" @load="onImageLoad($event, rowIndex)" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -131,7 +142,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from '../api/axios'
 
 // 백엔드 절대 URL 생성 유틸
@@ -319,12 +330,82 @@ const loadNews = async () => {
       date: formatNewsDate(news.date),
       title: news.title,
       description: news.description,
+      imageUrls: news.imageUrls || [],
       expanded: false
     }))
   } catch (error) {
     console.error('뉴스 데이터 로드 실패:', error)
     newsList.value = []
   }
+}
+
+// 이미지를 행으로 그룹화 (프로젝트 디테일처럼)
+const getImageRows = (imageUrls) => {
+  if (!imageUrls || imageUrls.length === 0) return []
+  
+  const rows = []
+  // 첫 번째 행: 첫 3개 이미지 (flex: 1, 2, 1)
+  if (imageUrls.length > 0) {
+    const firstRow = imageUrls.slice(0, 3)
+    rows.push(firstRow)
+  }
+  // 두 번째 행: 나머지 이미지들 (각각 flex: 1)
+  if (imageUrls.length > 3) {
+    const secondRow = imageUrls.slice(3)
+    rows.push(secondRow)
+  }
+  
+  return rows
+}
+
+// 이미지 로드 시 행 높이 계산
+const onImageLoad = (event, rowIndex) => {
+  nextTick(() => {
+    const img = event.target
+    const row = img.closest('.image-row')
+    if (!row) return
+    
+    const images = row.querySelectorAll('img')
+    let maxHeight = 0
+    
+    images.forEach((image) => {
+      if (image.naturalWidth && image.naturalHeight) {
+        const imageItem = image.closest('.image-item')
+        const flexBasis = getFlexBasis(imageItem)
+        const totalFlex = getTotalFlex(row, images)
+        const rowWidth = row.offsetWidth
+        const gap = 8 // 0.5rem = 8px
+        const itemWidth = (rowWidth - (images.length - 1) * gap) * (flexBasis / totalFlex)
+        
+        const aspectRatio = image.naturalWidth / image.naturalHeight
+        const neededHeight = itemWidth / aspectRatio
+        
+        if (neededHeight > maxHeight) {
+          maxHeight = neededHeight
+        }
+      }
+    })
+    
+    const minHeight = rowIndex === 0 ? 300 : 250
+    if (maxHeight > 0) {
+      row.style.height = `${Math.max(maxHeight, minHeight)}px`
+    }
+  })
+}
+
+function getFlexBasis(imageItem) {
+  const flexValue = window.getComputedStyle(imageItem).flex
+  const match = flexValue.match(/^(\d+)/)
+  return match ? parseInt(match[1]) : 1
+}
+
+function getTotalFlex(row, images) {
+  let total = 0
+  images.forEach((img) => {
+    const imageItem = img.closest('.image-item')
+    total += getFlexBasis(imageItem)
+  })
+  return total
 }
 
 // 뉴스 토글 함수
@@ -379,10 +460,11 @@ const formatNewsDate = (dateString) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
   letter-spacing: 0.12em;
-  color: #FBCE7B;
+  color: rgba(251, 206, 123, 0.5); /* 비활성 상태: 더 연한 색상 */
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .nav-item.main-title {
@@ -396,18 +478,22 @@ const formatNewsDate = (dateString) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
   letter-spacing: 0.12em;
-  color: #FBCE7B;
+  color: rgba(251, 206, 123, 0.5); /* 비활성 상태: 더 연한 색상 */
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
+  transition: color 0.3s ease;
 }
 
-.nav-item:hover {
-  color: #F9D89C;
+.nav-item:hover h1,
+.nav-item:hover h2 {
+  color: rgba(251, 206, 123, 0.7); /* 호버 시 중간 색상 */
 }
 
-.nav-item.active {
-  color: #FBCE7B;
+.nav-item.active h1,
+.nav-item.active h2 {
+  color: #FBCE7B; /* 활성 상태: 진한 색상 */
+  font-weight: 500; /* 약간 더 굵게 */
 }
 
 /* 메인 콘텐츠 영역 */
@@ -646,6 +732,75 @@ const formatNewsDate = (dateString) => {
   font-size: 0.9rem;
   color: #666;
   line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+/* 뉴스 사진 섹션 (프로젝트 디테일 스타일과 동일) */
+.news-images {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.image-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 62.5rem;
+  width: 100%;
+}
+
+.image-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.image-row:nth-child(1) {
+  min-height: 18.75rem;
+  height: 25rem;
+}
+
+.image-row:nth-child(2) {
+  min-height: 15.625rem;
+  height: 20rem;
+}
+
+.image-item {
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.image-row:nth-child(1) .image-item:nth-child(1) {
+  flex: 1;
+}
+
+.image-row:nth-child(1) .image-item:nth-child(2) {
+  flex: 2;
+}
+
+.image-row:nth-child(1) .image-item:nth-child(3) {
+  flex: 1;
+}
+
+.image-row:nth-child(2) .image-item {
+  flex: 1;
+}
+
+.image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.image-item:hover img {
+  transform: scale(1.05);
 }
 
 /* EQUIPMENT 섹션 */

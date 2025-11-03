@@ -1,7 +1,9 @@
 package com.twiiiins.controller;
 
 import com.twiiiins.dto.ApiResponse;
+import com.twiiiins.dto.FileUploadResponseDto;
 import com.twiiiins.dto.NewsDto;
+import com.twiiiins.service.FileUploadService;
 import com.twiiiins.service.NewsService;
 import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,6 +24,7 @@ import java.util.List;
 public class NewsController {
     
     private final NewsService newsService;
+    private final FileUploadService fileUploadService;
     
     @GetMapping
     @Operation(summary = "모든 뉴스 조회", description = "전체 뉴스 목록을 조회합니다.")
@@ -88,5 +93,33 @@ public class NewsController {
     public ResponseEntity<ApiResponse<Void>> deleteNews(@PathVariable Long id) {
         newsService.deleteNews(id);
         return ResponseUtil.deleted("뉴스가 성공적으로 삭제되었습니다.");
+    }
+    
+    @PostMapping("/{id}/images")
+    @Operation(summary = "뉴스 사진 업로드", description = "뉴스에 사진을 업로드합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 업로드됨"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "뉴스를 찾을 수 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    public ResponseEntity<ApiResponse<NewsDto>> uploadNewsImages(
+            @PathVariable Long id,
+            @RequestParam("files") List<MultipartFile> files) {
+        
+        NewsDto news = newsService.getNewsById(id);
+        List<String> imageUrls = news.getImageUrls() != null ? new ArrayList<>(news.getImageUrls()) : new ArrayList<>();
+        
+        // 파일 업로드
+        for (MultipartFile file : files) {
+            FileUploadResponseDto uploadResponse = fileUploadService.uploadImage(file);
+            imageUrls.add(uploadResponse.getUrl());
+        }
+        
+        // NewsDto 업데이트
+        news.setImageUrls(imageUrls);
+        NewsDto updatedNews = newsService.updateNews(id, news);
+        
+        return ResponseUtil.success(updatedNews, "사진이 성공적으로 업로드되었습니다.");
     }
 }

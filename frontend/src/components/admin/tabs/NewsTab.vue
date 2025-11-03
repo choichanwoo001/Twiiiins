@@ -31,6 +31,37 @@
       @cancel="cancelEdit"
     />
 
+    <!-- 사진 관리 모달 -->
+    <Modal
+      :is-visible="!!selectedNews"
+      :title="selectedNews ? `${selectedNews.title} - 사진 관리` : ''"
+      @close="closeModal"
+    >
+      <div v-if="selectedNews">
+        <!-- 사진 목록 -->
+        <div class="photos-grid" v-if="selectedNews.imageUrls && selectedNews.imageUrls.length > 0">
+          <div v-for="(imageUrl, index) in selectedNews.imageUrls" :key="index" class="photo-item">
+            <div class="photo-image-wrapper">
+              <img :src="getImageUrl(imageUrl)" :alt="`Photo ${index + 1}`" class="photo-image" />
+            </div>
+            <div class="photo-actions">
+              <button class="btn-delete-small" @click="deletePhoto(index)">삭제</button>
+            </div>
+          </div>
+        </div>
+        <div v-else class="no-photos">
+          등록된 사진이 없습니다.
+        </div>
+
+        <!-- 사진 업로드 -->
+        <div class="photo-upload">
+          <h4>사진 추가</h4>
+          <input type="file" ref="fileInput" multiple @change="handleFileSelect" accept="image/*" />
+          <button class="btn-upload" @click="uploadPhotos">업로드</button>
+        </div>
+      </div>
+    </Modal>
+
     <!-- 공통 다이얼로그 -->
     <ConfirmDialog
       :is-visible="confirmDialog.isVisible"
@@ -63,6 +94,7 @@ import { ConfirmDialog, AlertDialog } from '../../common'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
+import Modal from '../common/Modal.vue'
 
 // 스토어 사용
 const mediaStore = useMediaStore()
@@ -95,6 +127,7 @@ const tableColumns = [
 
 // 테이블 액션 설정
 const tableActions = [
+  { key: 'manage', label: '사진 관리', class: 'btn-manage' },
   { key: 'edit', label: '수정', class: 'btn-edit' },
   { key: 'delete', label: '삭제', class: 'btn-delete' }
 ]
@@ -110,6 +143,9 @@ const formFields = [
 // 반응형 데이터
 const form = ref({ date: '', title: '', description: '', displayOrder: 0 })
 const editingNews = ref(null)
+const selectedNews = ref(null)
+const fileInput = ref(null)
+const selectedFiles = ref([])
 
 // 다이얼로그 상태
 const confirmDialog = ref({
@@ -210,6 +246,9 @@ const resetFilters = () => {
 
 const handleTableAction = (action, item) => {
   switch (action) {
+    case 'manage':
+      managePhotos(item)
+      break
     case 'edit':
       editNews(item)
       break
@@ -269,6 +308,75 @@ const deleteNews = async (id) => {
   }
 }
 
+const managePhotos = async (news) => {
+  selectedNews.value = news
+  selectedFiles.value = []
+}
+
+const closeModal = () => {
+  selectedNews.value = null
+  selectedFiles.value = []
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+const handleFileSelect = (event) => {
+  selectedFiles.value = Array.from(event.target.files)
+}
+
+const uploadPhotos = async () => {
+  if (!selectedFiles.value.length || !selectedNews.value) {
+    await showAlert('파일을 선택해주세요.', '알림', 'warning')
+    return
+  }
+
+  try {
+    const updatedNews = await newsService.uploadNewsImages(selectedNews.value.id, selectedFiles.value)
+    selectedNews.value = updatedNews
+    selectedFiles.value = []
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
+    await loadNews()
+    await showAlert('사진이 성공적으로 업로드되었습니다.', '성공', 'success')
+  } catch (error) {
+    logError(error, '사진 업로드')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
+}
+
+const deletePhoto = async (index) => {
+  try {
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
+    if (confirmed) {
+      const imageUrls = [...selectedNews.value.imageUrls]
+      imageUrls.splice(index, 1)
+      const updatedNews = await newsService.updateNews(selectedNews.value.id, {
+        ...selectedNews.value,
+        imageUrls
+      })
+      selectedNews.value = updatedNews
+      await loadNews()
+    }
+  } catch (error) {
+    logError(error, '사진 삭제')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
+}
+
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return ''
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('data:')) {
+    return imageUrl
+  }
+  if (import.meta.env.DEV) {
+    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+    return `${API_BASE}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+  }
+  return imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
+}
+
 onMounted(() => {
   loadNews()
 })
@@ -280,5 +388,61 @@ onMounted(() => {
 
 .news-tab {
   padding: 0;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.photo-item {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.photo-image-wrapper {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.photo-image-wrapper:hover {
+  opacity: 0.8;
+}
+
+.photo-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-actions {
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.no-photos {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  margin-bottom: 2rem;
+}
+
+.photo-upload {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.photo-upload h4 {
+  margin-bottom: 1rem;
 }
 </style>
