@@ -751,7 +751,6 @@ const toggleNews = (newsId) => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
   gap: 2rem;
-  padding: 2rem 0;
 }
 
 .equipment-item {
