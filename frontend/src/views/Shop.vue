@@ -42,7 +42,7 @@
 
 .shop-title h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   color: #C1E1DC;
   text-transform: uppercase;
@@ -60,6 +60,9 @@
   min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
 }
 
 .no-products {

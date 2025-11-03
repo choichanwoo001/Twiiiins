@@ -27,8 +27,14 @@ public class VideoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<List<VideoDto>>> getAllVideos() {
-        List<VideoDto> videos = videoService.getAllVideos();
+    public ResponseEntity<ApiResponse<List<VideoDto>>> getAllVideos(
+            @RequestParam(required = false) String title) {
+        List<VideoDto> videos;
+        if (title != null) {
+            videos = videoService.getVideosWithFilters(title);
+        } else {
+            videos = videoService.getAllVideos();
+        }
         return ResponseUtil.listSuccess(videos, "동영상 목록을 성공적으로 조회했습니다.");
     }
     

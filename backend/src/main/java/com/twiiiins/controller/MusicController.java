@@ -20,9 +20,18 @@ public class MusicController {
     private final MusicService musicService;
     
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MusicDto>>> getAllMusic() {
-        log.info("모든 음악 목록 조회 요청");
-        List<MusicDto> musicList = musicService.getAllMusic();
+    public ResponseEntity<ApiResponse<List<MusicDto>>> getAllMusic(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String artist) {
+        log.info("음악 목록 조회 요청: title={}, artist={}", title, artist);
+        
+        List<MusicDto> musicList;
+        if (title != null || artist != null) {
+            musicList = musicService.getMusicWithFilters(title, artist);
+        } else {
+            musicList = musicService.getAllMusic();
+        }
+        
         log.info("음악 목록 조회 완료: {} 개 항목", musicList.size());
         return ResponseUtil.listSuccess(musicList);
     }

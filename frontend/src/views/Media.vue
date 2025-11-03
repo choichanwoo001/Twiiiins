@@ -33,28 +33,14 @@
     <div class="media-content">
       <!-- MUSIC 섹션 (기본 표시) -->
       <div v-if="activeSection === 'music' || activeSection === ''" class="content-section">
-        <div class="music-content-wrapper">
-          <!-- Artist Profile (왼쪽) -->
-          <div class="artist-profile-item">
+        <div class="albums-grid">
+          <div class="music-item" v-for="item in musicItems" :key="item.id">
             <div class="music-cover">
-              <img :src="artistProfileImage" alt="Artist Profile">
+              <img :src="item.cover" :alt="item.title">
             </div>
             <div class="music-info">
-              <div class="music-title">Artist Profile</div>
-              <div class="music-artist">TWIIIINS</div>
-            </div>
-          </div>
-
-          <!-- Music Grid (오른쪽) -->
-          <div class="albums-grid">
-            <div class="music-item" v-for="item in musicItems" :key="item.id">
-              <div class="music-cover">
-                <img :src="item.cover" :alt="item.title">
-              </div>
-              <div class="music-info">
-                <div class="music-title">{{ item.title }}</div>
-                <div class="music-artist">{{ item.artist }}</div>
-              </div>
+              <div class="music-title">{{ item.title }}</div>
+              <div class="music-artist">{{ item.artist }}</div>
             </div>
           </div>
         </div>
@@ -149,11 +135,15 @@ import { ref, computed, onMounted } from 'vue'
 import axios from '../api/axios'
 
 // 백엔드 절대 URL 생성 유틸
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
 const toAbsoluteUrl = (url) => {
   if (!url) return ''
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
-  return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+  // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
+  if (import.meta.env.DEV) {
+    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+    return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+  }
+  return url.startsWith('/') ? url : `/${url}`
 }
 
 // 활성 섹션 상태
@@ -163,11 +153,6 @@ const activeSection = ref('')
 const setActiveSection = (section) => {
   activeSection.value = section
 }
-
-// Artist Profile 이미지 경로
-const artistProfileImage = computed(() => {
-  return new URL('../imgs/home.png', import.meta.url).href
-})
 
 // 음악 데이터
 const musicItems = ref([])
@@ -392,7 +377,7 @@ const formatNewsDate = (dateString) => {
 
 .nav-item h2 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   color: #FBCE7B;
   text-transform: uppercase;
@@ -409,7 +394,7 @@ const formatNewsDate = (dateString) => {
 
 .nav-item.main-title h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   color: #FBCE7B;
   text-transform: uppercase;
@@ -432,6 +417,9 @@ const formatNewsDate = (dateString) => {
   background-color: white;
   min-height: 0; /* flex 컨테이너 내부 스크롤 허용 */
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
 }
 
 .content-section {
@@ -439,23 +427,10 @@ const formatNewsDate = (dateString) => {
 }
 
 /* MUSIC 섹션 */
-.music-content-wrapper {
-  display: flex;
-  flex-direction: row;
-  gap: 3rem;
-  align-items: flex-start;
-}
-
-.artist-profile-item {
-  text-align: center;
-  flex: 0 0 17.5rem;
-}
-
 .albums-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
-  flex: 1;
 }
 
 .music-item {
@@ -483,7 +458,7 @@ const formatNewsDate = (dateString) => {
   font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 0.25rem;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .music-artist {
@@ -703,7 +678,7 @@ const formatNewsDate = (dateString) => {
 .equipment-name {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
+  color: #1E1D1D;
   text-align: center;
 }
 </style>

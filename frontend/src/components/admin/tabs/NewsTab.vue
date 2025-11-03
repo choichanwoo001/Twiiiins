@@ -55,9 +55,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useMediaStore } from '../../../stores'
-import { filterData } from '../../../utils'
+import { newsService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -68,17 +68,21 @@ import CrudForm from '../common/CrudForm.vue'
 const mediaStore = useMediaStore()
 
 // 검색 필터
-const searchFilters = ref({ title: '' })
+const searchFilters = ref({ title: '', startDate: '', endDate: '' })
 
-// Computed properties - 검색 필터 적용
-const newsList = computed(() => {
-  const allNews = mediaStore.newsItems
-  return filterData(allNews, searchFilters.value)
-})
+// 뉴스 목록
+const newsList = ref([])
 
 // 검색 필터 설정
 const searchFilterConfig = [
-  { key: 'title', label: '제목', placeholder: '제목을 입력하세요' }
+  { key: 'title', label: '제목', placeholder: '제목을 입력하세요' },
+  {
+    row: true,
+    fields: [
+      { key: 'startDate', label: '시작 날짜', type: 'date' },
+      { key: 'endDate', label: '종료 날짜', type: 'date' }
+    ]
+  }
 ]
 
 // 테이블 컬럼 설정
@@ -182,6 +186,7 @@ const handleAlertClose = () => {
 const loadNews = async () => {
   try {
     await mediaStore.loadNews()
+    newsList.value = mediaStore.newsItems
   } catch (error) {
     logError(error, '뉴스 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -189,11 +194,18 @@ const loadNews = async () => {
 }
 
 const searchNews = async () => {
-  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
+  try {
+    const results = await newsService.searchNews(searchFilters.value)
+    newsList.value = results
+  } catch (error) {
+    logError(error, '뉴스 검색')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
 }
 
 const resetFilters = () => {
-  searchFilters.value = { title: '' }
+  searchFilters.value = { title: '', startDate: '', endDate: '' }
+  loadNews()
 }
 
 const handleTableAction = (action, item) => {
@@ -237,6 +249,7 @@ const saveNews = async () => {
     }
     
     cancelEdit()
+    await loadNews()
   } catch (error) {
     logError(error, '뉴스 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -248,12 +261,17 @@ const deleteNews = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deleteNews(id)
+      await loadNews()
     }
   } catch (error) {
     logError(error, '뉴스 삭제')
     await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
+
+onMounted(() => {
+  loadNews()
+})
 
 </script>
 

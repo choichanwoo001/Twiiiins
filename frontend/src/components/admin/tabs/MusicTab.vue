@@ -52,10 +52,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import axios from '../../../api/axios'
+import { ref, onMounted } from 'vue'
 import { useMediaStore } from '../../../stores'
-import { filterData } from '../../../utils'
+import { musicService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -74,11 +73,8 @@ const mediaStore = useMediaStore()
 // 검색 필터
 const searchFilters = ref(createMusicSearchFilters())
 
-// Computed properties - 검색 필터 적용
-const musicList = computed(() => {
-  const allMusic = mediaStore.musicItems
-  return filterData(allMusic, searchFilters.value)
-})
+// 음악 목록
+const musicList = ref([])
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -192,6 +188,7 @@ const handleAlertClose = () => {
 const loadMusic = async () => {
   try {
     await mediaStore.loadMusic()
+    musicList.value = mediaStore.musicItems
   } catch (error) {
     logError(error, '음악 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -199,11 +196,18 @@ const loadMusic = async () => {
 }
 
 const searchMusic = async () => {
-  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
+  try {
+    const results = await musicService.searchMusic(searchFilters.value)
+    musicList.value = results
+  } catch (error) {
+    logError(error, '음악 검색')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
 }
 
 const resetFilters = () => {
   resetMusicSearchFilters(searchFilters.value)
+  loadMusic()
 }
 
 const handleTableAction = (action, item) => {
@@ -267,6 +271,7 @@ const saveMusic = async () => {
     }
     
     cancelEdit()
+    await loadMusic()
   } catch (error) {
     logError(error, '음악 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -278,12 +283,17 @@ const deleteMusic = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deleteMusic(id)
+      await loadMusic()
     }
   } catch (error) {
     logError(error, '음악 삭제')
     await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
+
+onMounted(() => {
+  loadMusic()
+})
 
 </script>
 

@@ -18,8 +18,15 @@ public class EquipmentController {
     private final EquipmentService equipmentService;
     
     @GetMapping
-    public ResponseEntity<ApiResponse<List<EquipmentDto>>> getAllEquipment() {
-        return ResponseUtil.listSuccess(equipmentService.getAllEquipment());
+    public ResponseEntity<ApiResponse<List<EquipmentDto>>> getAllEquipment(
+            @RequestParam(required = false) String name) {
+        List<EquipmentDto> equipmentList;
+        if (name != null) {
+            equipmentList = equipmentService.getEquipmentWithFilters(name);
+        } else {
+            equipmentList = equipmentService.getAllEquipment();
+        }
+        return ResponseUtil.listSuccess(equipmentList);
     }
     
     @GetMapping("/{id}")

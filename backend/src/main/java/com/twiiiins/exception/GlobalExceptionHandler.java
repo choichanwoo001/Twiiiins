@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -54,6 +55,22 @@ public class GlobalExceptionHandler {
         log.error("런타임 오류 발생: {} - 요청: {}", ex.getMessage(), request.getDescription(false), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.internalError("서버 내부 오류가 발생했습니다."));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(NoResourceFoundException ex, WebRequest request) {
+        String requestPath = request.getDescription(false).replace("uri=", "");
+        // 보안 스캐너나 봇이 보내는 무의미한 요청 (PHPUnit, wp-admin 등)은 디버그 레벨로만 로깅
+        if (requestPath.contains("phpunit") || requestPath.contains("vendor") || 
+            requestPath.contains("wp-admin") || requestPath.contains("wp-login") ||
+            requestPath.contains(".env") || requestPath.contains("phpmyadmin")) {
+            log.debug("무시된 경로 요청: {} - 요청: {}", ex.getMessage(), requestPath);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.notFound("리소스를 찾을 수 없습니다."));
+        }
+        log.warn("리소스를 찾을 수 없음: {} - 요청: {}", ex.getMessage(), requestPath);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.notFound("리소스를 찾을 수 없습니다."));
     }
 
     @ExceptionHandler(Exception.class)

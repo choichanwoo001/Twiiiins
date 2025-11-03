@@ -33,8 +33,14 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<List<PhotoGroupDto>>> getAllPhotoGroups() {
-        List<PhotoGroupDto> groups = photoService.getAllPhotoGroups();
+    public ResponseEntity<ApiResponse<List<PhotoGroupDto>>> getAllPhotoGroups(
+            @RequestParam(required = false) String title) {
+        List<PhotoGroupDto> groups;
+        if (title != null) {
+            groups = photoService.getPhotoGroupsWithFilters(title);
+        } else {
+            groups = photoService.getAllPhotoGroups();
+        }
         return ResponseUtil.listSuccess(groups, "사진 그룹 목록을 성공적으로 조회했습니다.");
     }
     

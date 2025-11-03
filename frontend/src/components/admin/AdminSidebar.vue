@@ -56,6 +56,11 @@ const menuItems = computed(() => [
     ariaLabel: '미디어 관리 메뉴'
   },
   {
+    key: 'projects',
+    label: 'Projects',
+    ariaLabel: '프로젝트 관리 메뉴'
+  },
+  {
     key: 'contact',
     label: 'Contact',
     ariaLabel: '연락처 관리 메뉴'

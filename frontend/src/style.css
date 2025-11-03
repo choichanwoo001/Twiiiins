@@ -1,3 +1,19 @@
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -5,9 +21,9 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
-  color: #333;
+  color: #1E1D1D;
   background: #fff;
   overflow-x: hidden;
 }
@@ -20,7 +36,7 @@ body.has-fullpage-scroll {
 /* 네비게이션 */
 .navbar {
   background: none;
-  color: #333;
+  color: #1E1D1D;
   padding: 1rem 0;
   position: fixed;
   top: 0;
@@ -52,9 +68,9 @@ body:has(.router-link-active[href="/"]) .navbar {
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: #1E1D1D;
   text-decoration: none;
   letter-spacing: 0.125rem;
   line-height: 1;
@@ -64,7 +80,7 @@ body:has(.router-link-active[href="/"]) .navbar {
 /* 홈 페이지에서만 로고 크게 */
 body:has(.router-link-active[href="/"]) .logo {
   font-size: 5rem;
-  font-weight: 400;
+  font-weight: 350;
   line-height: 1;
 }
 
@@ -75,7 +91,7 @@ body:has(.router-link-active[href="/"]) .logo {
 }
 
 .nav-links a {
-  color: #333;
+  color: #1E1D1D;
   text-decoration: none;
   transition: opacity 0.3s;
   line-height: 1.5rem;
@@ -87,7 +103,7 @@ body:has(.router-link-active[href="/"]) .logo {
 }
 
 .nav-links a.router-link-active {
-  border-bottom: 0.125rem solid #333;
+  border-bottom: 0.125rem solid #1E1D1D;
 }
 
 /* 메인 컨텐츠 */
@@ -163,3 +179,35 @@ body.events-section-active .sns-links {
   background: rgba(255, 255, 255, 1);
   transform: translateY(-0.125rem);
 }
+
+/* 스크롤바가 컨테이너 내부에 표시되도록 설정 */
+/* 웹킷 브라우저 (Chrome, Edge, Safari) */
+*::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+  background-clip: padding-box;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* 스크롤바가 컨텐츠 영역 내부에 표시되도록 설정 */
+/* 각 컴포넌트에서 scrollbar-gutter를 개별적으로 적용 */

@@ -55,12 +55,15 @@
 <style scoped>
 .about {
   background-color: white;
-  color: #333;
-  font-family: 'Arial', sans-serif;
+  color: #1E1D1D;
+  font-family: 'Jost', sans-serif;
   height: calc(100vh - 3.75rem);
   overflow-y: auto;
+  overflow-x: hidden;
   padding-top: 6rem;
   padding-left: 2rem;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
 }
 
 /* 텍스트 섹션 */
@@ -71,7 +74,7 @@
 
 .about-text h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   color: #8B4513;
   text-transform: uppercase;

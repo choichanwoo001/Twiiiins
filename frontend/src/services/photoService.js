@@ -28,14 +28,11 @@ export const photoService = {
   },
 
   async searchPhotoGroups(filters) {
-    // 현재는 클라이언트 사이드 필터링
-    const allGroups = await this.getAllPhotoGroups()
-    return allGroups.filter(group => {
-      if (filters.title && !group.title.toLowerCase().includes(filters.title.toLowerCase())) {
-        return false
-      }
-      return true
-    })
+    const params = new URLSearchParams()
+    if (filters.title) params.append('title', filters.title)
+    
+    const response = await axios.get(`/media/photo-groups?${params.toString()}`)
+    return response.data.data || response.data
   },
 
   // 사진 관련

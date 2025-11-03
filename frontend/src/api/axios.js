@@ -6,12 +6,13 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 10000 // 10초 타임아웃
+  timeout: 60000 // 60초 타임아웃 (파일 업로드를 위해 증가)
 })
 
 // 요청 인터셉터: JWT 토큰 추가
 apiClient.interceptors.request.use(
   config => {
+    const appStore = useAppStore()
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -19,10 +20,25 @@ apiClient.interceptors.request.use(
     // multipart/form-data인 경우 Content-Type을 자동으로 설정하지 않음
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type']
+      // 파일 업로드인 경우 타임아웃을 더 길게 설정 (2분)
+      config.timeout = 120000
+      
+      // 업로드 진행률 추적
+      appStore.setUploading(true)
+      appStore.setUploadProgress(0)
+      
+      config.onUploadProgress = (progressEvent) => {
+        if (progressEvent.total) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          appStore.setUploadProgress(progress)
+        }
+      }
     }
     return config
   },
   error => {
+    const appStore = useAppStore()
+    appStore.setUploading(false)
     return Promise.reject(error)
   }
 )
@@ -30,14 +46,39 @@ apiClient.interceptors.request.use(
 // 응답 인터셉터: 에러 처리 및 토큰 갱신
 apiClient.interceptors.response.use(
   response => {
+    const appStore = useAppStore()
+    // 업로드 완료 시 상태 초기화
+    if (response.config.data instanceof FormData) {
+      appStore.setUploading(false)
+      appStore.setUploadProgress(100)
+      // 잠시 후 프로그레스 바 숨기기
+      setTimeout(() => {
+        appStore.setUploadProgress(0)
+      }, 500)
+    }
     // 성공 응답 처리
     return response
   },
   error => {
     const appStore = useAppStore()
     
+    // 업로드 중 에러 발생 시 상태 초기화
+    if (error.config && error.config.data instanceof FormData) {
+      appStore.setUploading(false)
+      appStore.setUploadProgress(0)
+    }
+    
     // 네트워크 오류 처리
     if (!error.response) {
+      // 타임아웃 오류 구분
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        appStore.showError('요청 시간이 초과되었습니다. 파일 크기를 확인하거나 다시 시도해주세요.')
+        return Promise.reject({
+          code: 'TIMEOUT_ERROR',
+          message: '요청 시간이 초과되었습니다. 파일 크기를 확인하거나 다시 시도해주세요.',
+          originalError: error
+        })
+      }
       appStore.showError('네트워크 연결을 확인해주세요.')
       return Promise.reject({
         code: 'NETWORK_ERROR',

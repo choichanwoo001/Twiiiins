@@ -110,10 +110,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { photoService } from '../../../services'
-import { filterData } from '../../../utils'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
 import LazyImage from '../../common/LazyImage.vue'
@@ -135,11 +134,8 @@ const mediaStore = useMediaStore()
 // 검색 필터
 const searchFilters = ref(createPhotoGroupSearchFilters())
 
-// Computed properties - 검색 필터 적용
-const photoGroups = computed(() => {
-  const allGroups = mediaStore.photoGroups
-  return filterData(allGroups, searchFilters.value)
-})
+// 사진 그룹 목록
+const photoGroups = ref([])
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -250,6 +246,7 @@ const handleAlertClose = () => {
 const loadPhotoGroups = async () => {
   try {
     await mediaStore.loadPhotoGroups()
+    photoGroups.value = mediaStore.photoGroups
   } catch (error) {
     logError(error, '사진 그룹 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -257,11 +254,18 @@ const loadPhotoGroups = async () => {
 }
 
 const searchPhotoGroups = async () => {
-  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
+  try {
+    const results = await photoService.searchPhotoGroups(searchFilters.value)
+    photoGroups.value = results
+  } catch (error) {
+    logError(error, '사진 그룹 검색')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
 }
 
 const resetFilters = () => {
   resetPhotoGroupSearchFilters(searchFilters.value)
+  loadPhotoGroups()
 }
 
 const handleTableAction = (action, item) => {
@@ -300,6 +304,7 @@ const saveGroup = async () => {
     }
     
     cancelEdit()
+    await loadPhotoGroups()
   } catch (error) {
     logError(error, '그룹 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -311,6 +316,7 @@ const deleteGroup = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deletePhotoGroup(id)
+      await loadPhotoGroups()
     }
   } catch (error) {
     logError(error, '그룹 삭제')

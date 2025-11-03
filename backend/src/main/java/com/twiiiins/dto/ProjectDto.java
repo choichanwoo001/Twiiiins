@@ -25,6 +25,8 @@ public class ProjectDto {
     private String vertical2ImageUrl;
     private String coverImageUrl;
     private String moreInfoUrl;
+    private String director;
+    private String thankYouText;
     private String review1Text;
     private String review1Source;
     private String review2Text;

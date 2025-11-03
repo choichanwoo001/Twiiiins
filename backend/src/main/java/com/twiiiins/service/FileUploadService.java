@@ -23,15 +23,15 @@ public class FileUploadService {
     private final S3FileService s3FileService;
     private final ImageResizeService imageResizeService;
     
-    @Value("${UPLOAD_MAX_SIZE:15MB}")
+    @Value("${UPLOAD_MAX_SIZE:100MB}")
     private String uploadMaxSize;
     
     private long getMaxFileSize() {
         try {
             return DataSize.parse(uploadMaxSize).toBytes();
         } catch (Exception e) {
-            log.warn("UPLOAD_MAX_SIZE 파싱 실패, 기본값 15MB 사용: {}", e.getMessage());
-            return 15 * 1024 * 1024; // 기본값 15MB
+            log.warn("UPLOAD_MAX_SIZE 파싱 실패, 기본값 100MB 사용: {}", e.getMessage());
+            return 15 * 1024 * 1024; // 기본값 100MB
         }
     }
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(

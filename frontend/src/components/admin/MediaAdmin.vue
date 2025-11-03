@@ -61,7 +61,7 @@ const activeTab = ref('music')
 .section-title {
   font-size: 1.5rem;
   margin-bottom: 2rem;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .tabs {
@@ -83,7 +83,7 @@ const activeTab = ref('music')
 }
 
 .tab:hover {
-  color: #333;
+  color: #1E1D1D;
   background: #f8f9fa;
 }
 

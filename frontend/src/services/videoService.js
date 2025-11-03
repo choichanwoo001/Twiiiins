@@ -27,13 +27,10 @@ export const videoService = {
   },
 
   async searchVideos(filters) {
-    // 현재는 클라이언트 사이드 필터링
-    const allVideos = await this.getAllVideos()
-    return allVideos.filter(video => {
-      if (filters.title && !video.title.toLowerCase().includes(filters.title.toLowerCase())) {
-        return false
-      }
-      return true
-    })
+    const params = new URLSearchParams()
+    if (filters.title) params.append('title', filters.title)
+    
+    const response = await axios.get(`/media/videos?${params.toString()}`)
+    return response.data.data || response.data
   }
 }

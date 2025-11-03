@@ -30,9 +30,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useMediaStore } from '../../../stores'
-import { filterData } from '../../../utils'
+import { videoService } from '../../../services'
 import SearchFilters from '../common/SearchFilters.vue'
 import DataTable from '../common/DataTable.vue'
 import CrudForm from '../common/CrudForm.vue'
@@ -43,11 +43,8 @@ const mediaStore = useMediaStore()
 // 검색 필터
 const searchFilters = ref({ title: '' })
 
-// Computed properties - 검색 필터 적용
-const videoList = computed(() => {
-  const allVideos = mediaStore.videos
-  return filterData(allVideos, searchFilters.value)
-})
+// 비디오 목록
+const videoList = ref([])
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -134,17 +131,24 @@ const convertToEmbedUrl = (url) => {
 const loadVideos = async () => {
   try {
     await mediaStore.loadVideos()
+    videoList.value = mediaStore.videos
   } catch (error) {
     console.error('비디오 로드 실패:', error)
   }
 }
 
 const searchVideos = async () => {
-  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
+  try {
+    const results = await videoService.searchVideos(searchFilters.value)
+    videoList.value = results
+  } catch (error) {
+    console.error('비디오 검색 실패:', error)
+  }
 }
 
 const resetFilters = () => {
   searchFilters.value = { title: '' }
+  loadVideos()
 }
 
 const handleTableAction = (action, item) => {
@@ -197,6 +201,7 @@ const saveVideo = async () => {
     }
     
     cancelEdit()
+    await loadVideos()
   } catch (error) {
     console.error('비디오 저장 실패:', error)
     alert('비디오 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
@@ -207,11 +212,16 @@ const deleteVideo = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
       await mediaStore.deleteVideo(id)
+      await loadVideos()
     } catch (error) {
       console.error('비디오 삭제 실패:', error)
     }
   }
 }
+
+onMounted(() => {
+  loadVideos()
+})
 
 </script>
 

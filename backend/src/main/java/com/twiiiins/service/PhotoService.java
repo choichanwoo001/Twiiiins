@@ -29,6 +29,13 @@ public class PhotoService {
                 .toList();
     }
     
+    public List<PhotoGroupDto> getPhotoGroupsWithFilters(String title) {
+        return photoGroupRepository.findPhotoGroupsWithFilters(title)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+    
     public PhotoGroupDto getPhotoGroupById(Long id) {
         PhotoGroup photoGroup = photoGroupRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + id));

@@ -68,6 +68,8 @@ public class ProjectService {
         project.setVertical2ImageUrl(projectDto.getVertical2ImageUrl());
         project.setCoverImageUrl(projectDto.getCoverImageUrl());
         project.setMoreInfoUrl(projectDto.getMoreInfoUrl());
+        project.setDirector(projectDto.getDirector());
+        project.setThankYouText(projectDto.getThankYouText());
         project.setReview1Text(projectDto.getReview1Text());
         project.setReview1Source(projectDto.getReview1Source());
         project.setReview2Text(projectDto.getReview2Text());
@@ -102,6 +104,8 @@ public class ProjectService {
             project.getVertical2ImageUrl(),
             project.getCoverImageUrl(),
             project.getMoreInfoUrl(),
+            project.getDirector(),
+            project.getThankYouText(),
             project.getReview1Text(),
             project.getReview1Source(),
             project.getReview2Text(),
@@ -127,6 +131,8 @@ public class ProjectService {
         project.setVertical2ImageUrl(projectDto.getVertical2ImageUrl());
         project.setCoverImageUrl(projectDto.getCoverImageUrl());
         project.setMoreInfoUrl(projectDto.getMoreInfoUrl());
+        project.setDirector(projectDto.getDirector());
+        project.setThankYouText(projectDto.getThankYouText());
         project.setReview1Text(projectDto.getReview1Text());
         project.setReview1Source(projectDto.getReview1Source());
         project.setReview2Text(projectDto.getReview2Text());

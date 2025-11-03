@@ -92,7 +92,7 @@ twiiiins/
 ## API 문서
 
 ### 기본 정보
-- **Base URL**: `http://localhost:8080/api` (개발), `https://your-domain.com/api` (프로덕션)
+- **Base URL**: `http://localhost:8080/api` (개발), `https://twiiiins.com/api` (프로덕션)
 - **Content-Type**: `application/json`
 
 ### 주요 엔드포인트
@@ -224,9 +224,133 @@ VITE_CLOUDFLARE_STREAM_URL=https://customer-...
 - Pinia를 통한 상태 관리
 - 컴포넌트 재사용성 고려
 
-## 배포
+## 프로덕션 배포
 
-현재 AWS EC2 + Nginx 환경에서 배포 중입니다.
+### 도메인 및 HTTPS 설정
+
+프로젝트는 `twiiiins.com` 도메인과 HTTPS를 지원하도록 구성되어 있습니다.
+
+#### 1. SSL 인증서 준비
+
+Let's Encrypt 인증서를 사용하는 경우:
+```bash
+# Certbot으로 인증서 발급
+certbot certonly --standalone -d twiiiins.com -d www.twiiiins.com
+
+# 인증서를 nginx 컨테이너에서 접근 가능한 위치에 복사
+cp /etc/letsencrypt/live/twiiiins.com/fullchain.pem aws/nginx/ssl/cert.pem
+cp /etc/letsencrypt/live/twiiiins.com/privkey.pem aws/nginx/ssl/key.pem
+```
+
+또는 자체 서명 인증서로 테스트:
+```bash
+mkdir -p aws/nginx/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout aws/nginx/ssl/key.pem \
+  -out aws/nginx/ssl/cert.pem
+```
+
+#### 2. 환경 변수 설정
+
+프로젝트 루트에 `.env` 파일 생성:
+
+```env
+# ============================================
+# 필수 환경 변수
+# ============================================
+
+# 데이터베이스 (필수)
+DB_URL=jdbc:mysql://your-db-host:3306/twiiiins
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_db_password
+
+# CORS 허용 도메인 (선택사항 - 기본값 있음)
+# 설정하지 않으면: http://localhost:5173,https://twiiiins.com,https://www.twiiiins.com 사용
+CORS_ORIGINS=https://twiiiins.com,https://www.twiiiins.com
+
+# ============================================
+# AWS S3 설정 (파일 업로드 필수)
+# ============================================
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_REGION=eu-central-1
+S3_BUCKET_NAME=twiiiins-uploads
+
+# ============================================
+# 선택적 환경 변수 (기본값 있음)
+# ============================================
+
+# 파일 업로드 (기본값: 104857600 = 100MB)
+UPLOAD_MAX_SIZE=104857600
+FILE_UPLOAD_DIR=/app/uploads
+
+# 서버 포트 (기본값: 8080)
+PORT=8080
+
+# JPA 설정 (기본값: update)
+JPA_DDL_AUTO=update
+JPA_SHOW_SQL=false
+
+# 로깅 레벨 (기본값: INFO)
+LOG_LEVEL=INFO
+
+# ============================================
+# 선택적 서비스 설정 (향후 구현 시)
+# ============================================
+
+# Stripe 결제 (결제 기능 사용 시)
+# STRIPE_SECRET_KEY=sk_live_...
+# STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Cloudflare 미디어 (동영상 스트리밍 사용 시)
+# CLOUDFLARE_ACCOUNT_ID=...
+# CLOUDFLARE_API_TOKEN=...
+```
+
+#### 3. 프론트엔드 빌드
+
+```bash
+cd frontend
+npm install
+npm run build
+# 빌드된 파일은 frontend/dist/ 디렉토리에 생성됩니다
+```
+
+#### 4. Docker Compose로 배포
+
+```bash
+# 컨테이너 빌드 및 실행
+docker-compose up -d --build
+
+# 로그 확인
+docker-compose logs -f
+```
+
+#### 5. Nginx 설정 확인
+
+- HTTP(80) → HTTPS(443) 리다이렉트: 자동 처리
+- SSL 인증서 경로: `/etc/nginx/ssl/cert.pem`, `/etc/nginx/ssl/key.pem`
+- 도메인: `twiiiins.com`, `www.twiiiins.com`
+
+#### 6. 백엔드 CORS 설정
+
+`SecurityConfig.java`에서 다음 도메인들이 기본 허용됩니다:
+- `https://twiiiins.com`
+- `https://www.twiiiins.com`
+- `http://localhost:5173` (개발 환경)
+
+환경 변수 `CORS_ORIGINS`로 추가 도메인 설정 가능합니다.
+
+### 배포 체크리스트
+
+- [ ] SSL 인증서 설정 완료
+- [ ] 도메인 DNS A 레코드 설정 (서버 IP로)
+- [ ] 환경 변수 설정 완료
+- [ ] 프론트엔드 빌드 완료
+- [ ] Docker 컨테이너 실행 확인
+- [ ] HTTPS 접근 테스트
+- [ ] API 요청 테스트
+- [ ] CORS 오류 확인
 
 ## 라이선스
 

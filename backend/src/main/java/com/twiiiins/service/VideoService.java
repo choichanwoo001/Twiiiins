@@ -24,6 +24,13 @@ public class VideoService {
                 .toList();
     }
     
+    public List<VideoDto> getVideosWithFilters(String title) {
+        return videoRepository.findVideosWithFilters(title)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+    
     public VideoDto getVideoById(Long id) {
         Video video = videoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + id));

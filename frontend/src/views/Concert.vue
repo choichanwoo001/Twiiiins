@@ -196,7 +196,7 @@ onMounted(() => {
 
 .concert-title h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   color: #CEC0A3;
   text-transform: uppercase;
@@ -210,6 +210,9 @@ onMounted(() => {
   padding-top: 2rem;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
 }
 
 /* 이벤트 섹션 */
@@ -278,7 +281,7 @@ onMounted(() => {
 .event-location {
   font-size: 1rem;
   font-weight: bold;
-  color: #333;
+  color: #1E1D1D;
   margin-bottom: 0.25rem;
 }
 
@@ -330,7 +333,7 @@ onMounted(() => {
 
 .detail-value {
   font-size: 0.9rem;
-  color: #333;
+  color: #1E1D1D;
   flex: 1;
 }
 

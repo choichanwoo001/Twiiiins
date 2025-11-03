@@ -24,6 +24,13 @@ public class EquipmentService {
                 .toList();
     }
     
+    public List<EquipmentDto> getEquipmentWithFilters(String name) {
+        return equipmentRepository.findEquipmentWithFilters(name)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+    
     public EquipmentDto getEquipmentById(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));

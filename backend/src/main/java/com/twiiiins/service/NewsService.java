@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -18,7 +19,14 @@ public class NewsService {
     private final NewsRepository newsRepository;
     
     public List<NewsDto> getAllNews() {
-        return newsRepository.findAllByOrderByDateDesc()
+        return newsRepository.findAllByOrderByDisplayOrderAsc()
+                .stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+    
+    public List<NewsDto> getNewsWithFilters(String title, LocalDate startDate, LocalDate endDate) {
+        return newsRepository.findNewsWithFilters(title, startDate, endDate)
                 .stream()
                 .map(this::convertToDto)
                 .toList();

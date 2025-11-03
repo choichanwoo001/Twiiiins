@@ -27,8 +27,19 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공적으로 조회됨"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<List<NewsDto>>> getAllNews() {
-        return ResponseUtil.listSuccess(newsService.getAllNews());
+    public ResponseEntity<ApiResponse<List<NewsDto>>> getAllNews(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        List<NewsDto> newsList;
+        if (title != null || startDate != null || endDate != null) {
+            java.time.LocalDate start = startDate != null ? java.time.LocalDate.parse(startDate) : null;
+            java.time.LocalDate end = endDate != null ? java.time.LocalDate.parse(endDate) : null;
+            newsList = newsService.getNewsWithFilters(title, start, end);
+        } else {
+            newsList = newsService.getAllNews();
+        }
+        return ResponseUtil.listSuccess(newsList);
     }
     
     @GetMapping("/{id}")

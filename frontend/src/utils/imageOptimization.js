@@ -17,10 +17,15 @@ export const getOptimizedImageUrl = (imageUrl, options = {}) => {
   }
 
   // 상대 경로인 경우
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-  const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
-  
-  return `${baseURL}${path}`
+  // 프로덕션에서는 상대 경로를 그대로 사용 (현재 페이지 도메인 기준)
+  // 개발 환경에서만 localhost를 사용
+  if (import.meta.env.DEV) {
+    const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+    const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
+    return `${baseURL}${path}`
+  }
+  // 프로덕션: 상대 경로 그대로 반환
+  return imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
 }
 
 /**

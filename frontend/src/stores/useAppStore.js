@@ -7,6 +7,8 @@ export const useAppStore = defineStore('app', () => {
   const error = ref(null)
   const user = ref(null)
   const theme = ref('light')
+  const isUploading = ref(false)
+  const uploadProgress = ref(0)
 
   // 게터
   const isAuthenticated = computed(() => !!user.value)
@@ -51,6 +53,17 @@ export const useAppStore = defineStore('app', () => {
     setTheme(theme.value === 'light' ? 'dark' : 'light')
   }
 
+  const setUploading = (uploading) => {
+    isUploading.value = uploading
+    if (!uploading) {
+      uploadProgress.value = 0
+    }
+  }
+
+  const setUploadProgress = (progress) => {
+    uploadProgress.value = progress
+  }
+
   // 초기화
   const initialize = () => {
     const savedTheme = localStorage.getItem('theme')
@@ -65,6 +78,8 @@ export const useAppStore = defineStore('app', () => {
     error,
     user,
     theme,
+    isUploading,
+    uploadProgress,
     // 게터
     isAuthenticated,
     hasError,
@@ -77,6 +92,8 @@ export const useAppStore = defineStore('app', () => {
     logout,
     setTheme,
     toggleTheme,
+    setUploading,
+    setUploadProgress,
     initialize
   }
 })

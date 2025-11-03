@@ -18,7 +18,7 @@
           <!-- 이미지 -->
           <figure class="project-figure">
             <img
-              :src="project.mainImageUrl || '../imgs/project_cover.jpg'"
+              :src="project.mainImageUrl || project.coverImageUrl || '../imgs/project_cover.jpg'"
               :alt="project.title"
             />
           </figure>
@@ -60,21 +60,74 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from '../api/axios'
 import projectCoverImg from '../imgs/project_cover.jpg'
 
 const router = useRouter()
-const projects = ref([
-  {
-    id: 1,
-    title: 'ARTURO UI',
-    premiereDate: '2025-02-22',
-    location: 'Salzburg State Theater',
-    mainImageUrl: projectCoverImg,
-    urlSlug: 'arturo-ui'
+
+// 하드코딩된 기본 프로젝트 (유지)
+const hardcodedProject = {
+  id: 1,
+  title: 'ARTURO UI',
+  premiereDate: '2025-02-22',
+  location: 'Salzburg State Theater',
+  mainImageUrl: projectCoverImg,
+  coverImageUrl: projectCoverImg,
+  urlSlug: 'arturo-ui'
+}
+
+// API에서 가져온 프로젝트들
+const apiProjects = ref([])
+
+// 전체 프로젝트 목록 (하드코딩 + API 데이터)
+const projects = computed(() => {
+  const allProjects = [hardcodedProject, ...apiProjects.value]
+  // 중복 제거 (urlSlug 기준)
+  const uniqueProjects = []
+  const seenSlugs = new Set()
+  
+  for (const project of allProjects) {
+    if (project.urlSlug && !seenSlugs.has(project.urlSlug)) {
+      seenSlugs.add(project.urlSlug)
+      uniqueProjects.push(project)
+    } else if (!project.urlSlug) {
+      uniqueProjects.push(project)
+    }
   }
-])
+  
+  return uniqueProjects
+})
+
+// 프로젝트 데이터 로드
+const loadProjects = async () => {
+  try {
+    const response = await axios.get('/projects')
+    const projectData = response.data.data || response.data || []
+    
+    // 백엔드 URL 처리
+    const toAbsoluteUrl = (url) => {
+      if (!url) return null
+      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
+      // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
+      if (import.meta.env.DEV) {
+        const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+        return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+      }
+      return url.startsWith('/') ? url : `/${url}`
+    }
+    
+    apiProjects.value = projectData.map(project => ({
+      ...project,
+      mainImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : (project.mainImageUrl ? toAbsoluteUrl(project.mainImageUrl) : null),
+      coverImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : null
+    }))
+  } catch (error) {
+    console.error('프로젝트 데이터 로드 실패:', error)
+    apiProjects.value = []
+  }
+}
 
 // 날짜 포맷팅
 const formatDate = (dateString) => {
@@ -93,6 +146,10 @@ const goToProjectDetail = (urlSlug) => {
     router.push(`/projects/${urlSlug}`)
   }
 }
+
+onMounted(() => {
+  loadProjects()
+})
 </script>
 
 <style scoped>
@@ -122,7 +179,7 @@ const goToProjectDetail = (urlSlug) => {
 }
 .projects-title h1{
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   color:#5B8793;
   text-transform: uppercase;
@@ -140,6 +197,9 @@ const goToProjectDetail = (urlSlug) => {
   min-height: 0; /* 그리드 아이템 내부 스크롤 허용 */
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
 }
 
 /* 프로젝트 목록 */
@@ -204,7 +264,7 @@ const goToProjectDetail = (urlSlug) => {
 }
 
 .caption-arrow:hover {
-  color: #333;
+  color: #1E1D1D;
 }
 
 /* 호버 미세 인터랙션(선택) */

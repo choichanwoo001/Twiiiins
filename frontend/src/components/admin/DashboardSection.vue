@@ -189,7 +189,7 @@ const totalPhotosCount = computed(() =>
 .section-title {
   font-size: 1.5rem;
   margin-bottom: 2rem;
-  color: #333;
+  color: #1E1D1D;
 }
 
 /* Dashboard Styles */
@@ -223,7 +223,7 @@ const totalPhotosCount = computed(() =>
 
 .stat-content h3 {
   margin: 0 0 0.5rem 0;
-  color: #333;
+  color: #1E1D1D;
   font-size: 1.1rem;
 }
 
@@ -242,7 +242,7 @@ const totalPhotosCount = computed(() =>
 
 .dashboard-section h2 {
   margin: 0 0 1.5rem 0;
-  color: #333;
+  color: #1E1D1D;
   font-size: 1.3rem;
 }
 
@@ -277,7 +277,7 @@ const totalPhotosCount = computed(() =>
 
 .activity-content h4 {
   margin: 0 0 1rem 0;
-  color: #333;
+  color: #1E1D1D;
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -307,7 +307,7 @@ const totalPhotosCount = computed(() =>
   cursor: pointer;
   transition: all 0.2s;
   text-decoration: none;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .quick-action-btn:hover {
@@ -341,7 +341,7 @@ const totalPhotosCount = computed(() =>
 
 .status-label {
   font-weight: 500;
-  color: #333;
+  color: #1E1D1D;
   min-width: 8rem;
 }
 

@@ -109,7 +109,7 @@ const handleLogin = async () => {
   font-weight: 600;
   margin-bottom: 2rem;
   text-align: center;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .login-form {

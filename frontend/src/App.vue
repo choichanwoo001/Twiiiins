@@ -21,10 +21,10 @@
     
     <!-- SNS 링크 (왼쪽 하단) - 홈 페이지에서만 표시 -->
     <div v-if="isHomePage" class="sns-links">
-      <a href="#" class="sns-link">INSTAGRAM</a>
-      <a href="#" class="sns-link">YOUTUBE</a>
-      <a href="#" class="sns-link">SPOTIFY</a>
-      <a href="#" class="sns-link">APPLE MUSIC</a>
+      <a href="https://www.instagram.com/twiiiinsmusic/?hl=en" target="_blank" rel="noopener noreferrer" class="sns-link">INSTAGRAM</a>
+      <a href="https://www.youtube.com/@twiiiins" target="_blank" rel="noopener noreferrer" class="sns-link">YOUTUBE</a>
+      <a href="https://open.spotify.com/artist/5W2MPoNirjyFmHlBqN8uxZ?si=pWbiWGSrTM-DUDKLd-qwyw" target="_blank" rel="noopener noreferrer" class="sns-link">SPOTIFY</a>
+      <a href="https://music.apple.com/kr/artist/twiiiins/1717657113?l=en-GB" target="_blank" rel="noopener noreferrer" class="sns-link">APPLE MUSIC</a>
     </div>
 
     <!-- 스크롤 업 버튼 (오른쪽 하단) - 관리자 페이지가 아닐 때만 표시 -->

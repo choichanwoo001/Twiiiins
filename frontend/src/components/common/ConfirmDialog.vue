@@ -100,7 +100,7 @@ const handleOverlayClick = () => {
 
 .dialog-header h3 {
   margin: 0;
-  color: #333;
+  color: #1E1D1D;
   font-size: 1.25rem;
   font-weight: 600;
 }

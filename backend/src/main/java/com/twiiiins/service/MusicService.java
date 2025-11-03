@@ -32,6 +32,19 @@ public class MusicService {
         return result;
     }
     
+    public List<MusicDto> getMusicWithFilters(String title, String artist) {
+        log.debug("음악 검색 시작: title={}, artist={}", title, artist);
+        List<Music> musicList = musicRepository.findMusicWithFilters(title, artist);
+        log.debug("데이터베이스에서 {} 개의 음악 조회됨", musicList.size());
+        
+        List<MusicDto> result = musicList.stream()
+                .map(this::convertToDto)
+                .toList();
+        
+        log.debug("음악 검색 결과: {} 개 항목", result.size());
+        return result;
+    }
+    
     public MusicDto getMusicById(Long id) {
         log.debug("음악 조회 시작: ID = {}", id);
         Music music = musicRepository.findById(id)

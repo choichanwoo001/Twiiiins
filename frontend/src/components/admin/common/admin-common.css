@@ -50,7 +50,7 @@
 
 .data-list h2 {
   margin-bottom: 1rem;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .data-table {
@@ -93,7 +93,7 @@
 
 .form-section h2 {
   margin-bottom: 1.5rem;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .crud-form {
@@ -181,7 +181,7 @@
 
 .modal-header h3 {
   margin: 0;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .btn-close {
@@ -194,7 +194,7 @@
 }
 
 .btn-close:hover {
-  color: #333;
+  color: #1E1D1D;
 }
 
 .modal-body {

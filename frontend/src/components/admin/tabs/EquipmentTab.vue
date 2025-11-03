@@ -56,10 +56,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
-import { filterData } from '../../../utils'
+import { equipmentService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -72,11 +72,8 @@ const mediaStore = useMediaStore()
 // 검색 필터
 const searchFilters = ref({ name: '' })
 
-// Computed properties - 검색 필터 적용
-const equipmentList = computed(() => {
-  const allEquipment = mediaStore.equipmentItems
-  return filterData(allEquipment, searchFilters.value)
-})
+// 장비 목록
+const equipmentList = ref([])
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -181,6 +178,7 @@ const handleAlertClose = () => {
 const loadEquipment = async () => {
   try {
     await mediaStore.loadEquipment()
+    equipmentList.value = mediaStore.equipmentItems
   } catch (error) {
     logError(error, '장비 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -188,11 +186,18 @@ const loadEquipment = async () => {
 }
 
 const searchEquipment = async () => {
-  // 검색은 computed로 자동 필터링되므로 별도 처리 불필요
+  try {
+    const results = await equipmentService.searchEquipment(searchFilters.value)
+    equipmentList.value = results
+  } catch (error) {
+    logError(error, '장비 검색')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
 }
 
 const resetFilters = () => {
   searchFilters.value = { name: '' }
+  loadEquipment()
 }
 
 const handleTableAction = (action, item) => {
@@ -252,6 +257,7 @@ const saveEquipment = async () => {
     }
     
     cancelEdit()
+    await loadEquipment()
   } catch (error) {
     logError(error, '장비 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -263,12 +269,17 @@ const deleteEquipment = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deleteEquipment(id)
+      await loadEquipment()
     }
   } catch (error) {
     logError(error, '장비 삭제')
     await showAlert(getErrorMessage(error), '오류', 'danger')
   }
 }
+
+onMounted(() => {
+  loadEquipment()
+})
 
 </script>
 

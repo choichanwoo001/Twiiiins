@@ -96,7 +96,7 @@ const handleAction = (actionKey, item) => {
 
 .data-list h2 {
   margin-bottom: 1rem;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .data-table {

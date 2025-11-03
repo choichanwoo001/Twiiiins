@@ -85,7 +85,7 @@ const handleOverlayClick = () => {
 
 .modal-header h3 {
   margin: 0;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .btn-close {
@@ -98,7 +98,7 @@ const handleOverlayClick = () => {
 }
 
 .btn-close:hover {
-  color: #333;
+  color: #1E1D1D;
 }
 
 .modal-body {

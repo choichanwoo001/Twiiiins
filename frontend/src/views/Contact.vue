@@ -54,11 +54,16 @@ const toAbsoluteUrl = (url) => {
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
     return url
   }
-  // 상대 경로인 경우에만 백엔드 URL 추가 (하지만 S3를 사용하므로 이런 경우는 없어야 함)
+  // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
   // 백엔드에서 S3 전체 URL을 반환해야 하므로 경고 로그 추가
+  if (import.meta.env.DEV) {
+    console.warn('상대 경로로 된 파일 URL이 감지되었습니다. 백엔드에서 S3 전체 URL을 반환해야 합니다:', url)
+    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+    return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+  }
+  // 프로덕션: 상대 경로 그대로 반환 (현재 페이지 도메인 기준)
   console.warn('상대 경로로 된 파일 URL이 감지되었습니다. 백엔드에서 S3 전체 URL을 반환해야 합니다:', url)
-  const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
-  return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+  return url.startsWith('/') ? url : `/${url}`
 }
 
 // 데이터
@@ -120,6 +125,8 @@ onMounted(() => {
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
+  height: calc(100vh - 3.75rem);
+  overflow: hidden;
 }
 
 /* 좌측 타이틀 */
@@ -132,7 +139,7 @@ onMounted(() => {
 
 .contact-title h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   color: #815D47;
   text-transform: uppercase;
@@ -147,9 +154,16 @@ onMounted(() => {
   margin-right: 2rem;
   justify-self: end;
   padding-top: 2rem;
+  padding-bottom: 4rem;
   display: flex;
   flex-direction: column;
   gap: 3rem;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
 }
 
 /* 연락처 + 다운로드 병렬 컨테이너 */
@@ -191,7 +205,7 @@ onMounted(() => {
 .contact-name {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #333;
+  color: #1E1D1D;
   line-height: 1;
 }
 
@@ -216,7 +230,7 @@ onMounted(() => {
 .download-section h2 {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #333;
+  color: #1E1D1D;
   margin: 0 0 0.25rem 0;
   line-height: 1;
 }

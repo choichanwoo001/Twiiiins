@@ -51,16 +51,19 @@ const router = useRouter()
 
 // 이벤트 데이터 (스토어에서 가져온 데이터를 변환)
 const events = computed(() => {
-  return concertStore.upcomingConcerts.map(concert => ({
-    id: concert.id,
-    date: new Date(concert.date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }),
-    location: concert.location,
-    name: concert.name
-  }))
+  return concertStore.upcomingConcerts
+    .map(concert => ({
+      id: concert.id,
+      date: new Date(concert.date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      dateValue: new Date(concert.date), // 정렬을 위한 원본 날짜
+      location: concert.location,
+      name: concert.name
+    }))
+    .sort((a, b) => a.dateValue - b.dateValue) // 오름차순 정렬 (가장 이른 날짜가 위로)
 })
 
 // 콘서트 데이터 로드

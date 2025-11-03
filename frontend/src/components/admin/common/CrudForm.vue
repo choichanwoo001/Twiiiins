@@ -174,7 +174,7 @@ defineExpose({
 
 .form-section h2 {
   margin-bottom: 1.5rem;
-  color: #333;
+  color: #1E1D1D;
 }
 
 .crud-form {

@@ -58,6 +58,11 @@ public class Project {
     @Column(name = "more_info_url")
     private String moreInfoUrl;
     
+    private String director;
+    
+    @Column(name = "thank_you_text", length = 2000)
+    private String thankYouText;
+    
     @Column(length = 1000)
     private String review1Text;
     
