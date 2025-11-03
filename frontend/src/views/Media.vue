@@ -144,18 +144,9 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from '../api/axios'
-
-// 백엔드 절대 URL 생성 유틸
-const toAbsoluteUrl = (url) => {
-  if (!url) return ''
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
-  // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
-  if (import.meta.env.DEV) {
-    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
-    return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
-  }
-  return url.startsWith('/') ? url : `/${url}`
-}
+import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
+import { calculateRowHeight } from '../utils/imageOptimization'
+import { logError } from '../utils/errorHandler'
 
 // 활성 섹션 상태
 const activeSection = ref('')
@@ -190,7 +181,7 @@ const loadMusic = async () => {
       musicItems.value = []
     }
   } catch (error) {
-    console.error('음악 데이터 로드 실패:', error)
+    logError(error, '음악 데이터 로드')
     musicItems.value = []
   }
 }
@@ -268,7 +259,7 @@ const loadVideos = async () => {
       videos.value = []
     }
   } catch (error) {
-    console.error('비디오 데이터 로드 실패:', error)
+    logError(error, '비디오 데이터 로드')
     videos.value = []
   }
 }
@@ -298,7 +289,7 @@ const loadPhotoGroups = async () => {
       })) : []
     }))
   } catch (error) {
-    console.error('사진 그룹 데이터 로드 실패:', error)
+    logError(error, '사진 그룹 데이터 로드')
     photoGroups.value = []
   }
 }
@@ -313,7 +304,7 @@ const loadEquipment = async () => {
       imageUrl: toAbsoluteUrl(equipment.imageUrl)
     }))
   } catch (error) {
-    console.error('장비 데이터 로드 실패:', error)
+    logError(error, '장비 데이터 로드')
     equipmentList.value = []
   }
 }
@@ -327,14 +318,14 @@ const loadNews = async () => {
     const response = await axios.get('/media/news')
     newsList.value = response.data.data.map(news => ({
       id: news.id,
-      date: formatNewsDate(news.date),
+      date: formatDate(news.date, 'news'),
       title: news.title,
       description: news.description,
       imageUrls: news.imageUrls || [],
       expanded: false
     }))
   } catch (error) {
-    console.error('뉴스 데이터 로드 실패:', error)
+    logError(error, '뉴스 데이터 로드')
     newsList.value = []
   }
 }
@@ -366,46 +357,8 @@ const onImageLoad = (event, rowIndex) => {
     if (!row) return
     
     const images = row.querySelectorAll('img')
-    let maxHeight = 0
-    
-    images.forEach((image) => {
-      if (image.naturalWidth && image.naturalHeight) {
-        const imageItem = image.closest('.image-item')
-        const flexBasis = getFlexBasis(imageItem)
-        const totalFlex = getTotalFlex(row, images)
-        const rowWidth = row.offsetWidth
-        const gap = 8 // 0.5rem = 8px
-        const itemWidth = (rowWidth - (images.length - 1) * gap) * (flexBasis / totalFlex)
-        
-        const aspectRatio = image.naturalWidth / image.naturalHeight
-        const neededHeight = itemWidth / aspectRatio
-        
-        if (neededHeight > maxHeight) {
-          maxHeight = neededHeight
-        }
-      }
-    })
-    
-    const minHeight = rowIndex === 0 ? 300 : 250
-    if (maxHeight > 0) {
-      row.style.height = `${Math.max(maxHeight, minHeight)}px`
-    }
+    calculateRowHeight(row, images, rowIndex)
   })
-}
-
-function getFlexBasis(imageItem) {
-  const flexValue = window.getComputedStyle(imageItem).flex
-  const match = flexValue.match(/^(\d+)/)
-  return match ? parseInt(match[1]) : 1
-}
-
-function getTotalFlex(row, images) {
-  let total = 0
-  images.forEach((img) => {
-    const imageItem = img.closest('.image-item')
-    total += getFlexBasis(imageItem)
-  })
-  return total
 }
 
 // 뉴스 토글 함수
@@ -414,16 +367,6 @@ const toggleNews = (newsId) => {
   if (news) {
     news.expanded = !news.expanded
   }
-}
-
-// 뉴스 날짜 포맷팅
-const formatNewsDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = String(date.getFullYear()).slice(-2)
-  return `${day}.${month}.${year}`
 }
 </script>
 

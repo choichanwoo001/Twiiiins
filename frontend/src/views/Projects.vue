@@ -27,7 +27,7 @@
           <div class="project-caption">
             <div class="caption-left">{{ project.title }}</div>
             <div class="caption-right">
-              <span>{{ formatDate(project.premiereDate) }}, {{ project.location }}</span>
+              <span>{{ formatDate(project.premiereDate, 'short', 'en-US') }}, {{ project.location }}</span>
               <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -63,6 +63,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '../api/axios'
+import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
+import { logError, getErrorMessage } from '../utils/errorHandler'
 import projectCoverImg from '../imgs/project_cover.jpg'
 
 const router = useRouter()
@@ -106,38 +108,15 @@ const loadProjects = async () => {
     const response = await axios.get('/projects')
     const projectData = response.data.data || response.data || []
     
-    // 백엔드 URL 처리
-    const toAbsoluteUrl = (url) => {
-      if (!url) return null
-      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
-      // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
-      if (import.meta.env.DEV) {
-        const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
-        return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
-      }
-      return url.startsWith('/') ? url : `/${url}`
-    }
-    
     apiProjects.value = projectData.map(project => ({
       ...project,
       mainImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : (project.mainImageUrl ? toAbsoluteUrl(project.mainImageUrl) : null),
       coverImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : null
     }))
   } catch (error) {
-    console.error('프로젝트 데이터 로드 실패:', error)
+    logError(error, '프로젝트 데이터 로드')
     apiProjects.value = []
   }
-}
-
-// 날짜 포맷팅
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).replace(/\//g, '.')
 }
 
 // 프로젝트 상세로 이동

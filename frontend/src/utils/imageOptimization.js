@@ -130,3 +130,75 @@ export const addResizeParams = (imageUrl, resizeOptions = {}) => {
 
   return url.toString()
 }
+
+/**
+ * 이미지 행 높이 계산 관련 유틸리티
+ */
+
+/**
+ * 요소의 flex-basis 값을 추출
+ * @param {HTMLElement} imageItem - 이미지 아이템 요소
+ * @returns {number} flex-basis 값
+ */
+export const getFlexBasis = (imageItem) => {
+  if (!imageItem) return 1
+  const flexValue = window.getComputedStyle(imageItem).flex
+  const match = flexValue.match(/^(\d+)/)
+  return match ? parseInt(match[1]) : 1
+}
+
+/**
+ * 행 내 모든 이미지의 flex-basis 총합 계산
+ * @param {HTMLElement} row - 행 요소
+ * @param {NodeList|Array} images - 이미지 요소들
+ * @returns {number} 총 flex-basis 값
+ */
+export const getTotalFlex = (row, images) => {
+  if (!row || !images) return 0
+  let total = 0
+  images.forEach((img) => {
+    const imageItem = img.closest('.image-item')
+    if (imageItem) {
+      total += getFlexBasis(imageItem)
+    }
+  })
+  return total
+}
+
+/**
+ * 이미지 행의 높이를 계산하고 설정
+ * @param {HTMLElement} row - 행 요소
+ * @param {NodeList|Array} images - 이미지 요소들
+ * @param {number} rowIndex - 행 인덱스 (0부터 시작)
+ */
+export const calculateRowHeight = (row, images, rowIndex) => {
+  if (!row || !images || images.length === 0) return
+
+  const rowWidth = row.offsetWidth
+  const gap = 8 // 0.5rem = 8px
+  let maxHeight = 0
+
+  images.forEach((img) => {
+    if (img.naturalWidth && img.naturalHeight) {
+      const imageItem = img.closest('.image-item')
+      if (!imageItem) return
+
+      const flexBasis = getFlexBasis(imageItem)
+      const totalFlex = getTotalFlex(row, images)
+      const itemWidth = (rowWidth - (images.length - 1) * gap) * (flexBasis / totalFlex)
+
+      const aspectRatio = img.naturalWidth / img.naturalHeight
+      const neededHeight = itemWidth / aspectRatio
+
+      if (neededHeight > maxHeight) {
+        maxHeight = neededHeight
+      }
+    }
+  })
+
+  // 최소 높이 보장하고, 계산된 높이와 비교해서 더 큰 값 사용
+  const minHeight = rowIndex === 0 ? 300 : 250 // 첫 번째 행: 300px, 두 번째 행: 250px
+  if (maxHeight > 0) {
+    row.style.height = `${Math.max(maxHeight, minHeight)}px`
+  }
+}

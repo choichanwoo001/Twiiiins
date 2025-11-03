@@ -3,10 +3,11 @@
 /**
  * 날짜 포맷팅
  * @param {Date|string} date - 날짜
- * @param {string} format - 포맷 ('date', 'datetime', 'time', 'relative')
+ * @param {string} format - 포맷 ('date', 'datetime', 'time', 'relative', 'short', 'numeric')
+ * @param {string} locale - 로케일 ('ko-KR', 'en-US' 등, 기본값: 'ko-KR')
  * @returns {string} 포맷된 날짜 문자열
  */
-export const formatDate = (date, format = 'date') => {
+export const formatDate = (date, format = 'date', locale = 'ko-KR') => {
   if (!date) return ''
   
   const d = new Date(date)
@@ -17,6 +18,21 @@ export const formatDate = (date, format = 'date') => {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
+    },
+    short: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    },
+    numeric: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    },
+    news: {
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit'
     },
     datetime: {
       year: 'numeric',
@@ -35,7 +51,23 @@ export const formatDate = (date, format = 'date') => {
     return getRelativeTime(d)
   }
 
-  return d.toLocaleDateString('ko-KR', options[format] || options.date)
+  const formatted = d.toLocaleDateString(locale, options[format] || options.date)
+  
+  // short/numeric 포맷의 경우 슬래시를 점으로 변경 (프로젝트 요구사항)
+  if (format === 'short' || format === 'numeric') {
+    return formatted.replace(/\//g, '.')
+  }
+  
+  // news 포맷의 경우: DD.MM.YY 형식으로 변환 (슬래시를 점으로 변경하고 순서 조정)
+  if (format === 'news') {
+    // 로케일에 따라 다른 순서로 반환될 수 있으므로 직접 포맷팅
+    const day = String(d.getDate()).padStart(2, '0')
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const year = String(d.getFullYear()).slice(-2)
+    return `${day}.${month}.${year}`
+  }
+  
+  return formatted
 }
 
 /**
@@ -286,4 +318,24 @@ export const cookies = {
   remove(name) {
     document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`
   }
+}
+
+/**
+ * 상대 URL을 절대 URL로 변환
+ * 백엔드 API에서 반환된 상대 경로를 절대 경로로 변환합니다.
+ * @param {string} url - 변환할 URL
+ * @returns {string} 절대 URL
+ */
+export const toAbsoluteUrl = (url) => {
+  if (!url) return ''
+  // 이미 완전한 URL인 경우 (http://, https://, data:) 그대로 반환
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url
+  }
+  // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
+  if (import.meta.env.DEV) {
+    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+    return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+  }
+  return url.startsWith('/') ? url : `/${url}`
 }

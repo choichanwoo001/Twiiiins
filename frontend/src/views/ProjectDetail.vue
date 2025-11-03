@@ -5,7 +5,7 @@
       <h1>{{ project.title }}</h1>
       <div class="project-content">
         <div class="project-subtitle">{{ project.subtitle }}</div>
-        <div class="project-date-location">Premiere: {{ formatDate(project.premiereDate) }} · {{ project.location }}</div>
+        <div class="project-date-location">Premiere: {{ formatDate(project.premiereDate, 'date', 'en-US') }} · {{ project.location }}</div>
         <div class="project-director" v-if="project.director">Director: {{ project.director }}</div>
         <p v-if="project.description1">{{ project.description1 }}</p>
         <p v-if="project.description2">{{ project.description2 }}</p>
@@ -71,6 +71,9 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '../api/axios'
+import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
+import { calculateRowHeight } from '../utils/imageOptimization'
+import { logError } from '../utils/errorHandler'
 import mainImg from '../imgs/project_detail/main.jpg'
 import horizontal1Img from '../imgs/project_detail/horizontal1.jpg'
 import horizontal2Img from '../imgs/project_detail/horizontal2.jpg'
@@ -118,18 +121,6 @@ const loadProject = async () => {
     const projectData = response.data.data || response.data
     
     if (projectData) {
-      // 백엔드 URL 처리
-      const toAbsoluteUrl = (url) => {
-        if (!url) return null
-        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url
-        // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
-        if (import.meta.env.DEV) {
-          const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
-          return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
-        }
-        return url.startsWith('/') ? url : `/${url}`
-      }
-      
       // API 데이터를 하드코딩 데이터와 병합 (하드코딩 데이터 우선)
       project.value = {
         ...hardcodedProject,
@@ -146,20 +137,9 @@ const loadProject = async () => {
       }
     }
   } catch (error) {
-    console.error('프로젝트 데이터 로드 실패:', error)
+    logError(error, '프로젝트 데이터 로드')
     // 에러 발생 시 하드코딩된 데이터 사용
   }
-}
-
-// 날짜 포맷팅
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
 }
 
 // 이미지 비율에 맞춰 행 높이 조정
@@ -192,48 +172,6 @@ onMounted(async () => {
   })
 })
 
-function calculateRowHeight(row, images, rowIndex) {
-  const rowWidth = row.offsetWidth
-  const gap = 8 // 0.5rem = 8px
-  let maxHeight = 0
-  
-  images.forEach((img) => {
-    if (img.naturalWidth && img.naturalHeight) {
-      const imageItem = img.closest('.image-item')
-      const flexBasis = getFlexBasis(imageItem)
-      const totalFlex = getTotalFlex(row, images)
-      const itemWidth = (rowWidth - (images.length - 1) * gap) * (flexBasis / totalFlex)
-      
-      const aspectRatio = img.naturalWidth / img.naturalHeight
-      const neededHeight = itemWidth / aspectRatio
-      
-      if (neededHeight > maxHeight) {
-        maxHeight = neededHeight
-      }
-    }
-  })
-  
-  // 최소 높이 보장하고, 계산된 높이와 비교해서 더 큰 값 사용
-  const minHeight = rowIndex === 0 ? 300 : 250 // 18.75rem, 15.625rem
-  if (maxHeight > 0) {
-    row.style.height = `${Math.max(maxHeight, minHeight)}px`
-  }
-}
-
-function getFlexBasis(imageItem) {
-  const flexValue = window.getComputedStyle(imageItem).flex
-  const match = flexValue.match(/^(\d+)/)
-  return match ? parseInt(match[1]) : 1
-}
-
-function getTotalFlex(row, images) {
-  let total = 0
-  images.forEach((img) => {
-    const imageItem = img.closest('.image-item')
-    total += getFlexBasis(imageItem)
-  })
-  return total
-}
 </script>
 
 <style scoped>
@@ -286,12 +224,12 @@ function getTotalFlex(row, images) {
 }
 
 .project-date-location {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #999;
 }
 
 .project-director {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #999;
   margin-bottom: 2rem;
 }

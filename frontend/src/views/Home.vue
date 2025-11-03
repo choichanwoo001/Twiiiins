@@ -44,6 +44,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useConcertStore } from '../stores'
 import { useRouter } from 'vue-router'
+import { formatDate } from '../utils/commonHelpers'
+import { logError } from '../utils/errorHandler'
 
 // 스토어 사용
 const concertStore = useConcertStore()
@@ -54,11 +56,7 @@ const events = computed(() => {
   return concertStore.upcomingConcerts
     .map(concert => ({
       id: concert.id,
-      date: new Date(concert.date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }),
+      date: formatDate(concert.date, 'date', 'en-US'),
       dateValue: new Date(concert.date), // 정렬을 위한 원본 날짜
       location: concert.location,
       name: concert.name
@@ -72,7 +70,7 @@ const loadEvents = async () => {
     await concertStore.loadConcerts()
   } catch (error) {
     // API 호출 실패해도 화면은 표시되도록 함
-    console.error('공연 정보 로드 실패:', error)
+    logError(error, '공연 정보 로드')
   }
 }
 

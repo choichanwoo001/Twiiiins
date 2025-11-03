@@ -103,6 +103,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from '../api/axios'
+import { formatDate } from '../utils/commonHelpers'
+import { logError } from '../utils/errorHandler'
 
 // 이벤트 데이터
 const upcomingEvents = ref([])
@@ -114,11 +116,7 @@ const loadConcerts = async () => {
     const response = await axios.get('/concerts')
     const allConcerts = response.data.data.map(concert => ({
       id: concert.id,
-      date: new Date(concert.date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }),
+      date: formatDate(concert.date, 'date', 'en-US'),
       location: concert.location,
       name: concert.name,
       expanded: false,
@@ -139,7 +137,7 @@ const loadConcerts = async () => {
       .filter(concert => concert.isPast)
       .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
   } catch (error) {
-    console.error('콘서트 데이터 로드 실패:', error)
+    logError(error, '콘서트 데이터 로드')
     // 에러 시 빈 배열로 초기화
     upcomingEvents.value = []
     pastEvents.value = []
