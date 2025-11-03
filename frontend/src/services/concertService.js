@@ -5,11 +5,11 @@ import { getErrorMessage, logError } from '../utils/errorHandler'
 export const concertService = {
   // 콘서트 목록 조회
   async getAllConcerts() {
-    const cacheKey = createCacheKey('/api/concerts')
+    const cacheKey = createCacheKey('/concerts')
     return cachedApiCall(
       async () => {
         try {
-          const response = await axios.get('/api/concerts')
+          const response = await axios.get('/concerts')
           return response.data.data // 표준화된 응답에서 data 추출
         } catch (error) {
           logError(error, 'getAllConcerts')
@@ -24,7 +24,7 @@ export const concertService = {
   // 콘서트 상세 조회
   async getConcertById(id) {
     try {
-      const response = await axios.get(`/api/concerts/${id}`)
+      const response = await axios.get(`/concerts/${id}`)
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'getConcertById')
@@ -41,7 +41,7 @@ export const concertService = {
       if (filters.startDate) params.append('startDate', filters.startDate)
       if (filters.endDate) params.append('endDate', filters.endDate)
       
-      const response = await axios.get(`/api/concerts?${params.toString()}`)
+      const response = await axios.get(`/concerts?${params.toString()}`)
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'searchConcerts')
@@ -52,10 +52,10 @@ export const concertService = {
   // 콘서트 생성
   async createConcert(concertData) {
     try {
-      const response = await axios.post('/api/concerts', concertData)
+      const response = await axios.post('/concerts', concertData)
       // 콘서트 목록 캐시 무효화
       const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/api/concerts')
+      apiCache.deletePattern('^/concerts')
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'createConcert')
@@ -66,10 +66,10 @@ export const concertService = {
   // 콘서트 수정
   async updateConcert(id, concertData) {
     try {
-      const response = await axios.put(`/api/concerts/${id}`, concertData)
+      const response = await axios.put(`/concerts/${id}`, concertData)
       // 콘서트 목록 캐시 무효화
       const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/api/concerts')
+      apiCache.deletePattern('^/concerts')
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'updateConcert')
@@ -80,10 +80,10 @@ export const concertService = {
   // 콘서트 삭제
   async deleteConcert(id) {
     try {
-      await axios.delete(`/api/concerts/${id}`)
+      await axios.delete(`/concerts/${id}`)
       // 콘서트 목록 캐시 무효화
       const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/api/concerts')
+      apiCache.deletePattern('^/concerts')
     } catch (error) {
       logError(error, 'deleteConcert')
       throw new Error(getErrorMessage(error))
@@ -93,7 +93,7 @@ export const concertService = {
   // Past Event로 이동
   async moveToPastEvent(id) {
     try {
-      const response = await axios.put(`/api/concerts/${id}/move-to-past`)
+      const response = await axios.put(`/concerts/${id}/move-to-past`)
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'moveToPastEvent')
@@ -104,7 +104,7 @@ export const concertService = {
   // Upcoming으로 이동
   async moveToUpcomingEvent(id) {
     try {
-      const response = await axios.put(`/api/concerts/${id}/move-to-upcoming`)
+      const response = await axios.put(`/concerts/${id}/move-to-upcoming`)
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'moveToUpcomingEvent')
@@ -115,7 +115,7 @@ export const concertService = {
   // 자동 이동 실행
   async triggerAutoMove() {
     try {
-      const response = await axios.put('/api/concerts/auto-move-past', {
+      const response = await axios.put('/concerts/auto-move-past', {
         currentDate: new Date().toISOString().split('T')[0]
       })
       return response.data.data // 표준화된 응답에서 data 추출

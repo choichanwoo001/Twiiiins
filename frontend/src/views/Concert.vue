@@ -111,7 +111,7 @@ const pastEvents = ref([])
 // 콘서트 데이터 로드
 const loadConcerts = async () => {
   try {
-    const response = await axios.get('/api/concerts')
+    const response = await axios.get('/concerts')
     const allConcerts = response.data.data.map(concert => ({
       id: concert.id,
       date: new Date(concert.date).toLocaleDateString('en-US', {

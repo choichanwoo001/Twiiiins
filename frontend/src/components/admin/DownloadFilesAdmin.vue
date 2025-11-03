@@ -139,7 +139,7 @@ const saveFile = async () => {
       formData.append('file', fileObject)
       
       // 파일 업로드 API 호출 (axios 인터셉터에서 FormData 자동 처리)
-      const uploadResponse = await axios.post('/api/upload/file', formData)
+      const uploadResponse = await axios.post('/upload/file', formData)
       
       // 업로드된 파일의 S3 URL 저장
       if (uploadResponse.data && uploadResponse.data.url) {

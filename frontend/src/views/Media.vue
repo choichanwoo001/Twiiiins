@@ -181,7 +181,7 @@ const equipmentList = ref([])
 // 음악 데이터 로드
 const loadMusic = async () => {
   try {
-    const response = await axios.get('/api/media/music')
+    const response = await axios.get('/media/music')
     
     if (response.data.data && response.data.data.length > 0) {
       musicItems.value = response.data.data.map(music => ({
@@ -233,7 +233,7 @@ const isValidEmbedUrl = (url) => {
 // 비디오 데이터 로드
 const loadVideos = async () => {
   try {
-    const response = await axios.get('/api/media/videos')
+    const response = await axios.get('/media/videos')
     const videoData = response.data?.data || []
     
     if (Array.isArray(videoData)) {
@@ -292,7 +292,7 @@ const photoGroups = ref([])
 // 사진 그룹 데이터 로드
 const loadPhotoGroups = async () => {
   try {
-    const response = await axios.get('/api/media/photo-groups')
+    const response = await axios.get('/media/photo-groups')
     photoGroups.value = response.data.data.map(group => ({
       id: group.id,
       title: group.title,
@@ -310,7 +310,7 @@ const loadPhotoGroups = async () => {
 // 장비 데이터 로드
 const loadEquipment = async () => {
   try {
-    const response = await axios.get('/api/media/equipment')
+    const response = await axios.get('/media/equipment')
     equipmentList.value = response.data.data.map(equipment => ({
       id: equipment.id,
       name: equipment.name,
@@ -328,7 +328,7 @@ const newsList = ref([])
 // 뉴스 데이터 로드
 const loadNews = async () => {
   try {
-    const response = await axios.get('/api/media/news')
+    const response = await axios.get('/media/news')
     newsList.value = response.data.data.map(news => ({
       id: news.id,
       date: formatNewsDate(news.date),

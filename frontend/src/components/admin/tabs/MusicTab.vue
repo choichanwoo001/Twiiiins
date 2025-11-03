@@ -244,7 +244,7 @@ const saveMusic = async () => {
       formData.append('file', fileObject)
       
       // 파일 업로드 API 호출
-      const uploadResponse = await axios.post('/api/upload/image', formData)
+      const uploadResponse = await axios.post('/upload/image', formData)
       
       // 업로드된 파일의 S3 URL 저장
       if (uploadResponse.data && uploadResponse.data.url) {
