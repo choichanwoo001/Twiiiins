@@ -658,8 +658,7 @@ const toggleNews = (newsId) => {
 
 /* 상세 정보 스타일 */
 .news-details {
-  padding: 1.5rem 0 2rem 0;
-  padding-left: calc(5rem + 2rem); /* news-date width + margin-left */
+  padding: 1.5rem 5rem 2rem 5rem; /* 상단, 오른쪽, 하단, 왼쪽 (왼쪽과 오른쪽 동일한 여백) */
   background-color: #f8f8f8;
   border-top: 0.0625rem solid #e0e0e0;
 }

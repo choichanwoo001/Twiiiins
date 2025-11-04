@@ -53,9 +53,12 @@ public class S3FileService {
                     // ACL 제거: 최신 S3 버킷은 ACL을 허용하지 않으므로 버킷 정책 사용
                     .build();
 
-            // MultipartFile의 inputStream은 한 번만 읽을 수 있으므로 바이트 배열로 먼저 읽기
-            byte[] fileBytes = file.getBytes();
-            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(fileBytes));
+            // InputStream을 직접 사용하여 메모리 효율적인 스트리밍 업로드
+            // 파일이 디스크에 저장되어 있어도 스트리밍으로 처리하여 메모리 사용량 감소
+            try (var inputStream = file.getInputStream()) {
+                RequestBody requestBody = RequestBody.fromInputStream(inputStream, file.getSize());
+                s3Client.putObject(putObjectRequest, requestBody);
+            }
 
             // 업로드된 파일의 URL 생성
             String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", 

@@ -31,7 +31,10 @@ spring:
     multipart:
       max-file-size: ${UPLOAD_MAX_SIZE:104857600}  # 100MB
       max-request-size: ${UPLOAD_MAX_SIZE:104857600}  # 100MB
+      file-size-threshold: ${MULTIPART_FILE_SIZE_THRESHOLD:52428800}  # 50MB - 이 값 이하는 메모리에 저장
+      location: ${MULTIPART_LOCATION:}  # 임시 파일 저장 위치 (비어있으면 시스템 기본값 사용)
       enabled: true
+      resolve-lazily: false  # 필요시 true로 변경 가능 (Spring Boot 2.1+)
 
 server:
   port: ${PORT:8080}
