@@ -19,28 +19,12 @@
       </div>
     </section>
 
-    <!-- 이미지 섹션 (크기 비율대로) -->
+    <!-- 이미지 섹션 -->
     <section class="project-images" v-if="project">
       <div class="image-grid">
-        <!-- 첫 번째 행 -->
         <div class="image-row">
-          <div class="image-item" v-if="project.mainImageUrl">
-            <img :src="project.mainImageUrl" :alt="project.title">
-          </div>
-          <div class="image-item" v-if="project.horizontal1ImageUrl">
-            <img :src="project.horizontal1ImageUrl" :alt="project.title">
-          </div>
-          <div class="image-item" v-if="project.horizontal2ImageUrl">
-            <img :src="project.horizontal2ImageUrl" :alt="project.title">
-          </div>
-        </div>
-        <!-- 두 번째 행 -->
-        <div class="image-row">
-          <div class="image-item" v-if="project.vertical1ImageUrl">
-            <img :src="project.vertical1ImageUrl" :alt="project.title">
-          </div>
-          <div class="image-item" v-if="project.vertical2ImageUrl">
-            <img :src="project.vertical2ImageUrl" :alt="project.title">
+          <div class="image-item" v-for="(imageUrl, index) in projectImageUrls" :key="index">
+            <img :src="imageUrl" :alt="`${project.title} image ${index + 1}`" @load="onImageLoad" />
           </div>
         </div>
       </div>
@@ -68,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '../api/axios'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
@@ -107,6 +91,27 @@ const hardcodedProject = {
 
 const project = ref({ ...hardcodedProject })
 
+// 프로젝트 이미지 URL 배열 생성
+const projectImageUrls = computed(() => {
+  if (!project.value) return []
+  
+  const urls = []
+  
+  // 기존 이미지 필드들 (하위 호환성)
+  if (project.value.mainImageUrl) urls.push(project.value.mainImageUrl)
+  if (project.value.horizontal1ImageUrl) urls.push(project.value.horizontal1ImageUrl)
+  if (project.value.horizontal2ImageUrl) urls.push(project.value.horizontal2ImageUrl)
+  if (project.value.vertical1ImageUrl) urls.push(project.value.vertical1ImageUrl)
+  if (project.value.vertical2ImageUrl) urls.push(project.value.vertical2ImageUrl)
+  
+  // 새로운 imageUrls 배열 (우선순위 높음)
+  if (project.value.imageUrls && Array.isArray(project.value.imageUrls) && project.value.imageUrls.length > 0) {
+    return project.value.imageUrls.map(url => toAbsoluteUrl(url))
+  }
+  
+  return urls
+})
+
 // 프로젝트 데이터 로드
 const loadProject = async () => {
   const urlSlug = route.params.slug
@@ -127,10 +132,7 @@ const loadProject = async () => {
         ...projectData,
         // 이미지 URL 변환
         mainImageUrl: projectData.mainImageUrl ? toAbsoluteUrl(projectData.mainImageUrl) : hardcodedProject.mainImageUrl,
-        horizontal1ImageUrl: projectData.horizontal1ImageUrl ? toAbsoluteUrl(projectData.horizontal1ImageUrl) : hardcodedProject.horizontal1ImageUrl,
-        horizontal2ImageUrl: projectData.horizontal2ImageUrl ? toAbsoluteUrl(projectData.horizontal2ImageUrl) : hardcodedProject.horizontal2ImageUrl,
-        vertical1ImageUrl: projectData.vertical1ImageUrl ? toAbsoluteUrl(projectData.vertical1ImageUrl) : hardcodedProject.vertical1ImageUrl,
-        vertical2ImageUrl: projectData.vertical2ImageUrl ? toAbsoluteUrl(projectData.vertical2ImageUrl) : hardcodedProject.vertical2ImageUrl,
+        imageUrls: projectData.imageUrls || [],
         // 필드 매핑
         director: projectData.director || hardcodedProject.director,
         thankYouText: projectData.thankYouText || hardcodedProject.thankYouText
@@ -142,34 +144,24 @@ const loadProject = async () => {
   }
 }
 
-// 이미지 비율에 맞춰 행 높이 조정
+// 이미지 로드 시 행 높이 계산
+const onImageLoad = (event) => {
+  nextTick(() => {
+    const img = event.target
+    const row = img.closest('.image-row')
+    if (!row) return
+    
+    const images = row.querySelectorAll('img')
+    // 모든 이미지가 로드되었는지 확인
+    const allLoaded = Array.from(images).every(img => img.complete && img.naturalWidth > 0)
+    if (allLoaded) {
+      calculateRowHeight(row, images, 0)
+    }
+  })
+}
+
 onMounted(async () => {
   await loadProject()
-  nextTick(() => {
-    const rows = document.querySelectorAll('.image-row')
-    rows.forEach((row, rowIndex) => {
-      const images = row.querySelectorAll('img')
-      let loadedCount = 0
-      const totalImages = images.length
-      
-      if (totalImages === 0) return
-      
-      const checkAndCalculate = () => {
-        loadedCount++
-        if (loadedCount === totalImages) {
-          calculateRowHeight(row, images, rowIndex)
-        }
-      }
-      
-      images.forEach((img) => {
-        if (img.complete && img.naturalWidth > 0) {
-          checkAndCalculate()
-        } else {
-          img.addEventListener('load', checkAndCalculate, { once: true })
-        }
-      })
-    })
-  })
 })
 
 </script>
@@ -279,16 +271,9 @@ onMounted(async () => {
 .image-row {
   display: flex;
   gap: 0.5rem;
-}
-
-.image-row:nth-child(1) {
+  flex-wrap: wrap;
   min-height: 18.75rem;
-  height: 25rem;
-}
-
-.image-row:nth-child(2) {
-  min-height: 15.625rem;
-  height: 20rem;
+  align-items: flex-start;
 }
 
 .image-item {
@@ -297,29 +282,15 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 18.75rem; /* 300px 고정 너비 */
+  flex-shrink: 0;
   height: 100%;
-}
-
-.image-row:nth-child(1) .image-item:nth-child(1) {
-  flex: 1;
-}
-
-.image-row:nth-child(1) .image-item:nth-child(2) {
-  flex: 2;
-}
-
-.image-row:nth-child(1) .image-item:nth-child(3) {
-  flex: 1;
-}
-
-.image-row:nth-child(2) .image-item {
-  flex: 1;
 }
 
 .image-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* 이미지를 확대해서 컨테이너를 채움 */
   object-position: center;
   transition: transform 0.3s ease;
   display: block;

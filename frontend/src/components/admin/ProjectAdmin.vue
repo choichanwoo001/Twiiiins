@@ -189,49 +189,13 @@
             </div>
           </div>
           
-          <div class="form-row">
           <div class="form-group">
-            <label>가로 이미지 1 (Horizontal 1)</label>
-            <input type="file" @change="(e) => handleDetailImageChange(e, 'horizontal1Image')" accept="image/*" />
-              <div v-if="detailForm.horizontal1ImageUrl" class="image-preview">
-                <img :src="detailForm.horizontal1ImageUrl" alt="가로 이미지 1" />
-              </div>
-              <div v-else-if="uploadedDetailImages.horizontal1ImageUrl" class="image-preview">
-                <img :src="uploadedDetailImages.horizontal1ImageUrl" alt="가로 이미지 1" />
-              </div>
-            </div>
-          <div class="form-group">
-            <label>가로 이미지 2 (Horizontal 2)</label>
-            <input type="file" @change="(e) => handleDetailImageChange(e, 'horizontal2Image')" accept="image/*" />
-              <div v-if="detailForm.horizontal2ImageUrl" class="image-preview">
-                <img :src="detailForm.horizontal2ImageUrl" alt="가로 이미지 2" />
-              </div>
-              <div v-else-if="uploadedDetailImages.horizontal2ImageUrl" class="image-preview">
-                <img :src="uploadedDetailImages.horizontal2ImageUrl" alt="가로 이미지 2" />
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-          <div class="form-group">
-            <label>세로 이미지 1 (Vertical 1)</label>
-            <input type="file" @change="(e) => handleDetailImageChange(e, 'vertical1Image')" accept="image/*" />
-              <div v-if="detailForm.vertical1ImageUrl" class="image-preview">
-                <img :src="detailForm.vertical1ImageUrl" alt="세로 이미지 1" />
-              </div>
-              <div v-else-if="uploadedDetailImages.vertical1ImageUrl" class="image-preview">
-                <img :src="uploadedDetailImages.vertical1ImageUrl" alt="세로 이미지 1" />
-              </div>
-            </div>
-          <div class="form-group">
-            <label>세로 이미지 2 (Vertical 2)</label>
-            <input type="file" @change="(e) => handleDetailImageChange(e, 'vertical2Image')" accept="image/*" />
-              <div v-if="detailForm.vertical2ImageUrl" class="image-preview">
-                <img :src="detailForm.vertical2ImageUrl" alt="세로 이미지 2" />
-              </div>
-              <div v-else-if="uploadedDetailImages.vertical2ImageUrl" class="image-preview">
-                <img :src="uploadedDetailImages.vertical2ImageUrl" alt="세로 이미지 2" />
-              </div>
+            <label>사진 관리</label>
+            <BaseButton variant="info" @click="manageProjectImages(editingProjectDetail || detailForm)">
+              사진 관리
+            </BaseButton>
+            <div v-if="detailForm.imageUrls && detailForm.imageUrls.length > 0" class="image-count">
+              등록된 사진: {{ detailForm.imageUrls.length }}개
             </div>
           </div>
         </div>
@@ -284,13 +248,44 @@
       :button-variant="alertDialog.buttonVariant"
       @close="handleAlertClose"
     />
+
+    <!-- 사진 관리 모달 -->
+    <Modal
+      :is-visible="!!selectedProject"
+      :title="selectedProject ? `${selectedProject.title} - 사진 관리` : ''"
+      @close="closeImageModal"
+    >
+      <div v-if="selectedProject">
+        <!-- 사진 목록 -->
+        <div class="photos-grid" v-if="selectedProject.imageUrls && selectedProject.imageUrls.length > 0">
+          <div v-for="(imageUrl, index) in selectedProject.imageUrls" :key="index" class="photo-item">
+            <div class="photo-image-wrapper">
+              <img :src="getImageUrl(imageUrl)" :alt="`Photo ${index + 1}`" class="photo-image" />
+            </div>
+            <div class="photo-actions">
+              <button class="btn-delete-small" @click="deleteProjectPhoto(index)">삭제</button>
+            </div>
+          </div>
+        </div>
+        <div v-else class="no-photos">
+          등록된 사진이 없습니다.
+        </div>
+
+        <!-- 사진 업로드 -->
+        <div class="photo-upload">
+          <h4>사진 추가</h4>
+          <input type="file" ref="projectFileInput" multiple @change="handleProjectFileSelect" accept="image/*" />
+          <button class="btn-upload" @click="uploadProjectPhotos">업로드</button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from '../../api/axios'
-import { BaseButton, ConfirmDialog, AlertDialog } from '../common'
+import { BaseButton, ConfirmDialog, AlertDialog, Modal } from '../common'
 import { formatDate } from '../../utils/commonHelpers'
 import { logError, getErrorMessage } from '../../utils/errorHandler'
 
@@ -322,10 +317,7 @@ const detailForm = ref({
   thankYouText: '',
   moreInfoUrl: '',
   mainImageUrl: null,
-  horizontal1ImageUrl: null,
-  horizontal2ImageUrl: null,
-  vertical1ImageUrl: null,
-  vertical2ImageUrl: null,
+  imageUrls: [],
   review1Text: '',
   review1Source: '',
   review2Text: '',
@@ -336,12 +328,11 @@ const editingProjectDetail = ref(null)
 const showProjectDetailForm = ref(false)
 const uploadedCoverImageUrl = ref(null)
 const uploadedDetailImages = ref({
-  mainImageUrl: null,
-  horizontal1ImageUrl: null,
-  horizontal2ImageUrl: null,
-  vertical1ImageUrl: null,
-  vertical2ImageUrl: null
+  mainImageUrl: null
 })
+const selectedProject = ref(null)
+const projectFileInput = ref(null)
+const selectedProjectFiles = ref([])
 
 // 다이얼로그 상태
 const confirmDialog = ref({
@@ -534,21 +525,14 @@ const editProjectDetail = (project) => {
     thankYouText: project.thankYouText || '',
     moreInfoUrl: project.moreInfoUrl || '',
     mainImageUrl: project.mainImageUrl || null,
-    horizontal1ImageUrl: project.horizontal1ImageUrl || null,
-    horizontal2ImageUrl: project.horizontal2ImageUrl || null,
-    vertical1ImageUrl: project.vertical1ImageUrl || null,
-    vertical2ImageUrl: project.vertical2ImageUrl || null,
+    imageUrls: project.imageUrls || [],
     review1Text: project.review1Text || '',
     review1Source: project.review1Source || '',
     review2Text: project.review2Text || '',
     review2Source: project.review2Source || ''
   }
   uploadedDetailImages.value = {
-    mainImageUrl: project.mainImageUrl || null,
-    horizontal1ImageUrl: project.horizontal1ImageUrl || null,
-    horizontal2ImageUrl: project.horizontal2ImageUrl || null,
-    vertical1ImageUrl: project.vertical1ImageUrl || null,
-    vertical2ImageUrl: project.vertical2ImageUrl || null
+    mainImageUrl: project.mainImageUrl || null
   }
 }
 
@@ -579,21 +563,14 @@ const cancelEditDetail = () => {
     thankYouText: '',
     moreInfoUrl: '',
     mainImageUrl: null,
-    horizontal1ImageUrl: null,
-    horizontal2ImageUrl: null,
-    vertical1ImageUrl: null,
-    vertical2ImageUrl: null,
+    imageUrls: [],
     review1Text: '',
     review1Source: '',
     review2Text: '',
     review2Source: ''
   }
   uploadedDetailImages.value = {
-    mainImageUrl: null,
-    horizontal1ImageUrl: null,
-    horizontal2ImageUrl: null,
-    vertical1ImageUrl: null,
-    vertical2ImageUrl: null
+    mainImageUrl: null
   }
 }
 
@@ -638,10 +615,7 @@ const saveProjectDetail = async () => {
       thankYouText: detailForm.value.thankYouText,
       moreInfoUrl: detailForm.value.moreInfoUrl,
       mainImageUrl: detailForm.value.mainImageUrl || uploadedDetailImages.value.mainImageUrl,
-      horizontal1ImageUrl: detailForm.value.horizontal1ImageUrl || uploadedDetailImages.value.horizontal1ImageUrl,
-      horizontal2ImageUrl: detailForm.value.horizontal2ImageUrl || uploadedDetailImages.value.horizontal2ImageUrl,
-      vertical1ImageUrl: detailForm.value.vertical1ImageUrl || uploadedDetailImages.value.vertical1ImageUrl,
-      vertical2ImageUrl: detailForm.value.vertical2ImageUrl || uploadedDetailImages.value.vertical2ImageUrl,
+      imageUrls: detailForm.value.imageUrls || [],
       review1Text: detailForm.value.review1Text,
       review1Source: detailForm.value.review1Source,
       review2Text: detailForm.value.review2Text,
@@ -663,6 +637,116 @@ const saveProjectDetail = async () => {
     logError(error, '프로젝트 상세 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
   }
+}
+
+// 프로젝트 이미지 관리
+const manageProjectImages = (project) => {
+  selectedProject.value = project
+  selectedProjectFiles.value = []
+  if (!selectedProject.value.imageUrls) {
+    selectedProject.value.imageUrls = []
+  }
+}
+
+const closeImageModal = () => {
+  selectedProject.value = null
+  selectedProjectFiles.value = []
+  if (projectFileInput.value) {
+    projectFileInput.value.value = ''
+  }
+}
+
+const handleProjectFileSelect = (event) => {
+  selectedProjectFiles.value = Array.from(event.target.files)
+}
+
+const uploadProjectPhotos = async () => {
+  if (!selectedProjectFiles.value.length || !selectedProject.value) {
+    await showAlert('파일을 선택해주세요.', '알림', 'warning')
+    return
+  }
+
+  try {
+    const formData = new FormData()
+    selectedProjectFiles.value.forEach(file => {
+      formData.append('files', file)
+    })
+
+    const response = await axios.post('/upload/images', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    
+    const uploadedUrls = response.data.data?.urls || response.data.urls || []
+    
+    if (selectedProject.value.id) {
+      // 기존 프로젝트 업데이트
+      const projectData = {
+        ...selectedProject.value,
+        imageUrls: [...(selectedProject.value.imageUrls || []), ...uploadedUrls]
+      }
+      const updatedProject = await axios.put(`/projects/${selectedProject.value.id}`, projectData)
+      selectedProject.value = updatedProject.data.data || updatedProject.data
+      detailForm.value.imageUrls = selectedProject.value.imageUrls || []
+    } else {
+      // 새 프로젝트 (아직 저장 전)
+      if (!selectedProject.value.imageUrls) {
+        selectedProject.value.imageUrls = []
+      }
+      selectedProject.value.imageUrls.push(...uploadedUrls)
+      detailForm.value.imageUrls = selectedProject.value.imageUrls
+    }
+    
+    selectedProjectFiles.value = []
+    if (projectFileInput.value) {
+      projectFileInput.value.value = ''
+    }
+    await showAlert('사진이 성공적으로 업로드되었습니다.', '성공', 'success')
+  } catch (error) {
+    logError(error, '사진 업로드')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
+}
+
+const deleteProjectPhoto = async (index) => {
+  try {
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
+    if (confirmed) {
+      const imageUrls = [...selectedProject.value.imageUrls]
+      imageUrls.splice(index, 1)
+      
+      if (selectedProject.value.id) {
+        const projectData = {
+          ...selectedProject.value,
+          imageUrls
+        }
+        const updatedProject = await axios.put(`/projects/${selectedProject.value.id}`, projectData)
+        selectedProject.value = updatedProject.data.data || updatedProject.data
+        detailForm.value.imageUrls = selectedProject.value.imageUrls || []
+      } else {
+        selectedProject.value.imageUrls = imageUrls
+        detailForm.value.imageUrls = imageUrls
+      }
+      
+      await loadProjects()
+    }
+  } catch (error) {
+    logError(error, '사진 삭제')
+    await showAlert(getErrorMessage(error), '오류', 'danger')
+  }
+}
+
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return ''
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('data:')) {
+    return imageUrl
+  }
+  if (import.meta.env.DEV) {
+    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
+    return `${API_BASE}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+  }
+  return imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
 }
 
 const deleteProject = async (id) => {
@@ -801,6 +885,68 @@ onMounted(() => {
   gap: 0.5rem;
   flex-wrap: wrap;
   align-items: center;
+}
+
+.image-count {
+  margin-top: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.photo-item {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.photo-image-wrapper {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.photo-image-wrapper:hover {
+  opacity: 0.8;
+}
+
+.photo-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-actions {
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.no-photos {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  margin-bottom: 2rem;
+}
+
+.photo-upload {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.photo-upload h4 {
+  margin-bottom: 1rem;
 }
 </style>
 
