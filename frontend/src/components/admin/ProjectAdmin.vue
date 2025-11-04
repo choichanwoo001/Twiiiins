@@ -84,11 +84,6 @@
         </div>
 
         <div class="form-group">
-          <label>URL Slug (자세히 보기 링크용)</label>
-          <input v-model="form.urlSlug" placeholder="예: arturo-ui" />
-        </div>
-
-        <div class="form-group">
           <label>대표 사진 *</label>
           <input type="file" @change="handleCoverImageChange" accept="image/*" />
           <div v-if="form.coverImageUrl" class="image-preview">
@@ -303,7 +298,6 @@ const form = ref({
   title: '',
   premiereDate: '',
   location: '',
-  urlSlug: '',
   coverImageUrl: null
 })
 const detailForm = ref({
@@ -479,7 +473,6 @@ const editProject = (project) => {
     title: project.title || '',
     premiereDate: project.premiereDate || '',
     location: project.location || '',
-    urlSlug: project.urlSlug || '',
     coverImageUrl: project.coverImageUrl || null
   }
   uploadedCoverImageUrl.value = project.coverImageUrl || null
@@ -548,7 +541,6 @@ const cancelEdit = () => {
     title: '',
     premiereDate: '',
     location: '',
-    urlSlug: '',
     coverImageUrl: null
   }
   uploadedCoverImageUrl.value = null
@@ -582,8 +574,7 @@ const saveProject = async () => {
       title: form.value.title,
       premiereDate: form.value.premiereDate,
       location: form.value.location,
-      urlSlug: form.value.urlSlug || form.value.title.toLowerCase().replace(/\s+/g, '-'),
-      coverImageUrl: form.value.coverImageUrl || uploadedCoverImageUrl.value
+      coverImageUrl: form.value.coverImageUrl || uploadedCoverImageUrl.value    
     }
 
     let savedProject
@@ -702,9 +693,22 @@ const uploadProjectPhotos = async () => {
         ...selectedProject.value,
         imageUrls: [...(selectedProject.value.imageUrls || []), ...uploadedUrls]
       }
-      const updatedProject = await axios.put(`/projects/${selectedProject.value.id}`, projectData)
-      selectedProject.value = updatedProject.data.data || updatedProject.data
-      detailForm.value.imageUrls = selectedProject.value.imageUrls || []
+      const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, projectData)
+      const updatedProject = updatedProjectResponse.data.data || updatedProjectResponse.data
+      
+      // 프로젝트 목록 새로고침
+      await loadProjects()
+      
+      // 업데이트된 프로젝트 찾아서 selectedProject 업데이트
+      const latestProject = projects.value.find(p => p.id === selectedProject.value.id)
+      if (latestProject) {
+        selectedProject.value = latestProject
+        detailForm.value.imageUrls = latestProject.imageUrls || []
+      } else {
+        // 목록에서 찾을 수 없으면 서버 응답 사용
+        selectedProject.value = updatedProject
+        detailForm.value.imageUrls = updatedProject.imageUrls || []
+      }
     } else {
       // 새 프로젝트 (아직 저장 전)
       if (!selectedProject.value.imageUrls) {
@@ -727,25 +731,36 @@ const uploadProjectPhotos = async () => {
 
 const deleteProjectPhoto = async (index) => {
   try {
-    const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
+    const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')                                                                            
     if (confirmed) {
       const imageUrls = [...selectedProject.value.imageUrls]
       imageUrls.splice(index, 1)
-      
+
       if (selectedProject.value.id) {
         const projectData = {
           ...selectedProject.value,
           imageUrls
         }
-        const updatedProject = await axios.put(`/projects/${selectedProject.value.id}`, projectData)
-        selectedProject.value = updatedProject.data.data || updatedProject.data
-        detailForm.value.imageUrls = selectedProject.value.imageUrls || []
+        const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, projectData)                                                            
+        const updatedProject = updatedProjectResponse.data.data || updatedProjectResponse.data
+        
+        // 프로젝트 목록 새로고침
+        await loadProjects()
+        
+        // 업데이트된 프로젝트 찾아서 selectedProject 업데이트
+        const latestProject = projects.value.find(p => p.id === selectedProject.value.id)
+        if (latestProject) {
+          selectedProject.value = latestProject
+          detailForm.value.imageUrls = latestProject.imageUrls || []
+        } else {
+          // 목록에서 찾을 수 없으면 서버 응답 사용
+          selectedProject.value = updatedProject
+          detailForm.value.imageUrls = updatedProject.imageUrls || []
+        }
       } else {
         selectedProject.value.imageUrls = imageUrls
         detailForm.value.imageUrls = imageUrls
       }
-      
-      await loadProjects()
     }
   } catch (error) {
     logError(error, '사진 삭제')

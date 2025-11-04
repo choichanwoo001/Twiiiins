@@ -20,19 +20,31 @@ public class InitialDataConfig {
     @Bean
     public CommandLineRunner initializeDefaultUser() {
         return args -> {
-            // 기존에 dowon 사용자가 있는지 확인
-            if (userRepository.findByUsername("dowon").isEmpty()) {
-                // 비밀번호 "1234"를 BCrypt로 해시화
-                String hashedPassword = passwordEncoder.encode("1234");
+            // 환경 변수에서 초기 사용자 정보 가져오기 (기본값은 개발용)
+            String defaultUsername = System.getenv("DEFAULT_ADMIN_USERNAME");
+            if (defaultUsername == null || defaultUsername.isEmpty()) {
+                defaultUsername = "dowon"; // 개발 환경 기본값
+            }
+            
+            String defaultPassword = System.getenv("DEFAULT_ADMIN_PASSWORD");
+            if (defaultPassword == null || defaultPassword.isEmpty()) {
+                defaultPassword = "1234"; // 개발 환경 기본값 (프로덕션에서는 환경 변수 필수!)
+            }
+            
+            // 기존 사용자가 있는지 확인
+            if (userRepository.findByUsername(defaultUsername).isEmpty()) {
+                // 비밀번호를 BCrypt로 해시화
+                String hashedPassword = passwordEncoder.encode(defaultPassword);
                 
                 User defaultUser = new User();
-                defaultUser.setUsername("dowon");
+                defaultUser.setUsername(defaultUsername);
                 defaultUser.setPassword(hashedPassword);
                 
                 userRepository.save(defaultUser);
-                log.info("✅ 초기 사용자 생성 완료: username = dowon, password = 1234 (해시화됨)");
+                // 보안: 비밀번호는 로그에 출력하지 않음
+                log.info("✅ 초기 사용자 생성 완료: username = {}", defaultUsername);
             } else {
-                log.debug("ℹ️  기본 사용자(dowon)가 이미 DB에 존재합니다. 중복 생성하지 않습니다.");
+                log.debug("ℹ️  기본 사용자({})가 이미 DB에 존재합니다. 중복 생성하지 않습니다.", defaultUsername);
             }
         };
     }
