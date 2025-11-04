@@ -5,13 +5,10 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 
 /**
  * 이미지 리사이징 서비스
@@ -32,30 +29,25 @@ public class ImageResizeService {
      * @return 리사이즈된 이미지 바이트 배열
      */
     public byte[] generateThumbnail(MultipartFile file, int maxWidth, int maxHeight, float quality) throws IOException {
-        // 이미지 크기만 확인 (메모리에 전체 이미지 로드하지 않음)
+        // 이미지 크기 확인 (Thumbnailator 사용)
         int originalWidth = 0;
         int originalHeight = 0;
         
         try (InputStream inputStream = file.getInputStream()) {
-            // ImageReader를 사용하여 메타데이터만 읽어 이미지 크기 확인
-            ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream);
-            Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
+            // Thumbnailator를 사용하여 이미지 크기 확인
+            BufferedImage bufferedImage = Thumbnails.of(inputStream)
+                    .scale(1.0)
+                    .asBufferedImage();
             
-            if (!readers.hasNext()) {
-                throw new IOException("지원하지 않는 이미지 형식입니다: " + file.getOriginalFilename());
-            }
-            
-            ImageReader reader = readers.next();
-            reader.setInput(imageInputStream);
-            originalWidth = reader.getWidth(0);
-            originalHeight = reader.getHeight(0);
-            reader.dispose();
-            imageInputStream.close();
-            
-            // 이미지가 이미 작으면 리사이즈 불필요
-            if (originalWidth <= maxWidth && originalHeight <= maxHeight) {
-                log.debug("이미지가 이미 작은 크기입니다. 원본 사용: {}x{}", originalWidth, originalHeight);
-                return file.getBytes();
+            if (bufferedImage != null) {
+                originalWidth = bufferedImage.getWidth();
+                originalHeight = bufferedImage.getHeight();
+                
+                // 이미지가 이미 작으면 리사이즈 불필요
+                if (originalWidth <= maxWidth && originalHeight <= maxHeight) {
+                    log.debug("이미지가 이미 작은 크기입니다. 원본 사용: {}x{}", originalWidth, originalHeight);
+                    return file.getBytes();
+                }
             }
         } catch (Exception e) {
             log.warn("이미지 크기 확인 실패, Thumbnailator로 직접 처리: {}", e.getMessage());

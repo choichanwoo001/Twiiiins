@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.coobird.thumbnailator.Thumbnails;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -98,19 +100,18 @@ public class FileUploadService {
     /**
      * 이미지 픽셀 크기 검증 (메모리 부족 방지)
      * 너무 큰 이미지는 처리 시 OutOfMemoryError 발생 가능
+     * Thumbnailator를 사용하여 메모리 효율적으로 이미지 크기 확인
      */
     private void validateImageDimensions(MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
-            javax.imageio.ImageInputStream imageInputStream = javax.imageio.ImageIO.createImageInputStream(inputStream);
-            java.util.Iterator<javax.imageio.ImageReader> readers = javax.imageio.ImageIO.getImageReaders(imageInputStream);
+            // Thumbnailator를 사용하여 이미지 크기 확인 (메모리 효율적)
+            BufferedImage bufferedImage = Thumbnails.of(inputStream)
+                    .scale(1.0) // 원본 크기 유지
+                    .asBufferedImage();
             
-            if (readers.hasNext()) {
-                javax.imageio.ImageReader reader = readers.next();
-                reader.setInput(imageInputStream);
-                int width = reader.getWidth(0);
-                int height = reader.getHeight(0);
-                reader.dispose();
-                imageInputStream.close();
+            if (bufferedImage != null) {
+                int width = bufferedImage.getWidth();
+                int height = bufferedImage.getHeight();
                 
                 // 최대 픽셀 크기 제한: 20000x20000
                 // Thumbnailator를 사용하면 메모리 효율적으로 처리 가능
@@ -133,9 +134,10 @@ public class FileUploadService {
             }
         } catch (FileUploadException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (NoClassDefFoundError | Exception e) {
             log.warn("이미지 크기 검증 실패 (계속 진행): {}", e.getMessage());
             // 검증 실패해도 업로드는 진행 (이미지가 손상되었거나 형식이 예상과 다를 수 있음)
+            // 또는 java.desktop 모듈이 사용 불가능한 환경일 수 있음
         }
     }
     
