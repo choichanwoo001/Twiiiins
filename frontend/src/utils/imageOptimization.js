@@ -197,8 +197,14 @@ export const calculateRowHeight = (row, images, rowIndex) => {
   })
 
   // 최소 높이 보장하고, 계산된 높이와 비교해서 더 큰 값 사용
+  // 하지만 이미지 비율을 최대한 보존하기 위해 계산된 높이를 우선시
   const minHeight = rowIndex === 0 ? 300 : 250 // 첫 번째 행: 300px, 두 번째 행: 250px
   if (maxHeight > 0) {
-    row.style.height = `${Math.max(maxHeight, minHeight)}px`
+    // 이미지 비율을 고려하여 계산된 높이를 우선 사용하되, 최소 높이는 보장
+    const finalHeight = Math.max(maxHeight, minHeight * 0.8) // 최소 높이의 80% 이상은 보장
+    row.style.height = `${finalHeight}px`
+  } else {
+    // 이미지가 로드되지 않은 경우 최소 높이 사용
+    row.style.height = `${minHeight}px`
   }
 }

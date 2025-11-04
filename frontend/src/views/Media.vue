@@ -700,12 +700,10 @@ const toggleNews = (newsId) => {
 
 .image-row:nth-child(1) {
   min-height: 18.75rem;
-  height: 25rem;
 }
 
 .image-row:nth-child(2) {
   min-height: 15.625rem;
-  height: 20rem;
 }
 
 .image-item {
@@ -736,7 +734,7 @@ const toggleNews = (newsId) => {
 .image-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   transition: transform 0.3s ease;
   display: block;

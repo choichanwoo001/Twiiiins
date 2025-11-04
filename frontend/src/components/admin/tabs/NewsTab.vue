@@ -119,10 +119,10 @@ const searchFilterConfig = [
 
 // 테이블 컬럼 설정
 const tableColumns = [
-  { key: 'no', label: 'No' },
-  { key: 'date', label: '날짜' },
-  { key: 'title', label: '제목' },
-  { key: 'description', label: '설명' }
+  { key: 'no', label: 'No', width: '60px' },
+  { key: 'date', label: '날짜', width: '120px' },
+  { key: 'title', label: '제목', width: '200px' },
+  { key: 'description', label: '설명', width: '300px' }
 ]
 
 // 테이블 액션 설정

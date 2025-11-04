@@ -5,15 +5,15 @@
       <table role="table" :aria-label="`${title} 데이터 테이블`">
         <thead>
           <tr>
-            <th v-for="column in columns" :key="column.key" scope="col">
+            <th v-for="column in columns" :key="column.key" scope="col" :style="column.width ? { width: column.width } : {}">
               {{ column.label }}
             </th>
-            <th v-if="actions.length > 0" scope="col">작업</th>
+            <th v-if="actions.length > 0" scope="col" style="width: auto; white-space: nowrap;">작업</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in data" :key="getItemKey(item)">
-            <td v-for="column in columns" :key="column.key">
+            <td v-for="column in columns" :key="column.key" :class="column.key === 'description' ? 'description-cell' : ''">
               <slot 
                 :name="`cell-${column.key}`" 
                 :item="item" 
@@ -23,7 +23,7 @@
                 {{ getColumnValue(item, column.key) }}
               </slot>
             </td>
-            <td v-if="actions.length > 0">
+            <td v-if="actions.length > 0" style="white-space: nowrap;">
               <button
                 v-for="action in actions"
                 :key="action.key"
@@ -165,5 +165,13 @@ button {
 
 .btn-manage:hover {
   background: #138496;
+}
+
+/* 설명 컬럼 스타일 */
+.description-cell {
+  max-width: 20rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
