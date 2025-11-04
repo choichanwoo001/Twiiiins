@@ -174,20 +174,14 @@ export const getTotalFlex = (row, images) => {
 export const calculateRowHeight = (row, images, rowIndex) => {
   if (!row || !images || images.length === 0) return
 
-  const rowWidth = row.offsetWidth
   const gap = 8 // 0.5rem = 8px
+  const itemWidth = 300 // 18.75rem = 300px 고정 너비
   let maxHeight = 0
 
   images.forEach((img) => {
     if (img.naturalWidth && img.naturalHeight) {
-      const imageItem = img.closest('.image-item')
-      if (!imageItem) return
-
-      const flexBasis = getFlexBasis(imageItem)
-      const totalFlex = getTotalFlex(row, images)
-      const itemWidth = (rowWidth - (images.length - 1) * gap) * (flexBasis / totalFlex)
-
       const aspectRatio = img.naturalWidth / img.naturalHeight
+      // 고정된 너비에 맞춰 높이 계산
       const neededHeight = itemWidth / aspectRatio
 
       if (neededHeight > maxHeight) {
@@ -197,11 +191,10 @@ export const calculateRowHeight = (row, images, rowIndex) => {
   })
 
   // 최소 높이 보장하고, 계산된 높이와 비교해서 더 큰 값 사용
-  // 하지만 이미지 비율을 최대한 보존하기 위해 계산된 높이를 우선시
-  const minHeight = rowIndex === 0 ? 300 : 250 // 첫 번째 행: 300px, 두 번째 행: 250px
+  const minHeight = 300 // 모든 행에 동일한 최소 높이
   if (maxHeight > 0) {
     // 이미지 비율을 고려하여 계산된 높이를 우선 사용하되, 최소 높이는 보장
-    const finalHeight = Math.max(maxHeight, minHeight * 0.8) // 최소 높이의 80% 이상은 보장
+    const finalHeight = Math.max(maxHeight, minHeight)
     row.style.height = `${finalHeight}px`
   } else {
     // 이미지가 로드되지 않은 경우 최소 높이 사용

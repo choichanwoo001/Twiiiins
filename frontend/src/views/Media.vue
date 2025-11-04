@@ -114,9 +114,9 @@
               <!-- 사진 섹션 -->
               <div class="news-images" v-if="news.imageUrls && news.imageUrls.length > 0">
                 <div class="image-grid">
-                  <div class="image-row" v-for="(row, rowIndex) in getImageRows(news.imageUrls)" :key="rowIndex">
-                    <div class="image-item" v-for="(imageUrl, imgIndex) in row" :key="imgIndex">
-                      <img :src="toAbsoluteUrl(imageUrl)" :alt="`News image ${imgIndex + 1}`" @load="onImageLoad($event, rowIndex)" />
+                  <div class="image-row">
+                    <div class="image-item" v-for="(imageUrl, imgIndex) in news.imageUrls" :key="imgIndex">
+                      <img :src="toAbsoluteUrl(imageUrl)" :alt="`News image ${imgIndex + 1}`" @load="onImageLoad" />
                     </div>
                   </div>
                 </div>
@@ -330,34 +330,27 @@ const loadNews = async () => {
   }
 }
 
-// 이미지를 행으로 그룹화 (프로젝트 디테일처럼)
+// 이미지를 행으로 그룹화 (CSS flex-wrap으로 자동 줄바꿈 처리)
 const getImageRows = (imageUrls) => {
   if (!imageUrls || imageUrls.length === 0) return []
   
-  const rows = []
-  // 첫 번째 행: 첫 3개 이미지 (flex: 1, 2, 1)
-  if (imageUrls.length > 0) {
-    const firstRow = imageUrls.slice(0, 3)
-    rows.push(firstRow)
-  }
-  // 두 번째 행: 나머지 이미지들 (각각 flex: 1)
-  if (imageUrls.length > 3) {
-    const secondRow = imageUrls.slice(3)
-    rows.push(secondRow)
-  }
-  
-  return rows
+  // 모든 이미지를 하나의 행에 배치하고 CSS flex-wrap으로 자동 줄바꿈
+  return [imageUrls]
 }
 
 // 이미지 로드 시 행 높이 계산
-const onImageLoad = (event, rowIndex) => {
+const onImageLoad = (event) => {
   nextTick(() => {
     const img = event.target
     const row = img.closest('.image-row')
     if (!row) return
     
     const images = row.querySelectorAll('img')
-    calculateRowHeight(row, images, rowIndex)
+    // 모든 이미지가 로드되었는지 확인
+    const allLoaded = Array.from(images).every(img => img.complete && img.naturalWidth > 0)
+    if (allLoaded) {
+      calculateRowHeight(row, images, 0)
+    }
   })
 }
 
@@ -696,14 +689,9 @@ const toggleNews = (newsId) => {
 .image-row {
   display: flex;
   gap: 0.5rem;
-}
-
-.image-row:nth-child(1) {
+  flex-wrap: wrap;
   min-height: 18.75rem;
-}
-
-.image-row:nth-child(2) {
-  min-height: 15.625rem;
+  align-items: flex-start;
 }
 
 .image-item {
@@ -712,29 +700,15 @@ const toggleNews = (newsId) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 18.75rem; /* 300px 고정 너비 */
+  flex-shrink: 0;
   height: 100%;
-}
-
-.image-row:nth-child(1) .image-item:nth-child(1) {
-  flex: 1;
-}
-
-.image-row:nth-child(1) .image-item:nth-child(2) {
-  flex: 2;
-}
-
-.image-row:nth-child(1) .image-item:nth-child(3) {
-  flex: 1;
-}
-
-.image-row:nth-child(2) .image-item {
-  flex: 1;
 }
 
 .image-item img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover; /* 이미지를 확대해서 컨테이너를 채움 */
   object-position: center;
   transition: transform 0.3s ease;
   display: block;
