@@ -226,9 +226,16 @@ public class FileUploadService {
             );
             
         } catch (FileUploadException e) {
+            log.error("[이미지 업로드] 파일 업로드 예외 - 파일명: {}, 오류: {}", 
+                    originalFilename, e.getMessage(), e);
             throw e;
+        } catch (IOException e) {
+            log.error("[이미지 업로드] IO 오류 - 파일명: {}, 오류: {}", 
+                    originalFilename, e.getMessage(), e);
+            throw new FileUploadException("파일 입출력 중 오류가 발생했습니다: " + e.getMessage());
         } catch (Exception e) {
-            log.error("이미지 업로드 중 오류 발생: {}", e.getMessage(), e);
+            log.error("[이미지 업로드] 예상치 못한 오류 - 파일명: {}, 오류 타입: {}, 오류: {}", 
+                    originalFilename, e.getClass().getSimpleName(), e.getMessage(), e);
             throw new FileUploadException("이미지 업로드에 실패했습니다: " + e.getMessage());
         }
     }

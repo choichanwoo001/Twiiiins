@@ -58,48 +58,69 @@ public class MusicService {
     }
     
     public MusicDto createMusic(MusicDto musicDto) {
-        log.info("음악 생성 시작: 제목 = {}, 아티스트 = {}", musicDto.getTitle(), musicDto.getArtist());
+        log.info("[음악 생성] 시작 - 제목: {}, 아티스트: {}", musicDto.getTitle(), musicDto.getArtist());
         
-        Music music = convertToEntity(musicDto);
-        Music savedMusic = musicRepository.save(music);
-        
-        log.info("음악 생성 완료: ID = {}, 제목 = {}", savedMusic.getId(), savedMusic.getTitle());
-        return convertToDto(savedMusic);
+        try {
+            Music music = convertToEntity(musicDto);
+            Music savedMusic = musicRepository.save(music);
+            
+            log.info("[음악 생성] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
+            return convertToDto(savedMusic);
+        } catch (Exception e) {
+            log.error("[음악 생성] 실패 - 제목: {}, 아티스트: {}, 오류: {}", 
+                    musicDto.getTitle(), musicDto.getArtist(), e.getMessage(), e);
+            throw e;
+        }
     }
     
     public MusicDto updateMusic(Long id, MusicDto musicDto) {
-        log.info("음악 수정 시작: ID = {}, 제목 = {}", id, musicDto.getTitle());
+        log.info("[음악 수정] 시작 - ID: {}, 제목: {}", id, musicDto.getTitle());
         
-        Music music = musicRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("수정할 음악을 찾을 수 없음: ID = {}", id);
-                    return new ResourceNotFoundException("Music not found with id: " + id);
-                });
-        
-        log.debug("음악 수정 - 기존 정보: 제목 = {}, 아티스트 = {}", music.getTitle(), music.getArtist());
-        
-        music.setTitle(musicDto.getTitle());
-        music.setArtist(musicDto.getArtist());
-        music.setCoverUrl(musicDto.getCoverUrl());
-        music.setLinkUrl(musicDto.getLinkUrl());
-        music.setDisplayOrder(musicDto.getDisplayOrder());
-        
-        Music savedMusic = musicRepository.save(music);
-        log.info("음악 수정 완료: ID = {}, 제목 = {}", savedMusic.getId(), savedMusic.getTitle());
-        
-        return convertToDto(savedMusic);
+        try {
+            Music music = musicRepository.findById(id)
+                    .orElseThrow(() -> {
+                        log.warn("[음악 수정] 리소스 없음 - ID: {}", id);
+                        return new ResourceNotFoundException("Music not found with id: " + id);
+                    });
+            
+            log.debug("[음악 수정] 기존 정보 - 제목: {}, 아티스트: {}", music.getTitle(), music.getArtist());
+            
+            music.setTitle(musicDto.getTitle());
+            music.setArtist(musicDto.getArtist());
+            music.setCoverUrl(musicDto.getCoverUrl());
+            music.setLinkUrl(musicDto.getLinkUrl());
+            music.setDisplayOrder(musicDto.getDisplayOrder());
+            
+            Music savedMusic = musicRepository.save(music);
+            log.info("[음악 수정] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
+            
+            return convertToDto(savedMusic);
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("[음악 수정] 실패 - ID: {}, 제목: {}, 오류: {}", 
+                    id, musicDto.getTitle(), e.getMessage(), e);
+            throw e;
+        }
     }
     
     public void deleteMusic(Long id) {
-        log.info("음악 삭제 시작: ID = {}", id);
+        log.info("[음악 삭제] 시작 - ID: {}", id);
         
-        if (!musicRepository.existsById(id)) {
-            log.warn("삭제할 음악을 찾을 수 없음: ID = {}", id);
-            throw new ResourceNotFoundException("Music not found with id: " + id);
+        try {
+            if (!musicRepository.existsById(id)) {
+                log.warn("[음악 삭제] 리소스 없음 - ID: {}", id);
+                throw new ResourceNotFoundException("Music not found with id: " + id);
+            }
+            
+            musicRepository.deleteById(id);
+            log.info("[음악 삭제] 완료 - ID: {}", id);
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("[음악 삭제] 실패 - ID: {}, 오류: {}", id, e.getMessage(), e);
+            throw e;
         }
-        
-        musicRepository.deleteById(id);
-        log.info("음악 삭제 완료: ID = {}", id);
     }
     
     private MusicDto convertToDto(Music music) {

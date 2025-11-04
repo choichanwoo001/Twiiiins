@@ -70,29 +70,67 @@ apiClient.interceptors.response.use(
     
     // 네트워크 오류 처리
     if (!error.response) {
+      let errorCode = 'NETWORK_ERROR'
+      let errorMessage = '네트워크 연결을 확인해주세요.'
+      
       // 타임아웃 오류 구분
-      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        appStore.showError('요청 시간이 초과되었습니다. 파일 크기를 확인하거나 다시 시도해주세요.')
-        return Promise.reject({
-          code: 'TIMEOUT_ERROR',
-          message: '요청 시간이 초과되었습니다. 파일 크기를 확인하거나 다시 시도해주세요.',
-          originalError: error
-        })
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        errorCode = 'TIMEOUT_ERROR'
+        errorMessage = '요청 시간이 초과되었습니다. 파일 크기를 확인하거나 다시 시도해주세요.'
       }
-      appStore.showError('네트워크 연결을 확인해주세요.')
+      // CORS 오류
+      else if (error.message?.includes('CORS') || error.message?.includes('cross-origin')) {
+        errorCode = 'CORS_ERROR'
+        errorMessage = 'CORS 정책 위반으로 요청이 차단되었습니다.'
+      }
+      // 서버 연결 실패
+      else if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
+        errorCode = 'CONNECTION_REFUSED'
+        errorMessage = '서버에 연결할 수 없습니다. 서버 상태를 확인해주세요.'
+      }
+      // DNS 오류
+      else if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
+        errorCode = 'DNS_ERROR'
+        errorMessage = '서버 주소를 찾을 수 없습니다. 네트워크 설정을 확인해주세요.'
+      }
+      
+      // 상세 로깅
+      console.error(`[API 요청 실패] ${errorCode} - URL: ${error.config?.url}, Method: ${error.config?.method?.toUpperCase()}, Message: ${error.message}, Code: ${error.code}`)
+      
+      appStore.showError(errorMessage)
       return Promise.reject({
-        code: 'NETWORK_ERROR',
-        message: '네트워크 연결을 확인해주세요.',
+        code: errorCode,
+        message: errorMessage,
         originalError: error
       })
     }
 
     const { status, data } = error.response
     
+    // 상세 로깅
+    const requestInfo = {
+      url: error.config?.url,
+      method: error.config?.method?.toUpperCase(),
+      status: status,
+      serverMessage: data?.error?.message,
+      serverCode: data?.error?.code
+    }
+    console.error(`[API 응답 오류] HTTP ${status} - URL: ${requestInfo.url}, Method: ${requestInfo.method}, Server Message: ${requestInfo.serverMessage || '없음'}`)
+    
     // HTTP 상태 코드별 에러 처리
     switch (status) {
+      case 400:
+        // 잘못된 요청
+        if (data && data.error && data.error.message) {
+          appStore.showError(data.error.message)
+        } else {
+          appStore.showError('잘못된 요청입니다.')
+        }
+        break
+        
       case 401:
         // 인증 실패 - 토큰 제거 및 로그인 페이지로 리다이렉트
+        console.warn('[인증 실패] 토큰이 만료되었거나 유효하지 않습니다.')
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         appStore.logout()
@@ -105,16 +143,19 @@ apiClient.interceptors.response.use(
         
       case 403:
         // 권한 없음
+        console.warn('[권한 없음] 접근 권한이 없습니다.')
         appStore.showError('접근 권한이 없습니다.')
         break
         
       case 404:
         // 리소스 없음
+        console.warn(`[리소스 없음] 요청한 리소스를 찾을 수 없습니다: ${requestInfo.url}`)
         appStore.showError('요청한 리소스를 찾을 수 없습니다.')
         break
         
       case 422:
         // 유효성 검사 실패
+        console.warn(`[유효성 검사 실패] 입력 데이터 오류: ${data?.error?.message || '없음'}`)
         if (data && data.error && data.error.message) {
           appStore.showError(data.error.message)
         } else {
@@ -124,16 +165,37 @@ apiClient.interceptors.response.use(
         
       case 429:
         // 요청 제한 초과
+        console.warn('[요청 제한] 요청이 너무 많습니다.')
         appStore.showError('요청이 너무 많습니다. 잠시 후 다시 시도해주세요.')
         break
         
       case 500:
         // 서버 내부 오류
+        console.error(`[서버 오류] 내부 서버 오류 발생: ${data?.error?.message || '없음'}`)
         appStore.showError('서버 오류가 발생했습니다. 관리자에게 문의해주세요.')
+        break
+        
+      case 502:
+        // 게이트웨이 오류
+        console.error('[게이트웨이 오류] 서버 게이트웨이 오류 발생')
+        appStore.showError('서버 게이트웨이 오류가 발생했습니다.')
+        break
+        
+      case 503:
+        // 서비스 사용 불가
+        console.error('[서비스 사용 불가] 서비스를 사용할 수 없습니다.')
+        appStore.showError('서비스를 사용할 수 없습니다. 잠시 후 다시 시도해주세요.')
+        break
+        
+      case 504:
+        // 게이트웨이 타임아웃
+        console.error('[게이트웨이 타임아웃] 서버 응답 시간 초과')
+        appStore.showError('서버 응답 시간이 초과되었습니다.')
         break
         
       default:
         // 기타 오류
+        console.error(`[기타 오류] HTTP ${status}: ${data?.error?.message || '알 수 없음'}`)
         if (data && data.error && data.error.message) {
           appStore.showError(data.error.message)
         } else {

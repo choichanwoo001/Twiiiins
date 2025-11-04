@@ -30,12 +30,7 @@
 
     <!-- 프로젝트 목록 -->
     <div class="projects-list">
-      <div class="projects-header">
-        <h2>전체 목록</h2>
-        <BaseButton variant="primary" @click="showProjectDetailForm = true; editingProject = null">
-          프로젝트 상세 등록
-        </BaseButton>
-      </div>
+      <h2 class="projects-header">전체 목록</h2>
       <div class="projects-table">
         <table>
           <thead>
@@ -179,17 +174,6 @@
         <div class="form-section">
           <h3>이미지</h3>
           <div class="form-group">
-            <label>대표 사진 (Main Image) *</label>
-            <input type="file" @change="(e) => handleDetailImageChange(e, 'mainImage')" accept="image/*" />
-            <div v-if="detailForm.mainImageUrl" class="image-preview">
-              <img :src="detailForm.mainImageUrl" alt="대표 사진" />
-            </div>
-            <div v-else-if="uploadedDetailImages.mainImageUrl" class="image-preview">
-              <img :src="uploadedDetailImages.mainImageUrl" alt="대표 사진" />
-            </div>
-          </div>
-          
-          <div class="form-group">
             <label>사진 관리</label>
             <BaseButton variant="info" @click="manageProjectImages(editingProjectDetail || detailForm)">
               사진 관리
@@ -197,6 +181,7 @@
             <div v-if="detailForm.imageUrls && detailForm.imageUrls.length > 0" class="image-count">
               등록된 사진: {{ detailForm.imageUrls.length }}개
             </div>
+            <p class="form-help-text">목록 페이지에 표시되는 대표 이미지는 기본 등록에서 설정한 커버 이미지가 사용됩니다.</p>
           </div>
         </div>
 
@@ -317,7 +302,6 @@ const detailForm = ref({
   description3: '',
   thankYouText: '',
   moreInfoUrl: '',
-  mainImageUrl: null,
   imageUrls: [],
   review1Text: '',
   review1Source: '',
@@ -328,9 +312,6 @@ const editingProject = ref(null)
 const editingProjectDetail = ref(null)
 const showProjectDetailForm = ref(false)
 const uploadedCoverImageUrl = ref(null)
-const uploadedDetailImages = ref({
-  mainImageUrl: null
-})
 const selectedProject = ref(null)
 const projectFileInput = ref(null)
 const selectedProjectFiles = ref([])
@@ -437,28 +418,6 @@ const handleCoverImageChange = async (event) => {
   }
 }
 
-const handleDetailImageChange = async (event, imageType) => {
-  const file = event.target.files[0]
-  if (file) {
-    try {
-      const url = await uploadImage(file)
-      const fieldMap = {
-        mainImage: 'mainImageUrl',
-        horizontal1Image: 'horizontal1ImageUrl',
-        horizontal2Image: 'horizontal2ImageUrl',
-        vertical1Image: 'vertical1ImageUrl',
-        vertical2Image: 'vertical2ImageUrl'
-      }
-      const fieldName = fieldMap[imageType]
-      if (fieldName) {
-        uploadedDetailImages.value[fieldName] = url
-        detailForm.value[fieldName] = url
-      }
-    } catch (error) {
-      await showAlert(getErrorMessage(error), '오류', 'danger')
-    }
-  }
-}
 
 // Methods
 const loadProjects = async () => {
@@ -525,15 +484,11 @@ const editProjectDetail = (project) => {
     description3: project.description3 || '',
     thankYouText: project.thankYouText || '',
     moreInfoUrl: project.moreInfoUrl || '',
-    mainImageUrl: project.mainImageUrl || null,
     imageUrls: project.imageUrls || [],
     review1Text: project.review1Text || '',
     review1Source: project.review1Source || '',
     review2Text: project.review2Text || '',
     review2Source: project.review2Source || ''
-  }
-  uploadedDetailImages.value = {
-    mainImageUrl: project.mainImageUrl || null
   }
 }
 
@@ -563,15 +518,11 @@ const cancelEditDetail = () => {
     description3: '',
     thankYouText: '',
     moreInfoUrl: '',
-    mainImageUrl: null,
     imageUrls: [],
     review1Text: '',
     review1Source: '',
     review2Text: '',
     review2Source: ''
-  }
-  uploadedDetailImages.value = {
-    mainImageUrl: null
   }
 }
 
@@ -627,7 +578,6 @@ const saveProjectDetail = async () => {
       description3: detailForm.value.description3,
       thankYouText: detailForm.value.thankYouText,
       moreInfoUrl: detailForm.value.moreInfoUrl,
-      mainImageUrl: detailForm.value.mainImageUrl || uploadedDetailImages.value.mainImageUrl,
       imageUrls: detailForm.value.imageUrls || [],
       review1Text: detailForm.value.review1Text,
       review1Source: detailForm.value.review1Source,
@@ -809,10 +759,10 @@ onMounted(() => {
 }
 
 .projects-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1E1D1D;
 }
 
 .projects-table {
@@ -904,6 +854,13 @@ onMounted(() => {
   margin-top: 0.5rem;
   color: #666;
   font-size: 0.9rem;
+}
+
+.form-help-text {
+  margin-top: 0.5rem;
+  color: #999;
+  font-size: 0.875rem;
+  font-style: italic;
 }
 
 .photos-grid {

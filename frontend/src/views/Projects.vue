@@ -18,7 +18,7 @@
           <!-- 이미지 -->
           <figure class="project-figure">
             <img
-              :src="project.mainImageUrl || project.coverImageUrl || '../imgs/project_cover.jpg'"
+              :src="project.coverImageUrl || '../imgs/project_cover.jpg'"
               :alt="project.title"
             />
           </figure>
@@ -64,7 +64,6 @@ const loadProjects = async () => {
     
     projects.value = projectData.map(project => ({
       ...project,
-      mainImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : (project.mainImageUrl ? toAbsoluteUrl(project.mainImageUrl) : null),
       coverImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : null
     }))
   } catch (error) {
