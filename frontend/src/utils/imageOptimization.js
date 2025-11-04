@@ -184,7 +184,8 @@ export const calculateRowHeight = (row, images, rowIndex) => {
 
   const gap = 8 // 0.5rem = 8px
   const rowWidth = row.offsetWidth
-  const minHeight = 300 // 최소 높이
+  const minHeight = 250 // 최소 높이
+  const maxHeight = 400 // 최대 높이 (이미지 축소를 위해)
   
   // 각 이미지의 비율 정보 수집
   const imageData = []
@@ -238,7 +239,8 @@ export const calculateRowHeight = (row, images, rowIndex) => {
     // 행의 모든 이미지가 같은 높이를 가지도록 최적 높이 계산
     const totalAspectRatio = rowImages.reduce((sum, data) => sum + data.aspectRatio, 0)
     const calculatedHeight = (rowWidth - (rowImages.length - 1) * gap) / totalAspectRatio
-    const finalHeight = Math.max(calculatedHeight, minHeight)
+    // 이미지 축소를 위해 최대 높이 제한, 최소 높이 보장
+    const finalHeight = Math.min(Math.max(calculatedHeight, minHeight), maxHeight)
     
     // 각 이미지 아이템의 너비와 높이를 비율에 맞게 설정
     rowImages.forEach(({ aspectRatio, imageItem }) => {

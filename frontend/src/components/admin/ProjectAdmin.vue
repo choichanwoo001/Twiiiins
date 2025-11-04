@@ -58,7 +58,7 @@
               <td>
                 <div class="action-buttons">
                   <BaseButton size="small" variant="secondary" @click="editProject(project)">수정</BaseButton>
-                  <BaseButton size="small" variant="info" @click="editProjectDetail(project)">상세 수정</BaseButton>
+                  <BaseButton size="small" variant="info" @click="editProjectDetail(project)">상세 등록/수정</BaseButton>
                   <BaseButton size="small" variant="danger" @click="deleteProject(project.id)">삭제</BaseButton>
                 </div>
               </td>
@@ -585,12 +585,24 @@ const saveProject = async () => {
       coverImageUrl: form.value.coverImageUrl || uploadedCoverImageUrl.value
     }
 
+    let savedProject
     if (editingProject.value) {
-      await axios.put(`/projects/${editingProject.value.id}`, projectData)
+      const response = await axios.put(`/projects/${editingProject.value.id}`, projectData)
+      savedProject = response.data.data || response.data
       await showAlert('프로젝트가 수정되었습니다.', '성공', 'success')
     } else {
-      await axios.post('/projects', projectData)
-      await showAlert('프로젝트가 등록되었습니다.', '성공', 'success')
+      const response = await axios.post('/projects', projectData)
+      savedProject = response.data.data || response.data
+      await showAlert('프로젝트가 등록되었습니다. 상세 정보를 등록하시겠습니까?', '성공', 'success')
+      
+      // 새로 등록한 프로젝트를 선택하고 상세 등록 폼으로 전환
+      if (savedProject && savedProject.id) {
+        await loadProjects()
+        const newProject = projects.value.find(p => p.id === savedProject.id)
+        if (newProject) {
+          editProjectDetail(newProject)
+        }
+      }
     }
     
     cancelEdit()

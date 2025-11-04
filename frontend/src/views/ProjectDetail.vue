@@ -256,7 +256,7 @@ onMounted(async () => {
 .image-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* 비율 유지하면서 축소 */
   object-position: center;
   transition: transform 0.3s ease;
   display: block;
