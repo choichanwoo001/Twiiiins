@@ -285,7 +285,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from '../../api/axios'
-import { BaseButton, ConfirmDialog, AlertDialog, Modal } from '../common'
+import { BaseButton, ConfirmDialog, AlertDialog } from '../common'
+import Modal from './common/Modal.vue'
 import { formatDate } from '../../utils/commonHelpers'
 import { logError, getErrorMessage } from '../../utils/errorHandler'
 
