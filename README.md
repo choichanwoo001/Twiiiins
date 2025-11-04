@@ -364,3 +364,4 @@ docker-compose logs -f
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+ssl 인증서도 등록함 (ubuntu에)

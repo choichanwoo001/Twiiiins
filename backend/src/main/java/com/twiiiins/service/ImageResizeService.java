@@ -46,7 +46,12 @@ public class ImageResizeService {
                 // 이미지가 이미 작으면 리사이즈 불필요
                 if (originalWidth <= maxWidth && originalHeight <= maxHeight) {
                     log.debug("이미지가 이미 작은 크기입니다. 원본 사용: {}x{}", originalWidth, originalHeight);
-                    return file.getBytes();
+                    try {
+                        return file.getBytes();
+                    } catch (IOException e) {
+                        log.warn("원본 파일 읽기 실패, 리사이징으로 대체: {}", e.getMessage());
+                        // 원본 읽기 실패 시 리사이징으로 진행
+                    }
                 }
             }
         } catch (Exception e) {
