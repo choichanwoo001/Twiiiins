@@ -58,38 +58,10 @@ import axios from '../api/axios'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
 import { calculateRowHeight } from '../utils/imageOptimization'
 import { logError } from '../utils/errorHandler'
-import mainImg from '../imgs/project_detail/main.jpg'
-import horizontal1Img from '../imgs/project_detail/horizontal1.jpg'
-import horizontal2Img from '../imgs/project_detail/horizontal2.jpg'
-import vertical1Img from '../imgs/project_detail/verticle1.jpg'
-import vertical2Img from '../imgs/project_detail/verticle2.jpg'
 
 const route = useRoute()
 
-// 하드코딩된 기본 프로젝트 데이터 (유지)
-const hardcodedProject = {
-  title: 'THE RESISTIBLE RISE OF ARTURO UI',
-  subtitle: 'Collaboration with Salzburger Landestheater',
-  premiereDate: '2025-02-22',
-  location: 'Salzburg State Theatre',
-  director: 'Alexandra Liedtke',
-  description1: "We joined the production of Bertolt Brecht's The Resistible Rise of Arturo Ui as composers and performers, creating all of the music for the show using the sound of the violin as the central element.",
-  description2: "Throughout 13 performances, we appeared on stage in a minor role while performing live alongside the actors and dancers. Sharing the stage with such a talented ensemble made this collaboration a particularly meaningful experience for us.",
-  description3: "Improvisation was an important part of our contribution. Playing close to the actors allowed us to respond to their performances in real time, adding another layer of energy to the scenes.",
-  thankYouText: "We would like to thank Alexandra Liedtke and Paul Blackman for their trust and collaboration.",
-  moreInfoUrl: 'https://www.salzburger-landestheater.at/en/produktionen/der-aufhaltsame-aufstieg-des-arturo-ui.html?m=537',
-  mainImageUrl: mainImg,
-  horizontal1ImageUrl: horizontal1Img,
-  horizontal2ImageUrl: horizontal2Img,
-  vertical1ImageUrl: vertical1Img,
-  vertical2ImageUrl: vertical2Img,
-  review1Text: "Eine gelungene expressiv körperbetonte Interpretation – die von der anfänglichen Lächerlichkeit des Unbeholfenen, zur erschreckend blutrünstigen Unmenschlichkeit entartet. Eine fantastische Umsetzung eines erschreckend aktuellen Stoffs.",
-  review1Source: "Reichenhaller Tagblatt",
-  review2Text: "Der Abend enthält starke Szenen, etwa den Rhetorik-Unterricht. Diesen nimmt Ui bei einem Schauspieler, köstlich gespielt von Michael Maertens in Form einer Videoeinblendung. Treffsicher die Persiflage auf politische Theatralik.",
-  review2Source: "Salzburger Nachrichten"
-}
-
-const project = ref({ ...hardcodedProject })
+const project = ref(null)
 
 // 프로젝트 이미지 URL 배열 생성
 const projectImageUrls = computed(() => {
@@ -117,7 +89,6 @@ const loadProject = async () => {
   const urlSlug = route.params.slug
   
   if (!urlSlug) {
-    // slug가 없으면 하드코딩된 데이터 사용
     return
   }
   
@@ -126,21 +97,16 @@ const loadProject = async () => {
     const projectData = response.data.data || response.data
     
     if (projectData) {
-      // API 데이터를 하드코딩 데이터와 병합 (하드코딩 데이터 우선)
       project.value = {
-        ...hardcodedProject,
         ...projectData,
         // 이미지 URL 변환
-        mainImageUrl: projectData.mainImageUrl ? toAbsoluteUrl(projectData.mainImageUrl) : hardcodedProject.mainImageUrl,
-        imageUrls: projectData.imageUrls || [],
-        // 필드 매핑
-        director: projectData.director || hardcodedProject.director,
-        thankYouText: projectData.thankYouText || hardcodedProject.thankYouText
+        mainImageUrl: projectData.mainImageUrl ? toAbsoluteUrl(projectData.mainImageUrl) : null,
+        imageUrls: projectData.imageUrls ? projectData.imageUrls.map(url => toAbsoluteUrl(url)) : []
       }
     }
   } catch (error) {
     logError(error, '프로젝트 데이터 로드')
-    // 에러 발생 시 하드코딩된 데이터 사용
+    project.value = null
   }
 }
 
@@ -251,9 +217,10 @@ onMounted(async () => {
   text-decoration: underline;
 }
 
-/* 이미지 섹션 (크기 비율대로) */
+/* 이미지 섹션 */
 .project-images {
   padding: 4rem 2rem;
+  padding-bottom: 6rem; /* 리뷰 섹션과 겹치지 않도록 하단 여백 추가 */
   max-width: 75rem;
   margin: 0 auto;
   display: flex;
@@ -282,7 +249,6 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18.75rem; /* 300px 고정 너비 */
   flex-shrink: 0;
   height: 100%;
 }
@@ -290,7 +256,7 @@ onMounted(async () => {
 .image-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 이미지를 확대해서 컨테이너를 채움 */
+  object-fit: cover;
   object-position: center;
   transition: transform 0.3s ease;
   display: block;

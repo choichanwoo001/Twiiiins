@@ -36,71 +36,25 @@
         </div>
       </div>
 
-      <!-- 프로젝트가 없을 때 기본 이미지 -->
-      <div v-else class="default-project">
-        <figure class="project-figure">
-          <img
-            :src="projectCoverImg"
-            alt="Project hero"
-          />
-        </figure>
-
-        <div class="project-caption">
-          <div class="caption-left">ARTURO UI</div>
-          <div class="caption-right">
-            <span>02.22.2025, Salzburg State Theater</span>
-            <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" @click="goToProjectDetail('arturo-ui')">
-              <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
+      <!-- 프로젝트가 없을 때 -->
+      <div v-else class="empty-state">
+        <p>등록된 프로젝트가 없습니다.</p>
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '../api/axios'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
-import { logError, getErrorMessage } from '../utils/errorHandler'
-import projectCoverImg from '../imgs/project_cover.jpg'
+import { logError } from '../utils/errorHandler'
 
 const router = useRouter()
 
-// 하드코딩된 기본 프로젝트 (유지)
-const hardcodedProject = {
-  id: 1,
-  title: 'ARTURO UI',
-  premiereDate: '2025-02-22',
-  location: 'Salzburg State Theater',
-  mainImageUrl: projectCoverImg,
-  coverImageUrl: projectCoverImg,
-  urlSlug: 'arturo-ui'
-}
-
-// API에서 가져온 프로젝트들
-const apiProjects = ref([])
-
-// 전체 프로젝트 목록 (하드코딩 + API 데이터)
-const projects = computed(() => {
-  const allProjects = [hardcodedProject, ...apiProjects.value]
-  // 중복 제거 (urlSlug 기준)
-  const uniqueProjects = []
-  const seenSlugs = new Set()
-  
-  for (const project of allProjects) {
-    if (project.urlSlug && !seenSlugs.has(project.urlSlug)) {
-      seenSlugs.add(project.urlSlug)
-      uniqueProjects.push(project)
-    } else if (!project.urlSlug) {
-      uniqueProjects.push(project)
-    }
-  }
-  
-  return uniqueProjects
-})
+// 프로젝트 목록
+const projects = ref([])
 
 // 프로젝트 데이터 로드
 const loadProjects = async () => {
@@ -108,14 +62,14 @@ const loadProjects = async () => {
     const response = await axios.get('/projects')
     const projectData = response.data.data || response.data || []
     
-    apiProjects.value = projectData.map(project => ({
+    projects.value = projectData.map(project => ({
       ...project,
       mainImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : (project.mainImageUrl ? toAbsoluteUrl(project.mainImageUrl) : null),
       coverImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : null
     }))
   } catch (error) {
     logError(error, '프로젝트 데이터 로드')
-    apiProjects.value = []
+    projects.value = []
   }
 }
 
@@ -250,6 +204,15 @@ onMounted(() => {
 .project-figure:hover img{
   transform: scale(1.01);
   transition: transform .25s ease;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20rem;
+  color: #999;
+  font-size: 1.2rem;
 }
 
 </style>

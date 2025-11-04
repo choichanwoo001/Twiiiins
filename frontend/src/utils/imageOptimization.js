@@ -171,33 +171,80 @@ export const getTotalFlex = (row, images) => {
  * @param {NodeList|Array} images - 이미지 요소들
  * @param {number} rowIndex - 행 인덱스 (0부터 시작)
  */
+/**
+ * 이미지 행의 높이를 계산하고 각 이미지의 너비를 비율에 맞게 설정
+ * 같은 행의 이미지들은 같은 높이를 가지며, 각 이미지의 비율에 따라 너비가 결정됨
+ * flex-wrap으로 자동 줄바꿈이 되므로, 각 행을 개별적으로 계산
+ * @param {HTMLElement} row - 행 요소
+ * @param {NodeList|Array} images - 이미지 요소들
+ * @param {number} rowIndex - 행 인덱스 (0부터 시작, 사용하지 않음)
+ */
 export const calculateRowHeight = (row, images, rowIndex) => {
   if (!row || !images || images.length === 0) return
 
   const gap = 8 // 0.5rem = 8px
-  const itemWidth = 300 // 18.75rem = 300px 고정 너비
-  let maxHeight = 0
-
+  const rowWidth = row.offsetWidth
+  const minHeight = 300 // 최소 높이
+  
+  // 각 이미지의 비율 정보 수집
+  const imageData = []
   images.forEach((img) => {
     if (img.naturalWidth && img.naturalHeight) {
-      const aspectRatio = img.naturalWidth / img.naturalHeight
-      // 고정된 너비에 맞춰 높이 계산
-      const neededHeight = itemWidth / aspectRatio
-
-      if (neededHeight > maxHeight) {
-        maxHeight = neededHeight
+      const imageItem = img.closest('.image-item')
+      if (imageItem) {
+        const aspectRatio = img.naturalWidth / img.naturalHeight
+        imageData.push({
+          img,
+          aspectRatio,
+          imageItem
+        })
       }
     }
   })
-
-  // 최소 높이 보장하고, 계산된 높이와 비교해서 더 큰 값 사용
-  const minHeight = 300 // 모든 행에 동일한 최소 높이
-  if (maxHeight > 0) {
-    // 이미지 비율을 고려하여 계산된 높이를 우선 사용하되, 최소 높이는 보장
-    const finalHeight = Math.max(maxHeight, minHeight)
-    row.style.height = `${finalHeight}px`
-  } else {
-    // 이미지가 로드되지 않은 경우 최소 높이 사용
-    row.style.height = `${minHeight}px`
+  
+  if (imageData.length === 0) {
+    return
   }
+  
+  // flex-wrap으로 자동 줄바꿈이 되므로, 각 행을 개별적으로 계산
+  // 이미지들을 실제 위치(top 값)를 기준으로 행으로 그룹화
+  const rows = []
+  const processed = new Set()
+  
+  imageData.forEach((data, index) => {
+    if (processed.has(index)) return
+    
+    // 현재 이미지의 행 찾기
+    const currentTop = data.imageItem.offsetTop
+    const currentRow = [data]
+    processed.add(index)
+    
+    // 같은 행에 있는 다른 이미지들 찾기
+    imageData.forEach((otherData, otherIndex) => {
+      if (processed.has(otherIndex)) return
+      if (Math.abs(otherData.imageItem.offsetTop - currentTop) < 5) {
+        currentRow.push(otherData)
+        processed.add(otherIndex)
+      }
+    })
+    
+    rows.push(currentRow)
+  })
+  
+  // 각 행의 높이와 이미지 너비 계산
+  rows.forEach((rowImages) => {
+    if (rowImages.length === 0) return
+    
+    // 행의 모든 이미지가 같은 높이를 가지도록 최적 높이 계산
+    const totalAspectRatio = rowImages.reduce((sum, data) => sum + data.aspectRatio, 0)
+    const calculatedHeight = (rowWidth - (rowImages.length - 1) * gap) / totalAspectRatio
+    const finalHeight = Math.max(calculatedHeight, minHeight)
+    
+    // 각 이미지 아이템의 너비와 높이를 비율에 맞게 설정
+    rowImages.forEach(({ aspectRatio, imageItem }) => {
+      const itemWidth = finalHeight * aspectRatio
+      imageItem.style.width = `${itemWidth}px`
+      imageItem.style.height = `${finalHeight}px`
+    })
+  })
 }

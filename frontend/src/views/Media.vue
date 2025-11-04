@@ -700,7 +700,6 @@ const toggleNews = (newsId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18.75rem; /* 300px 고정 너비 */
   flex-shrink: 0;
   height: 100%;
 }
@@ -708,7 +707,7 @@ const toggleNews = (newsId) => {
 .image-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 이미지를 확대해서 컨테이너를 채움 */
+  object-fit: cover;
   object-position: center;
   transition: transform 0.3s ease;
   display: block;
