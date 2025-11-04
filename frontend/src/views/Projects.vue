@@ -13,7 +13,6 @@
           v-for="project in projects" 
           :key="project.id" 
           class="project-item"
-          @click="goToProjectDetail(project.urlSlug)"
         >
           <!-- 이미지 -->
           <figure class="project-figure">
@@ -26,11 +25,18 @@
           <!-- 캡션 행 -->
           <div class="project-caption">
             <div class="caption-left">{{ project.title }}</div>
-            <div class="caption-right">
+            <div 
+              class="caption-right" 
+              @click.stop="goToProjectDetail(project.urlSlug)"
+              v-if="project.urlSlug"
+            >
               <span>{{ formatDate(project.premiereDate, 'short', 'en-US') }}, {{ project.location }}</span>
               <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+            </div>
+            <div class="caption-right" v-else>
+              <span>{{ formatDate(project.premiereDate, 'short', 'en-US') }}, {{ project.location }}</span>
             </div>
           </div> 
         </div>
@@ -187,16 +193,18 @@ onMounted(() => {
   gap: 0.5rem;
   font-size: 0.9rem;
   color:#666;
-}
-.caption-arrow{
-  flex:0 0 auto;
-  color:#666;
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
-.caption-arrow:hover {
+.caption-right:hover {
   color: #1E1D1D;
+}
+
+.caption-arrow{
+  flex:0 0 auto;
+  color:inherit;
+  transition: color 0.2s ease;
 }
 
 /* 호버 미세 인터랙션(선택) */

@@ -280,14 +280,20 @@ const photoGroups = ref([])
 const loadPhotoGroups = async () => {
   try {
     const response = await axios.get('/media/photo-groups')
-    photoGroups.value = response.data.data.map(group => ({
-      id: group.id,
-      title: group.title,
-      photos: group.photos ? group.photos.map(photo => ({
-        src: toAbsoluteUrl(photo.imageUrl),
-        alt: photo.title || `Photo from ${group.title}`
-      })) : []
-    }))
+    const data = response.data?.data || response.data || []
+    
+    if (Array.isArray(data)) {
+      photoGroups.value = data.map(group => ({
+        id: group.id,
+        title: group.title,
+        photos: (group.photos && Array.isArray(group.photos)) ? group.photos.map(photo => ({
+          src: toAbsoluteUrl(photo.imageUrl),
+          alt: photo.altText || `Photo from ${group.title}`
+        })) : []
+      }))
+    } else {
+      photoGroups.value = []
+    }
   } catch (error) {
     logError(error, '사진 그룹 데이터 로드')
     photoGroups.value = []

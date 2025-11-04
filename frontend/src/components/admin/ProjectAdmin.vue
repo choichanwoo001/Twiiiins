@@ -140,8 +140,24 @@
             <input v-model="detailForm.director" />
           </div>
           <div class="form-group">
-            <label>URL Slug (자세히 보기 링크용) *</label>
-            <input v-model="detailForm.urlSlug" required placeholder="예: arturo-ui" />
+            <label>프로젝트 상세 페이지 링크</label>
+            <div class="url-slug-display">
+              <input 
+                v-model="detailForm.urlSlug" 
+                readonly 
+                :placeholder="generateUrlSlug()"
+                class="readonly-input"
+              />
+              <a 
+                v-if="detailForm.urlSlug" 
+                :href="projectDetailUrl" 
+                target="_blank" 
+                class="link-button"
+              >
+                링크 열기 ↗
+              </a>
+            </div>
+            <small class="form-hint">제목에서 자동으로 생성됩니다. 프로젝트 상세 페이지는 <code>/projects/{{ detailForm.urlSlug || generateUrlSlug() }}</code> 경로에서 접근할 수 있습니다.</small>
           </div>
         </div>
 
@@ -268,7 +284,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from '../../api/axios'
 import { BaseButton, ConfirmDialog, AlertDialog } from '../common'
 import Modal from './common/Modal.vue'
@@ -469,16 +485,50 @@ const editProject = (project) => {
   uploadedCoverImageUrl.value = project.coverImageUrl || null
 }
 
+// URL Slug 자동 생성 함수
+const generateUrlSlug = () => {
+  const title = detailForm.value.title || ''
+  if (!title) return ''
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // 특수문자 제거
+    .replace(/\s+/g, '-') // 공백을 하이픈으로
+    .replace(/-+/g, '-') // 연속된 하이픈을 하나로
+    .trim()
+}
+
+// 프로젝트 상세 페이지 링크
+const projectDetailUrl = computed(() => {
+  const slug = detailForm.value.urlSlug || generateUrlSlug()
+  if (!slug) return ''
+  const baseUrl = window.location.origin
+  return `${baseUrl}/projects/${slug}`
+})
+
+// 제목 변경 시 URL Slug 자동 생성
+watch(() => detailForm.value.title, (newTitle) => {
+  if (newTitle && !editingProjectDetail.value?.urlSlug) {
+    // 새로 생성 중이거나 urlSlug가 없을 때만 자동 생성
+    detailForm.value.urlSlug = generateUrlSlug()
+  } else if (newTitle && editingProjectDetail.value?.urlSlug) {
+    // 기존 프로젝트의 경우 제목 변경 시 새 slug 생성 (수동으로 변경 가능하도록)
+    // 하지만 자동 생성은 하지 않고, 사용자가 원하면 수동으로 변경 가능
+  }
+})
+
 const editProjectDetail = (project) => {
   editingProjectDetail.value = project
   showProjectDetailForm.value = true
+  const urlSlug = project.urlSlug || (project.title ? 
+    project.title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim() : 
+    '')
   detailForm.value = {
     title: project.title || '',
     subtitle: project.subtitle || '',
     premiereDate: project.premiereDate || '',
     location: project.location || '',
     director: project.director || '',
-    urlSlug: project.urlSlug || '',
+    urlSlug: urlSlug,
     description1: project.description1 || '',
     description2: project.description2 || '',
     description3: project.description3 || '',
@@ -566,13 +616,16 @@ const saveProject = async () => {
 
 const saveProjectDetail = async () => {
   try {
+    // URL Slug가 없으면 제목에서 자동 생성
+    const urlSlug = detailForm.value.urlSlug || generateUrlSlug()
+    
     const projectData = {
       title: detailForm.value.title,
       subtitle: detailForm.value.subtitle,
       premiereDate: detailForm.value.premiereDate,
       location: detailForm.value.location,
       director: detailForm.value.director,
-      urlSlug: detailForm.value.urlSlug,
+      urlSlug: urlSlug,
       description1: detailForm.value.description1,
       description2: detailForm.value.description2,
       description3: detailForm.value.description3,
@@ -841,6 +894,56 @@ onMounted(() => {
   max-height: 200px;
   border-radius: 0.5rem;
   margin-top: 0.5rem;
+}
+
+.url-slug-display {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.readonly-input {
+  flex: 1;
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #666;
+}
+
+.readonly-input:focus {
+  outline: none;
+  border-color: #ddd;
+}
+
+.link-button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.link-button:hover {
+  background-color: #0056b3;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.form-hint code {
+  background-color: #f5f5f5;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #333;
 }
 
 .action-buttons {

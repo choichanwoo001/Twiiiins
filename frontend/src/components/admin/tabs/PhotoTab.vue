@@ -29,23 +29,26 @@
     >
       <div v-if="selectedGroup">
         <!-- 사진 목록 -->
-         <div class="photos-grid">
-           <div v-for="photo in selectedGroup.photos" :key="photo.id" class="photo-item">
-             <div class="photo-image-wrapper" @click="openImageModal(photo)">
-               <LazyImage
-                 :src="getImageUrl(photo)"
-                 :alt="photo.altText || 'Photo'"
-                 width="150px"
-                 height="150px"
-                 image-class="photo-image"
-                 placeholder-class="photo-placeholder"
-               />
-             </div>
-             <div class="photo-actions">
-               <button class="btn-delete-small" @click="deletePhoto(photo.id)">삭제</button>
-             </div>
-           </div>
-         </div>
+        <div v-if="!selectedGroup.photos || selectedGroup.photos.length === 0" class="empty-photos">
+          <p>등록된 사진이 없습니다.</p>
+        </div>
+        <div v-else class="photos-grid">
+          <div v-for="photo in selectedGroup.photos" :key="photo.id" class="photo-item">
+            <div class="photo-image-wrapper" @click="openImageModal(photo)">
+              <LazyImage
+                :src="getImageUrl(photo)"
+                :alt="photo.altText || 'Photo'"
+                width="150px"
+                height="150px"
+                image-class="photo-image"
+                placeholder-class="photo-placeholder"
+              />
+            </div>
+            <div class="photo-actions">
+              <button class="btn-delete-small" @click="deletePhoto(photo.id)">삭제</button>
+            </div>
+          </div>
+        </div>
 
         <!-- 사진 업로드 -->
         <div class="photo-upload">
@@ -348,17 +351,56 @@ const uploadPhotos = async () => {
   }
 
   try {
-    await photoService.uploadPhotos(selectedGroup.value.id, selectedFiles.value)
+    // 사진 업로드
+    const uploadedPhotos = await photoService.uploadPhotos(selectedGroup.value.id, selectedFiles.value)
+    
+    // 전체 그룹 목록 갱신
     await mediaStore.loadPhotoGroups()
-    // 그룹 정보 갱신
+    
+    // 선택된 그룹 정보 갱신 (업로드된 사진이 포함된 최신 정보)
     if (selectedGroup.value) {
-      const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
-      selectedGroup.value = updatedGroup
+      try {
+        // 최신 그룹 정보 가져오기
+        const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
+        if (updatedGroup) {
+          // photos 배열이 없으면 빈 배열로 초기화
+          if (!updatedGroup.photos) {
+            updatedGroup.photos = []
+          }
+          // 업로드된 사진이 있으면 추가 (중복 방지)
+          if (uploadedPhotos && Array.isArray(uploadedPhotos) && uploadedPhotos.length > 0) {
+            // 이미 존재하는 사진 ID 체크하여 중복 방지
+            const existingIds = new Set((updatedGroup.photos || []).map(p => p.id))
+            uploadedPhotos.forEach(photo => {
+              if (photo.id && !existingIds.has(photo.id)) {
+                updatedGroup.photos.push(photo)
+              }
+            })
+          }
+          selectedGroup.value = updatedGroup
+        } else {
+          // getPhotoGroup이 실패하면 스토어에서 최신 정보 가져오기
+          const latestGroup = mediaStore.photoGroups.find(g => g.id === selectedGroup.value.id)
+          if (latestGroup) {
+            selectedGroup.value = latestGroup
+          }
+        }
+      } catch (updateError) {
+        console.warn('그룹 정보 갱신 실패, 스토어에서 가져오기:', updateError)
+        // 스토어에서 최신 정보 가져오기
+        const latestGroup = mediaStore.photoGroups.find(g => g.id === selectedGroup.value.id)
+        if (latestGroup) {
+          selectedGroup.value = latestGroup
+        }
+      }
     }
+    
+    // 파일 선택 초기화
     selectedFiles.value = []
     if (fileInput.value) {
       fileInput.value.value = ''
     }
+    
     await showAlert('사진이 성공적으로 업로드되었습니다.', '성공', 'success')
   } catch (error) {
     logError(error, '사진 업로드')
@@ -372,10 +414,28 @@ const deletePhoto = async (photoId) => {
     if (confirmed) {
       await photoService.deletePhoto(photoId)
       await mediaStore.loadPhotoGroups()
+      
       // 그룹 정보 갱신
       if (selectedGroup.value) {
-        const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
-        selectedGroup.value = updatedGroup
+        try {
+          const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
+          if (updatedGroup && updatedGroup.photos) {
+            selectedGroup.value = updatedGroup
+          } else {
+            // 스토어에서 최신 정보 가져오기
+            const latestGroup = mediaStore.photoGroups.find(g => g.id === selectedGroup.value.id)
+            if (latestGroup) {
+              selectedGroup.value = latestGroup
+            }
+          }
+        } catch (updateError) {
+          console.warn('그룹 정보 갱신 실패, 스토어에서 가져오기:', updateError)
+          // 스토어에서 최신 정보 가져오기
+          const latestGroup = mediaStore.photoGroups.find(g => g.id === selectedGroup.value.id)
+          if (latestGroup) {
+            selectedGroup.value = latestGroup
+          }
+        }
       }
     }
   } catch (error) {
@@ -447,6 +507,17 @@ onUnmounted(() => {
 
 .photo-tab {
   padding: 0;
+}
+
+.empty-photos {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #999;
+  font-size: 1rem;
+}
+
+.empty-photos p {
+  margin: 0;
 }
 
 .photos-grid {
