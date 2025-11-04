@@ -87,7 +87,56 @@ public class FileUploadService {
             throw new FileUploadException(errorMessage);
         }
         
+        // 이미지 파일인 경우 픽셀 크기 검증 (메모리 문제 방지)
+        if (contentType != null && contentType.startsWith("image/")) {
+            validateImageDimensions(file);
+        }
+        
         log.debug("파일 검증 완료: 파일명 = {}, 타입 = {}", file.getOriginalFilename(), contentType);
+    }
+    
+    /**
+     * 이미지 픽셀 크기 검증 (메모리 부족 방지)
+     * 너무 큰 이미지는 처리 시 OutOfMemoryError 발생 가능
+     */
+    private void validateImageDimensions(MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+            javax.imageio.ImageInputStream imageInputStream = javax.imageio.ImageIO.createImageInputStream(inputStream);
+            java.util.Iterator<javax.imageio.ImageReader> readers = javax.imageio.ImageIO.getImageReaders(imageInputStream);
+            
+            if (readers.hasNext()) {
+                javax.imageio.ImageReader reader = readers.next();
+                reader.setInput(imageInputStream);
+                int width = reader.getWidth(0);
+                int height = reader.getHeight(0);
+                reader.dispose();
+                imageInputStream.close();
+                
+                // 최대 픽셀 크기 제한: 20000x20000
+                // Thumbnailator를 사용하면 메모리 효율적으로 처리 가능
+                // 일반적인 60~70MB 고품질 이미지도 처리 가능 (예: 8000x6000 정도)
+                int maxDimension = 20000;
+                
+                // 총 픽셀 수로도 검증 (메모리 사용량 추정)
+                long totalPixels = (long) width * height;
+                long maxPixels = (long) maxDimension * maxDimension;
+                
+                if (width > maxDimension || height > maxDimension || totalPixels > maxPixels) {
+                    log.warn("이미지 픽셀 크기 초과: {}x{} (총 픽셀: {}, 최대: {}x{} = {})", 
+                            width, height, totalPixels, maxDimension, maxDimension, maxPixels);
+                    throw new FileUploadException(
+                        String.format("이미지 크기가 너무 큽니다. 최대 %dx%d 픽셀까지 지원됩니다. (현재: %dx%d)", 
+                        maxDimension, maxDimension, width, height));
+                }
+                
+                log.debug("이미지 픽셀 크기 검증 완료: {}x{}", width, height);
+            }
+        } catch (FileUploadException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("이미지 크기 검증 실패 (계속 진행): {}", e.getMessage());
+            // 검증 실패해도 업로드는 진행 (이미지가 손상되었거나 형식이 예상과 다를 수 있음)
+        }
     }
     
     private FileUploadResponseDto uploadFile(MultipartFile file, String uploadType) {

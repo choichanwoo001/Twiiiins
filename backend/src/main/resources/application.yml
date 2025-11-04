@@ -29,8 +29,8 @@ spring:
   
   servlet:
     multipart:
-      max-file-size: ${UPLOAD_MAX_SIZE:104857600}  # 100MB
-      max-request-size: ${UPLOAD_MAX_SIZE:104857600}  # 100MB
+      max-file-size: ${UPLOAD_MAX_SIZE:104857600}  # 100MB - 개별 파일 크기 제한
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:524288000}  # 500MB - 전체 요청 크기 제한 (여러 파일 동시 업로드 지원)
       file-size-threshold: ${MULTIPART_FILE_SIZE_THRESHOLD:52428800}  # 50MB - 이 값 이하는 메모리에 저장
       location: ${MULTIPART_LOCATION:}  # 임시 파일 저장 위치 (비어있으면 시스템 기본값 사용)
       enabled: true
