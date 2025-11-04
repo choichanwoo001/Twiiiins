@@ -7,12 +7,28 @@ WORKDIR /app
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle gradle
 RUN chmod +x gradlew
-RUN ./gradlew dependencies --no-daemon || true
+# 의존성 다운로드 후 중간 캐시 정리 (빌드 캐시 비활성화)
+RUN export GRADLE_OPTS="-Dorg.gradle.caching=false" \
+    && ./gradlew dependencies --no-daemon || true \
+    && find /app/.gradle -type f -name "*.lock" -delete \
+    && find /root/.gradle -type f -name "*.lock" -delete || true
 
 # 소스 코드 복사 및 빌드
 COPY . .
 RUN chmod +x gradlew
-RUN ./gradlew build -x test --no-daemon
+# 빌드 및 캐시 정리 (빌드 캐시 비활성화로 디스크 공간 절약)
+RUN export GRADLE_OPTS="-Dorg.gradle.caching=false -Dorg.gradle.configureondemand=false" \
+    && ./gradlew clean build -x test --no-daemon \
+    && rm -rf /app/.gradle \
+    && rm -rf /app/build/classes \
+    && rm -rf /app/build/generated \
+    && rm -rf /app/build/tmp \
+    && rm -rf /app/build/resources \
+    && rm -rf /root/.gradle \
+    && find /app/build -type f ! -name "*.jar" -delete \
+    && find /app/build -type d -empty -delete \
+    && find /app/build/libs -type f ! -name "twiiiins-backend-*.jar" -delete \
+    || (rm -rf /app/.gradle && rm -rf /root/.gradle && exit 1)
 
 # 실행 스테이지
 FROM eclipse-temurin:17-jre
@@ -21,16 +37,19 @@ WORKDIR /app
 
 # Install curl for runtime health checks
 USER root
-RUN apt-get update \
+RUN apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get update --fix-missing \
   && apt-get install -y --no-install-recommends curl \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 # 비-루트 유저 생성
 RUN addgroup --system spring && adduser --system --group spring
 USER spring:spring
 
-# 빌드된 JAR 파일 복사
-COPY --from=builder /app/build/libs/twiiiins-backend-*.jar app.jar
+# 빌드된 JAR 파일 복사 (빌드 아티팩트만)
+COPY --from=builder --chown=spring:spring /app/build/libs/twiiiins-backend-*.jar app.jar
 
 # 환경 변수 기본값 설정
 ENV PORT=8080 \
