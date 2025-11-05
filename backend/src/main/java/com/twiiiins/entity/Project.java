@@ -30,29 +30,10 @@ public class Project {
     
     private String location;
     
-    @Column(length = 2000)
-    private String description1;
-    
-    @Column(length = 2000)
-    private String description2;
-    
-    @Column(length = 2000)
-    private String description3;
-    
-    @Column(name = "main_image_url")
-    private String mainImageUrl;
-    
-    @Column(name = "horizontal1_image_url")
-    private String horizontal1ImageUrl;
-    
-    @Column(name = "horizontal2_image_url")
-    private String horizontal2ImageUrl;
-    
-    @Column(name = "vertical1_image_url")
-    private String vertical1ImageUrl;
-    
-    @Column(name = "vertical2_image_url")
-    private String vertical2ImageUrl;
+    @ElementCollection
+    @CollectionTable(name = "project_descriptions", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "description", length = 2000)
+    private List<String> descriptions = new ArrayList<>();
     
     @Column(name = "cover_image_url")
     private String coverImageUrl;
@@ -64,16 +45,6 @@ public class Project {
     
     @Column(name = "thank_you_text", length = 2000)
     private String thankYouText;
-    
-    @Column(length = 1000)
-    private String review1Text;
-    
-    private String review1Source;
-    
-    @Column(length = 1000)
-    private String review2Text;
-    
-    private String review2Source;
     
     @Column(name = "url_slug")
     private String urlSlug;

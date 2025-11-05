@@ -17,10 +17,14 @@
           <!-- 이미지 -->
           <figure class="project-figure">
             <img
-              :src="project.coverImageUrl"
+              v-if="project.coverImageUrl"
+              :src="toAbsoluteUrl(project.coverImageUrl)"
               :alt="project.title || 'Project image'"
               @error="handleImageError($event)"
             />
+            <div v-else class="image-error">
+              이미지를 불러올 수 없습니다
+            </div>
           </figure>
 
           <!-- 캡션 행 -->
@@ -69,23 +73,8 @@ const loadProjects = async () => {
     const response = await axios.get('/projects')
     const projectData = response.data.data || response.data || []
     
-    // fallback 이미지 경로 (src/imgs에 있는 파일)
-    const fallbackImage = new URL('../imgs/project_cover.jpg', import.meta.url).href
-    
-    projects.value = projectData.map(project => {
-      // ProjectDetail.vue와 동일한 방식으로 coverImageUrl 처리
-      // toAbsoluteUrl이 이미 https://로 시작하는 URL은 그대로 반환함
-      let coverUrl = fallbackImage
-      
-      if (project.coverImageUrl) {
-        coverUrl = toAbsoluteUrl(project.coverImageUrl)
-      }
-      
-      return {
-        ...project,
-        coverImageUrl: coverUrl
-      }
-    })
+    // 원본 데이터를 그대로 저장 (News와 동일한 방식)
+    projects.value = projectData
   } catch (error) {
     logError(error, '프로젝트 데이터 로드')
     projects.value = []
@@ -101,11 +90,13 @@ const goToProjectDetail = (urlSlug) => {
 
 // 이미지 로드 에러 처리
 const handleImageError = (event) => {
-  // 이미지 로드 실패 시 fallback 이미지 사용
-  const fallbackImage = new URL('../imgs/project_cover.jpg', import.meta.url).href
-  if (event.target.src !== fallbackImage) {
-    event.target.src = fallbackImage
-  }
+  // 이미지 로드 실패 시 이미지를 숨기고 에러 메시지 표시
+  const img = event.target
+  img.style.display = 'none'
+  const errorDiv = document.createElement('div')
+  errorDiv.className = 'image-error'
+  errorDiv.textContent = '이미지를 불러올 수 없습니다'
+  img.parentElement.appendChild(errorDiv)
 }
 
 onMounted(() => {
@@ -195,6 +186,19 @@ onMounted(() => {
   object-fit: cover;
   display:block;
   transform: translateZ(0);
+}
+
+.image-error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #999;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem;
 }
 
 /* 캡션 행 */

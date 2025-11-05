@@ -7,9 +7,7 @@
         <div class="project-subtitle">{{ project.subtitle }}</div>
         <div class="project-date-location">Premiere: {{ formatDate(project.premiereDate, 'date', 'en-US') }} · {{ project.location }}</div>
         <div class="project-director" v-if="project.director">Director: {{ project.director }}</div>
-        <p v-if="project.description1">{{ project.description1 }}</p>
-        <p v-if="project.description2">{{ project.description2 }}</p>
-        <p v-if="project.description3">{{ project.description3 }}</p>
+        <p v-for="(description, index) in projectDescriptions" :key="index">{{ description }}</p>
         <p v-if="project.thankYouText">{{ project.thankYouText }}</p>
         <div class="more-info" v-if="project.moreInfoUrl">
           <a :href="project.moreInfoUrl" target="_blank">
@@ -61,42 +59,33 @@ const project = ref(null)
 const projectImageUrls = computed(() => {
   if (!project.value) return []
   
-  const urls = []
-  
-  // 기존 이미지 필드들 (하위 호환성)
-  if (project.value.mainImageUrl) urls.push(project.value.mainImageUrl)
-  if (project.value.horizontal1ImageUrl) urls.push(project.value.horizontal1ImageUrl)
-  if (project.value.horizontal2ImageUrl) urls.push(project.value.horizontal2ImageUrl)
-  if (project.value.vertical1ImageUrl) urls.push(project.value.vertical1ImageUrl)
-  if (project.value.vertical2ImageUrl) urls.push(project.value.vertical2ImageUrl)
-  
-  // 새로운 imageUrls 배열 (우선순위 높음)
   if (project.value.imageUrls && Array.isArray(project.value.imageUrls) && project.value.imageUrls.length > 0) {
     return project.value.imageUrls.map(url => toAbsoluteUrl(url))
   }
   
-  return urls
+  return []
 })
 
 // 프로젝트 리뷰 배열 생성
 const projectReviews = computed(() => {
   if (!project.value) return []
   
-  // 새로운 reviews 배열 사용 (우선순위 높음)
   if (project.value.reviews && Array.isArray(project.value.reviews) && project.value.reviews.length > 0) {
     return project.value.reviews.filter(review => review.text && review.text.trim() !== '')
   }
   
-  // 하위 호환성: 기존 review1, review2를 배열로 변환
-  const reviews = []
-  if (project.value.review1Text && project.value.review1Text.trim() !== '') {
-    reviews.push({ text: project.value.review1Text, source: project.value.review1Source || '' })
-  }
-  if (project.value.review2Text && project.value.review2Text.trim() !== '') {
-    reviews.push({ text: project.value.review2Text, source: project.value.review2Source || '' })
+  return []
+})
+
+// 프로젝트 설명 배열 생성
+const projectDescriptions = computed(() => {
+  if (!project.value) return []
+  
+  if (project.value.descriptions && Array.isArray(project.value.descriptions) && project.value.descriptions.length > 0) {
+    return project.value.descriptions.filter(desc => desc && desc.trim() !== '')
   }
   
-  return reviews
+  return []
 })
 
 // 프로젝트 데이터 로드
@@ -115,7 +104,6 @@ const loadProject = async () => {
       project.value = {
         ...projectData,
         // 이미지 URL 변환
-        mainImageUrl: projectData.mainImageUrl ? toAbsoluteUrl(projectData.mainImageUrl) : null,
         imageUrls: projectData.imageUrls ? projectData.imageUrls.map(url => toAbsoluteUrl(url)) : []
       }
     }

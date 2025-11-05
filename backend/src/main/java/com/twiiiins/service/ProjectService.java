@@ -60,22 +60,15 @@ public class ProjectService {
         project.setSubtitle(projectDto.getSubtitle());
         project.setPremiereDate(projectDto.getPremiereDate());
         project.setLocation(projectDto.getLocation());
-        project.setDescription1(projectDto.getDescription1());
-        project.setDescription2(projectDto.getDescription2());
-        project.setDescription3(projectDto.getDescription3());
-        project.setMainImageUrl(projectDto.getMainImageUrl());
-        project.setHorizontal1ImageUrl(projectDto.getHorizontal1ImageUrl());
-        project.setHorizontal2ImageUrl(projectDto.getHorizontal2ImageUrl());
-        project.setVertical1ImageUrl(projectDto.getVertical1ImageUrl());
-        project.setVertical2ImageUrl(projectDto.getVertical2ImageUrl());
+        if (projectDto.getDescriptions() != null) {
+            project.setDescriptions(projectDto.getDescriptions());
+        } else {
+            project.setDescriptions(new ArrayList<>());
+        }
         project.setCoverImageUrl(projectDto.getCoverImageUrl());
         project.setMoreInfoUrl(projectDto.getMoreInfoUrl());
         project.setDirector(projectDto.getDirector());
         project.setThankYouText(projectDto.getThankYouText());
-        project.setReview1Text(projectDto.getReview1Text());
-        project.setReview1Source(projectDto.getReview1Source());
-        project.setReview2Text(projectDto.getReview2Text());
-        project.setReview2Source(projectDto.getReview2Source());
         
         // 리뷰 배열 업데이트
         if (projectDto.getReviews() != null) {
@@ -109,22 +102,11 @@ public class ProjectService {
         dto.setSubtitle(project.getSubtitle());
         dto.setPremiereDate(project.getPremiereDate());
         dto.setLocation(project.getLocation());
-        dto.setDescription1(project.getDescription1());
-        dto.setDescription2(project.getDescription2());
-        dto.setDescription3(project.getDescription3());
-        dto.setMainImageUrl(project.getMainImageUrl());
-        dto.setHorizontal1ImageUrl(project.getHorizontal1ImageUrl());
-        dto.setHorizontal2ImageUrl(project.getHorizontal2ImageUrl());
-        dto.setVertical1ImageUrl(project.getVertical1ImageUrl());
-        dto.setVertical2ImageUrl(project.getVertical2ImageUrl());
+        dto.setDescriptions(project.getDescriptions() != null ? project.getDescriptions() : new ArrayList<>());
         dto.setCoverImageUrl(project.getCoverImageUrl());
         dto.setMoreInfoUrl(project.getMoreInfoUrl());
         dto.setDirector(project.getDirector());
         dto.setThankYouText(project.getThankYouText());
-        dto.setReview1Text(project.getReview1Text());
-        dto.setReview1Source(project.getReview1Source());
-        dto.setReview2Text(project.getReview2Text());
-        dto.setReview2Source(project.getReview2Source());
         dto.setUrlSlug(project.getUrlSlug());
         dto.setDisplayOrder(project.getDisplayOrder());
         dto.setImageUrls(project.getImageUrls() != null ? project.getImageUrls() : new ArrayList<>());
@@ -135,15 +117,7 @@ public class ProjectService {
                 .map(review -> new ProjectDto.ReviewDto(review.getText(), review.getSource()))
                 .collect(Collectors.toList()));
         } else {
-            // 하위 호환성: 기존 review1, review2를 reviews 배열로 변환
-            List<ProjectDto.ReviewDto> reviews = new ArrayList<>();
-            if (project.getReview1Text() != null && !project.getReview1Text().isEmpty()) {
-                reviews.add(new ProjectDto.ReviewDto(project.getReview1Text(), project.getReview1Source()));
-            }
-            if (project.getReview2Text() != null && !project.getReview2Text().isEmpty()) {
-                reviews.add(new ProjectDto.ReviewDto(project.getReview2Text(), project.getReview2Source()));
-            }
-            dto.setReviews(reviews);
+            dto.setReviews(new ArrayList<>());
         }
         
         return dto;
@@ -155,22 +129,15 @@ public class ProjectService {
         project.setSubtitle(projectDto.getSubtitle());
         project.setPremiereDate(projectDto.getPremiereDate());
         project.setLocation(projectDto.getLocation());
-        project.setDescription1(projectDto.getDescription1());
-        project.setDescription2(projectDto.getDescription2());
-        project.setDescription3(projectDto.getDescription3());
-        project.setMainImageUrl(projectDto.getMainImageUrl());
-        project.setHorizontal1ImageUrl(projectDto.getHorizontal1ImageUrl());
-        project.setHorizontal2ImageUrl(projectDto.getHorizontal2ImageUrl());
-        project.setVertical1ImageUrl(projectDto.getVertical1ImageUrl());
-        project.setVertical2ImageUrl(projectDto.getVertical2ImageUrl());
+        if (projectDto.getDescriptions() != null) {
+            project.setDescriptions(projectDto.getDescriptions());
+        } else {
+            project.setDescriptions(new ArrayList<>());
+        }
         project.setCoverImageUrl(projectDto.getCoverImageUrl());
         project.setMoreInfoUrl(projectDto.getMoreInfoUrl());
         project.setDirector(projectDto.getDirector());
         project.setThankYouText(projectDto.getThankYouText());
-        project.setReview1Text(projectDto.getReview1Text());
-        project.setReview1Source(projectDto.getReview1Source());
-        project.setReview2Text(projectDto.getReview2Text());
-        project.setReview2Source(projectDto.getReview2Source());
         
         // 리뷰 배열 변환
         if (projectDto.getReviews() != null) {

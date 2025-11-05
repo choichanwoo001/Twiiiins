@@ -159,17 +159,28 @@
         <!-- 설명 -->
         <div class="form-section">
           <h3>설명</h3>
-          <div class="form-group">
-            <label>설명 1</label>
-            <textarea v-model="detailForm.description1" rows="4"></textarea>
-          </div>
-          <div class="form-group">
-            <label>설명 2</label>
-            <textarea v-model="detailForm.description2" rows="4"></textarea>
-          </div>
-          <div class="form-group">
-            <label>설명 3</label>
-            <textarea v-model="detailForm.description3" rows="4"></textarea>
+          <div class="descriptions-container">
+            <div v-for="(description, index) in detailForm.descriptions" :key="index" class="description-item-form">
+              <div class="description-item-header">
+                <label>설명 {{ index + 1 }}</label>
+                <BaseButton 
+                  type="button" 
+                  variant="danger" 
+                  size="small" 
+                  @click="removeDescription(index)"
+                >
+                  삭제
+                </BaseButton>
+              </div>
+              <div class="form-group">
+                <textarea v-model="description" rows="4"></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <BaseButton type="button" variant="secondary" @click="addDescription">
+                설명 추가
+              </BaseButton>
+            </div>
           </div>
           <div class="form-group">
             <label>감사 문구</label>
@@ -319,9 +330,7 @@ const detailForm = ref({
   location: '',
   director: '',
   urlSlug: '',
-  description1: '',
-  description2: '',
-  description3: '',
+  descriptions: [],
   thankYouText: '',
   moreInfoUrl: '',
   coverImageUrl: null,
@@ -532,18 +541,16 @@ const editProjectDetail = (project) => {
     project.title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim() : 
     '')
   
-  // 리뷰 데이터 변환 (기존 review1, review2 또는 새로운 reviews 배열)
+  // 리뷰 데이터 변환
   let reviews = []
   if (project.reviews && Array.isArray(project.reviews) && project.reviews.length > 0) {
     reviews = project.reviews.map(r => ({ text: r.text || '', source: r.source || '' }))
-  } else {
-    // 하위 호환성: 기존 review1, review2를 reviews 배열로 변환
-    if (project.review1Text) {
-      reviews.push({ text: project.review1Text || '', source: project.review1Source || '' })
-    }
-    if (project.review2Text) {
-      reviews.push({ text: project.review2Text || '', source: project.review2Source || '' })
-    }
+  }
+  
+  // 설명 데이터 변환
+  let descriptions = []
+  if (project.descriptions && Array.isArray(project.descriptions)) {
+    descriptions = project.descriptions
   }
   
   detailForm.value = {
@@ -553,9 +560,7 @@ const editProjectDetail = (project) => {
     location: project.location || '',
     director: project.director || '',
     urlSlug: urlSlug,
-    description1: project.description1 || '',
-    description2: project.description2 || '',
-    description3: project.description3 || '',
+    descriptions: descriptions,
     thankYouText: project.thankYouText || '',
     moreInfoUrl: project.moreInfoUrl || '',
     coverImageUrl: project.coverImageUrl || null,
@@ -584,9 +589,7 @@ const cancelEditDetail = () => {
     location: '',
     director: '',
     urlSlug: '',
-    description1: '',
-    description2: '',
-    description3: '',
+    descriptions: [],
     thankYouText: '',
     moreInfoUrl: '',
     coverImageUrl: null,
@@ -649,6 +652,20 @@ const removeReview = (index) => {
   }
 }
 
+// 설명 추가/삭제 함수
+const addDescription = () => {
+  if (!detailForm.value.descriptions) {
+    detailForm.value.descriptions = []
+  }
+  detailForm.value.descriptions.push('')
+}
+
+const removeDescription = (index) => {
+  if (detailForm.value.descriptions && detailForm.value.descriptions.length > index) {
+    detailForm.value.descriptions.splice(index, 1)
+  }
+}
+
 const saveProjectDetail = async () => {
   try {
     // URL Slug가 없으면 제목에서 자동 생성
@@ -661,9 +678,7 @@ const saveProjectDetail = async () => {
       location: detailForm.value.location,
       director: detailForm.value.director,
       urlSlug: urlSlug,
-      description1: detailForm.value.description1,
-      description2: detailForm.value.description2,
-      description3: detailForm.value.description3,
+      descriptions: detailForm.value.descriptions || [],
       thankYouText: detailForm.value.thankYouText,
       moreInfoUrl: detailForm.value.moreInfoUrl,
       coverImageUrl: detailForm.value.coverImageUrl || null,
@@ -1101,6 +1116,33 @@ onMounted(() => {
 }
 
 .review-item-header label {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+/* 설명 섹션 스타일 */
+.descriptions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.description-item-form {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+}
+
+.description-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.description-item-header label {
   font-weight: 600;
   color: #333;
   font-size: 1rem;
