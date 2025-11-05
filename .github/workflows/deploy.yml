@@ -39,9 +39,14 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
           
-          # 디스크 공간 정리 (배포 전)
-          echo "=== 배포 전 디스크 공간 정리 ==="
+          # 디스크 공간 정리 및 디렉토리 생성 (배포 전)
+          echo "=== 배포 전 디스크 공간 정리 및 디렉토리 준비 ==="
           ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
+            # 프로젝트 디렉토리 생성
+            mkdir -p /home/ubuntu/twiiiins/Twiiiins/frontend
+            mkdir -p /home/ubuntu/twiiiins/Twiiiins/backend
+            mkdir -p /home/ubuntu/twiiiins/Twiiiins
+            
             # Docker 빌드 캐시 정리
             docker builder prune -af || true
             
@@ -55,19 +60,19 @@ jobs:
             docker buildx prune -af 2>/dev/null || true
             
             # 로그 파일 정리
-            find /home/ubuntu/twiiiins -name "*.log" -type f -mtime +30 -delete 2>/dev/null || true
+            find /home/ubuntu/twiiiins/Twiiiins -name "*.log" -type f -mtime +30 -delete 2>/dev/null || true
             
             # 백엔드 빌드 캐시 정리
-            if [ -d "/home/ubuntu/twiiiins/backend/build" ]; then
-              rm -rf /home/ubuntu/twiiiins/backend/build/* 2>/dev/null || true
+            if [ -d "/home/ubuntu/twiiiins/Twiiiins/backend/build" ]; then
+              rm -rf /home/ubuntu/twiiiins/Twiiiins/backend/build/* 2>/dev/null || true
             fi
-            if [ -d "/home/ubuntu/twiiiins/backend/.gradle" ]; then
-              rm -rf /home/ubuntu/twiiiins/backend/.gradle/caches/* 2>/dev/null || true
+            if [ -d "/home/ubuntu/twiiiins/Twiiiins/backend/.gradle" ]; then
+              rm -rf /home/ubuntu/twiiiins/Twiiiins/backend/.gradle/caches/* 2>/dev/null || true
             fi
             
             # 프론트엔드 빌드 캐시 정리
-            rm -rf /home/ubuntu/twiiiins/frontend/.vite 2>/dev/null || true
-            rm -rf /home/ubuntu/twiiiins/frontend/.cache 2>/dev/null || true
+            rm -rf /home/ubuntu/twiiiins/Twiiiins/frontend/.vite 2>/dev/null || true
+            rm -rf /home/ubuntu/twiiiins/Twiiiins/frontend/.cache 2>/dev/null || true
             
             # 임시 파일 정리
             find /tmp -type f -mtime +7 -delete 2>/dev/null || true
@@ -79,7 +84,7 @@ jobs:
           # 프론트엔드 dist 전송
           echo "=== 프론트엔드 dist 전송 ==="
           rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key" \
-            frontend/dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/twiiiins/frontend/dist/
+            frontend/dist/ $EC2_USER@$EC2_HOST:/home/ubuntu/twiiiins/Twiiiins/frontend/dist
           
           # 백엔드 소스 코드 전송
           echo "=== 백엔드 소스 코드 전송 ==="
@@ -91,17 +96,17 @@ jobs:
             --exclude '*.log' \
             --exclude 'bin/' \
             --exclude 'out/' \
-            backend/ $EC2_USER@$EC2_HOST:/home/ubuntu/twiiiins/backend/
+            backend/ $EC2_USER@$EC2_HOST:/home/ubuntu/twiiiins/Twiiiins/backend
           
           # docker-compose.yml 전송
           echo "=== docker-compose.yml 전송 ==="
           rsync -avz -e "ssh -i ~/.ssh/deploy_key" \
-            docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/twiiiins/
+            docker-compose.yml $EC2_USER@$EC2_HOST:/home/ubuntu/twiiiins/Twiiiins/
           
           # 원격 기동 (compose up)
           echo "=== 원격 기동 (compose up) ==="
           ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
-            cd /home/ubuntu/twiiiins
+            cd /home/ubuntu/twiiiins/Twiiiins
             docker-compose down
             docker-compose build --no-cache backend
             docker-compose up -d
