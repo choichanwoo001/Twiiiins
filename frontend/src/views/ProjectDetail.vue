@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '../api/axios'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
@@ -132,18 +132,64 @@ const onImageLoad = (event) => {
     const row = img.closest('.image-row')
     if (!row) return
     
+    // 이미지 로드 직후 즉시 크기 제한 (calculateRowHeight 실행 전)
+    const imageItem = img.closest('.image-item')
+    if (imageItem) {
+      // 임시로 행 너비에 맞게 제한
+      const rowWidth = row.offsetWidth || 1000 // 기본값
+      const maxItemWidth = rowWidth - 8 // gap 고려
+      if (img.naturalWidth && img.naturalHeight) {
+        const aspectRatio = img.naturalWidth / img.naturalHeight
+        const maxHeight = 400 // calculateRowHeight의 maxHeight와 동일
+        const calculatedWidth = maxHeight * aspectRatio
+        // 행 너비를 초과하지 않도록 제한
+        imageItem.style.width = `${Math.min(calculatedWidth, maxItemWidth)}px`
+        imageItem.style.height = `${Math.min(maxHeight, maxItemWidth / aspectRatio)}px`
+      }
+    }
+    
     const images = row.querySelectorAll('img')
     // 모든 이미지가 로드되었는지 확인
     const allLoaded = Array.from(images).every(img => img.complete && img.naturalWidth > 0)
     if (allLoaded) {
+      // 모든 이미지가 로드되면 정확한 계산 수행
       calculateRowHeight(row, images, 0)
+    } else {
+      // 일부 이미지만 로드된 경우에도 계산 (점진적 로딩 대응)
+      const loadedImages = Array.from(images).filter(img => img.complete && img.naturalWidth > 0)
+      if (loadedImages.length > 0) {
+        calculateRowHeight(row, loadedImages, 0)
+      }
     }
+  })
+}
+
+// 이미지 URL이 변경될 때도 재계산
+const recalculateImages = () => {
+  nextTick(() => {
+    const rows = document.querySelectorAll('.project-images .image-row')
+    rows.forEach(row => {
+      const images = row.querySelectorAll('img')
+      const loadedImages = Array.from(images).filter(img => img.complete && img.naturalWidth > 0)
+      if (loadedImages.length > 0) {
+        calculateRowHeight(row, loadedImages, 0)
+      }
+    })
   })
 }
 
 onMounted(async () => {
   await loadProject()
+  // 이미지가 로드된 후 재계산
+  setTimeout(() => {
+    recalculateImages()
+  }, 500)
 })
+
+// 프로젝트 이미지 URL이 변경될 때 재계산
+watch(() => projectImageUrls.value, () => {
+  recalculateImages()
+}, { deep: true })
 
 </script>
 
@@ -256,6 +302,10 @@ onMounted(async () => {
   flex-wrap: wrap;
   min-height: 18.75rem;
   align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  /* 행 내 이미지가 행 너비를 초과하지 않도록 */
+  box-sizing: border-box;
 }
 
 .image-item {
@@ -266,6 +316,12 @@ onMounted(async () => {
   justify-content: center;
   flex-shrink: 0;
   height: 100%;
+  /* 초기 최대 너비 제한 - 행 너비를 절대 초과하지 않도록 */
+  max-width: 100%;
+  /* calculateRowHeight에서 너비가 설정될 때까지 임시로 작은 크기 */
+  width: auto;
+  /* 이미지가 컨테이너를 넘어가지 않도록 */
+  box-sizing: border-box;
 }
 
 .image-item img {
@@ -275,6 +331,11 @@ onMounted(async () => {
   object-position: center;
   transition: transform 0.3s ease;
   display: block;
+  /* 이미지 자체가 컨테이너를 절대 초과하지 않도록 */
+  max-width: 100%;
+  max-height: 100%;
+  /* 원본 크기로 표시되지 않도록 보장 */
+  box-sizing: border-box;
 }
 
 .image-item:hover img {

@@ -17,8 +17,9 @@
           <!-- 이미지 -->
           <figure class="project-figure">
             <img
-              :src="project.coverImageUrl || '../imgs/project_cover.jpg'"
-              :alt="project.title"
+              :src="project.coverImageUrl"
+              :alt="project.title || 'Project image'"
+              @error="handleImageError($event)"
             />
           </figure>
 
@@ -68,10 +69,16 @@ const loadProjects = async () => {
     const response = await axios.get('/projects')
     const projectData = response.data.data || response.data || []
     
-    projects.value = projectData.map(project => ({
-      ...project,
-      coverImageUrl: project.coverImageUrl ? toAbsoluteUrl(project.coverImageUrl) : null
-    }))
+    projects.value = projectData.map(project => {
+      // coverImageUrl이 있고 비어있지 않으면 변환, 아니면 fallback 이미지 사용
+      const coverUrl = project.coverImageUrl && project.coverImageUrl.trim() 
+        ? toAbsoluteUrl(project.coverImageUrl) 
+        : '/imgs/project_cover.jpg'
+      return {
+        ...project,
+        coverImageUrl: coverUrl
+      }
+    })
   } catch (error) {
     logError(error, '프로젝트 데이터 로드')
     projects.value = []
@@ -82,6 +89,14 @@ const loadProjects = async () => {
 const goToProjectDetail = (urlSlug) => {
   if (urlSlug) {
     router.push(`/projects/${urlSlug}`)
+  }
+}
+
+// 이미지 로드 에러 처리
+const handleImageError = (event) => {
+  // 이미지 로드 실패 시 fallback 이미지 사용
+  if (event.target.src !== '/imgs/project_cover.jpg') {
+    event.target.src = '/imgs/project_cover.jpg'
   }
 }
 
