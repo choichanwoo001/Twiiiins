@@ -75,9 +75,11 @@ const loadProjects = async () => {
     projects.value = projectData.map(project => {
       // ProjectDetail.vue와 동일한 방식으로 coverImageUrl 처리
       // toAbsoluteUrl이 이미 https://로 시작하는 URL은 그대로 반환함
-      const coverUrl = project.coverImageUrl 
-        ? toAbsoluteUrl(project.coverImageUrl) 
-        : fallbackImage
+      let coverUrl = fallbackImage
+      
+      if (project.coverImageUrl) {
+        coverUrl = toAbsoluteUrl(project.coverImageUrl)
+      }
       
       return {
         ...project,
@@ -166,6 +168,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  padding-bottom: 4rem;
 }
 
 .project-item {

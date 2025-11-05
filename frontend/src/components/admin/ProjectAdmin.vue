@@ -324,6 +324,7 @@ const detailForm = ref({
   description3: '',
   thankYouText: '',
   moreInfoUrl: '',
+  coverImageUrl: null,
   imageUrls: [],
   reviews: []
 })
@@ -417,7 +418,13 @@ const uploadImage = async (file) => {
         'Content-Type': 'multipart/form-data'
       }
     })
-    return response.data.data?.url || response.data.url
+    // FileUploadResponseDto는 직접 반환되므로 response.data.url 사용
+    const url = response.data.url || response.data.data?.url
+    if (!url) {
+      console.error('이미지 업로드 응답에 URL이 없습니다:', response.data)
+      throw new Error('이미지 업로드 응답에 URL이 없습니다')
+    }
+    return url
   } catch (error) {
     logError(error, '이미지 업로드')
     throw error
@@ -551,6 +558,7 @@ const editProjectDetail = (project) => {
     description3: project.description3 || '',
     thankYouText: project.thankYouText || '',
     moreInfoUrl: project.moreInfoUrl || '',
+    coverImageUrl: project.coverImageUrl || null,
     imageUrls: project.imageUrls || [],
     reviews: reviews
   }
@@ -581,6 +589,7 @@ const cancelEditDetail = () => {
     description3: '',
     thankYouText: '',
     moreInfoUrl: '',
+    coverImageUrl: null,
     imageUrls: [],
     reviews: []
   }
@@ -588,11 +597,14 @@ const cancelEditDetail = () => {
 
 const saveProject = async () => {
   try {
+    // coverImageUrl 우선순위: form.value.coverImageUrl > uploadedCoverImageUrl.value
+    const coverImageUrl = form.value.coverImageUrl || uploadedCoverImageUrl.value
+    
     const projectData = {
       title: form.value.title,
       premiereDate: form.value.premiereDate,
       location: form.value.location,
-      coverImageUrl: form.value.coverImageUrl || uploadedCoverImageUrl.value    
+      coverImageUrl: coverImageUrl || null
     }
 
     let savedProject
@@ -654,6 +666,7 @@ const saveProjectDetail = async () => {
       description3: detailForm.value.description3,
       thankYouText: detailForm.value.thankYouText,
       moreInfoUrl: detailForm.value.moreInfoUrl,
+      coverImageUrl: detailForm.value.coverImageUrl || null,
       imageUrls: detailForm.value.imageUrls || [],
       reviews: detailForm.value.reviews || []
     }
