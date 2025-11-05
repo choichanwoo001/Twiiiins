@@ -15,7 +15,11 @@
           class="project-item"
         >
           <!-- 이미지 -->
-          <figure class="project-figure">
+          <figure 
+            class="project-figure"
+            :class="{ 'clickable': project.urlSlug }"
+            @click="project.urlSlug ? goToProjectDetail(project.urlSlug) : null"
+          >
             <img
               v-if="project.coverImageUrl"
               :src="toAbsoluteUrl(project.coverImageUrl)"
@@ -32,10 +36,17 @@
             <div class="caption-left">{{ project.title }}</div>
             <div 
               class="caption-right" 
-              @click.stop="goToProjectDetail(project.urlSlug)"
               v-if="project.urlSlug"
             >
-              <span>{{ formatDate(project.premiereDate, 'short', 'en-US') }}, {{ project.location }}</span>
+              <span 
+                class="caption-date"
+                @click.stop="goToProjectDetail(project.urlSlug)"
+              >{{ formatDate(project.premiereDate, 'short', 'en-US') }}</span>
+              <span class="caption-separator">, </span>
+              <span 
+                class="caption-location"
+                @click.stop="goToProjectDetail(project.urlSlug)"
+              >{{ project.location }}</span>
               <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -180,6 +191,10 @@ onMounted(() => {
   margin: 0;                   /* figure 기본 마진 제거 */
   border: 0;
 }
+
+.project-figure.clickable {
+  cursor: pointer;
+}
 .project-figure img{
   width:100%;
   height:100%;
@@ -221,12 +236,22 @@ onMounted(() => {
   gap: 0.5rem;
   font-size: 0.9rem;
   color:#666;
+  transition: color 0.2s ease;
+}
+
+.caption-date,
+.caption-location {
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
-.caption-right:hover {
+.caption-date:hover,
+.caption-location:hover {
   color: #1E1D1D;
+}
+
+.caption-separator {
+  cursor: default;
 }
 
 .caption-arrow{

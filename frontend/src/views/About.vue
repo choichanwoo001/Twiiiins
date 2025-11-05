@@ -1,8 +1,13 @@
 <template>
   <div class="about">
-    <!-- 텍스트 섹션 -->
-    <section class="about-text">
+    <!-- 왼쪽: 타이틀 영역 -->
+    <div class="about-title-section">
       <h1>ABOUT</h1>
+    </div>
+
+    <!-- 오른쪽: 콘텐츠 영역 -->
+    <div class="about-content-section">
+      <!-- 텍스트 섹션 -->
       <div class="about-content">
         <p>
           TWIIIINS IS A VIOLIN DUO FROM SOUTH KOREA AND GERMANY,<br>
@@ -18,37 +23,37 @@
           THAT CONNECT WITH PEOPLE ACROSS DIFFERENT GENRES AND STYLES.
         </p>
       </div>
-    </section>
 
-    <!-- 이미지 그리드 섹션 -->
-    <section class="about-images">
-      <div class="image-grid">
-        <!-- 첫 번째 행 -->
-        <div class="image-row">
-          <div class="image-item">
-            <img src="../imgs/About/20250719-P1250713 1.png" alt="TWIIIINS Performance">
+      <!-- 이미지 그리드 섹션 -->
+      <div class="about-images">
+        <div class="image-grid">
+          <!-- 첫 번째 행 -->
+          <div class="image-row">
+            <div class="image-item">
+              <img src="../imgs/About/20250719-P1250713 1.png" alt="TWIIIINS Performance">
+            </div>
+            <div class="image-item">
+              <img src="../imgs/About/20250719-P1250816 1.png" alt="TWIIIINS Performance">
+            </div>
+            <div class="image-item">
+              <img src="../imgs/About/20250719-P1250891 1.png" alt="TWIIIINS Performance">
+            </div>
           </div>
-          <div class="image-item">
-            <img src="../imgs/About/20250719-P1250816 1.png" alt="TWIIIINS Performance">
-          </div>
-          <div class="image-item">
-            <img src="../imgs/About/20250719-P1250891 1.png" alt="TWIIIINS Performance">
-          </div>
-        </div>
-        <!-- 두 번째 행 -->
-        <div class="image-row">
-          <div class="image-item">
-            <img src="../imgs/About/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
-          </div>
-          <div class="image-item">
-            <img src="../imgs/About/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
-          </div>
-          <div class="image-item">
-            <img src="../imgs/About/unnamed 1.png" alt="TWIIIINS Performance">
+          <!-- 두 번째 행 -->
+          <div class="image-row">
+            <div class="image-item">
+              <img src="../imgs/About/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
+            </div>
+            <div class="image-item">
+              <img src="../imgs/About/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
+            </div>
+            <div class="image-item">
+              <img src="../imgs/About/unnamed 1.png" alt="TWIIIINS Performance">
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -62,27 +67,43 @@
   overflow-x: hidden;
   padding-top: 6rem;
   padding-left: 2rem;
+  padding-right: 2rem;
   scrollbar-gutter: stable;
   box-sizing: border-box;
+  display: flex;
+  gap: 4rem;
+  align-items: flex-start;
 }
 
-/* 텍스트 섹션 */
-.about-text {
-  margin: 0 auto;
+/* 왼쪽: 타이틀 영역 */
+.about-title-section {
+  flex-shrink: 0;
+  width: auto;
   padding-top: 2rem;
 }
 
-.about-text h1 {
+.about-title-section h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
   letter-spacing: 0.12em;
   color: #8B4513;
   text-transform: uppercase;
   line-height: 1;
-  margin: 0 0 3rem 0;
+  margin: 0;
   text-align: left;
 }
 
+/* 오른쪽: 콘텐츠 영역 */
+.about-content-section {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+/* 텍스트 섹션 */
 .about-content {
   text-align: left;
   max-width: 50rem;
@@ -99,11 +120,10 @@
 
 /* 이미지 그리드 섹션 */
 .about-images {
-  padding: 4rem 2rem;
-  max-width: 75rem;
-  margin: 0 auto;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding-bottom: 6rem;
 }
 
 .image-grid {
@@ -167,6 +187,29 @@
 
 .image-item:hover img {
   transform: scale(1.05);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .about {
+    flex-direction: column;
+    gap: 2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .about-title-section {
+    padding-top: 1rem;
+  }
+
+  .about-content-section {
+    padding-top: 0;
+    gap: 2rem;
+  }
+
+  .about-content {
+    max-width: 100%;
+  }
 }
 </style>
 

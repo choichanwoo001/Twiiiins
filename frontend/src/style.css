@@ -133,8 +133,14 @@ main:has(.fullpage-scroll) {
   z-index: 1000;
   display: flex;
   gap: 1.5rem;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.5s ease;
+  pointer-events: auto;
+}
+
+/* 홈 페이지에서 기본적으로 숨김 (events 섹션에서만 보임) */
+body.has-fullpage-scroll .sns-links {
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -144,8 +150,13 @@ body.events-section-active .sns-links {
   pointer-events: auto;
 }
 
+/* events 섹션일 때는 흰색 텍스트 */
+body.events-section-active .sns-link {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .sns-link {
-  color:rgba(255, 255, 255, 0.9);
+  color: #1E1D1D;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
