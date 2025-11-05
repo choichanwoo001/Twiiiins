@@ -39,7 +39,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from './stores'
 
-const route = useRoute()
+const route = useRoute()  
 const appStore = useAppStore()
 const showScrollUp = ref(false)
 const scrollY = ref(0)

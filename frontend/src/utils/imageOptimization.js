@@ -38,7 +38,7 @@ export const getPlaceholderImage = (width = 150, height = 150) => {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
       <rect width="${width}" height="${height}" fill="#ddd"/>
-      <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#999" font-family="Arial, sans-serif" font-size="14">
+      <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#999" font-family="Josefin Sans, sans-serif" font-size="14">
         No Image
       </text>
     </svg>
