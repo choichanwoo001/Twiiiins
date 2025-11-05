@@ -69,11 +69,16 @@ const loadProjects = async () => {
     const response = await axios.get('/projects')
     const projectData = response.data.data || response.data || []
     
+    // fallback 이미지 경로 (src/imgs에 있는 파일)
+    const fallbackImage = new URL('../imgs/project_cover.jpg', import.meta.url).href
+    
     projects.value = projectData.map(project => {
-      // coverImageUrl이 있고 비어있지 않으면 변환, 아니면 fallback 이미지 사용
-      const coverUrl = project.coverImageUrl && project.coverImageUrl.trim() 
+      // ProjectDetail.vue와 동일한 방식으로 coverImageUrl 처리
+      // toAbsoluteUrl이 이미 https://로 시작하는 URL은 그대로 반환함
+      const coverUrl = project.coverImageUrl 
         ? toAbsoluteUrl(project.coverImageUrl) 
-        : '/imgs/project_cover.jpg'
+        : fallbackImage
+      
       return {
         ...project,
         coverImageUrl: coverUrl
@@ -95,8 +100,9 @@ const goToProjectDetail = (urlSlug) => {
 // 이미지 로드 에러 처리
 const handleImageError = (event) => {
   // 이미지 로드 실패 시 fallback 이미지 사용
-  if (event.target.src !== '/imgs/project_cover.jpg') {
-    event.target.src = '/imgs/project_cover.jpg'
+  const fallbackImage = new URL('../imgs/project_cover.jpg', import.meta.url).href
+  if (event.target.src !== fallbackImage) {
+    event.target.src = fallbackImage
   }
 }
 
