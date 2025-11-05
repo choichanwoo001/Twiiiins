@@ -173,7 +173,7 @@
                 </BaseButton>
               </div>
               <div class="form-group">
-                <textarea v-model="description" rows="4"></textarea>
+                <textarea v-model="detailForm.descriptions[index]" rows="4"></textarea>
               </div>
             </div>
             <div class="form-group">
