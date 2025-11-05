@@ -1,34 +1,43 @@
 # 멀티스테이지 빌드
 FROM gradle:8.14.3-jdk17 AS builder
 
+# Gradle 홈 디렉토리를 최소한으로 설정하여 디스크 공간 절약
+ENV GRADLE_USER_HOME=/tmp/.gradle
+ENV GRADLE_OPTS="-Dorg.gradle.caching=false -Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=false -Dorg.gradle.parallel=false"
+
 WORKDIR /app
 
 # Gradle 의존성 캐싱을 위해 먼저 복사
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle gradle
 RUN chmod +x gradlew
-# 의존성 다운로드 후 중간 캐시 정리 (빌드 캐시 비활성화)
-RUN export GRADLE_OPTS="-Dorg.gradle.caching=false" \
-    && ./gradlew dependencies --no-daemon || true \
-    && find /app/.gradle -type f -name "*.lock" -delete \
-    && find /root/.gradle -type f -name "*.lock" -delete || true
 
-# 소스 코드 복사 및 빌드
-COPY . .
-RUN chmod +x gradlew
-# 빌드 및 캐시 정리 (빌드 캐시 비활성화로 디스크 공간 절약)
-RUN export GRADLE_OPTS="-Dorg.gradle.caching=false -Dorg.gradle.configureondemand=false" \
-    && ./gradlew clean build -x test --no-daemon \
+# 의존성 다운로드 (최소한의 캐시만 사용)
+RUN ./gradlew dependencies --no-daemon --refresh-dependencies || true \
+    && rm -rf /tmp/.gradle/caches/*/generated-gradle-jars \
+    && rm -rf /tmp/.gradle/caches/*/scripts-* \
+    && find /tmp/.gradle -type f -name "*.lock" -delete \
+    && find /tmp/.gradle -type d -name "*.lock" -empty -delete 2>/dev/null || true
+
+# 소스 코드만 복사 (build, bin, uploads 등 제외)
+COPY src ./src
+COPY build.gradle settings.gradle ./
+
+# 빌드 및 즉시 캐시 정리 (디스크 공간 절약)
+RUN ./gradlew clean build -x test --no-daemon \
     && rm -rf /app/.gradle \
+    && rm -rf /tmp/.gradle/caches \
+    && rm -rf /tmp/.gradle/wrapper \
     && rm -rf /app/build/classes \
     && rm -rf /app/build/generated \
     && rm -rf /app/build/tmp \
     && rm -rf /app/build/resources \
-    && rm -rf /root/.gradle \
+    && rm -rf /app/build/reports \
     && find /app/build -type f ! -name "*.jar" -delete \
     && find /app/build -type d -empty -delete \
     && find /app/build/libs -type f ! -name "twiiiins-backend-*.jar" -delete \
-    || (rm -rf /app/.gradle && rm -rf /root/.gradle && exit 1)
+    && rm -rf /tmp/.gradle \
+    || (rm -rf /app/.gradle && rm -rf /tmp/.gradle && exit 1)
 
 # 실행 스테이지
 FROM eclipse-temurin:17-jre

@@ -7,15 +7,25 @@ echo "=== 디스크 공간 정리 시작 ==="
 echo "=== 현재 디스크 사용량 ==="
 df -h
 
-# 1. Docker 정리 (사용하지 않는 이미지, 컨테이너, 볼륨, 네트워크)
+# 1. Docker 빌드 캐시 정리 (가장 많은 공간을 차지)
+echo ""
+echo "=== Docker 빌드 캐시 정리 중... ==="
+docker builder prune -af
+
+# 2. Docker 정리 (사용하지 않는 이미지, 컨테이너, 볼륨, 네트워크)
 echo ""
 echo "=== Docker 정리 중... ==="
 docker system prune -af --volumes
 
-# 2. 오래된 Docker 이미지 정리 (30일 이상 사용하지 않은 것)
+# 3. 오래된 Docker 이미지 정리 (30일 이상 사용하지 않은 것)
 echo ""
 echo "=== 오래된 Docker 이미지 정리 중... ==="
 docker image prune -af --filter "until=720h"
+
+# 4. 중단된 빌드 프로세스 정리
+echo ""
+echo "=== 중단된 빌드 프로세스 정리 중... ==="
+docker buildx prune -af 2>/dev/null || true
 
 # 3. 로그 파일 정리 (30일 이상된 로그)
 echo ""
