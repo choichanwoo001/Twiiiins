@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -33,4 +35,17 @@ public class ProjectDto {
     private String review2Source;
     private String urlSlug;
     private Integer displayOrder;
+    private List<String> imageUrls = new ArrayList<>();
+    
+    // 리뷰 배열 (새로운 방식)
+    private List<ReviewDto> reviews = new ArrayList<>();
+    
+    // Review DTO
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReviewDto {
+        private String text;
+        private String source;
+    }
 }

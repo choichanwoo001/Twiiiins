@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -74,8 +76,21 @@ public class ProjectService {
         project.setReview1Source(projectDto.getReview1Source());
         project.setReview2Text(projectDto.getReview2Text());
         project.setReview2Source(projectDto.getReview2Source());
+        
+        // 리뷰 배열 업데이트
+        if (projectDto.getReviews() != null) {
+            project.setReviews(projectDto.getReviews().stream()
+                .map(reviewDto -> new Project.Review(reviewDto.getText(), reviewDto.getSource()))
+                .collect(Collectors.toList()));
+        } else {
+            project.setReviews(new ArrayList<>());
+        }
+        
         project.setUrlSlug(projectDto.getUrlSlug());
         project.setDisplayOrder(projectDto.getDisplayOrder());
+        if (projectDto.getImageUrls() != null) {
+            project.setImageUrls(projectDto.getImageUrls());
+        }
         
         Project savedProject = projectRepository.save(project);
         return convertToDto(savedProject);
@@ -88,31 +103,50 @@ public class ProjectService {
     }
     
     private ProjectDto convertToDto(Project project) {
-        return new ProjectDto(
-            project.getId(),
-            project.getTitle(),
-            project.getSubtitle(),
-            project.getPremiereDate(),
-            project.getLocation(),
-            project.getDescription1(),
-            project.getDescription2(),
-            project.getDescription3(),
-            project.getMainImageUrl(),
-            project.getHorizontal1ImageUrl(),
-            project.getHorizontal2ImageUrl(),
-            project.getVertical1ImageUrl(),
-            project.getVertical2ImageUrl(),
-            project.getCoverImageUrl(),
-            project.getMoreInfoUrl(),
-            project.getDirector(),
-            project.getThankYouText(),
-            project.getReview1Text(),
-            project.getReview1Source(),
-            project.getReview2Text(),
-            project.getReview2Source(),
-            project.getUrlSlug(),
-            project.getDisplayOrder()
-        );
+        ProjectDto dto = new ProjectDto();
+        dto.setId(project.getId());
+        dto.setTitle(project.getTitle());
+        dto.setSubtitle(project.getSubtitle());
+        dto.setPremiereDate(project.getPremiereDate());
+        dto.setLocation(project.getLocation());
+        dto.setDescription1(project.getDescription1());
+        dto.setDescription2(project.getDescription2());
+        dto.setDescription3(project.getDescription3());
+        dto.setMainImageUrl(project.getMainImageUrl());
+        dto.setHorizontal1ImageUrl(project.getHorizontal1ImageUrl());
+        dto.setHorizontal2ImageUrl(project.getHorizontal2ImageUrl());
+        dto.setVertical1ImageUrl(project.getVertical1ImageUrl());
+        dto.setVertical2ImageUrl(project.getVertical2ImageUrl());
+        dto.setCoverImageUrl(project.getCoverImageUrl());
+        dto.setMoreInfoUrl(project.getMoreInfoUrl());
+        dto.setDirector(project.getDirector());
+        dto.setThankYouText(project.getThankYouText());
+        dto.setReview1Text(project.getReview1Text());
+        dto.setReview1Source(project.getReview1Source());
+        dto.setReview2Text(project.getReview2Text());
+        dto.setReview2Source(project.getReview2Source());
+        dto.setUrlSlug(project.getUrlSlug());
+        dto.setDisplayOrder(project.getDisplayOrder());
+        dto.setImageUrls(project.getImageUrls() != null ? project.getImageUrls() : new ArrayList<>());
+        
+        // 리뷰 배열 변환
+        if (project.getReviews() != null && !project.getReviews().isEmpty()) {
+            dto.setReviews(project.getReviews().stream()
+                .map(review -> new ProjectDto.ReviewDto(review.getText(), review.getSource()))
+                .collect(Collectors.toList()));
+        } else {
+            // 하위 호환성: 기존 review1, review2를 reviews 배열로 변환
+            List<ProjectDto.ReviewDto> reviews = new ArrayList<>();
+            if (project.getReview1Text() != null && !project.getReview1Text().isEmpty()) {
+                reviews.add(new ProjectDto.ReviewDto(project.getReview1Text(), project.getReview1Source()));
+            }
+            if (project.getReview2Text() != null && !project.getReview2Text().isEmpty()) {
+                reviews.add(new ProjectDto.ReviewDto(project.getReview2Text(), project.getReview2Source()));
+            }
+            dto.setReviews(reviews);
+        }
+        
+        return dto;
     }
     
     private Project convertToEntity(ProjectDto projectDto) {
@@ -137,8 +171,21 @@ public class ProjectService {
         project.setReview1Source(projectDto.getReview1Source());
         project.setReview2Text(projectDto.getReview2Text());
         project.setReview2Source(projectDto.getReview2Source());
+        
+        // 리뷰 배열 변환
+        if (projectDto.getReviews() != null) {
+            project.setReviews(projectDto.getReviews().stream()
+                .map(reviewDto -> new Project.Review(reviewDto.getText(), reviewDto.getSource()))
+                .collect(Collectors.toList()));
+        } else {
+            project.setReviews(new ArrayList<>());
+        }
+        
         project.setUrlSlug(projectDto.getUrlSlug());
         project.setDisplayOrder(projectDto.getDisplayOrder());
+        if (projectDto.getImageUrls() != null) {
+            project.setImageUrls(projectDto.getImageUrls());
+        }
         return project;
     }
 }

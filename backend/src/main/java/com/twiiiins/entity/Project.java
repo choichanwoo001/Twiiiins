@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "projects")
@@ -78,5 +80,28 @@ public class Project {
     
     @Column(name = "display_order")
     private Integer displayOrder;
+    
+    @ElementCollection
+    @CollectionTable(name = "project_images", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls = new ArrayList<>();
+    
+    // 리뷰 배열 (새로운 방식)
+    @ElementCollection
+    @CollectionTable(name = "project_reviews", joinColumns = @JoinColumn(name = "project_id"))
+    private List<Review> reviews = new ArrayList<>();
+    
+    // Review 임베디드 클래스
+    @Embeddable
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Review {
+        @Column(length = 1000)
+        private String text;
+        
+        @Column(length = 500)
+        private String source;
+    }
 }
 

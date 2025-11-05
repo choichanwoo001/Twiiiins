@@ -199,21 +199,33 @@
         <!-- 리뷰 -->
         <div class="form-section">
           <h3>리뷰</h3>
-          <div class="form-group">
-            <label>리뷰 1 텍스트</label>
-            <textarea v-model="detailForm.review1Text" rows="3"></textarea>
-          </div>
-          <div class="form-group">
-            <label>리뷰 1 출처</label>
-            <input v-model="detailForm.review1Source" />
-          </div>
-          <div class="form-group">
-            <label>리뷰 2 텍스트</label>
-            <textarea v-model="detailForm.review2Text" rows="3"></textarea>
-          </div>
-          <div class="form-group">
-            <label>리뷰 2 출처</label>
-            <input v-model="detailForm.review2Source" />
+          <div class="reviews-container">
+            <div v-for="(review, index) in detailForm.reviews" :key="index" class="review-item-form">
+              <div class="review-item-header">
+                <label>리뷰 {{ index + 1 }}</label>
+                <BaseButton 
+                  type="button" 
+                  variant="danger" 
+                  size="small" 
+                  @click="removeReview(index)"
+                >
+                  삭제
+                </BaseButton>
+              </div>
+              <div class="form-group">
+                <label>리뷰 텍스트</label>
+                <textarea v-model="review.text" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label>리뷰 출처</label>
+                <input v-model="review.source" />
+              </div>
+            </div>
+            <div class="form-group">
+              <BaseButton type="button" variant="secondary" @click="addReview">
+                리뷰 추가
+              </BaseButton>
+            </div>
           </div>
         </div>
 
@@ -313,10 +325,7 @@ const detailForm = ref({
   thankYouText: '',
   moreInfoUrl: '',
   imageUrls: [],
-  review1Text: '',
-  review1Source: '',
-  review2Text: '',
-  review2Source: ''
+  reviews: []
 })
 const editingProject = ref(null)
 const editingProjectDetail = ref(null)
@@ -515,6 +524,21 @@ const editProjectDetail = (project) => {
   const urlSlug = project.urlSlug || (project.title ? 
     project.title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim() : 
     '')
+  
+  // 리뷰 데이터 변환 (기존 review1, review2 또는 새로운 reviews 배열)
+  let reviews = []
+  if (project.reviews && Array.isArray(project.reviews) && project.reviews.length > 0) {
+    reviews = project.reviews.map(r => ({ text: r.text || '', source: r.source || '' }))
+  } else {
+    // 하위 호환성: 기존 review1, review2를 reviews 배열로 변환
+    if (project.review1Text) {
+      reviews.push({ text: project.review1Text || '', source: project.review1Source || '' })
+    }
+    if (project.review2Text) {
+      reviews.push({ text: project.review2Text || '', source: project.review2Source || '' })
+    }
+  }
+  
   detailForm.value = {
     title: project.title || '',
     subtitle: project.subtitle || '',
@@ -528,10 +552,7 @@ const editProjectDetail = (project) => {
     thankYouText: project.thankYouText || '',
     moreInfoUrl: project.moreInfoUrl || '',
     imageUrls: project.imageUrls || [],
-    review1Text: project.review1Text || '',
-    review1Source: project.review1Source || '',
-    review2Text: project.review2Text || '',
-    review2Source: project.review2Source || ''
+    reviews: reviews
   }
 }
 
@@ -561,10 +582,7 @@ const cancelEditDetail = () => {
     thankYouText: '',
     moreInfoUrl: '',
     imageUrls: [],
-    review1Text: '',
-    review1Source: '',
-    review2Text: '',
-    review2Source: ''
+    reviews: []
   }
 }
 
@@ -605,6 +623,20 @@ const saveProject = async () => {
   }
 }
 
+// 리뷰 추가/삭제 함수
+const addReview = () => {
+  if (!detailForm.value.reviews) {
+    detailForm.value.reviews = []
+  }
+  detailForm.value.reviews.push({ text: '', source: '' })
+}
+
+const removeReview = (index) => {
+  if (detailForm.value.reviews && detailForm.value.reviews.length > index) {
+    detailForm.value.reviews.splice(index, 1)
+  }
+}
+
 const saveProjectDetail = async () => {
   try {
     // URL Slug가 없으면 제목에서 자동 생성
@@ -623,10 +655,7 @@ const saveProjectDetail = async () => {
       thankYouText: detailForm.value.thankYouText,
       moreInfoUrl: detailForm.value.moreInfoUrl,
       imageUrls: detailForm.value.imageUrls || [],
-      review1Text: detailForm.value.review1Text,
-      review1Source: detailForm.value.review1Source,
-      review2Text: detailForm.value.review2Text,
-      review2Source: detailForm.value.review2Source
+      reviews: detailForm.value.reviews || []
     }
 
     if (editingProjectDetail.value) {
@@ -1035,6 +1064,33 @@ onMounted(() => {
 
 .photo-upload h4 {
   margin-bottom: 1rem;
+}
+
+/* 리뷰 섹션 스타일 */
+.reviews-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-item-form {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+}
+
+.review-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.review-item-header label {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
 }
 </style>
 

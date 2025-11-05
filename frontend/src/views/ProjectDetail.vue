@@ -31,20 +31,14 @@
     </section>
 
     <!-- 리뷰 섹션 -->
-    <section class="reviews-section" v-if="project">
+    <section class="reviews-section" v-if="project && projectReviews.length > 0">
       <h2>REVIEWS</h2>
       <div class="reviews-grid">
-        <div class="review-item" v-if="project.review1Text">
+        <div class="review-item" v-for="(review, index) in projectReviews" :key="index">
           <blockquote>
-            „{{ project.review1Text }}"
+            „{{ review.text }}"
           </blockquote>
-          <cite>{{ project.review1Source }}</cite>
-        </div>
-        <div class="review-item" v-if="project.review2Text">
-          <blockquote>
-            „{{ project.review2Text }}"
-          </blockquote>
-          <cite>{{ project.review2Source }}</cite>
+          <cite>{{ review.source }}</cite>
         </div>
       </div>
     </section>
@@ -82,6 +76,27 @@ const projectImageUrls = computed(() => {
   }
   
   return urls
+})
+
+// 프로젝트 리뷰 배열 생성
+const projectReviews = computed(() => {
+  if (!project.value) return []
+  
+  // 새로운 reviews 배열 사용 (우선순위 높음)
+  if (project.value.reviews && Array.isArray(project.value.reviews) && project.value.reviews.length > 0) {
+    return project.value.reviews.filter(review => review.text && review.text.trim() !== '')
+  }
+  
+  // 하위 호환성: 기존 review1, review2를 배열로 변환
+  const reviews = []
+  if (project.value.review1Text && project.value.review1Text.trim() !== '') {
+    reviews.push({ text: project.value.review1Text, source: project.value.review1Source || '' })
+  }
+  if (project.value.review2Text && project.value.review2Text.trim() !== '') {
+    reviews.push({ text: project.value.review2Text, source: project.value.review2Source || '' })
+  }
+  
+  return reviews
 })
 
 // 프로젝트 데이터 로드
