@@ -155,8 +155,7 @@ const confirmDialog = ref({
   confirmText: '확인',
   cancelText: '취소',
   confirmVariant: 'danger',
-  resolve: null,
-  reject: null
+  resolve: null
 })
 
 const alertDialog = ref({
@@ -170,7 +169,7 @@ const alertDialog = ref({
 
 // 다이얼로그 헬퍼 함수
 const showConfirm = (message, title = '확인') => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     confirmDialog.value = {
       isVisible: true,
       title,
@@ -178,8 +177,7 @@ const showConfirm = (message, title = '확인') => {
       confirmText: '확인',
       cancelText: '취소',
       confirmVariant: 'danger',
-      resolve,
-      reject
+      resolve
     }
   })
 }
@@ -205,8 +203,8 @@ const handleConfirm = () => {
 }
 
 const handleCancel = () => {
-  if (confirmDialog.value.reject) {
-    confirmDialog.value.reject(false)
+  if (confirmDialog.value.resolve) {
+    confirmDialog.value.resolve(false)
   }
   confirmDialog.value.isVisible = false
 }
