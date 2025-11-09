@@ -96,6 +96,8 @@ export const concertService = {
   async moveToPastEvent(id) {
     try {
       const response = await axios.put(`/concerts/${id}/move-to-past`)
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'moveToPastEvent')
@@ -107,6 +109,8 @@ export const concertService = {
   async moveToUpcomingEvent(id) {
     try {
       const response = await axios.put(`/concerts/${id}/move-to-upcoming`)
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'moveToUpcomingEvent')
@@ -120,6 +124,8 @@ export const concertService = {
       const response = await axios.put('/concerts/auto-move-past', {
         currentDate: new Date().toISOString().split('T')[0]
       })
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'triggerAutoMove')
