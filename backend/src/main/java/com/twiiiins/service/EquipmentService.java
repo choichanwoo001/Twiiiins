@@ -3,6 +3,7 @@ package com.twiiiins.service;
 import com.twiiiins.dto.EquipmentDto;
 import com.twiiiins.entity.Equipment;
 import com.twiiiins.exception.ResourceNotFoundException;
+import com.twiiiins.mapper.EquipmentMapper;
 import com.twiiiins.repository.EquipmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,63 +17,45 @@ import java.util.List;
 public class EquipmentService {
     
     private final EquipmentRepository equipmentRepository;
+    private final EquipmentMapper equipmentMapper;
     
     public List<EquipmentDto> getAllEquipment() {
         return equipmentRepository.findAllByOrderByDisplayOrderAsc()
                 .stream()
-                .map(this::convertToDto)
+                .map(equipmentMapper::toDto)
                 .toList();
     }
     
     public List<EquipmentDto> getEquipmentWithFilters(String name) {
         return equipmentRepository.findEquipmentWithFilters(name)
                 .stream()
-                .map(this::convertToDto)
+                .map(equipmentMapper::toDto)
                 .toList();
     }
     
     public EquipmentDto getEquipmentById(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
-        return convertToDto(equipment);
+        return equipmentMapper.toDto(equipment);
     }
     
     public EquipmentDto createEquipment(EquipmentDto equipmentDto) {
-        Equipment equipment = convertToEntity(equipmentDto);
+        Equipment equipment = equipmentMapper.toEntity(equipmentDto);
         Equipment savedEquipment = equipmentRepository.save(equipment);
-        return convertToDto(savedEquipment);
+        return equipmentMapper.toDto(savedEquipment);
     }
     
     public EquipmentDto updateEquipment(Long id, EquipmentDto equipmentDto) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
         
-        equipment.setName(equipmentDto.getName());
-        equipment.setImageUrl(equipmentDto.getImageUrl());
-        equipment.setDisplayOrder(equipmentDto.getDisplayOrder());
+        equipmentMapper.updateEntityFromDto(equipmentDto, equipment);
         
         Equipment savedEquipment = equipmentRepository.save(equipment);
-        return convertToDto(savedEquipment);
+        return equipmentMapper.toDto(savedEquipment);
     }
     
     public void deleteEquipment(Long id) {
         equipmentRepository.deleteById(id);
-    }
-    
-    private EquipmentDto convertToDto(Equipment equipment) {
-        return new EquipmentDto(
-            equipment.getId(),
-            equipment.getName(),
-            equipment.getImageUrl(),
-            equipment.getDisplayOrder()
-        );
-    }
-    
-    private Equipment convertToEntity(EquipmentDto equipmentDto) {
-        Equipment equipment = new Equipment();
-        equipment.setName(equipmentDto.getName());
-        equipment.setImageUrl(equipmentDto.getImageUrl());
-        equipment.setDisplayOrder(equipmentDto.getDisplayOrder());
-        return equipment;
     }
 }

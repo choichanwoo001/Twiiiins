@@ -3,6 +3,7 @@ package com.twiiiins.service;
 import com.twiiiins.dto.MusicDto;
 import com.twiiiins.entity.Music;
 import com.twiiiins.exception.ResourceNotFoundException;
+import com.twiiiins.mapper.MusicMapper;
 import com.twiiiins.repository.MusicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.List;
 public class MusicService {
     
     private final MusicRepository musicRepository;
+    private final MusicMapper musicMapper;
     
     public List<MusicDto> getAllMusic() {
         log.debug("모든 음악 목록 조회 시작");
@@ -25,7 +27,7 @@ public class MusicService {
         log.debug("데이터베이스에서 {} 개의 음악 조회됨", musicList.size());
         
         List<MusicDto> result = musicList.stream()
-                .map(this::convertToDto)
+                .map(musicMapper::toDto)
                 .toList();
         
         log.debug("음악 목록 DTO 변환 완료: {} 개 항목", result.size());
@@ -38,7 +40,7 @@ public class MusicService {
         log.debug("데이터베이스에서 {} 개의 음악 조회됨", musicList.size());
         
         List<MusicDto> result = musicList.stream()
-                .map(this::convertToDto)
+                .map(musicMapper::toDto)
                 .toList();
         
         log.debug("음악 검색 결과: {} 개 항목", result.size());
@@ -54,18 +56,18 @@ public class MusicService {
                 });
         
         log.debug("음악 조회 성공: ID = {}, 제목 = {}", music.getId(), music.getTitle());
-        return convertToDto(music);
+        return musicMapper.toDto(music);
     }
     
     public MusicDto createMusic(MusicDto musicDto) {
         log.info("[음악 생성] 시작 - 제목: {}, 아티스트: {}", musicDto.getTitle(), musicDto.getArtist());
         
         try {
-            Music music = convertToEntity(musicDto);
+            Music music = musicMapper.toEntity(musicDto);
             Music savedMusic = musicRepository.save(music);
             
             log.info("[음악 생성] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
-            return convertToDto(savedMusic);
+            return musicMapper.toDto(savedMusic);
         } catch (Exception e) {
             log.error("[음악 생성] 실패 - 제목: {}, 아티스트: {}, 오류: {}", 
                     musicDto.getTitle(), musicDto.getArtist(), e.getMessage(), e);
@@ -85,16 +87,12 @@ public class MusicService {
             
             log.debug("[음악 수정] 기존 정보 - 제목: {}, 아티스트: {}", music.getTitle(), music.getArtist());
             
-            music.setTitle(musicDto.getTitle());
-            music.setArtist(musicDto.getArtist());
-            music.setCoverUrl(musicDto.getCoverUrl());
-            music.setLinkUrl(musicDto.getLinkUrl());
-            music.setDisplayOrder(musicDto.getDisplayOrder());
+            musicMapper.updateEntityFromDto(musicDto, music);
             
             Music savedMusic = musicRepository.save(music);
             log.info("[음악 수정] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
             
-            return convertToDto(savedMusic);
+            return musicMapper.toDto(savedMusic);
         } catch (ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -123,24 +121,4 @@ public class MusicService {
         }
     }
     
-    private MusicDto convertToDto(Music music) {
-        return new MusicDto(
-            music.getId(),
-            music.getTitle(),
-            music.getArtist(),
-            music.getCoverUrl(),
-            music.getLinkUrl(),
-            music.getDisplayOrder()
-        );
-    }
-    
-    private Music convertToEntity(MusicDto musicDto) {
-        Music music = new Music();
-        music.setTitle(musicDto.getTitle());
-        music.setArtist(musicDto.getArtist());
-        music.setCoverUrl(musicDto.getCoverUrl());
-        music.setLinkUrl(musicDto.getLinkUrl());
-        music.setDisplayOrder(musicDto.getDisplayOrder());
-        return music;
-    }
 }

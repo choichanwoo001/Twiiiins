@@ -3,13 +3,13 @@ package com.twiiiins.service;
 import com.twiiiins.dto.NewsDto;
 import com.twiiiins.entity.News;
 import com.twiiiins.exception.ResourceNotFoundException;
+import com.twiiiins.mapper.NewsMapper;
 import com.twiiiins.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,73 +18,45 @@ import java.util.List;
 public class NewsService {
     
     private final NewsRepository newsRepository;
+    private final NewsMapper newsMapper;
     
     public List<NewsDto> getAllNews() {
         return newsRepository.findAllByOrderByDisplayOrderAsc()
                 .stream()
-                .map(this::convertToDto)
+                .map(newsMapper::toDto)
                 .toList();
     }
     
     public List<NewsDto> getNewsWithFilters(String title, LocalDate startDate, LocalDate endDate) {
         return newsRepository.findNewsWithFilters(title, startDate, endDate)
                 .stream()
-                .map(this::convertToDto)
+                .map(newsMapper::toDto)
                 .toList();
     }
     
     public NewsDto getNewsById(Long id) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
-        return convertToDto(news);
+        return newsMapper.toDto(news);
     }
     
     public NewsDto createNews(NewsDto newsDto) {
-        News news = convertToEntity(newsDto);
+        News news = newsMapper.toEntity(newsDto);
         News savedNews = newsRepository.save(news);
-        return convertToDto(savedNews);
+        return newsMapper.toDto(savedNews);
     }
     
     public NewsDto updateNews(Long id, NewsDto newsDto) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
         
-        news.setDate(newsDto.getDate());
-        news.setTitle(newsDto.getTitle());
-        news.setDescription(newsDto.getDescription());
-        news.setDisplayOrder(newsDto.getDisplayOrder());
-        if (newsDto.getImageUrls() != null) {
-            news.setImageUrls(newsDto.getImageUrls());
-        }
+        newsMapper.updateEntityFromDto(newsDto, news);
         
         News savedNews = newsRepository.save(news);
-        return convertToDto(savedNews);
+        return newsMapper.toDto(savedNews);
     }
     
     public void deleteNews(Long id) {
         newsRepository.deleteById(id);
-    }
-    
-    private NewsDto convertToDto(News news) {
-        return new NewsDto(
-            news.getId(),
-            news.getDate(),
-            news.getTitle(),
-            news.getDescription(),
-            news.getDisplayOrder(),
-            news.getImageUrls() != null ? news.getImageUrls() : new ArrayList<>()
-        );
-    }
-    
-    private News convertToEntity(NewsDto newsDto) {
-        News news = new News();
-        news.setDate(newsDto.getDate());
-        news.setTitle(newsDto.getTitle());
-        news.setDescription(newsDto.getDescription());
-        news.setDisplayOrder(newsDto.getDisplayOrder());
-        if (newsDto.getImageUrls() != null) {
-            news.setImageUrls(newsDto.getImageUrls());
-        }
-        return news;
     }
 }

@@ -3,6 +3,7 @@ package com.twiiiins.service;
 import com.twiiiins.dto.ContactDto;
 import com.twiiiins.entity.Contact;
 import com.twiiiins.exception.ResourceNotFoundException;
+import com.twiiiins.mapper.ContactMapper;
 import com.twiiiins.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,59 +17,38 @@ import java.util.List;
 public class ContactEntityService {
     
     private final ContactRepository contactRepository;
+    private final ContactMapper contactMapper;
     
     public List<ContactDto> getAllContacts() {
         return contactRepository.findAllByOrderByDisplayOrderAsc()
                 .stream()
-                .map(this::convertToDto)
+                .map(contactMapper::toDto)
                 .toList();
     }
     
     public ContactDto getContactById(Long id) {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
-        return convertToDto(contact);
+        return contactMapper.toDto(contact);
     }
     
     public ContactDto createContact(ContactDto contactDto) {
-        Contact contact = convertToEntity(contactDto);
+        Contact contact = contactMapper.toEntity(contactDto);
         Contact savedContact = contactRepository.save(contact);
-        return convertToDto(savedContact);
+        return contactMapper.toDto(savedContact);
     }
     
     public ContactDto updateContact(Long id, ContactDto contactDto) {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
         
-        contact.setName(contactDto.getName());
-        contact.setRole(contactDto.getRole());
-        contact.setEmail(contactDto.getEmail());
-        contact.setDisplayOrder(contactDto.getDisplayOrder());
+        contactMapper.updateEntityFromDto(contactDto, contact);
         
         Contact savedContact = contactRepository.save(contact);
-        return convertToDto(savedContact);
+        return contactMapper.toDto(savedContact);
     }
     
     public void deleteContact(Long id) {
         contactRepository.deleteById(id);
-    }
-    
-    private ContactDto convertToDto(Contact contact) {
-        return new ContactDto(
-            contact.getId(),
-            contact.getName(),
-            contact.getRole(),
-            contact.getEmail(),
-            contact.getDisplayOrder()
-        );
-    }
-    
-    private Contact convertToEntity(ContactDto contactDto) {
-        Contact contact = new Contact();
-        contact.setName(contactDto.getName());
-        contact.setRole(contactDto.getRole());
-        contact.setEmail(contactDto.getEmail());
-        contact.setDisplayOrder(contactDto.getDisplayOrder());
-        return contact;
     }
 }
