@@ -23,6 +23,7 @@ backend/target/
 backend/*.log
 backend/logs/
 backend/uploads/
+uploads/
 
 # Frontend (Vue + Vite)
 frontend/node_modules/

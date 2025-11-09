@@ -1,8 +1,10 @@
 package com.twiiiins.service;
 
 import com.twiiiins.config.S3Config;
+import com.twiiiins.exception.FileUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -18,8 +20,9 @@ import java.util.UUID;
  */
 @Slf4j
 @Service
+@Profile("!local")
 @RequiredArgsConstructor
-public class S3FileService {
+public class S3FileService implements FileStorageService {
 
     private final S3Client s3Client;
     private final S3Config s3Config;
@@ -30,12 +33,13 @@ public class S3FileService {
      * @param folder S3 내 폴더 경로 (예: "uploads", "images")
      * @return 업로드된 파일의 S3 URL
      */
+    @Override
     public String uploadFile(MultipartFile file, String folder) {
         try {
             String bucketName = s3Config.getBucketName();
             if (bucketName == null || bucketName.isEmpty()) {
-                log.warn("S3 버킷 이름이 설정되지 않았습니다. 로컬 저장을 사용합니다.");
-                return null;
+                log.error("S3 버킷 이름이 설정되지 않았습니다.");
+                throw new FileUploadException("S3 버킷 이름이 설정되지 않았습니다.");
             }
 
             // 고유한 파일명 생성
@@ -68,16 +72,15 @@ public class S3FileService {
             return fileUrl;
 
         } catch (S3Exception e) {
-            log.error("S3 업로드 중 오류 발생 (버킷: {}, 에러 코드: {}): {}", 
-                    s3Config.getBucketName(), e.awsErrorDetails().errorCode(), e.getMessage());
-            log.error("S3 예외 상세:", e);
-            return null; // null 반환하여 로컬 저장소로 fallback
+            log.error("S3 업로드 중 오류 발생 (버킷: {}, 에러 코드: {}): {}",
+                    s3Config.getBucketName(), e.awsErrorDetails().errorCode(), e.getMessage(), e);
+            throw new FileUploadException("S3 업로드 중 오류가 발생했습니다: " + e.awsErrorDetails().errorCode(), e);
         } catch (IOException e) {
             log.error("파일 읽기 중 오류 발생: {}", e.getMessage(), e);
-            return null; // null 반환하여 로컬 저장소로 fallback
+            throw new FileUploadException("파일을 읽는 중 오류가 발생했습니다.", e);
         } catch (Exception e) {
             log.error("S3 업로드 중 예상치 못한 오류 발생: {}", e.getMessage(), e);
-            return null; // null 반환하여 로컬 저장소로 fallback
+            throw new FileUploadException("S3 업로드 중 예상치 못한 오류가 발생했습니다.", e);
         }
     }
 

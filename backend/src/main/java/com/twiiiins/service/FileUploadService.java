@@ -22,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileUploadService {
     
-    private final S3FileService s3FileService;
+    private final FileStorageService fileStorageService;
     private final ImageResizeService imageResizeService;
     
     @Value("${UPLOAD_MAX_SIZE:100MB}")
@@ -143,34 +143,28 @@ public class FileUploadService {
     
     private FileUploadResponseDto uploadFile(MultipartFile file, String uploadType) {
         String originalFilename = file.getOriginalFilename();
-        String extension = getFileExtension(originalFilename);
-        String filename = UUID.randomUUID().toString() + extension;
-        String fileUrl = null;
         
         try {
-            // S3에 파일 업로드 시도
-            fileUrl = s3FileService.uploadFile(file, uploadType);
+            String fileUrl = fileStorageService.uploadFile(file, uploadType);
+            String storedFileName = extractFileName(fileUrl);
             
-            // S3 업로드 성공
-            if (fileUrl != null && !fileUrl.isEmpty()) {
-                log.info("파일이 S3에 업로드되었습니다: {} -> {}", originalFilename, fileUrl);
-                return new FileUploadResponseDto(
-                    fileUrl,
-                    null, // thumbnailUrl은 이미지만 지원
-                    filename, 
-                    originalFilename, 
-                    file.getSize(), 
-                    file.getContentType()
-                );
-            }
-        } catch (Exception s3Error) {
-            log.warn("S3 업로드 시도 중 오류 (로컬로 fallback): {}", s3Error.getMessage());
+            log.info("파일 업로드 완료: {} -> {}", originalFilename, fileUrl);
+            return new FileUploadResponseDto(
+                fileUrl,
+                null,
+                storedFileName,
+                originalFilename,
+                file.getSize(),
+                file.getContentType()
+            );
+        } catch (FileUploadException e) {
+            log.error("[파일 업로드] 업로드 예외 - 파일명: {}, 오류: {}", originalFilename, e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("[파일 업로드] 예상치 못한 오류 - 파일명: {}, 오류 타입: {}, 오류: {}", 
+                    originalFilename, e.getClass().getSimpleName(), e.getMessage(), e);
+            throw new FileUploadException("파일 업로드에 실패했습니다: " + e.getMessage(), e);
         }
-        
-        // S3 업로드 실패 시 로컬 저장소 사용 (하지만 S3가 필수이므로 실패 시 에러)
-        log.error("S3 업로드 실패: {} - S3 업로드는 필수입니다. 버킷 정책을 확인해주세요.", originalFilename);
-        throw new FileUploadException("S3 업로드에 실패했습니다. AWS 설정을 확인해주세요: " + 
-                (fileUrl != null ? "ACL이 허용되지 않는 버킷입니다. 버킷 정책으로 공개 접근을 허용해야 합니다." : "S3 업로드 중 오류가 발생했습니다."));
     }
     
     /**
@@ -178,20 +172,18 @@ public class FileUploadService {
      */
     private FileUploadResponseDto uploadFileWithThumbnail(MultipartFile file, String uploadType) {
         String originalFilename = file.getOriginalFilename();
-        String extension = getFileExtension(originalFilename);
-        String filename = UUID.randomUUID().toString() + extension;
         String fileUrl = null;
         String thumbnailUrl = null;
         
         try {
-            // 원본 이미지를 S3에 업로드
-            fileUrl = s3FileService.uploadFile(file, uploadType);
+            // 원본 이미지 업로드
+            fileUrl = fileStorageService.uploadFile(file, uploadType);
             
             if (fileUrl == null || fileUrl.isEmpty()) {
                 throw new FileUploadException("원본 이미지 업로드 실패");
             }
             
-            log.info("원본 이미지가 S3에 업로드되었습니다: {} -> {}", originalFilename, fileUrl);
+            log.info("원본 이미지 업로드 완료: {} -> {}", originalFilename, fileUrl);
             
             // 썸네일 생성 및 업로드 (150x150, 품질 0.85)
             try {
@@ -199,19 +191,19 @@ public class FileUploadService {
                 
                 // 썸네일을 MultipartFile로 변환
                 MultipartFile thumbnailFile = new ThumbnailMultipartFile(
-                    "thumb_" + filename, 
+                    "thumb_" + UUID.randomUUID(),
                     "thumb_" + originalFilename,
                     file.getContentType(),
                     thumbnailBytes
                 );
                 
-                // 썸네일을 S3에 업로드 (thumbnails 폴더)
-                thumbnailUrl = s3FileService.uploadFile(thumbnailFile, uploadType + "/thumbnails");
+                // 썸네일 업로드 (thumbnails 폴더)
+                thumbnailUrl = fileStorageService.uploadFile(thumbnailFile, uploadType + "/thumbnails");
                 
                 if (thumbnailUrl == null || thumbnailUrl.isEmpty()) {
                     log.warn("썸네일 업로드 실패 (원본은 업로드됨): {}", fileUrl);
                 } else {
-                    log.info("썸네일이 S3에 업로드되었습니다: {}", thumbnailUrl);
+                    log.info("썸네일 업로드 완료: {}", thumbnailUrl);
                 }
             } catch (Exception thumbnailError) {
                 log.warn("썸네일 생성/업로드 실패 (원본은 업로드됨): {}", thumbnailError.getMessage());
@@ -221,7 +213,7 @@ public class FileUploadService {
             return new FileUploadResponseDto(
                 fileUrl,
                 thumbnailUrl,
-                filename,
+                extractFileName(fileUrl),
                 originalFilename,
                 file.getSize(),
                 file.getContentType()
@@ -238,12 +230,12 @@ public class FileUploadService {
         }
     }
     
-    private String getFileExtension(String filename) {
-        if (filename == null || filename.isEmpty()) {
-            return "";
+    private String extractFileName(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return null;
         }
-        int lastDotIndex = filename.lastIndexOf(".");
-        return lastDotIndex > 0 ? filename.substring(lastDotIndex) : "";
+        int lastSlash = fileUrl.lastIndexOf('/');
+        return lastSlash >= 0 ? fileUrl.substring(lastSlash + 1) : fileUrl;
     }
     
     /**
