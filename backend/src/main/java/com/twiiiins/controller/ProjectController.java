@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,31 +41,31 @@ public class ProjectController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectDto> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<ProjectDto> getProjectById(@PathVariable @NonNull Long id) {
         return ResponseEntity.ok(projectService.getProjectById(id));
     }
     
     @GetMapping("/slug/{slug}")
     public ResponseEntity<ProjectDto> getProjectBySlug(
-            @PathVariable @Pattern(regexp = "^[a-z0-9-]+$", message = "슬러그는 소문자, 숫자, 하이픈만 사용할 수 있습니다.") String slug) {
+            @PathVariable @Pattern(regexp = "^[a-z0-9-]+$", message = "슬러그는 소문자, 숫자, 하이픈만 사용할 수 있습니다.") @NonNull String slug) {
         return ResponseEntity.ok(projectService.getProjectBySlug(slug));
     }
     
     @PostMapping
-    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectCreateRequest request) {
+    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody @NonNull ProjectCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(projectService.createProject(request));
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ProjectDto> updateProject(
-            @PathVariable Long id,
-            @Valid @RequestBody ProjectUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull ProjectUpdateRequest request) {
         return ResponseEntity.ok(projectService.updateProject(id, request));
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(@PathVariable @NonNull Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }

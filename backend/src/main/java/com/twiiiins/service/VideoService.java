@@ -8,10 +8,12 @@ import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.VideoMapper;
 import com.twiiiins.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -35,29 +37,32 @@ public class VideoService {
                 .toList();
     }
     
-    public VideoDto getVideoById(Long id) {
-        Video video = videoRepository.findById(id)
+    public VideoDto getVideoById(@NonNull Long id) {
+        final Video video = videoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + id));
         return videoMapper.toDto(video);
     }
     
-    public VideoDto createVideo(VideoCreateRequest request) {
-        Video video = videoMapper.toEntity(request);
-        Video savedVideo = videoRepository.save(video);
+    public VideoDto createVideo(@NonNull VideoCreateRequest request) {
+        final Video video = Objects.requireNonNull(
+                videoMapper.toEntity(request),
+                "VideoMapper.toEntity returned null"
+        );
+        final Video savedVideo = videoRepository.save(Objects.requireNonNull(video, "Video must not be null"));
         return videoMapper.toDto(savedVideo);
     }
     
-    public VideoDto updateVideo(Long id, VideoUpdateRequest request) {
-        Video video = videoRepository.findById(id)
+    public VideoDto updateVideo(@NonNull Long id, @NonNull VideoUpdateRequest request) {
+        final Video video = videoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + id));
         
         videoMapper.updateEntityFromUpdateRequest(request, video);
         
-        Video savedVideo = videoRepository.save(video);
+        final Video savedVideo = videoRepository.save(Objects.requireNonNull(video, "Video must not be null"));
         return videoMapper.toDto(savedVideo);
     }
     
-    public void deleteVideo(Long id) {
+    public void deleteVideo(@NonNull Long id) {
         videoRepository.deleteById(id);
     }
 }

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,24 +37,24 @@ public class EquipmentController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<EquipmentDto>> getEquipmentById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<EquipmentDto>> getEquipmentById(@PathVariable @NonNull Long id) {
         return ResponseUtil.success(equipmentService.getEquipmentById(id));
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse<EquipmentDto>> createEquipment(@Valid @RequestBody EquipmentCreateRequest request) {
+    public ResponseEntity<ApiResponse<EquipmentDto>> createEquipment(@Valid @RequestBody @NonNull EquipmentCreateRequest request) {
         return ResponseUtil.created(equipmentService.createEquipment(request), "장비가 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<EquipmentDto>> updateEquipment(
-            @PathVariable Long id,
-            @Valid @RequestBody EquipmentUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull EquipmentUpdateRequest request) {
         return ResponseUtil.success(equipmentService.updateEquipment(id, request), "장비가 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteEquipment(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteEquipment(@PathVariable @NonNull Long id) {
         equipmentService.deleteEquipment(id);
         return ResponseUtil.deleted("장비가 성공적으로 삭제되었습니다.");
     }

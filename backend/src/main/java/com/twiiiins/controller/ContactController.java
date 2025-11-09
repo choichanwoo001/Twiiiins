@@ -9,6 +9,7 @@ import com.twiiiins.util.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,24 +29,24 @@ public class ContactController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ContactDto>> getContactById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ContactDto>> getContactById(@PathVariable @NonNull Long id) {
         return ResponseUtil.success(contactEntityService.getContactById(id));
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse<ContactDto>> createContact(@Valid @RequestBody ContactCreateRequest request) {
+    public ResponseEntity<ApiResponse<ContactDto>> createContact(@Valid @RequestBody @NonNull ContactCreateRequest request) {
         return ResponseUtil.created(contactEntityService.createContact(request), "연락처가 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ContactDto>> updateContact(
-            @PathVariable Long id,
-            @Valid @RequestBody ContactUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull ContactUpdateRequest request) {
         return ResponseUtil.success(contactEntityService.updateContact(id, request), "연락처가 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteContact(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteContact(@PathVariable @NonNull Long id) {
         contactEntityService.deleteContact(id);
         return ResponseUtil.deleted("연락처가 성공적으로 삭제되었습니다.");
     }

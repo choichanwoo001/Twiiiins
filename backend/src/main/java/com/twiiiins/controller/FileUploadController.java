@@ -6,6 +6,8 @@ import com.twiiiins.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,19 +25,25 @@ public class FileUploadController {
     private final FileUploadService fileUploadService;
     
     @PostMapping("/image")
-    public ResponseEntity<FileUploadResponseDto> uploadImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<FileUploadResponseDto> uploadImage(@RequestParam("file") @NonNull MultipartFile file) {
+        Assert.notNull(file, "file must not be null");
         FileUploadResponseDto response = fileUploadService.uploadImage(file);
         return ResponseEntity.ok(response);
     }
     
     @PostMapping("/images")
     public ResponseEntity<ApiResponse<Map<String, Object>>> uploadImages(@RequestParam("files") MultipartFile[] files) {
-        log.info("다중 이미지 업로드 시작: {} 개 파일", files.length);
+        MultipartFile[] safeFiles = files != null ? files : new MultipartFile[0];
+        log.info("다중 이미지 업로드 시작: {} 개 파일", safeFiles.length);
         List<String> urls = new ArrayList<>();
         List<String> filenames = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         
-        for (MultipartFile file : files) {
+        for (MultipartFile file : safeFiles) {
+            if (file == null) {
+                errors.add("null 파일은 업로드할 수 없습니다.");
+                continue;
+            }
             try {
                 FileUploadResponseDto response = fileUploadService.uploadImage(file);
                 urls.add(response.getUrl());
@@ -59,7 +67,8 @@ public class FileUploadController {
     }
     
     @PostMapping("/file")
-    public ResponseEntity<FileUploadResponseDto> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<FileUploadResponseDto> uploadFile(@RequestParam("file") @NonNull MultipartFile file) {
+        Assert.notNull(file, "file must not be null");
         FileUploadResponseDto response = fileUploadService.uploadFile(file);
         return ResponseEntity.ok(response);
     }

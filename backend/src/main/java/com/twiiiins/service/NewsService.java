@@ -8,11 +8,13 @@ import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.NewsMapper;
 import com.twiiiins.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -36,29 +38,32 @@ public class NewsService {
                 .toList();
     }
     
-    public NewsDto getNewsById(Long id) {
+    public NewsDto getNewsById(@NonNull Long id) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
         return newsMapper.toDto(news);
     }
     
-    public NewsDto createNews(NewsCreateRequest request) {
-        News news = newsMapper.toEntity(request);
-        News savedNews = newsRepository.save(news);
+    public NewsDto createNews(@NonNull NewsCreateRequest request) {
+        News news = Objects.requireNonNull(
+                newsMapper.toEntity(request),
+                "NewsMapper.toEntity returned null"
+        );
+        News savedNews = newsRepository.save(Objects.requireNonNull(news, "News must not be null"));
         return newsMapper.toDto(savedNews);
     }
     
-    public NewsDto updateNews(Long id, NewsUpdateRequest request) {
+    public NewsDto updateNews(@NonNull Long id, @NonNull NewsUpdateRequest request) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
         
         newsMapper.updateEntityFromUpdateRequest(request, news);
         
-        News savedNews = newsRepository.save(news);
+        News savedNews = newsRepository.save(Objects.requireNonNull(news, "News must not be null"));
         return newsMapper.toDto(savedNews);
     }
     
-    public void deleteNews(Long id) {
+    public void deleteNews(@NonNull Long id) {
         newsRepository.deleteById(id);
     }
 }

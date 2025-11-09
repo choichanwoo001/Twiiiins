@@ -1,4 +1,9 @@
 import axios from '../api/axios'
+import {
+  buildPhotoGroupCreatePayload,
+  buildPhotoGroupUpdatePayload,
+  sanitizeQueryParams
+} from './payloadMappers'
 
 export const photoService = {
   // 사진 그룹 관련
@@ -13,12 +18,14 @@ export const photoService = {
   },
 
   async createPhotoGroup(data) {
-    const response = await axios.post('/media/photos/groups', data)
+    const payload = buildPhotoGroupCreatePayload(data)
+    const response = await axios.post('/media/photos/groups', payload)
     return response.data.data || response.data
   },
 
   async updatePhotoGroup(id, data) {
-    const response = await axios.put(`/media/photos/groups/${id}`, data)
+    const payload = buildPhotoGroupUpdatePayload(data)
+    const response = await axios.put(`/media/photos/groups/${id}`, payload)
     return response.data.data || response.data
   },
 
@@ -28,10 +35,8 @@ export const photoService = {
   },
 
   async searchPhotoGroups(filters) {
-    const params = new URLSearchParams()
-    if (filters.title) params.append('title', filters.title)
-    
-    const response = await axios.get(`/media/photo-groups?${params.toString()}`)
+    const params = sanitizeQueryParams(filters)
+    const response = await axios.get('/media/photo-groups', { params })
     return response.data.data || response.data
   },
 

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +52,7 @@ public class VideoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "동영상을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<VideoDto>> getVideoById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<VideoDto>> getVideoById(@PathVariable @NonNull Long id) {
         VideoDto video = videoService.getVideoById(id);
         return ResponseUtil.success(video, "동영상 정보를 성공적으로 조회했습니다.");
     }
@@ -63,7 +64,7 @@ public class VideoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<VideoDto>> createVideo(@Valid @RequestBody VideoCreateRequest request) {
+    public ResponseEntity<ApiResponse<VideoDto>> createVideo(@Valid @RequestBody @NonNull VideoCreateRequest request) {
         VideoDto createdVideo = videoService.createVideo(request);
         return ResponseUtil.created(createdVideo, "동영상이 성공적으로 생성되었습니다.");
     }
@@ -77,8 +78,8 @@ public class VideoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<VideoDto>> updateVideo(
-            @PathVariable Long id,
-            @Valid @RequestBody VideoUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull VideoUpdateRequest request) {
         VideoDto updatedVideo = videoService.updateVideo(id, request);
         return ResponseUtil.success(updatedVideo, "동영상이 성공적으로 수정되었습니다.");
     }
@@ -90,7 +91,7 @@ public class VideoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "동영상을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<Void>> deleteVideo(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteVideo(@PathVariable @NonNull Long id) {
         videoService.deleteVideo(id);
         return ResponseUtil.deleted("동영상이 성공적으로 삭제되었습니다.");
     }

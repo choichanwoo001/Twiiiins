@@ -8,11 +8,13 @@ import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.ConcertMapper;
 import com.twiiiins.repository.ConcertRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -43,56 +45,59 @@ public class ConcertService {
                 .toList();
     }
     
-    public ConcertDto getConcertById(Long id) {
+    public ConcertDto getConcertById(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         return concertMapper.toDto(concert);
     }
     
-    public ConcertDto createConcert(ConcertCreateRequest request) {
-        Concert concert = concertMapper.toEntity(request);
-        Concert savedConcert = concertRepository.save(concert);
+    public ConcertDto createConcert(@NonNull ConcertCreateRequest request) {
+        Concert concert = Objects.requireNonNull(
+                concertMapper.toEntity(request),
+                "ConcertMapper.toEntity returned null"
+        );
+        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
         return concertMapper.toDto(savedConcert);
     }
     
-    public ConcertDto updateConcert(Long id, ConcertUpdateRequest request) {
+    public ConcertDto updateConcert(@NonNull Long id, @NonNull ConcertUpdateRequest request) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         
         concertMapper.updateEntityFromUpdateRequest(request, concert);
         
-        Concert savedConcert = concertRepository.save(concert);
+        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
         return concertMapper.toDto(savedConcert);
     }
     
-    public void deleteConcert(Long id) {
+    public void deleteConcert(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
-        concertRepository.delete(concert);
+        concertRepository.delete(Objects.requireNonNull(concert, "Concert must not be null"));
     }
     
-    public ConcertDto moveToPastEvent(Long id) {
+    public ConcertDto moveToPastEvent(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concert.setIsPast(true);
-        Concert savedConcert = concertRepository.save(concert);
+        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
         return concertMapper.toDto(savedConcert);
     }
     
-    public ConcertDto moveToUpcomingEvent(Long id) {
+    public ConcertDto moveToUpcomingEvent(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concert.setIsPast(false);
-        Concert savedConcert = concertRepository.save(concert);
+        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
         return concertMapper.toDto(savedConcert);
     }
     
-    public int autoMovePastEvents(LocalDate currentDate) {
+    public int autoMovePastEvents(@NonNull LocalDate currentDate) {
         List<Concert> concertsToMove = concertRepository.findByDateBeforeAndIsPast(currentDate, false);
         
         for (Concert concert : concertsToMove) {
             concert.setIsPast(true);
-            concertRepository.save(concert);
+            concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
         }
         
         return concertsToMove.size();

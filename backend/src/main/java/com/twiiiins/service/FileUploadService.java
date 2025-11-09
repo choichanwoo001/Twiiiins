@@ -4,17 +4,19 @@ import com.twiiiins.dto.FileUploadResponseDto;
 import com.twiiiins.exception.FileUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
-import net.coobird.thumbnailator.Thumbnails;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -30,7 +32,7 @@ public class FileUploadService {
     
     private long getMaxFileSize() {
         try {
-            return DataSize.parse(uploadMaxSize).toBytes();
+            return DataSize.parse(Objects.requireNonNull(uploadMaxSize, "UPLOAD_MAX_SIZE must not be null")).toBytes();
         } catch (Exception e) {
             log.warn("UPLOAD_MAX_SIZE 파싱 실패, 기본값 100MB 사용: {}", e.getMessage());
             return 15 * 1024 * 1024; // 기본값 100MB
@@ -43,7 +45,7 @@ public class FileUploadService {
         "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "application/pdf"
     );
     
-    public FileUploadResponseDto uploadImage(MultipartFile file) {
+    public FileUploadResponseDto uploadImage(@NonNull MultipartFile file) {
         log.info("이미지 파일 업로드 시작: 원본 파일명 = {}, 크기 = {} bytes", 
                 file.getOriginalFilename(), file.getSize());
         validateFile(file, ALLOWED_IMAGE_TYPES, "이미지 파일만 업로드 가능합니다.");
@@ -55,21 +57,21 @@ public class FileUploadService {
      * @param file 원본 이미지 파일
      * @return 원본 URL과 썸네일 URL을 포함한 응답 (thumbnailUrl 필드 추가 필요 시 별도 DTO 사용)
      */
-    public FileUploadResponseDto uploadImageWithThumbnail(MultipartFile file) {
+    public FileUploadResponseDto uploadImageWithThumbnail(@NonNull MultipartFile file) {
         log.info("이미지 및 썸네일 업로드 시작: 원본 파일명 = {}, 크기 = {} bytes", 
                 file.getOriginalFilename(), file.getSize());
         validateFile(file, ALLOWED_IMAGE_TYPES, "이미지 파일만 업로드 가능합니다.");
         return uploadFileWithThumbnail(file, "image");
     }
     
-    public FileUploadResponseDto uploadFile(MultipartFile file) {
+    public FileUploadResponseDto uploadFile(@NonNull MultipartFile file) {
         log.info("파일 업로드 시작: 원본 파일명 = {}, 크기 = {} bytes, MIME 타입 = {}", 
                 file.getOriginalFilename(), file.getSize(), file.getContentType());
         validateFile(file, ALLOWED_FILE_TYPES, "이미지 파일 또는 PDF 파일만 업로드 가능합니다.");
         return uploadFile(file, "file");
     }
     
-    private void validateFile(MultipartFile file, List<String> allowedTypes, String errorMessage) {
+    private void validateFile(@NonNull MultipartFile file, List<String> allowedTypes, String errorMessage) {
         log.debug("파일 검증 시작: 파일명 = {}, 크기 = {} bytes", file.getOriginalFilename(), file.getSize());
         
         if (file.isEmpty()) {
@@ -102,7 +104,7 @@ public class FileUploadService {
      * 너무 큰 이미지는 처리 시 OutOfMemoryError 발생 가능
      * Thumbnailator를 사용하여 메모리 효율적으로 이미지 크기 확인
      */
-    private void validateImageDimensions(MultipartFile file) {
+    private void validateImageDimensions(@NonNull MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
             // Thumbnailator를 사용하여 이미지 크기 확인 (메모리 효율적)
             BufferedImage bufferedImage = Thumbnails.of(inputStream)
@@ -141,7 +143,7 @@ public class FileUploadService {
         }
     }
     
-    private FileUploadResponseDto uploadFile(MultipartFile file, String uploadType) {
+    private FileUploadResponseDto uploadFile(@NonNull MultipartFile file, @NonNull String uploadType) {
         String originalFilename = file.getOriginalFilename();
         
         try {
@@ -170,7 +172,7 @@ public class FileUploadService {
     /**
      * 이미지와 썸네일을 함께 업로드하는 메서드
      */
-    private FileUploadResponseDto uploadFileWithThumbnail(MultipartFile file, String uploadType) {
+    private FileUploadResponseDto uploadFileWithThumbnail(@NonNull MultipartFile file, @NonNull String uploadType) {
         String originalFilename = file.getOriginalFilename();
         String fileUrl = null;
         String thumbnailUrl = null;
@@ -242,26 +244,26 @@ public class FileUploadService {
      * 썸네일을 MultipartFile로 변환하기 위한 래퍼 클래스
      */
     private static class ThumbnailMultipartFile implements MultipartFile {
-        private final String name;
-        private final String originalFilename;
+        private final @NonNull String name;
+        private final @NonNull String originalFilename;
         private final String contentType;
-        private final byte[] content;
+        private final @NonNull byte[] content;
         
         public ThumbnailMultipartFile(String name, String originalFilename, String contentType, byte[] content) {
-            this.name = name;
-            this.originalFilename = originalFilename;
+            this.name = Objects.requireNonNull(name, "name must not be null");
+            this.originalFilename = Objects.requireNonNull(originalFilename, "originalFilename must not be null");
             this.contentType = contentType;
-            this.content = content;
+            this.content = Objects.requireNonNull(content, "Content must not be null");
         }
         
         @Override
-        public String getName() { 
-            return name != null ? name : ""; 
+        public @NonNull String getName() { 
+            return name; 
         }
         
         @Override
-        public String getOriginalFilename() { 
-            return originalFilename != null ? originalFilename : ""; 
+        public @NonNull String getOriginalFilename() { 
+            return originalFilename; 
         }
         
         @Override
@@ -280,29 +282,18 @@ public class FileUploadService {
         }
         
         @Override
-        public byte[] getBytes() throws IOException { 
-            if (content == null) {
-                throw new IOException("Content is null");
-            }
+        public @NonNull byte[] getBytes() throws IOException { 
             return content; 
         }
         
         @Override
-        public InputStream getInputStream() throws IOException {
-            if (content == null) {
-                throw new IOException("Content is null");
-            }
-            return new java.io.ByteArrayInputStream(content);
+        public @NonNull InputStream getInputStream() throws IOException {
+            return new java.io.ByteArrayInputStream(
+                    Objects.requireNonNull(content, "Content is null"));
         }
         
         @Override
-        public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
-            if (content == null) {
-                throw new IOException("Content is null");
-            }
-            if (dest == null) {
-                throw new IllegalArgumentException("Destination file cannot be null");
-            }
+        public void transferTo(@NonNull java.io.File dest) throws IOException, IllegalStateException {
             try (java.io.FileOutputStream fos = new java.io.FileOutputStream(dest)) {
                 fos.write(content);
             }

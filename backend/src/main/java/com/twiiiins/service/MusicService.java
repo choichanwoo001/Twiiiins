@@ -9,10 +9,12 @@ import com.twiiiins.mapper.MusicMapper;
 import com.twiiiins.repository.MusicRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class MusicService {
         return result;
     }
     
-    public MusicDto getMusicById(Long id) {
+    public MusicDto getMusicById(@NonNull Long id) {
         log.debug("음악 조회 시작: ID = {}", id);
         Music music = musicRepository.findById(id)
                 .orElseThrow(() -> {
@@ -61,12 +63,15 @@ public class MusicService {
         return musicMapper.toDto(music);
     }
     
-    public MusicDto createMusic(MusicCreateRequest request) {
+    public MusicDto createMusic(@NonNull MusicCreateRequest request) {
         log.info("[음악 생성] 시작 - 제목: {}, 아티스트: {}", request.getTitle(), request.getArtist());
         
         try {
-            Music music = musicMapper.toEntity(request);
-            Music savedMusic = musicRepository.save(music);
+            Music music = Objects.requireNonNull(
+                    musicMapper.toEntity(request),
+                    "MusicMapper.toEntity returned null"
+            );
+            Music savedMusic = musicRepository.save(Objects.requireNonNull(music, "Music must not be null"));
             
             log.info("[음악 생성] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
             return musicMapper.toDto(savedMusic);
@@ -77,7 +82,7 @@ public class MusicService {
         }
     }
     
-    public MusicDto updateMusic(Long id, MusicUpdateRequest request) {
+    public MusicDto updateMusic(@NonNull Long id, @NonNull MusicUpdateRequest request) {
         log.info("[음악 수정] 시작 - ID: {}, 제목: {}", id, request.getTitle());
         
         try {
@@ -91,7 +96,7 @@ public class MusicService {
             
             musicMapper.updateEntityFromUpdateRequest(request, music);
             
-            Music savedMusic = musicRepository.save(music);
+            Music savedMusic = musicRepository.save(Objects.requireNonNull(music, "Music must not be null"));
             log.info("[음악 수정] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
             
             return musicMapper.toDto(savedMusic);
@@ -104,7 +109,7 @@ public class MusicService {
         }
     }
     
-    public void deleteMusic(Long id) {
+    public void deleteMusic(@NonNull Long id) {
         log.info("[음악 삭제] 시작 - ID: {}", id);
         
         try {

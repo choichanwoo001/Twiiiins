@@ -16,6 +16,7 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,7 +61,7 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "뉴스를 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<NewsDto>> getNewsById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<NewsDto>> getNewsById(@PathVariable @NonNull Long id) {
         return ResponseUtil.success(newsService.getNewsById(id));
     }
     
@@ -71,7 +72,7 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<NewsDto>> createNews(@Valid @RequestBody NewsCreateRequest request) {
+    public ResponseEntity<ApiResponse<NewsDto>> createNews(@Valid @RequestBody @NonNull NewsCreateRequest request) {
         return ResponseUtil.created(newsService.createNews(request), "뉴스가 성공적으로 생성되었습니다.");
     }
     
@@ -84,8 +85,8 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<NewsDto>> updateNews(
-            @PathVariable Long id,
-            @Valid @RequestBody NewsUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull NewsUpdateRequest request) {
         return ResponseUtil.success(newsService.updateNews(id, request), "뉴스가 성공적으로 수정되었습니다.");
     }
     
@@ -96,7 +97,7 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "뉴스를 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<Void>> deleteNews(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteNews(@PathVariable @NonNull Long id) {
         newsService.deleteNews(id);
         return ResponseUtil.deleted("뉴스가 성공적으로 삭제되었습니다.");
     }
@@ -110,15 +111,20 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<NewsDto>> uploadNewsImages(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestParam("files") List<MultipartFile> files) {
         
         NewsDto news = newsService.getNewsById(id);
         List<String> imageUrls = news.getImageUrls() != null ? new ArrayList<>(news.getImageUrls()) : new ArrayList<>();
         
-        for (MultipartFile file : files) {
-            FileUploadResponseDto uploadResponse = fileUploadService.uploadImage(file);
-            imageUrls.add(uploadResponse.getUrl());
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (file == null) {
+                    continue;
+                }
+                FileUploadResponseDto uploadResponse = fileUploadService.uploadImage(file);
+                imageUrls.add(uploadResponse.getUrl());
+            }
         }
         
         NewsUpdateRequest request = new NewsUpdateRequest();

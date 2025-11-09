@@ -14,11 +14,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/concerts")
@@ -54,7 +56,7 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "공연을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<ConcertDto>> getConcertById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ConcertDto>> getConcertById(@PathVariable @NonNull Long id) {
         ConcertDto concert = concertService.getConcertById(id);
         return ResponseUtil.success(concert, "공연 정보를 성공적으로 조회했습니다.");
     }
@@ -66,7 +68,7 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<ConcertDto>> createConcert(@Valid @RequestBody ConcertCreateRequest request) {
+    public ResponseEntity<ApiResponse<ConcertDto>> createConcert(@Valid @RequestBody @NonNull ConcertCreateRequest request) {
         ConcertDto createdConcert = concertService.createConcert(request);
         return ResponseUtil.created(createdConcert, "공연이 성공적으로 생성되었습니다.");
     }
@@ -80,8 +82,8 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<ConcertDto>> updateConcert(
-            @PathVariable Long id,
-            @Valid @RequestBody ConcertUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull ConcertUpdateRequest request) {
         ConcertDto updatedConcert = concertService.updateConcert(id, request);
         return ResponseUtil.success(updatedConcert, "공연이 성공적으로 수정되었습니다.");
     }
@@ -93,7 +95,7 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "공연을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<Void>> deleteConcert(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteConcert(@PathVariable @NonNull Long id) {
         concertService.deleteConcert(id);
         return ResponseUtil.deleted("공연이 성공적으로 삭제되었습니다.");
     }
@@ -105,7 +107,7 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "공연을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<ConcertDto>> moveToPastEvent(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ConcertDto>> moveToPastEvent(@PathVariable @NonNull Long id) {
         ConcertDto movedConcert = concertService.moveToPastEvent(id);
         return ResponseUtil.success(movedConcert, "공연이 과거 공연으로 이동되었습니다.");
     }
@@ -117,7 +119,7 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "공연을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<ConcertDto>> moveToUpcomingEvent(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ConcertDto>> moveToUpcomingEvent(@PathVariable @NonNull Long id) {
         ConcertDto movedConcert = concertService.moveToUpcomingEvent(id);
         return ResponseUtil.success(movedConcert, "공연이 예정 공연으로 이동되었습니다.");
     }
@@ -130,7 +132,8 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<AutoMoveResponse>> autoMovePastEvents(@Valid @RequestBody AutoMoveRequest request) {
-        int movedCount = concertService.autoMovePastEvents(request.getCurrentDate());
+        LocalDate currentDate = Objects.requireNonNull(request.getCurrentDate(), "currentDate must not be null");
+        int movedCount = concertService.autoMovePastEvents(currentDate);
         AutoMoveResponse response = new AutoMoveResponse(movedCount);
         return ResponseUtil.success(response, "자동 이동이 완료되었습니다.");
     }

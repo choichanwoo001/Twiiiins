@@ -78,7 +78,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, WebRequest request, HttpServletRequest httpRequest) {
         String requestPath = extractRequestPath(request);
         String method = httpRequest != null ? httpRequest.getMethod() : "UNKNOWN";
-        String message = String.format("'%s' 파라미터를 '%s' 타입으로 변환할 수 없습니다.", ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "알 수 없음");
+        Class<?> requiredType = ex.getRequiredType();
+        String requiredTypeName = requiredType != null ? requiredType.getSimpleName() : "알 수 없음";
+        String message = String.format("'%s' 파라미터를 '%s' 타입으로 변환할 수 없습니다.", ex.getName(), requiredTypeName);
         log.warn("[파라미터 타입 불일치] {} - 요청 경로: {}, 메서드: {}", message, requestPath, method);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.badRequest(message));

@@ -1,4 +1,9 @@
 import axios from '../api/axios'
+import {
+  buildNewsCreatePayload,
+  buildNewsUpdatePayload,
+  sanitizeQueryParams
+} from './payloadMappers'
 
 export const newsService = {
   // 뉴스 목록 조회
@@ -15,24 +20,22 @@ export const newsService = {
 
   // 뉴스 검색
   async searchNews(filters) {
-    const params = new URLSearchParams()
-    if (filters.title) params.append('title', filters.title)
-    if (filters.startDate) params.append('startDate', filters.startDate)
-    if (filters.endDate) params.append('endDate', filters.endDate)
-    
-    const response = await axios.get(`/media/news?${params.toString()}`)
+    const params = sanitizeQueryParams(filters)
+    const response = await axios.get('/media/news', { params })
     return response.data.data || response.data
   },
 
   // 뉴스 생성
   async createNews(newsData) {
-    const response = await axios.post('/media/news', newsData)
+    const payload = buildNewsCreatePayload(newsData)
+    const response = await axios.post('/media/news', payload)
     return response.data.data || response.data
   },
 
   // 뉴스 수정
   async updateNews(id, newsData) {
-    const response = await axios.put(`/media/news/${id}`, newsData)
+    const payload = buildNewsUpdatePayload(newsData)
+    const response = await axios.put(`/media/news/${id}`, payload)
     return response.data.data || response.data
   },
 

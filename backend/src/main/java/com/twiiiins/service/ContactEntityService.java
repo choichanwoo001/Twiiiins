@@ -8,10 +8,12 @@ import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.ContactMapper;
 import com.twiiiins.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,29 +30,32 @@ public class ContactEntityService {
                 .toList();
     }
     
-    public ContactDto getContactById(Long id) {
+    public ContactDto getContactById(@NonNull Long id) {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
         return contactMapper.toDto(contact);
     }
     
-    public ContactDto createContact(ContactCreateRequest request) {
-        Contact contact = contactMapper.toEntity(request);
-        Contact savedContact = contactRepository.save(contact);
+    public ContactDto createContact(@NonNull ContactCreateRequest request) {
+        Contact contact = Objects.requireNonNull(
+                contactMapper.toEntity(request),
+                "ContactMapper.toEntity returned null"
+        );
+        Contact savedContact = contactRepository.save(Objects.requireNonNull(contact, "Contact must not be null"));
         return contactMapper.toDto(savedContact);
     }
     
-    public ContactDto updateContact(Long id, ContactUpdateRequest request) {
+    public ContactDto updateContact(@NonNull Long id, @NonNull ContactUpdateRequest request) {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
         
         contactMapper.updateEntityFromUpdateRequest(request, contact);
         
-        Contact savedContact = contactRepository.save(contact);
+        Contact savedContact = contactRepository.save(Objects.requireNonNull(contact, "Contact must not be null"));
         return contactMapper.toDto(savedContact);
     }
     
-    public void deleteContact(Long id) {
+    public void deleteContact(@NonNull Long id) {
         contactRepository.deleteById(id);
     }
 }

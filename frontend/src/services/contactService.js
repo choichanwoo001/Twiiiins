@@ -1,4 +1,9 @@
 import axios from '../api/axios'
+import {
+  buildContactCreatePayload,
+  buildContactUpdatePayload,
+  sanitizeQueryParams
+} from './payloadMappers'
 
 export const contactService = {
   // 연락처 목록 조회
@@ -15,23 +20,22 @@ export const contactService = {
 
   // 연락처 검색
   async searchContacts(filters) {
-    const params = new URLSearchParams()
-    if (filters.name) params.append('name', filters.name)
-    if (filters.role) params.append('role', filters.role)
-    
-    const response = await axios.get(`/media/contacts?${params.toString()}`)
+    const params = sanitizeQueryParams(filters)
+    const response = await axios.get('/media/contacts', { params })
     return response.data.data || response.data
   },
 
   // 연락처 생성
   async createContact(contactData) {
-    const response = await axios.post('/media/contacts', contactData)
+    const payload = buildContactCreatePayload(contactData)
+    const response = await axios.post('/media/contacts', payload)
     return response.data.data || response.data
   },
 
   // 연락처 수정
   async updateContact(id, contactData) {
-    const response = await axios.put(`/media/contacts/${id}`, contactData)
+    const payload = buildContactUpdatePayload(contactData)
+    const response = await axios.put(`/media/contacts/${id}`, payload)
     return response.data.data || response.data
   },
 

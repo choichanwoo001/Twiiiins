@@ -9,6 +9,7 @@ import com.twiiiins.util.ResponseUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,24 +29,24 @@ public class DownloadFileController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<DownloadFileDto>> getDownloadFileById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<DownloadFileDto>> getDownloadFileById(@PathVariable @NonNull Long id) {
         return ResponseUtil.success(downloadFileService.getDownloadFileById(id));
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse<DownloadFileDto>> createDownloadFile(@Valid @RequestBody DownloadFileCreateRequest request) {
+    public ResponseEntity<ApiResponse<DownloadFileDto>> createDownloadFile(@Valid @RequestBody @NonNull DownloadFileCreateRequest request) {
         return ResponseUtil.created(downloadFileService.createDownloadFile(request), "파일이 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DownloadFileDto>> updateDownloadFile(
-            @PathVariable Long id,
-            @Valid @RequestBody DownloadFileUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull DownloadFileUpdateRequest request) {
         return ResponseUtil.success(downloadFileService.updateDownloadFile(id, request), "파일이 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteDownloadFile(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteDownloadFile(@PathVariable @NonNull Long id) {
         downloadFileService.deleteDownloadFile(id);
         return ResponseUtil.deleted("파일이 성공적으로 삭제되었습니다.");
     }

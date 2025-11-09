@@ -1,4 +1,9 @@
 import axios from '../api/axios'
+import {
+  buildVideoCreatePayload,
+  buildVideoUpdatePayload,
+  sanitizeQueryParams
+} from './payloadMappers'
 
 export const videoService = {
   async getAllVideos() {
@@ -12,12 +17,14 @@ export const videoService = {
   },
 
   async createVideo(data) {
-    const response = await axios.post('/media/videos', data)
+    const payload = buildVideoCreatePayload(data)
+    const response = await axios.post('/media/videos', payload)
     return response.data.data || response.data
   },
 
   async updateVideo(id, data) {
-    const response = await axios.put(`/media/videos/${id}`, data)
+    const payload = buildVideoUpdatePayload(data)
+    const response = await axios.put(`/media/videos/${id}`, payload)
     return response.data.data || response.data
   },
 
@@ -27,10 +34,8 @@ export const videoService = {
   },
 
   async searchVideos(filters) {
-    const params = new URLSearchParams()
-    if (filters.title) params.append('title', filters.title)
-    
-    const response = await axios.get(`/media/videos?${params.toString()}`)
+    const params = sanitizeQueryParams(filters)
+    const response = await axios.get('/media/videos', { params })
     return response.data.data || response.data
   }
 }

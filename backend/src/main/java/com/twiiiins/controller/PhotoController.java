@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,7 +60,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<PhotoGroupDto>> getPhotoGroupById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PhotoGroupDto>> getPhotoGroupById(@PathVariable @NonNull Long id) {
         PhotoGroupDto group = photoService.getPhotoGroupById(id);
         return ResponseUtil.success(group, "사진 그룹 정보를 성공적으로 조회했습니다.");
     }
@@ -71,7 +72,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<PhotoGroupDto>> createPhotoGroup(@Valid @RequestBody PhotoGroupCreateRequest request) {
+    public ResponseEntity<ApiResponse<PhotoGroupDto>> createPhotoGroup(@Valid @RequestBody @NonNull PhotoGroupCreateRequest request) {
         PhotoGroupDto createdGroup = photoService.createPhotoGroup(request);
         return ResponseUtil.created(createdGroup, "사진 그룹이 성공적으로 생성되었습니다.");
     }
@@ -85,8 +86,8 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<PhotoGroupDto>> updatePhotoGroup(
-            @PathVariable Long id,
-            @Valid @RequestBody PhotoGroupUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull PhotoGroupUpdateRequest request) {
         PhotoGroupDto updatedGroup = photoService.updatePhotoGroup(id, request);
         return ResponseUtil.success(updatedGroup, "사진 그룹이 성공적으로 수정되었습니다.");
     }
@@ -98,7 +99,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<Void>> deletePhotoGroup(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deletePhotoGroup(@PathVariable @NonNull Long id) {
         photoService.deletePhotoGroup(id);
         return ResponseUtil.deleted("사진 그룹이 성공적으로 삭제되었습니다.");
     }
@@ -111,7 +112,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진 그룹을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<List<PhotoDto>>> getPhotosByGroupId(@PathVariable Long groupId) {
+    public ResponseEntity<ApiResponse<List<PhotoDto>>> getPhotosByGroupId(@PathVariable @NonNull Long groupId) {
         List<PhotoDto> photos = photoService.getPhotosByGroupId(groupId);
         return ResponseUtil.listSuccess(photos, "그룹별 사진 목록을 성공적으로 조회했습니다.");
     }
@@ -123,7 +124,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<PhotoDto>> getPhotoById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PhotoDto>> getPhotoById(@PathVariable @NonNull Long id) {
         PhotoDto photo = photoService.getPhotoById(id);
         return ResponseUtil.success(photo, "사진 정보를 성공적으로 조회했습니다.");
     }
@@ -137,7 +138,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<List<PhotoDto>>> createPhoto(
-            @PathVariable Long groupId,
+            @PathVariable @NonNull Long groupId,
             @RequestParam(value = "files", required = false) List<MultipartFile> files,
             @RequestParam(value = "altText", required = false) String altText) {
         
@@ -146,6 +147,9 @@ public class PhotoController {
         // 파일 업로드가 있는 경우
         if (files != null && !files.isEmpty()) {
             for (MultipartFile file : files) {
+                if (file == null) {
+                    continue;
+                }
                 // 파일과 썸네일을 S3에 업로드
                 var uploadResponse = fileUploadService.uploadImageWithThumbnail(file);
                 String imageUrl = uploadResponse.getUrl();
@@ -177,8 +181,8 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<PhotoDto>> updatePhoto(
-            @PathVariable Long id,
-            @Valid @RequestBody PhotoUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull PhotoUpdateRequest request) {
         PhotoDto updatedPhoto = photoService.updatePhoto(id, request);
         return ResponseUtil.success(updatedPhoto, "사진이 성공적으로 수정되었습니다.");
     }
@@ -190,7 +194,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사진을 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<Void>> deletePhoto(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deletePhoto(@PathVariable @NonNull Long id) {
         photoService.deletePhoto(id);
         return ResponseUtil.deleted("사진이 성공적으로 삭제되었습니다.");
     }

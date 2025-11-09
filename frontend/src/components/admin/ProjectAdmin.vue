@@ -308,6 +308,12 @@ import { BaseButton, ConfirmDialog, AlertDialog } from '../common'
 import Modal from './common/Modal.vue'
 import { formatDate } from '../../utils/commonHelpers'
 import { logError, getErrorMessage } from '../../utils/errorHandler'
+import {
+  buildProjectCreatePayload,
+  buildProjectUpdatePayload,
+  buildProjectDetailPayload,
+  sanitizeQueryParams
+} from '../../services/payloadMappers'
 
 // Reactive data
 const projects = ref([])
@@ -476,12 +482,7 @@ const loadProjects = async () => {
 
 const searchProjects = async () => {
   try {
-    const params = {}
-    if (searchFilters.value.title) params.title = searchFilters.value.title
-    if (searchFilters.value.location) params.location = searchFilters.value.location
-    if (searchFilters.value.startDate) params.startDate = searchFilters.value.startDate
-    if (searchFilters.value.endDate) params.endDate = searchFilters.value.endDate
-    
+    const params = sanitizeQueryParams(searchFilters.value)
     const response = await axios.get('/projects', { params })
     filteredProjects.value = response.data.data || response.data || []
     isFiltered.value = true
@@ -515,17 +516,18 @@ const editProject = (project) => {
   uploadedCoverImageUrl.value = project.coverImageUrl || null
 }
 
-// URL Slug 자동 생성 함수
-const generateUrlSlug = () => {
-  const title = detailForm.value.title || ''
+const slugify = (value) => {
+  const title = (value || '').toString().trim().toLowerCase()
   if (!title) return ''
   return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // 특수문자 제거
-    .replace(/\s+/g, '-') // 공백을 하이픈으로
-    .replace(/-+/g, '-') // 연속된 하이픈을 하나로
-    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
+
+// URL Slug 자동 생성 함수
+const generateUrlSlug = () => slugify(detailForm.value.title)
 
 // 프로젝트 상세 페이지 링크
 const projectDetailUrl = computed(() => {
@@ -549,9 +551,7 @@ watch(() => detailForm.value.title, (newTitle) => {
 const editProjectDetail = (project) => {
   editingProjectDetail.value = project
   showProjectDetailForm.value = true
-  const urlSlug = project.urlSlug || (project.title ? 
-    project.title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim() : 
-    '')
+  const urlSlug = project.urlSlug || slugify(project.title)
   
   // 리뷰 데이터 변환
   let reviews = []
@@ -612,23 +612,24 @@ const cancelEditDetail = () => {
 
 const saveProject = async () => {
   try {
-    // coverImageUrl 우선순위: form.value.coverImageUrl > uploadedCoverImageUrl.value
-    const coverImageUrl = form.value.coverImageUrl || uploadedCoverImageUrl.value
-    
-    const projectData = {
+    const coverImageUrl = form.value.coverImageUrl || uploadedCoverImageUrl.value || undefined
+    const basePayload = {
       title: form.value.title,
       premiereDate: form.value.premiereDate,
       location: form.value.location,
-      coverImageUrl: coverImageUrl || null
+      coverImageUrl,
+      urlSlug: editingProject.value?.urlSlug || slugify(form.value.title)
     }
 
     let savedProject
     if (editingProject.value) {
-      const response = await axios.put(`/projects/${editingProject.value.id}`, projectData)
+      const payload = buildProjectUpdatePayload(basePayload)
+      const response = await axios.put(`/projects/${editingProject.value.id}`, payload)
       savedProject = response.data.data || response.data
       await showAlert('프로젝트가 수정되었습니다.', '성공', 'success')
     } else {
-      const response = await axios.post('/projects', projectData)
+      const payload = buildProjectCreatePayload(basePayload)
+      const response = await axios.post('/projects', payload)
       savedProject = response.data.data || response.data
       await showAlert('프로젝트가 등록되었습니다. 상세 정보를 등록하시겠습니까?', '성공', 'success')
       
@@ -683,26 +684,28 @@ const saveProjectDetail = async () => {
     // URL Slug가 없으면 제목에서 자동 생성
     const urlSlug = detailForm.value.urlSlug || generateUrlSlug()
     
-    const projectData = {
+    const basePayload = {
       title: detailForm.value.title,
       subtitle: detailForm.value.subtitle,
       premiereDate: detailForm.value.premiereDate,
       location: detailForm.value.location,
       director: detailForm.value.director,
-      urlSlug: urlSlug,
+      urlSlug,
       descriptions: detailForm.value.descriptions || [],
       thankYouText: detailForm.value.thankYouText,
       moreInfoUrl: detailForm.value.moreInfoUrl,
-      coverImageUrl: detailForm.value.coverImageUrl || null,
+      coverImageUrl: detailForm.value.coverImageUrl || undefined,
       imageUrls: detailForm.value.imageUrls || [],
       reviews: detailForm.value.reviews || []
     }
 
     if (editingProjectDetail.value) {
-      await axios.put(`/projects/${editingProjectDetail.value.id}`, projectData)
+      const payload = buildProjectUpdatePayload(basePayload)
+      await axios.put(`/projects/${editingProjectDetail.value.id}`, payload)
       await showAlert('프로젝트 상세가 수정되었습니다.', '성공', 'success')
     } else {
-      await axios.post('/projects', projectData)
+      const payload = buildProjectDetailPayload(basePayload)
+      await axios.post('/projects', payload)
       await showAlert('프로젝트 상세가 등록되었습니다.', '성공', 'success')
     }
     
@@ -758,11 +761,10 @@ const uploadProjectPhotos = async () => {
     
     if (selectedProject.value.id) {
       // 기존 프로젝트 업데이트
-      const projectData = {
-        ...selectedProject.value,
+      const payload = buildProjectUpdatePayload({
         imageUrls: [...(selectedProject.value.imageUrls || []), ...uploadedUrls]
-      }
-      const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, projectData)
+      })
+      const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
       const updatedProject = updatedProjectResponse.data.data || updatedProjectResponse.data
       
       // 프로젝트 목록 새로고침
@@ -806,11 +808,8 @@ const deleteProjectPhoto = async (index) => {
       imageUrls.splice(index, 1)
 
       if (selectedProject.value.id) {
-        const projectData = {
-          ...selectedProject.value,
-          imageUrls
-        }
-        const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, projectData)                                                            
+        const payload = buildProjectUpdatePayload({ imageUrls })
+        const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
         const updatedProject = updatedProjectResponse.data.data || updatedProjectResponse.data
         
         // 프로젝트 목록 새로고침

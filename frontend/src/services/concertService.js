@@ -1,6 +1,11 @@
 import axios from '../api/axios'
 import { cachedApiCall, createCacheKey } from '../utils/apiCache'
 import { getErrorMessage, logError } from '../utils/errorHandler'
+import {
+  buildConcertCreatePayload,
+  buildConcertUpdatePayload,
+  sanitizeQueryParams
+} from './payloadMappers'
 
 export const concertService = {
   // 콘서트 목록 조회
@@ -35,13 +40,8 @@ export const concertService = {
   // 콘서트 검색
   async searchConcerts(filters) {
     try {
-      const params = new URLSearchParams()
-      if (filters.name) params.append('name', filters.name)
-      if (filters.location) params.append('location', filters.location)
-      if (filters.startDate) params.append('startDate', filters.startDate)
-      if (filters.endDate) params.append('endDate', filters.endDate)
-      
-      const response = await axios.get(`/concerts?${params.toString()}`)
+      const params = sanitizeQueryParams(filters)
+      const response = await axios.get('/concerts', { params })
       return response.data.data // 표준화된 응답에서 data 추출
     } catch (error) {
       logError(error, 'searchConcerts')
@@ -52,7 +52,8 @@ export const concertService = {
   // 콘서트 생성
   async createConcert(concertData) {
     try {
-      const response = await axios.post('/concerts', concertData)
+      const payload = buildConcertCreatePayload(concertData)
+      const response = await axios.post('/concerts', payload)
       // 콘서트 목록 캐시 무효화
       const { apiCache } = await import('../utils/apiCache')
       apiCache.deletePattern('^/concerts')
@@ -66,7 +67,8 @@ export const concertService = {
   // 콘서트 수정
   async updateConcert(id, concertData) {
     try {
-      const response = await axios.put(`/concerts/${id}`, concertData)
+      const payload = buildConcertUpdatePayload(concertData)
+      const response = await axios.put(`/concerts/${id}`, payload)
       // 콘서트 목록 캐시 무효화
       const { apiCache } = await import('../utils/apiCache')
       apiCache.deletePattern('^/concerts')

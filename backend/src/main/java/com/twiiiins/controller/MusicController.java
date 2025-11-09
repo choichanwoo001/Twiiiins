@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,7 @@ public class MusicController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MusicDto>> getMusicById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MusicDto>> getMusicById(@PathVariable @NonNull Long id) {
         log.info("음악 조회 요청: ID = {}", id);
         MusicDto music = musicService.getMusicById(id);
         log.info("음악 조회 완료: {}", music.getTitle());
@@ -51,7 +52,7 @@ public class MusicController {
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse<MusicDto>> createMusic(@Valid @RequestBody MusicCreateRequest request) {
+    public ResponseEntity<ApiResponse<MusicDto>> createMusic(@Valid @RequestBody @NonNull MusicCreateRequest request) {
         log.info("음악 생성 요청: {}", request.getTitle());
         MusicDto createdMusic = musicService.createMusic(request);
         log.info("음악 생성 완료: ID = {}, 제목 = {}", createdMusic.getId(), createdMusic.getTitle());
@@ -60,8 +61,8 @@ public class MusicController {
     
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<MusicDto>> updateMusic(
-            @PathVariable Long id,
-            @Valid @RequestBody MusicUpdateRequest request) {
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull MusicUpdateRequest request) {
         log.info("음악 수정 요청: ID = {}, 제목 = {}", id, request.getTitle());
         MusicDto updatedMusic = musicService.updateMusic(id, request);
         log.info("음악 수정 완료: ID = {}, 제목 = {}", updatedMusic.getId(), updatedMusic.getTitle());
@@ -69,7 +70,7 @@ public class MusicController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteMusic(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteMusic(@PathVariable @NonNull Long id) {
         log.info("음악 삭제 요청: ID = {}", id);
         musicService.deleteMusic(id);
         log.info("음악 삭제 완료: ID = {}", id);
