@@ -1,6 +1,8 @@
 package com.twiiiins.service;
 
 import com.twiiiins.dto.ContactDto;
+import com.twiiiins.dto.request.ContactCreateRequest;
+import com.twiiiins.dto.request.ContactUpdateRequest;
 import com.twiiiins.entity.Contact;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.ContactMapper;
@@ -32,17 +34,17 @@ public class ContactEntityService {
         return contactMapper.toDto(contact);
     }
     
-    public ContactDto createContact(ContactDto contactDto) {
-        Contact contact = contactMapper.toEntity(contactDto);
+    public ContactDto createContact(ContactCreateRequest request) {
+        Contact contact = contactMapper.toEntity(request);
         Contact savedContact = contactRepository.save(contact);
         return contactMapper.toDto(savedContact);
     }
     
-    public ContactDto updateContact(Long id, ContactDto contactDto) {
+    public ContactDto updateContact(Long id, ContactUpdateRequest request) {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
         
-        contactMapper.updateEntityFromDto(contactDto, contact);
+        contactMapper.updateEntityFromUpdateRequest(request, contact);
         
         Contact savedContact = contactRepository.save(contact);
         return contactMapper.toDto(savedContact);

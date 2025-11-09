@@ -2,13 +2,18 @@ package com.twiiiins.controller;
 
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.VideoDto;
+import com.twiiiins.dto.request.VideoCreateRequest;
+import com.twiiiins.dto.request.VideoUpdateRequest;
 import com.twiiiins.service.VideoService;
 import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/media/videos")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "동영상 관리", description = "동영상 관리 API")
 public class VideoController {
     
@@ -28,7 +34,7 @@ public class VideoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<List<VideoDto>>> getAllVideos(
-            @RequestParam(required = false) String title) {
+            @RequestParam(required = false) @Size(min = 1, max = 255) String title) {
         List<VideoDto> videos;
         if (title != null) {
             videos = videoService.getVideosWithFilters(title);
@@ -57,8 +63,8 @@ public class VideoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<VideoDto>> createVideo(@RequestBody VideoDto videoDto) {
-        VideoDto createdVideo = videoService.createVideo(videoDto);
+    public ResponseEntity<ApiResponse<VideoDto>> createVideo(@Valid @RequestBody VideoCreateRequest request) {
+        VideoDto createdVideo = videoService.createVideo(request);
         return ResponseUtil.created(createdVideo, "동영상이 성공적으로 생성되었습니다.");
     }
     
@@ -72,8 +78,8 @@ public class VideoController {
     })
     public ResponseEntity<ApiResponse<VideoDto>> updateVideo(
             @PathVariable Long id,
-            @RequestBody VideoDto videoDto) {
-        VideoDto updatedVideo = videoService.updateVideo(id, videoDto);
+            @Valid @RequestBody VideoUpdateRequest request) {
+        VideoDto updatedVideo = videoService.updateVideo(id, request);
         return ResponseUtil.success(updatedVideo, "동영상이 성공적으로 수정되었습니다.");
     }
     
@@ -89,3 +95,4 @@ public class VideoController {
         return ResponseUtil.deleted("동영상이 성공적으로 삭제되었습니다.");
     }
 }
+

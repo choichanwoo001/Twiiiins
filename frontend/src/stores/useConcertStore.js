@@ -28,13 +28,17 @@ export const useConcertStore = defineStore('concert', () => {
     error.value = null
   }
 
+  const fetchConcerts = async () => {
+    const data = await concertService.getAllConcerts()
+    concerts.value = data
+    updateFilteredConcerts()
+  }
+
   const loadConcerts = async () => {
     try {
       setLoading(true)
       clearError()
-      const data = await concertService.getAllConcerts()
-      concerts.value = data
-      updateFilteredConcerts()
+      await fetchConcerts()
     } catch (err) {
       setError('콘서트 목록을 불러오는데 실패했습니다.')
     } finally {
@@ -52,8 +56,7 @@ export const useConcertStore = defineStore('concert', () => {
       setLoading(true)
       clearError()
       const newConcert = await concertService.createConcert(concertData)
-      concerts.value.push(newConcert)
-      updateFilteredConcerts()
+      await fetchConcerts()
       return newConcert
     } catch (err) {
       setError('콘서트 생성에 실패했습니다.')
@@ -68,11 +71,7 @@ export const useConcertStore = defineStore('concert', () => {
       setLoading(true)
       clearError()
       const updatedConcert = await concertService.updateConcert(id, concertData)
-      const index = concerts.value.findIndex(concert => concert.id === id)
-      if (index !== -1) {
-        concerts.value[index] = updatedConcert
-        updateFilteredConcerts()
-      }
+      await fetchConcerts()
       return updatedConcert
     } catch (err) {
       setError('콘서트 수정에 실패했습니다.')
@@ -87,8 +86,7 @@ export const useConcertStore = defineStore('concert', () => {
       setLoading(true)
       clearError()
       await concertService.deleteConcert(id)
-      concerts.value = concerts.value.filter(concert => concert.id !== id)
-      updateFilteredConcerts()
+      await fetchConcerts()
     } catch (err) {
       setError('콘서트 삭제에 실패했습니다.')
       throw err
@@ -102,7 +100,7 @@ export const useConcertStore = defineStore('concert', () => {
       setLoading(true)
       clearError()
       await concertService.moveToPastEvent(id)
-      await loadConcerts() // 전체 목록 다시 로드
+      await fetchConcerts()
     } catch (err) {
       setError('콘서트 이동에 실패했습니다.')
       throw err
@@ -116,7 +114,7 @@ export const useConcertStore = defineStore('concert', () => {
       setLoading(true)
       clearError()
       await concertService.moveToUpcomingEvent(id)
-      await loadConcerts() // 전체 목록 다시 로드
+      await fetchConcerts()
     } catch (err) {
       setError('콘서트 이동에 실패했습니다.')
       throw err
@@ -138,7 +136,7 @@ export const useConcertStore = defineStore('concert', () => {
       setLoading(true)
       clearError()
       await concertService.triggerAutoMove()
-      await loadConcerts() // 전체 목록 다시 로드
+      await fetchConcerts()
     } catch (err) {
       setError('자동 이동 실행에 실패했습니다.')
       throw err

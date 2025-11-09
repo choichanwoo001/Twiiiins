@@ -1,6 +1,8 @@
 package com.twiiiins.service;
 
 import com.twiiiins.dto.MusicDto;
+import com.twiiiins.dto.request.MusicCreateRequest;
+import com.twiiiins.dto.request.MusicUpdateRequest;
 import com.twiiiins.entity.Music;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.MusicMapper;
@@ -59,24 +61,24 @@ public class MusicService {
         return musicMapper.toDto(music);
     }
     
-    public MusicDto createMusic(MusicDto musicDto) {
-        log.info("[음악 생성] 시작 - 제목: {}, 아티스트: {}", musicDto.getTitle(), musicDto.getArtist());
+    public MusicDto createMusic(MusicCreateRequest request) {
+        log.info("[음악 생성] 시작 - 제목: {}, 아티스트: {}", request.getTitle(), request.getArtist());
         
         try {
-            Music music = musicMapper.toEntity(musicDto);
+            Music music = musicMapper.toEntity(request);
             Music savedMusic = musicRepository.save(music);
             
             log.info("[음악 생성] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
             return musicMapper.toDto(savedMusic);
         } catch (Exception e) {
             log.error("[음악 생성] 실패 - 제목: {}, 아티스트: {}, 오류: {}", 
-                    musicDto.getTitle(), musicDto.getArtist(), e.getMessage(), e);
+                    request.getTitle(), request.getArtist(), e.getMessage(), e);
             throw e;
         }
     }
     
-    public MusicDto updateMusic(Long id, MusicDto musicDto) {
-        log.info("[음악 수정] 시작 - ID: {}, 제목: {}", id, musicDto.getTitle());
+    public MusicDto updateMusic(Long id, MusicUpdateRequest request) {
+        log.info("[음악 수정] 시작 - ID: {}, 제목: {}", id, request.getTitle());
         
         try {
             Music music = musicRepository.findById(id)
@@ -87,7 +89,7 @@ public class MusicService {
             
             log.debug("[음악 수정] 기존 정보 - 제목: {}, 아티스트: {}", music.getTitle(), music.getArtist());
             
-            musicMapper.updateEntityFromDto(musicDto, music);
+            musicMapper.updateEntityFromUpdateRequest(request, music);
             
             Music savedMusic = musicRepository.save(music);
             log.info("[음악 수정] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
@@ -97,7 +99,7 @@ public class MusicService {
             throw e;
         } catch (Exception e) {
             log.error("[음악 수정] 실패 - ID: {}, 제목: {}, 오류: {}", 
-                    id, musicDto.getTitle(), e.getMessage(), e);
+                    id, request.getTitle(), e.getMessage(), e);
             throw e;
         }
     }

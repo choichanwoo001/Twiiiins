@@ -2,12 +2,14 @@ package com.twiiiins.exception;
 
 import com.twiiiins.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -56,6 +58,30 @@ public class GlobalExceptionHandler {
                 errorMessage, requestPath, method);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.badRequest("입력 데이터가 유효하지 않습니다: " + errorMessage));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request, HttpServletRequest httpRequest) {
+        String errorMessage = ex.getConstraintViolations()
+                .stream()
+                .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                .collect(Collectors.joining(", "));
+
+        String requestPath = extractRequestPath(request);
+        String method = httpRequest != null ? httpRequest.getMethod() : "UNKNOWN";
+        log.warn("[파라미터 유효성 검증 실패] - 오류: {}, 요청 경로: {}, 메서드: {}", errorMessage, requestPath, method);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.badRequest("요청 파라미터가 유효하지 않습니다: " + errorMessage));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, WebRequest request, HttpServletRequest httpRequest) {
+        String requestPath = extractRequestPath(request);
+        String method = httpRequest != null ? httpRequest.getMethod() : "UNKNOWN";
+        String message = String.format("'%s' 파라미터를 '%s' 타입으로 변환할 수 없습니다.", ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "알 수 없음");
+        log.warn("[파라미터 타입 불일치] {} - 요청 경로: {}, 메서드: {}", message, requestPath, method);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.badRequest(message));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

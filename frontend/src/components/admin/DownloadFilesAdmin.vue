@@ -13,7 +13,7 @@
     <!-- 파일 목록 -->
     <DataTable
       title="전체 목록"
-      :data="files"
+      :data="displayedFiles"
       :columns="tableColumns"
       :actions="tableActions"
       @action="handleTableAction"
@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from '../../api/axios'
 import { downloadFileService } from '../../services'
 import SearchFilters from './common/SearchFilters.vue'
@@ -80,11 +80,19 @@ const searchFilters = ref(createDownloadFileSearchFilters())
 const form = ref(createDownloadFileForm())
 const editingFile = ref(null)
 const crudFormRef = ref(null)
+const filteredFiles = ref([])
+const isFiltered = ref(false)
+const displayedFiles = computed(() =>
+  isFiltered.value ? filteredFiles.value : files.value
+)
 
 // 메서드
 const loadFiles = async () => {
   try {
     files.value = await downloadFileService.getAllDownloadFiles()
+    if (isFiltered.value) {
+      await searchFiles()
+    }
   } catch (error) {
     console.error('파일 로드 실패:', error)
   }
@@ -92,7 +100,8 @@ const loadFiles = async () => {
 
 const searchFiles = async () => {
   try {
-    files.value = await downloadFileService.searchDownloadFiles(searchFilters.value)
+    filteredFiles.value = await downloadFileService.searchDownloadFiles(searchFilters.value)
+    isFiltered.value = true
   } catch (error) {
     console.error('파일 검색 실패:', error)
   }
@@ -100,6 +109,8 @@ const searchFiles = async () => {
 
 const resetFilters = () => {
   resetDownloadFileSearchFilters(searchFilters.value)
+  isFiltered.value = false
+  filteredFiles.value = []
   loadFiles()
 }
 

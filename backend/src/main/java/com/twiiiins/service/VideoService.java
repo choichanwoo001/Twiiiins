@@ -1,6 +1,8 @@
 package com.twiiiins.service;
 
 import com.twiiiins.dto.VideoDto;
+import com.twiiiins.dto.request.VideoCreateRequest;
+import com.twiiiins.dto.request.VideoUpdateRequest;
 import com.twiiiins.entity.Video;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.VideoMapper;
@@ -39,17 +41,17 @@ public class VideoService {
         return videoMapper.toDto(video);
     }
     
-    public VideoDto createVideo(VideoDto videoDto) {
-        Video video = videoMapper.toEntity(videoDto);
+    public VideoDto createVideo(VideoCreateRequest request) {
+        Video video = videoMapper.toEntity(request);
         Video savedVideo = videoRepository.save(video);
         return videoMapper.toDto(savedVideo);
     }
     
-    public VideoDto updateVideo(Long id, VideoDto videoDto) {
+    public VideoDto updateVideo(Long id, VideoUpdateRequest request) {
         Video video = videoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + id));
         
-        videoMapper.updateEntityFromDto(videoDto, video);
+        videoMapper.updateEntityFromUpdateRequest(request, video);
         
         Video savedVideo = videoRepository.save(video);
         return videoMapper.toDto(savedVideo);

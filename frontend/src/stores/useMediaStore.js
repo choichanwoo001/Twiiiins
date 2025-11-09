@@ -33,12 +33,16 @@ export const useMediaStore = defineStore('media', () => {
   }
 
   // 사진 그룹 관련
+  const fetchPhotoGroups = async () => {
+    const data = await photoService.getAllPhotoGroups()
+    photoGroups.value = data
+  }
+
   const loadPhotoGroups = async () => {
     try {
       setLoading(true)
       clearError()
-      const data = await photoService.getAllPhotoGroups()
-      photoGroups.value = data
+      await fetchPhotoGroups()
     } catch (err) {
       setError('사진 그룹 목록을 불러오는데 실패했습니다.')
       console.error('사진 그룹 로드 실패:', err)
@@ -52,7 +56,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const newGroup = await photoService.createPhotoGroup(groupData)
-      photoGroups.value.push(newGroup)
+      await fetchPhotoGroups()
       return newGroup
     } catch (err) {
       setError('사진 그룹 생성에 실패했습니다.')
@@ -68,10 +72,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const updatedGroup = await photoService.updatePhotoGroup(id, groupData)
-      const index = photoGroups.value.findIndex(group => group.id === id)
-      if (index !== -1) {
-        photoGroups.value[index] = updatedGroup
-      }
+      await fetchPhotoGroups()
       return updatedGroup
     } catch (err) {
       setError('사진 그룹 수정에 실패했습니다.')
@@ -87,7 +88,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       await photoService.deletePhotoGroup(id)
-      photoGroups.value = photoGroups.value.filter(group => group.id !== id)
+      await fetchPhotoGroups()
     } catch (err) {
       setError('사진 그룹 삭제에 실패했습니다.')
       console.error('사진 그룹 삭제 실패:', err)
@@ -98,12 +99,16 @@ export const useMediaStore = defineStore('media', () => {
   }
 
   // 비디오 관련
+  const fetchVideos = async () => {
+    const data = await videoService.getAllVideos()
+    videos.value = data
+  }
+
   const loadVideos = async () => {
     try {
       setLoading(true)
       clearError()
-      const data = await videoService.getAllVideos()
-      videos.value = data
+      await fetchVideos()
     } catch (err) {
       setError('비디오 목록을 불러오는데 실패했습니다.')
       console.error('비디오 로드 실패:', err)
@@ -117,7 +122,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const newVideo = await videoService.createVideo(videoData)
-      videos.value.push(newVideo)
+      await fetchVideos()
       return newVideo
     } catch (err) {
       setError('비디오 생성에 실패했습니다.')
@@ -133,10 +138,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const updatedVideo = await videoService.updateVideo(id, videoData)
-      const index = videos.value.findIndex(video => video.id === id)
-      if (index !== -1) {
-        videos.value[index] = updatedVideo
-      }
+      await fetchVideos()
       return updatedVideo
     } catch (err) {
       setError('비디오 수정에 실패했습니다.')
@@ -152,7 +154,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       await videoService.deleteVideo(id)
-      videos.value = videos.value.filter(video => video.id !== id)
+      await fetchVideos()
     } catch (err) {
       setError('비디오 삭제에 실패했습니다.')
       console.error('비디오 삭제 실패:', err)
@@ -163,12 +165,16 @@ export const useMediaStore = defineStore('media', () => {
   }
 
   // 음악 관련
+  const fetchMusic = async () => {
+    const data = await musicService.getAllMusic()
+    musicItems.value = data
+  }
+
   const loadMusic = async () => {
     try {
       setLoading(true)
       clearError()
-      const data = await musicService.getAllMusic()
-      musicItems.value = data
+      await fetchMusic()
     } catch (err) {
       setError('음악 목록을 불러오는데 실패했습니다.')
       console.error('음악 로드 실패:', err)
@@ -182,7 +188,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const newMusic = await musicService.createMusic(musicData)
-      musicItems.value.push(newMusic)
+      await fetchMusic()
       return newMusic
     } catch (err) {
       setError('음악 생성에 실패했습니다.')
@@ -198,10 +204,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const updatedMusic = await musicService.updateMusic(id, musicData)
-      const index = musicItems.value.findIndex(music => music.id === id)
-      if (index !== -1) {
-        musicItems.value[index] = updatedMusic
-      }
+      await fetchMusic()
       return updatedMusic
     } catch (err) {
       setError('음악 수정에 실패했습니다.')
@@ -217,7 +220,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       await musicService.deleteMusic(id)
-      musicItems.value = musicItems.value.filter(music => music.id !== id)
+      await fetchMusic()
     } catch (err) {
       setError('음악 삭제에 실패했습니다.')
       console.error('음악 삭제 실패:', err)
@@ -228,12 +231,16 @@ export const useMediaStore = defineStore('media', () => {
   }
 
   // 뉴스 관련
+  const fetchNews = async () => {
+    const data = await newsService.getAllNews()
+    newsItems.value = data
+  }
+
   const loadNews = async () => {
     try {
       setLoading(true)
       clearError()
-      const data = await newsService.getAllNews()
-      newsItems.value = data
+      await fetchNews()
     } catch (err) {
       setError('뉴스 목록을 불러오는데 실패했습니다.')
       console.error('뉴스 로드 실패:', err)
@@ -247,7 +254,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const newNews = await newsService.createNews(newsData)
-      newsItems.value.push(newNews)
+      await fetchNews()
       return newNews
     } catch (err) {
       setError('뉴스 생성에 실패했습니다.')
@@ -263,10 +270,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const updatedNews = await newsService.updateNews(id, newsData)
-      const index = newsItems.value.findIndex(news => news.id === id)
-      if (index !== -1) {
-        newsItems.value[index] = updatedNews
-      }
+      await fetchNews()
       return updatedNews
     } catch (err) {
       setError('뉴스 수정에 실패했습니다.')
@@ -282,7 +286,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       await newsService.deleteNews(id)
-      newsItems.value = newsItems.value.filter(news => news.id !== id)
+      await fetchNews()
     } catch (err) {
       setError('뉴스 삭제에 실패했습니다.')
       console.error('뉴스 삭제 실패:', err)
@@ -293,12 +297,16 @@ export const useMediaStore = defineStore('media', () => {
   }
 
   // 장비 관련
+  const fetchEquipment = async () => {
+    const data = await equipmentService.getAllEquipment()
+    equipmentItems.value = data
+  }
+
   const loadEquipment = async () => {
     try {
       setLoading(true)
       clearError()
-      const data = await equipmentService.getAllEquipment()
-      equipmentItems.value = data
+      await fetchEquipment()
     } catch (err) {
       setError('장비 목록을 불러오는데 실패했습니다.')
       console.error('장비 로드 실패:', err)
@@ -312,7 +320,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const newEquipment = await equipmentService.createEquipment(equipmentData)
-      equipmentItems.value.push(newEquipment)
+      await fetchEquipment()
       return newEquipment
     } catch (err) {
       setError('장비 생성에 실패했습니다.')
@@ -328,10 +336,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       const updatedEquipment = await equipmentService.updateEquipment(id, equipmentData)
-      const index = equipmentItems.value.findIndex(equipment => equipment.id === id)
-      if (index !== -1) {
-        equipmentItems.value[index] = updatedEquipment
-      }
+      await fetchEquipment()
       return updatedEquipment
     } catch (err) {
       setError('장비 수정에 실패했습니다.')
@@ -347,7 +352,7 @@ export const useMediaStore = defineStore('media', () => {
       setLoading(true)
       clearError()
       await equipmentService.deleteEquipment(id)
-      equipmentItems.value = equipmentItems.value.filter(equipment => equipment.id !== id)
+      await fetchEquipment()
     } catch (err) {
       setError('장비 삭제에 실패했습니다.')
       console.error('장비 삭제 실패:', err)
@@ -359,13 +364,23 @@ export const useMediaStore = defineStore('media', () => {
 
   // 전체 미디어 로드
   const loadAllMedia = async () => {
-    await Promise.all([
-      loadPhotoGroups(),
-      loadVideos(),
-      loadMusic(),
-      loadNews(),
-      loadEquipment()
-    ])
+    try {
+      setLoading(true)
+      clearError()
+      await Promise.all([
+        fetchPhotoGroups(),
+        fetchVideos(),
+        fetchMusic(),
+        fetchNews(),
+        fetchEquipment()
+      ])
+    } catch (err) {
+      setError('미디어 데이터를 불러오는데 실패했습니다.')
+      console.error('전체 미디어 로드 실패:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
   }
 
   return {

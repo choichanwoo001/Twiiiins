@@ -1,10 +1,17 @@
 package com.twiiiins.controller;
 
 import com.twiiiins.dto.ProjectDto;
+import com.twiiiins.dto.request.ProjectCreateRequest;
+import com.twiiiins.dto.request.ProjectUpdateRequest;
 import com.twiiiins.service.ProjectService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -13,18 +20,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
+@Validated
 public class ProjectController {
     
     private final ProjectService projectService;
     
     @GetMapping
     public ResponseEntity<List<ProjectDto>> getAllProjects(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate) {
+            @RequestParam(required = false) @Size(min = 1, max = 255) String title,
+            @RequestParam(required = false) @Size(min = 1, max = 255) String location,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         
-        // 검색 파라미터가 있으면 필터링된 결과 반환, 없으면 전체 목록 반환
         if (title != null || location != null || startDate != null || endDate != null) {
             return ResponseEntity.ok(projectService.getProjectsWithFilters(title, location, startDate, endDate));
         } else {
@@ -38,21 +45,22 @@ public class ProjectController {
     }
     
     @GetMapping("/slug/{slug}")
-    public ResponseEntity<ProjectDto> getProjectBySlug(@PathVariable String slug) {
+    public ResponseEntity<ProjectDto> getProjectBySlug(
+            @PathVariable @Pattern(regexp = "^[a-z0-9-]+$", message = "슬러그는 소문자, 숫자, 하이픈만 사용할 수 있습니다.") String slug) {
         return ResponseEntity.ok(projectService.getProjectBySlug(slug));
     }
     
     @PostMapping
-    public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto) {
+    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(projectService.createProject(projectDto));
+                .body(projectService.createProject(request));
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ProjectDto> updateProject(
             @PathVariable Long id,
-            @RequestBody ProjectDto projectDto) {
-        return ResponseEntity.ok(projectService.updateProject(id, projectDto));
+            @Valid @RequestBody ProjectUpdateRequest request) {
+        return ResponseEntity.ok(projectService.updateProject(id, request));
     }
     
     @DeleteMapping("/{id}")

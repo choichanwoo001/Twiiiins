@@ -1,6 +1,8 @@
 package com.twiiiins.service;
 
 import com.twiiiins.dto.ConcertDto;
+import com.twiiiins.dto.request.ConcertCreateRequest;
+import com.twiiiins.dto.request.ConcertUpdateRequest;
 import com.twiiiins.entity.Concert;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.ConcertMapper;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -48,17 +49,17 @@ public class ConcertService {
         return concertMapper.toDto(concert);
     }
     
-    public ConcertDto createConcert(ConcertDto concertDto) {
-        Concert concert = concertMapper.toEntity(concertDto);
+    public ConcertDto createConcert(ConcertCreateRequest request) {
+        Concert concert = concertMapper.toEntity(request);
         Concert savedConcert = concertRepository.save(concert);
         return concertMapper.toDto(savedConcert);
     }
     
-    public ConcertDto updateConcert(Long id, ConcertDto concertDto) {
+    public ConcertDto updateConcert(Long id, ConcertUpdateRequest request) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         
-        concertMapper.updateEntityFromDto(concertDto, concert);
+        concertMapper.updateEntityFromUpdateRequest(request, concert);
         
         Concert savedConcert = concertRepository.save(concert);
         return concertMapper.toDto(savedConcert);
@@ -86,10 +87,7 @@ public class ConcertService {
         return concertMapper.toDto(savedConcert);
     }
     
-    public int autoMovePastEvents(String currentDateStr) {
-        LocalDate currentDate = LocalDate.parse(currentDateStr, DateTimeFormatter.ISO_LOCAL_DATE);
-        
-        // 어제까지의 콘서트들을 Past Event로 이동
+    public int autoMovePastEvents(LocalDate currentDate) {
         List<Concert> concertsToMove = concertRepository.findByDateBeforeAndIsPast(currentDate, false);
         
         for (Concert concert : concertsToMove) {

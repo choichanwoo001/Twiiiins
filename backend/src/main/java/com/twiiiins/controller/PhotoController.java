@@ -3,14 +3,21 @@ package com.twiiiins.controller;
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.PhotoDto;
 import com.twiiiins.dto.PhotoGroupDto;
+import com.twiiiins.dto.request.PhotoCreateRequest;
+import com.twiiiins.dto.request.PhotoGroupCreateRequest;
+import com.twiiiins.dto.request.PhotoGroupUpdateRequest;
+import com.twiiiins.dto.request.PhotoUpdateRequest;
 import com.twiiiins.service.FileUploadService;
 import com.twiiiins.service.PhotoService;
 import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +28,7 @@ import java.util.List;
 @RequestMapping("/api/media")
 @RequiredArgsConstructor
 @Tag(name = "사진 관리", description = "사진 및 사진 그룹 관리 API")
+@Validated
 public class PhotoController {
     
     private final PhotoService photoService;
@@ -34,7 +42,7 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<List<PhotoGroupDto>>> getAllPhotoGroups(
-            @RequestParam(required = false) String title) {
+            @RequestParam(required = false) @Size(min = 1, max = 255) String title) {
         List<PhotoGroupDto> groups;
         if (title != null) {
             groups = photoService.getPhotoGroupsWithFilters(title);
@@ -63,8 +71,8 @@ public class PhotoController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<PhotoGroupDto>> createPhotoGroup(@RequestBody PhotoGroupDto photoGroupDto) {
-        PhotoGroupDto createdGroup = photoService.createPhotoGroup(photoGroupDto);
+    public ResponseEntity<ApiResponse<PhotoGroupDto>> createPhotoGroup(@Valid @RequestBody PhotoGroupCreateRequest request) {
+        PhotoGroupDto createdGroup = photoService.createPhotoGroup(request);
         return ResponseUtil.created(createdGroup, "사진 그룹이 성공적으로 생성되었습니다.");
     }
     
@@ -78,8 +86,8 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<PhotoGroupDto>> updatePhotoGroup(
             @PathVariable Long id,
-            @RequestBody PhotoGroupDto photoGroupDto) {
-        PhotoGroupDto updatedGroup = photoService.updatePhotoGroup(id, photoGroupDto);
+            @Valid @RequestBody PhotoGroupUpdateRequest request) {
+        PhotoGroupDto updatedGroup = photoService.updatePhotoGroup(id, request);
         return ResponseUtil.success(updatedGroup, "사진 그룹이 성공적으로 수정되었습니다.");
     }
     
@@ -144,15 +152,15 @@ public class PhotoController {
                 String thumbnailUrl = uploadResponse.getThumbnailUrl();
                 
                 // PhotoDto 생성
-                PhotoDto newPhotoDto = new PhotoDto();
-                newPhotoDto.setImageUrl(imageUrl);
-                newPhotoDto.setThumbnailUrl(thumbnailUrl);
-                if (altText != null) {
-                    newPhotoDto.setAltText(altText);
+                PhotoCreateRequest newPhotoRequest = new PhotoCreateRequest();
+                newPhotoRequest.setImageUrl(imageUrl);
+                newPhotoRequest.setThumbnailUrl(thumbnailUrl);
+                if (altText != null && !altText.isBlank()) {
+                    newPhotoRequest.setAltText(altText);
                 }
                 
                 // 사진 생성
-                PhotoDto createdPhoto = photoService.createPhoto(groupId, newPhotoDto);
+                PhotoDto createdPhoto = photoService.createPhoto(groupId, newPhotoRequest);
                 createdPhotos.add(createdPhoto);
             }
         }
@@ -170,8 +178,8 @@ public class PhotoController {
     })
     public ResponseEntity<ApiResponse<PhotoDto>> updatePhoto(
             @PathVariable Long id,
-            @RequestBody PhotoDto photoDto) {
-        PhotoDto updatedPhoto = photoService.updatePhoto(id, photoDto);
+            @Valid @RequestBody PhotoUpdateRequest request) {
+        PhotoDto updatedPhoto = photoService.updatePhoto(id, request);
         return ResponseUtil.success(updatedPhoto, "사진이 성공적으로 수정되었습니다.");
     }
     

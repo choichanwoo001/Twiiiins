@@ -44,7 +44,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(project, index) in projects" :key="project.id">
+            <tr v-for="(project, index) in displayedProjects" :key="project.id">
               <td>{{ index + 1 }}</td>
               <td>{{ project.title }}</td>
               <td>{{ project.subtitle || '-' }}</td>
@@ -311,6 +311,8 @@ import { logError, getErrorMessage } from '../../utils/errorHandler'
 
 // Reactive data
 const projects = ref([])
+const filteredProjects = ref([])
+const isFiltered = ref(false)
 const searchFilters = ref({
   title: '',
   location: '',
@@ -344,6 +346,10 @@ const uploadedCoverImageUrl = ref(null)
 const selectedProject = ref(null)
 const projectFileInput = ref(null)
 const selectedProjectFiles = ref([])
+
+const displayedProjects = computed(() =>
+  isFiltered.value ? filteredProjects.value : projects.value
+)
 
 // 다이얼로그 상태
 const confirmDialog = ref({
@@ -457,6 +463,11 @@ const loadProjects = async () => {
   try {
     const response = await axios.get('/projects')
     projects.value = response.data.data || response.data || []
+    if (isFiltered.value) {
+      await searchProjects()
+    } else {
+      filteredProjects.value = []
+    }
   } catch (error) {
     logError(error, '프로젝트 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -472,7 +483,8 @@ const searchProjects = async () => {
     if (searchFilters.value.endDate) params.endDate = searchFilters.value.endDate
     
     const response = await axios.get('/projects', { params })
-    projects.value = response.data.data || response.data || []
+    filteredProjects.value = response.data.data || response.data || []
+    isFiltered.value = true
   } catch (error) {
     logError(error, '프로젝트 검색')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -486,6 +498,8 @@ const resetFilters = () => {
     startDate: '',
     endDate: ''
   }
+  isFiltered.value = false
+  filteredProjects.value = []
   loadProjects()
 }
 

@@ -1,11 +1,15 @@
 package com.twiiiins.mapper;
 
 import com.twiiiins.dto.ProjectDto;
+import com.twiiiins.dto.request.ProjectCreateRequest;
+import com.twiiiins.dto.request.ProjectUpdateRequest;
 import com.twiiiins.entity.Project;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.ArrayList;
 
@@ -14,15 +18,20 @@ public interface ProjectMapper {
 
     ProjectDto toDto(Project entity);
 
-    @Mapping(target = "id", ignore = true)
-    Project toEntity(ProjectDto dto);
-
     ProjectDto.ReviewDto toReviewDto(Project.Review review);
 
     Project.Review toReview(ProjectDto.ReviewDto reviewDto);
 
     @Mapping(target = "id", ignore = true)
-    void updateEntityFromDto(ProjectDto dto, @MappingTarget Project entity);
+    Project toEntity(ProjectCreateRequest request);
+
+    Project.Review toReview(ProjectCreateRequest.ReviewRequest reviewRequest);
+
+    Project.Review toReview(ProjectUpdateRequest.ReviewRequest reviewRequest);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    void updateEntityFromUpdateRequest(ProjectUpdateRequest request, @MappingTarget Project entity);
 
     @AfterMapping
     default void ensureCollections(@MappingTarget Project entity) {

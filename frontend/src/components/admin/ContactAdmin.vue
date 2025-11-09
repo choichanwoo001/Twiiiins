@@ -13,7 +13,7 @@
     <!-- 연락처 목록 -->
     <DataTable
       title="전체 목록"
-      :data="contacts"
+      :data="displayedContacts"
       :columns="tableColumns"
       :actions="tableActions"
       @action="handleTableAction"
@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { contactService } from '../../services'
 import SearchFilters from './common/SearchFilters.vue'
 import DataTable from './common/DataTable.vue'
@@ -83,6 +83,11 @@ const formFields = [
 
 // 반응형 데이터
 const contacts = ref([])
+const filteredContacts = ref([])
+const isFiltered = ref(false)
+const displayedContacts = computed(() =>
+  isFiltered.value ? filteredContacts.value : contacts.value
+)
 const searchFilters = ref(createContactSearchFilters())
 const form = ref(createContactForm())
 const editingContact = ref(null)
@@ -91,6 +96,9 @@ const editingContact = ref(null)
 const loadContacts = async () => {
   try {
     contacts.value = await contactService.getAllContacts()
+    if (isFiltered.value) {
+      await searchContacts()
+    }
   } catch (error) {
     console.error('연락처 로드 실패:', error)
   }
@@ -98,7 +106,8 @@ const loadContacts = async () => {
 
 const searchContacts = async () => {
   try {
-    contacts.value = await contactService.searchContacts(searchFilters.value)
+    filteredContacts.value = await contactService.searchContacts(searchFilters.value)
+    isFiltered.value = true
   } catch (error) {
     console.error('연락처 검색 실패:', error)
   }
@@ -106,6 +115,8 @@ const searchContacts = async () => {
 
 const resetFilters = () => {
   resetContactSearchFilters(searchFilters.value)
+  isFiltered.value = false
+  filteredContacts.value = []
   loadContacts()
 }
 

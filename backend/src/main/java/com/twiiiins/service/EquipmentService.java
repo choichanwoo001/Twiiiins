@@ -1,6 +1,8 @@
 package com.twiiiins.service;
 
 import com.twiiiins.dto.EquipmentDto;
+import com.twiiiins.dto.request.EquipmentCreateRequest;
+import com.twiiiins.dto.request.EquipmentUpdateRequest;
 import com.twiiiins.entity.Equipment;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.EquipmentMapper;
@@ -39,17 +41,17 @@ public class EquipmentService {
         return equipmentMapper.toDto(equipment);
     }
     
-    public EquipmentDto createEquipment(EquipmentDto equipmentDto) {
-        Equipment equipment = equipmentMapper.toEntity(equipmentDto);
+    public EquipmentDto createEquipment(EquipmentCreateRequest request) {
+        Equipment equipment = equipmentMapper.toEntity(request);
         Equipment savedEquipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(savedEquipment);
     }
     
-    public EquipmentDto updateEquipment(Long id, EquipmentDto equipmentDto) {
+    public EquipmentDto updateEquipment(Long id, EquipmentUpdateRequest request) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
         
-        equipmentMapper.updateEntityFromDto(equipmentDto, equipment);
+        equipmentMapper.updateEntityFromUpdateRequest(request, equipment);
         
         Equipment savedEquipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(savedEquipment);

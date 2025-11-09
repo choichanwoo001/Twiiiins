@@ -2,10 +2,14 @@ package com.twiiiins.controller;
 
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.DownloadFileDto;
+import com.twiiiins.dto.request.DownloadFileCreateRequest;
+import com.twiiiins.dto.request.DownloadFileUpdateRequest;
 import com.twiiiins.service.DownloadFileService;
 import com.twiiiins.util.ResponseUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/media/download-files")
 @RequiredArgsConstructor
+@Validated
 public class DownloadFileController {
     
     private final DownloadFileService downloadFileService;
@@ -28,15 +33,15 @@ public class DownloadFileController {
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse<DownloadFileDto>> createDownloadFile(@RequestBody DownloadFileDto downloadFileDto) {
-        return ResponseUtil.created(downloadFileService.createDownloadFile(downloadFileDto), "파일이 성공적으로 생성되었습니다.");
+    public ResponseEntity<ApiResponse<DownloadFileDto>> createDownloadFile(@Valid @RequestBody DownloadFileCreateRequest request) {
+        return ResponseUtil.created(downloadFileService.createDownloadFile(request), "파일이 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DownloadFileDto>> updateDownloadFile(
             @PathVariable Long id,
-            @RequestBody DownloadFileDto downloadFileDto) {
-        return ResponseUtil.success(downloadFileService.updateDownloadFile(id, downloadFileDto), "파일이 성공적으로 수정되었습니다.");
+            @Valid @RequestBody DownloadFileUpdateRequest request) {
+        return ResponseUtil.success(downloadFileService.updateDownloadFile(id, request), "파일이 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -45,3 +50,4 @@ public class DownloadFileController {
         return ResponseUtil.deleted("파일이 성공적으로 삭제되었습니다.");
     }
 }
+

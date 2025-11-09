@@ -11,7 +11,7 @@
     <!-- 사진 그룹 목록 -->
     <DataTable
       title="전체 목록"
-      :data="photoGroups"
+      :data="displayedPhotoGroups"
       :columns="tableColumns"
       :actions="tableActions"
       @action="handleTableAction"
@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { photoService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
@@ -138,7 +138,12 @@ const mediaStore = useMediaStore()
 const searchFilters = ref(createPhotoGroupSearchFilters())
 
 // 사진 그룹 목록
-const photoGroups = ref([])
+const isFiltered = ref(false)
+const filteredPhotoGroups = ref([])
+
+const displayedPhotoGroups = computed(() => (
+  isFiltered.value ? filteredPhotoGroups.value : mediaStore.photoGroups
+))
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -247,7 +252,9 @@ const handleAlertClose = () => {
 const loadPhotoGroups = async () => {
   try {
     await mediaStore.loadPhotoGroups()
-    photoGroups.value = mediaStore.photoGroups
+    if (!isFiltered.value) {
+      filteredPhotoGroups.value = []
+    }
   } catch (error) {
     logError(error, '사진 그룹 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -257,7 +264,8 @@ const loadPhotoGroups = async () => {
 const searchPhotoGroups = async () => {
   try {
     const results = await photoService.searchPhotoGroups(searchFilters.value)
-    photoGroups.value = results
+    filteredPhotoGroups.value = results
+    isFiltered.value = true
   } catch (error) {
     logError(error, '사진 그룹 검색')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -266,6 +274,8 @@ const searchPhotoGroups = async () => {
 
 const resetFilters = () => {
   resetPhotoGroupSearchFilters(searchFilters.value)
+  isFiltered.value = false
+  filteredPhotoGroups.value = []
   loadPhotoGroups()
 }
 
@@ -305,7 +315,9 @@ const saveGroup = async () => {
     }
     
     cancelEdit()
-    await loadPhotoGroups()
+    if (isFiltered.value) {
+      await searchPhotoGroups()
+    }
   } catch (error) {
     logError(error, '그룹 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -317,7 +329,9 @@ const deleteGroup = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deletePhotoGroup(id)
-      await loadPhotoGroups()
+      if (isFiltered.value) {
+        await searchPhotoGroups()
+      }
     }
   } catch (error) {
     logError(error, '그룹 삭제')
@@ -400,6 +414,9 @@ const uploadPhotos = async () => {
     }
     
     await showAlert('사진이 성공적으로 업로드되었습니다.', '성공', 'success')
+    if (isFiltered.value) {
+      await searchPhotoGroups()
+    }
   } catch (error) {
     logError(error, '사진 업로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -421,7 +438,7 @@ const deletePhoto = async (photoId) => {
             selectedGroup.value = updatedGroup
           } else {
             // 스토어에서 최신 정보 가져오기
-            const latestGroup = mediaStore.photoGroups.find(g => g.id === selectedGroup.value.id)
+        const latestGroup = mediaStore.photoGroups.find(g => g.id === selectedGroup.value.id)
             if (latestGroup) {
               selectedGroup.value = latestGroup
             }
@@ -434,6 +451,9 @@ const deletePhoto = async (photoId) => {
             selectedGroup.value = latestGroup
           }
         }
+      }
+      if (isFiltered.value) {
+        await searchPhotoGroups()
       }
     }
   } catch (error) {

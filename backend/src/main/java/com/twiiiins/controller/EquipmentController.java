@@ -2,10 +2,15 @@ package com.twiiiins.controller;
 
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.EquipmentDto;
+import com.twiiiins.dto.request.EquipmentCreateRequest;
+import com.twiiiins.dto.request.EquipmentUpdateRequest;
 import com.twiiiins.service.EquipmentService;
 import com.twiiiins.util.ResponseUtil;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,13 +18,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/media/equipment")
 @RequiredArgsConstructor
+@Validated
 public class EquipmentController {
     
     private final EquipmentService equipmentService;
     
     @GetMapping
     public ResponseEntity<ApiResponse<List<EquipmentDto>>> getAllEquipment(
-            @RequestParam(required = false) String name) {
+            @RequestParam(required = false) @Size(min = 1, max = 100) String name) {
         List<EquipmentDto> equipmentList;
         if (name != null) {
             equipmentList = equipmentService.getEquipmentWithFilters(name);
@@ -35,15 +41,15 @@ public class EquipmentController {
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse<EquipmentDto>> createEquipment(@RequestBody EquipmentDto equipmentDto) {
-        return ResponseUtil.created(equipmentService.createEquipment(equipmentDto), "장비가 성공적으로 생성되었습니다.");
+    public ResponseEntity<ApiResponse<EquipmentDto>> createEquipment(@Valid @RequestBody EquipmentCreateRequest request) {
+        return ResponseUtil.created(equipmentService.createEquipment(request), "장비가 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<EquipmentDto>> updateEquipment(
             @PathVariable Long id,
-            @RequestBody EquipmentDto equipmentDto) {
-        return ResponseUtil.success(equipmentService.updateEquipment(id, equipmentDto), "장비가 성공적으로 수정되었습니다.");
+            @Valid @RequestBody EquipmentUpdateRequest request) {
+        return ResponseUtil.success(equipmentService.updateEquipment(id, request), "장비가 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -52,3 +58,4 @@ public class EquipmentController {
         return ResponseUtil.deleted("장비가 성공적으로 삭제되었습니다.");
     }
 }
+

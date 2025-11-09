@@ -2,10 +2,14 @@ package com.twiiiins.controller;
 
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.ContactDto;
+import com.twiiiins.dto.request.ContactCreateRequest;
+import com.twiiiins.dto.request.ContactUpdateRequest;
 import com.twiiiins.service.ContactEntityService;
 import com.twiiiins.util.ResponseUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/media/contacts")
 @RequiredArgsConstructor
+@Validated
 public class ContactController {
     
     private final ContactEntityService contactEntityService;
@@ -28,15 +33,15 @@ public class ContactController {
     }
     
     @PostMapping
-    public ResponseEntity<ApiResponse<ContactDto>> createContact(@RequestBody ContactDto contactDto) {
-        return ResponseUtil.created(contactEntityService.createContact(contactDto), "연락처가 성공적으로 생성되었습니다.");
+    public ResponseEntity<ApiResponse<ContactDto>> createContact(@Valid @RequestBody ContactCreateRequest request) {
+        return ResponseUtil.created(contactEntityService.createContact(request), "연락처가 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ContactDto>> updateContact(
             @PathVariable Long id,
-            @RequestBody ContactDto contactDto) {
-        return ResponseUtil.success(contactEntityService.updateContact(id, contactDto), "연락처가 성공적으로 수정되었습니다.");
+            @Valid @RequestBody ContactUpdateRequest request) {
+        return ResponseUtil.success(contactEntityService.updateContact(id, request), "연락처가 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -45,3 +50,4 @@ public class ContactController {
         return ResponseUtil.deleted("연락처가 성공적으로 삭제되었습니다.");
     }
 }
+

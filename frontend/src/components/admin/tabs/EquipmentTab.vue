@@ -11,7 +11,7 @@
     <!-- 장비 목록 -->
     <DataTable
       title="전체 목록"
-      :data="equipmentList"
+      :data="displayedEquipment"
       :columns="tableColumns"
       :actions="tableActions"
       @action="handleTableAction"
@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
 import { equipmentService } from '../../../services'
@@ -73,7 +73,12 @@ const mediaStore = useMediaStore()
 const searchFilters = ref({ name: '' })
 
 // 장비 목록
-const equipmentList = ref([])
+const isFiltered = ref(false)
+const filteredEquipment = ref([])
+
+const displayedEquipment = computed(() => (
+  isFiltered.value ? filteredEquipment.value : mediaStore.equipmentItems
+))
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -176,7 +181,9 @@ const handleAlertClose = () => {
 const loadEquipment = async () => {
   try {
     await mediaStore.loadEquipment()
-    equipmentList.value = mediaStore.equipmentItems
+    if (!isFiltered.value) {
+      filteredEquipment.value = []
+    }
   } catch (error) {
     logError(error, '장비 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -186,7 +193,8 @@ const loadEquipment = async () => {
 const searchEquipment = async () => {
   try {
     const results = await equipmentService.searchEquipment(searchFilters.value)
-    equipmentList.value = results
+    filteredEquipment.value = results
+    isFiltered.value = true
   } catch (error) {
     logError(error, '장비 검색')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -195,6 +203,8 @@ const searchEquipment = async () => {
 
 const resetFilters = () => {
   searchFilters.value = { name: '' }
+  isFiltered.value = false
+  filteredEquipment.value = []
   loadEquipment()
 }
 
@@ -255,7 +265,9 @@ const saveEquipment = async () => {
     }
     
     cancelEdit()
-    await loadEquipment()
+    if (isFiltered.value) {
+      await searchEquipment()
+    }
   } catch (error) {
     logError(error, '장비 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -267,7 +279,9 @@ const deleteEquipment = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deleteEquipment(id)
-      await loadEquipment()
+      if (isFiltered.value) {
+        await searchEquipment()
+      }
     }
   } catch (error) {
     logError(error, '장비 삭제')

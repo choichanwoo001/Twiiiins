@@ -11,7 +11,7 @@
     <!-- 비디오 목록 -->
     <DataTable
       title="전체 목록"
-      :data="videoList"
+      :data="displayedVideos"
       :columns="tableColumns"
       :actions="tableActions"
       @action="handleTableAction"
@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { videoService } from '../../../services'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -44,7 +44,12 @@ const mediaStore = useMediaStore()
 const searchFilters = ref({ title: '' })
 
 // 비디오 목록
-const videoList = ref([])
+const isFiltered = ref(false)
+const filteredVideos = ref([])
+
+const displayedVideos = computed(() => (
+  isFiltered.value ? filteredVideos.value : mediaStore.videos
+))
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -131,7 +136,9 @@ const convertToEmbedUrl = (url) => {
 const loadVideos = async () => {
   try {
     await mediaStore.loadVideos()
-    videoList.value = mediaStore.videos
+    if (!isFiltered.value) {
+      filteredVideos.value = []
+    }
   } catch (error) {
     console.error('비디오 로드 실패:', error)
   }
@@ -140,7 +147,8 @@ const loadVideos = async () => {
 const searchVideos = async () => {
   try {
     const results = await videoService.searchVideos(searchFilters.value)
-    videoList.value = results
+    filteredVideos.value = results
+    isFiltered.value = true
   } catch (error) {
     console.error('비디오 검색 실패:', error)
   }
@@ -148,6 +156,8 @@ const searchVideos = async () => {
 
 const resetFilters = () => {
   searchFilters.value = { title: '' }
+  isFiltered.value = false
+  filteredVideos.value = []
   loadVideos()
 }
 
@@ -201,7 +211,9 @@ const saveVideo = async () => {
     }
     
     cancelEdit()
-    await loadVideos()
+    if (isFiltered.value) {
+      await searchVideos()
+    }
   } catch (error) {
     console.error('비디오 저장 실패:', error)
     alert('비디오 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
@@ -212,7 +224,9 @@ const deleteVideo = async (id) => {
   if (confirm('정말 삭제하시겠습니까?')) {
     try {
       await mediaStore.deleteVideo(id)
-      await loadVideos()
+      if (isFiltered.value) {
+        await searchVideos()
+      }
     } catch (error) {
       console.error('비디오 삭제 실패:', error)
     }

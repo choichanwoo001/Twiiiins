@@ -1,11 +1,15 @@
 package com.twiiiins.mapper;
 
 import com.twiiiins.dto.PhotoGroupDto;
+import com.twiiiins.dto.request.PhotoGroupCreateRequest;
+import com.twiiiins.dto.request.PhotoGroupUpdateRequest;
 import com.twiiiins.entity.PhotoGroup;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.ArrayList;
 
@@ -17,11 +21,12 @@ public interface PhotoGroupMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "photos", ignore = true)
-    PhotoGroup toEntity(PhotoGroupDto dto);
+    PhotoGroup toEntity(PhotoGroupCreateRequest request);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "photos", ignore = true)
-    void updateEntityFromDto(PhotoGroupDto dto, @MappingTarget PhotoGroup entity);
+    void updateEntityFromUpdateRequest(PhotoGroupUpdateRequest request, @MappingTarget PhotoGroup entity);
 
     @AfterMapping
     default void ensurePhotosCollection(@MappingTarget PhotoGroup entity) {

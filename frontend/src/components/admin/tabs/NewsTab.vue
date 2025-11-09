@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useMediaStore } from '../../../stores'
 import { newsService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
@@ -104,6 +104,7 @@ const searchFilters = ref({ title: '', startDate: '', endDate: '' })
 
 // 뉴스 목록
 const newsList = ref([])
+const isFiltered = ref(false)
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -220,7 +221,12 @@ const handleAlertClose = () => {
 const loadNews = async () => {
   try {
     await mediaStore.loadNews()
-    newsList.value = mediaStore.newsItems
+    if (!isFiltered.value) {
+      newsList.value = (mediaStore.newsItems || []).map(item => ({
+        ...item,
+        expanded: false
+      }))
+    }
   } catch (error) {
     logError(error, '뉴스 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -230,7 +236,11 @@ const loadNews = async () => {
 const searchNews = async () => {
   try {
     const results = await newsService.searchNews(searchFilters.value)
-    newsList.value = results
+    newsList.value = (results || []).map(item => ({
+      ...item,
+      expanded: false
+    }))
+    isFiltered.value = true
   } catch (error) {
     logError(error, '뉴스 검색')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -239,6 +249,11 @@ const searchNews = async () => {
 
 const resetFilters = () => {
   searchFilters.value = { title: '', startDate: '', endDate: '' }
+  isFiltered.value = false
+  newsList.value = (mediaStore.newsItems || []).map(item => ({
+    ...item,
+    expanded: false
+  }))
   loadNews()
 }
 
@@ -286,7 +301,9 @@ const saveNews = async () => {
     }
     
     cancelEdit()
-    await loadNews()
+    if (isFiltered.value) {
+      await searchNews()
+    }
   } catch (error) {
     logError(error, '뉴스 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -298,7 +315,9 @@ const deleteNews = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deleteNews(id)
-      await loadNews()
+      if (isFiltered.value) {
+        await searchNews()
+      }
     }
   } catch (error) {
     logError(error, '뉴스 삭제')
@@ -337,6 +356,9 @@ const uploadPhotos = async () => {
       fileInput.value.value = ''
     }
     await loadNews()
+    if (isFiltered.value) {
+      await searchNews()
+    }
     await showAlert('사진이 성공적으로 업로드되었습니다.', '성공', 'success')
   } catch (error) {
     logError(error, '사진 업로드')
@@ -356,6 +378,9 @@ const deletePhoto = async (index) => {
       })
       selectedNews.value = updatedNews
       await loadNews()
+      if (isFiltered.value) {
+        await searchNews()
+      }
     }
   } catch (error) {
     logError(error, '사진 삭제')
@@ -374,6 +399,26 @@ const getImageUrl = (imageUrl) => {
   }
   return imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
 }
+
+const toggleNews = (newsId) => {
+  const target = newsList.value.find(n => n.id === newsId)
+  if (target) {
+    target.expanded = !target.expanded
+  }
+}
+
+watch(
+  () => mediaStore.newsItems,
+  (items) => {
+    if (!isFiltered.value) {
+      newsList.value = (items || []).map(item => ({
+        ...item,
+        expanded: false
+      }))
+    }
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   loadNews()

@@ -3,23 +3,31 @@ package com.twiiiins.controller;
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.FileUploadResponseDto;
 import com.twiiiins.dto.NewsDto;
+import com.twiiiins.dto.request.NewsCreateRequest;
+import com.twiiiins.dto.request.NewsUpdateRequest;
 import com.twiiiins.service.FileUploadService;
 import com.twiiiins.service.NewsService;
 import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/media/news")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "뉴스 관리", description = "뉴스 관리 API")
 public class NewsController {
     
@@ -33,14 +41,12 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<List<NewsDto>>> getAllNews(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
+            @RequestParam(required = false) @Size(max = 255) String title,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<NewsDto> newsList;
         if (title != null || startDate != null || endDate != null) {
-            java.time.LocalDate start = startDate != null ? java.time.LocalDate.parse(startDate) : null;
-            java.time.LocalDate end = endDate != null ? java.time.LocalDate.parse(endDate) : null;
-            newsList = newsService.getNewsWithFilters(title, start, end);
+            newsList = newsService.getNewsWithFilters(title, startDate, endDate);
         } else {
             newsList = newsService.getAllNews();
         }
@@ -65,8 +71,8 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<NewsDto>> createNews(@RequestBody NewsDto newsDto) {
-        return ResponseUtil.created(newsService.createNews(newsDto), "뉴스가 성공적으로 생성되었습니다.");
+    public ResponseEntity<ApiResponse<NewsDto>> createNews(@Valid @RequestBody NewsCreateRequest request) {
+        return ResponseUtil.created(newsService.createNews(request), "뉴스가 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
@@ -79,8 +85,8 @@ public class NewsController {
     })
     public ResponseEntity<ApiResponse<NewsDto>> updateNews(
             @PathVariable Long id,
-            @RequestBody NewsDto newsDto) {
-        return ResponseUtil.success(newsService.updateNews(id, newsDto), "뉴스가 성공적으로 수정되었습니다.");
+            @Valid @RequestBody NewsUpdateRequest request) {
+        return ResponseUtil.success(newsService.updateNews(id, request), "뉴스가 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -110,15 +116,14 @@ public class NewsController {
         NewsDto news = newsService.getNewsById(id);
         List<String> imageUrls = news.getImageUrls() != null ? new ArrayList<>(news.getImageUrls()) : new ArrayList<>();
         
-        // 파일 업로드
         for (MultipartFile file : files) {
             FileUploadResponseDto uploadResponse = fileUploadService.uploadImage(file);
             imageUrls.add(uploadResponse.getUrl());
         }
         
-        // NewsDto 업데이트
-        news.setImageUrls(imageUrls);
-        NewsDto updatedNews = newsService.updateNews(id, news);
+        NewsUpdateRequest request = new NewsUpdateRequest();
+        request.setImageUrls(imageUrls);
+        NewsDto updatedNews = newsService.updateNews(id, request);
         
         return ResponseUtil.success(updatedNews, "사진이 성공적으로 업로드되었습니다.");
     }

@@ -11,7 +11,7 @@
     <!-- 음악 목록 -->
     <DataTable
       title="전체 목록"
-      :data="musicList"
+      :data="displayedMusic"
       :columns="tableColumns"
       :actions="tableActions"
       @action="handleTableAction"
@@ -52,7 +52,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
 import { musicService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
@@ -74,7 +75,12 @@ const mediaStore = useMediaStore()
 const searchFilters = ref(createMusicSearchFilters())
 
 // 음악 목록
-const musicList = ref([])
+const isFiltered = ref(false)
+const filteredMusic = ref([])
+
+const displayedMusic = computed(() => (
+  isFiltered.value ? filteredMusic.value : mediaStore.musicItems
+))
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -186,7 +192,9 @@ const handleAlertClose = () => {
 const loadMusic = async () => {
   try {
     await mediaStore.loadMusic()
-    musicList.value = mediaStore.musicItems
+    if (!isFiltered.value) {
+      filteredMusic.value = []
+    }
   } catch (error) {
     logError(error, '음악 로드')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -196,7 +204,8 @@ const loadMusic = async () => {
 const searchMusic = async () => {
   try {
     const results = await musicService.searchMusic(searchFilters.value)
-    musicList.value = results
+    filteredMusic.value = results
+    isFiltered.value = true
   } catch (error) {
     logError(error, '음악 검색')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -205,6 +214,8 @@ const searchMusic = async () => {
 
 const resetFilters = () => {
   resetMusicSearchFilters(searchFilters.value)
+  isFiltered.value = false
+  filteredMusic.value = []
   loadMusic()
 }
 
@@ -269,7 +280,9 @@ const saveMusic = async () => {
     }
     
     cancelEdit()
-    await loadMusic()
+    if (isFiltered.value) {
+      await searchMusic()
+    }
   } catch (error) {
     logError(error, '음악 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
@@ -281,7 +294,9 @@ const deleteMusic = async (id) => {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
       await mediaStore.deleteMusic(id)
-      await loadMusic()
+      if (isFiltered.value) {
+        await searchMusic()
+      }
     }
   } catch (error) {
     logError(error, '음악 삭제')

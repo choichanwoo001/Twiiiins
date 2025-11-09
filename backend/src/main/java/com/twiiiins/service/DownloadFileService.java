@@ -1,6 +1,8 @@
 package com.twiiiins.service;
 
 import com.twiiiins.dto.DownloadFileDto;
+import com.twiiiins.dto.request.DownloadFileCreateRequest;
+import com.twiiiins.dto.request.DownloadFileUpdateRequest;
 import com.twiiiins.entity.DownloadFile;
 import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.mapper.DownloadFileMapper;
@@ -32,17 +34,17 @@ public class DownloadFileService {
         return downloadFileMapper.toDto(downloadFile);
     }
     
-    public DownloadFileDto createDownloadFile(DownloadFileDto downloadFileDto) {
-        DownloadFile downloadFile = downloadFileMapper.toEntity(downloadFileDto);
+    public DownloadFileDto createDownloadFile(DownloadFileCreateRequest request) {
+        DownloadFile downloadFile = downloadFileMapper.toEntity(request);
         DownloadFile savedDownloadFile = downloadFileRepository.save(downloadFile);
         return downloadFileMapper.toDto(savedDownloadFile);
     }
     
-    public DownloadFileDto updateDownloadFile(Long id, DownloadFileDto downloadFileDto) {
+    public DownloadFileDto updateDownloadFile(Long id, DownloadFileUpdateRequest request) {
         DownloadFile downloadFile = downloadFileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("DownloadFile not found with id: " + id));
         
-        downloadFileMapper.updateEntityFromDto(downloadFileDto, downloadFile);
+        downloadFileMapper.updateEntityFromUpdateRequest(request, downloadFile);
         
         DownloadFile savedDownloadFile = downloadFileRepository.save(downloadFile);
         return downloadFileMapper.toDto(savedDownloadFile);

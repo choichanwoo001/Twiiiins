@@ -2,20 +2,28 @@ package com.twiiiins.controller;
 
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.ConcertDto;
+import com.twiiiins.dto.request.ConcertCreateRequest;
+import com.twiiiins.dto.request.ConcertUpdateRequest;
 import com.twiiiins.service.ConcertService;
 import com.twiiiins.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/concerts")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "공연 관리", description = "공연 정보 관리 API")
 public class ConcertController {
     
@@ -58,8 +66,8 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<ConcertDto>> createConcert(@RequestBody ConcertDto concertDto) {
-        ConcertDto createdConcert = concertService.createConcert(concertDto);
+    public ResponseEntity<ApiResponse<ConcertDto>> createConcert(@Valid @RequestBody ConcertCreateRequest request) {
+        ConcertDto createdConcert = concertService.createConcert(request);
         return ResponseUtil.created(createdConcert, "공연이 성공적으로 생성되었습니다.");
     }
     
@@ -73,8 +81,8 @@ public class ConcertController {
     })
     public ResponseEntity<ApiResponse<ConcertDto>> updateConcert(
             @PathVariable Long id,
-            @RequestBody ConcertDto concertDto) {
-        ConcertDto updatedConcert = concertService.updateConcert(id, concertDto);
+            @Valid @RequestBody ConcertUpdateRequest request) {
+        ConcertDto updatedConcert = concertService.updateConcert(id, request);
         return ResponseUtil.success(updatedConcert, "공연이 성공적으로 수정되었습니다.");
     }
     
@@ -121,21 +129,22 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<AutoMoveResponse>> autoMovePastEvents(@RequestBody AutoMoveRequest request) {
+    public ResponseEntity<ApiResponse<AutoMoveResponse>> autoMovePastEvents(@Valid @RequestBody AutoMoveRequest request) {
         int movedCount = concertService.autoMovePastEvents(request.getCurrentDate());
         AutoMoveResponse response = new AutoMoveResponse(movedCount);
         return ResponseUtil.success(response, "자동 이동이 완료되었습니다.");
     }
     
-    // DTO 클래스들
     public static class AutoMoveRequest {
-        private String currentDate;
+        @NotNull
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        private LocalDate currentDate;
         
-        public String getCurrentDate() {
+        public LocalDate getCurrentDate() {
             return currentDate;
         }
         
-        public void setCurrentDate(String currentDate) {
+        public void setCurrentDate(LocalDate currentDate) {
             this.currentDate = currentDate;
         }
     }
