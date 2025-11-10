@@ -47,7 +47,7 @@ public class PhotoService {
     }
     
     public PhotoGroupDto getPhotoGroupById(@NonNull Long id) {
-        PhotoGroup photoGroup = photoGroupRepository.findById(id)
+        PhotoGroup photoGroup = photoGroupRepository.findWithPhotosById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + id));
         return mapPhotoGroupWithPhotos(photoGroup);
     }
@@ -113,8 +113,7 @@ public class PhotoService {
     
     private PhotoGroupDto mapPhotoGroupWithPhotos(PhotoGroup photoGroup) {
         PhotoGroupDto dto = photoGroupMapper.toDto(photoGroup);
-        List<PhotoDto> photos = photoRepository.findByPhotoGroupId(photoGroup.getId())
-                .stream()
+        List<PhotoDto> photos = photoGroup.getPhotos().stream()
                 .map(photoMapper::toDto)
                 .toList();
         dto.setPhotos(photos);

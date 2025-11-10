@@ -39,7 +39,7 @@ public class ProjectService {
     }
     
     public ProjectDto getProjectById(@NonNull Long id) {
-        final Project project = projectRepository.findById(id)
+        final Project project = projectRepository.findWithDetailsById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
         return projectMapper.toDto(project);
     }
@@ -60,7 +60,7 @@ public class ProjectService {
     }
     
     public ProjectDto updateProject(@NonNull Long id, @NonNull ProjectUpdateRequest request) {
-        final Project project = projectRepository.findById(id)
+        final Project project = projectRepository.findWithDetailsById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
         
         projectMapper.updateEntityFromUpdateRequest(request, project);

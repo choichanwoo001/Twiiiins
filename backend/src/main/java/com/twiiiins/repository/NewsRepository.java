@@ -1,6 +1,7 @@
 package com.twiiiins.repository;
 
 import com.twiiiins.entity.News;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,9 +12,13 @@ import java.util.List;
 
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long> {
+    @EntityGraph(attributePaths = "imageUrls")
     List<News> findAllByOrderByDisplayOrderAsc();
+    
+    @EntityGraph(attributePaths = "imageUrls")
     List<News> findAllByOrderByDateDesc();
     
+    @EntityGraph(attributePaths = "imageUrls")
     @Query("SELECT n FROM News n WHERE " +
            "(:title IS NULL OR n.title LIKE %:title%) AND " +
            "(:startDate IS NULL OR n.date >= :startDate) AND " +

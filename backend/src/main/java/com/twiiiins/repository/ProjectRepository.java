@@ -1,6 +1,7 @@
 package com.twiiiins.repository;
 
 import com.twiiiins.entity.Project;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,9 +13,16 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
+    @EntityGraph(attributePaths = {"descriptions", "imageUrls", "reviews"})
     List<Project> findAllByOrderByDisplayOrderAsc();
+    
+    @EntityGraph(attributePaths = {"descriptions", "imageUrls", "reviews"})
     Optional<Project> findByUrlSlug(String urlSlug);
     
+    @EntityGraph(attributePaths = {"descriptions", "imageUrls", "reviews"})
+    Optional<Project> findWithDetailsById(Long id);
+    
+    @EntityGraph(attributePaths = {"descriptions", "imageUrls", "reviews"})
     @Query("SELECT p FROM Project p WHERE " +
            "(:title IS NULL OR p.title LIKE %:title%) AND " +
            "(:location IS NULL OR p.location LIKE %:location%) AND " +

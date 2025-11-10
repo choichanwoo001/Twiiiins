@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+commit 메시지 달라고 할때는 git status로 변경된 파일들 확인하고 
+비슷한 단위별로 파악한뒤 
+git add ~ files
+git commit -m"~" 
+
+이런 형태로 단위별로 끊어서 제공해줘 
