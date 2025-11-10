@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -32,7 +35,10 @@ public class Project {
     
     @ElementCollection
     @CollectionTable(name = "project_descriptions", joinColumns = @JoinColumn(name = "project_id"))
+    @OrderColumn(name = "description_order")
     @Column(name = "description", length = 2000)
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 20)
     private List<String> descriptions = new ArrayList<>();
     
     @Column(name = "cover_image_url")
@@ -54,12 +60,18 @@ public class Project {
     
     @ElementCollection
     @CollectionTable(name = "project_images", joinColumns = @JoinColumn(name = "project_id"))
+    @OrderColumn(name = "image_order")
     @Column(name = "image_url")
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 20)
     private List<String> imageUrls = new ArrayList<>();
     
     // 리뷰 배열 (새로운 방식)
     @ElementCollection
     @CollectionTable(name = "project_reviews", joinColumns = @JoinColumn(name = "project_id"))
+    @OrderColumn(name = "review_order")
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 20)
     private List<Review> reviews = new ArrayList<>();
     
     // Review 임베디드 클래스
