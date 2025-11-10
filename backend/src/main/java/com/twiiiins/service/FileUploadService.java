@@ -14,8 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -69,6 +72,40 @@ public class FileUploadService {
                 file.getOriginalFilename(), file.getSize(), file.getContentType());
         validateFile(file, ALLOWED_FILE_TYPES, "이미지 파일 또는 PDF 파일만 업로드 가능합니다.");
         return uploadFile(file, "file");
+    }
+
+    public Map<String, Object> uploadImages(MultipartFile[] files) {
+        MultipartFile[] safeFiles = files != null ? files : new MultipartFile[0];
+        log.info("다중 이미지 업로드 시작: {} 개 파일", safeFiles.length);
+        List<String> urls = new ArrayList<>();
+        List<String> filenames = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+
+        for (MultipartFile file : safeFiles) {
+            if (file == null) {
+                errors.add("null 파일은 업로드할 수 없습니다.");
+                continue;
+            }
+            try {
+                FileUploadResponseDto response = uploadImage(file);
+                urls.add(response.getUrl());
+                filenames.add(response.getFilename());
+                log.debug("파일 업로드 성공: {}", file.getOriginalFilename());
+            } catch (Exception e) {
+                log.warn("파일 업로드 실패: {} - {}", file.getOriginalFilename(), e.getMessage());
+                errors.add(file.getOriginalFilename() + ": " + e.getMessage());
+            }
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("urls", urls);
+        data.put("filenames", filenames);
+        if (!errors.isEmpty()) {
+            data.put("errors", errors);
+        }
+
+        log.info("다중 이미지 업로드 완료: 성공 {} 개, 실패 {} 개", urls.size(), errors.size());
+        return data;
     }
     
     private void validateFile(@NonNull MultipartFile file, List<String> allowedTypes, String errorMessage) {
