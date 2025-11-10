@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class PhotoService {
     
     private final PhotoGroupRepository photoGroupRepository;
@@ -52,12 +52,14 @@ public class PhotoService {
         return mapPhotoGroupWithPhotos(photoGroup);
     }
     
+    @Transactional
     public PhotoGroupDto createPhotoGroup(PhotoGroupCreateRequest request) {
         PhotoGroup photoGroup = photoGroupMapper.toEntity(request);
         PhotoGroup savedPhotoGroup = photoGroupRepository.save(requireNonNull(photoGroup));
         return mapPhotoGroupWithPhotos(savedPhotoGroup);
     }
     
+    @Transactional
     public PhotoGroupDto updatePhotoGroup(@NonNull Long id, PhotoGroupUpdateRequest request) {
         PhotoGroup photoGroup = photoGroupRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + id));
@@ -68,6 +70,7 @@ public class PhotoService {
         return mapPhotoGroupWithPhotos(savedPhotoGroup);
     }
     
+    @Transactional
     public void deletePhotoGroup(@NonNull Long id) {
         photoGroupRepository.deleteById(id);
     }
@@ -86,6 +89,7 @@ public class PhotoService {
         return photoMapper.toDto(photo);
     }
     
+    @Transactional
     public PhotoDto createPhoto(@NonNull Long groupId, PhotoCreateRequest request) {
         PhotoGroup photoGroup = photoGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("PhotoGroup not found with id: " + groupId));
@@ -97,6 +101,7 @@ public class PhotoService {
         return photoMapper.toDto(savedPhoto);
     }
     
+    @Transactional
     public PhotoDto updatePhoto(@NonNull Long id, PhotoUpdateRequest request) {
         Photo photo = photoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Photo not found with id: " + id));
@@ -107,6 +112,7 @@ public class PhotoService {
         return photoMapper.toDto(savedPhoto);
     }
     
+    @Transactional
     public void deletePhoto(@NonNull Long id) {
         photoRepository.deleteById(id);
     }

@@ -17,7 +17,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class VideoService {
     
     private final VideoRepository videoRepository;
@@ -43,6 +43,7 @@ public class VideoService {
         return videoMapper.toDto(video);
     }
     
+    @Transactional
     public VideoDto createVideo(@NonNull VideoCreateRequest request) {
         final Video video = Objects.requireNonNull(
                 videoMapper.toEntity(request),
@@ -52,6 +53,7 @@ public class VideoService {
         return videoMapper.toDto(savedVideo);
     }
     
+    @Transactional
     public VideoDto updateVideo(@NonNull Long id, @NonNull VideoUpdateRequest request) {
         final Video video = videoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found with id: " + id));
@@ -62,6 +64,7 @@ public class VideoService {
         return videoMapper.toDto(savedVideo);
     }
     
+    @Transactional
     public void deleteVideo(@NonNull Long id) {
         videoRepository.deleteById(id);
     }

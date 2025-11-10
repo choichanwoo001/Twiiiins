@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ContactService {
     
     private final ContactInfoRepository contactInfoRepository;
@@ -27,10 +27,12 @@ public class ContactService {
                 .orElseThrow(() -> new ResourceNotFoundException("ContactInfo not found with id: " + id));
     }
     
+    @Transactional
     public ContactInfo createContactInfo(@NonNull ContactInfo contactInfo) {
         return contactInfoRepository.save(Objects.requireNonNull(contactInfo, "ContactInfo must not be null"));
     }
     
+    @Transactional
     public ContactInfo updateContactInfo(@NonNull Long id, @NonNull ContactInfo contactDetails) {
         ContactInfo contactInfo = getContactInfoById(id);
         
@@ -48,6 +50,7 @@ public class ContactService {
         return contactInfoRepository.save(Objects.requireNonNull(contactInfo, "ContactInfo must not be null"));
     }
     
+    @Transactional
     public void deleteContactInfo(@NonNull Long id) {
         ContactInfo contactInfo = getContactInfoById(id);
         contactInfoRepository.delete(Objects.requireNonNull(contactInfo, "ContactInfo must not be null"));

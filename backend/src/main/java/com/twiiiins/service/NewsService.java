@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class NewsService {
     
     private final NewsRepository newsRepository;
@@ -44,6 +44,7 @@ public class NewsService {
         return newsMapper.toDto(news);
     }
     
+    @Transactional
     public NewsDto createNews(@NonNull NewsCreateRequest request) {
         News news = Objects.requireNonNull(
                 newsMapper.toEntity(request),
@@ -53,6 +54,7 @@ public class NewsService {
         return newsMapper.toDto(savedNews);
     }
     
+    @Transactional
     public NewsDto updateNews(@NonNull Long id, @NonNull NewsUpdateRequest request) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("News not found with id: " + id));
@@ -63,6 +65,7 @@ public class NewsService {
         return newsMapper.toDto(savedNews);
     }
     
+    @Transactional
     public void deleteNews(@NonNull Long id) {
         newsRepository.deleteById(id);
     }

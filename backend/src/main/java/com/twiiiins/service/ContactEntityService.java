@@ -17,7 +17,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ContactEntityService {
     
     private final ContactRepository contactRepository;
@@ -36,6 +36,7 @@ public class ContactEntityService {
         return contactMapper.toDto(contact);
     }
     
+    @Transactional
     public ContactDto createContact(@NonNull ContactCreateRequest request) {
         Contact contact = Objects.requireNonNull(
                 contactMapper.toEntity(request),
@@ -45,6 +46,7 @@ public class ContactEntityService {
         return contactMapper.toDto(savedContact);
     }
     
+    @Transactional
     public ContactDto updateContact(@NonNull Long id, @NonNull ContactUpdateRequest request) {
         Contact contact = contactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact not found with id: " + id));
@@ -55,6 +57,7 @@ public class ContactEntityService {
         return contactMapper.toDto(savedContact);
     }
     
+    @Transactional
     public void deleteContact(@NonNull Long id) {
         contactRepository.deleteById(id);
     }

@@ -17,7 +17,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class EquipmentService {
     
     private final EquipmentRepository equipmentRepository;
@@ -43,6 +43,7 @@ public class EquipmentService {
         return equipmentMapper.toDto(equipment);
     }
     
+    @Transactional
     public EquipmentDto createEquipment(@NonNull EquipmentCreateRequest request) {
         Equipment equipment = Objects.requireNonNull(
                 equipmentMapper.toEntity(request),
@@ -53,6 +54,7 @@ public class EquipmentService {
         return equipmentMapper.toDto(savedEquipment);
     }
     
+    @Transactional
     public EquipmentDto updateEquipment(@NonNull Long id, @NonNull EquipmentUpdateRequest request) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
@@ -64,6 +66,7 @@ public class EquipmentService {
         return equipmentMapper.toDto(savedEquipment);
     }
     
+    @Transactional
     public void deleteEquipment(@NonNull Long id) {
         equipmentRepository.deleteById(id);
     }

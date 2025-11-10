@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 @Slf4j
 public class MusicService {
     
@@ -63,6 +63,7 @@ public class MusicService {
         return musicMapper.toDto(music);
     }
     
+    @Transactional
     public MusicDto createMusic(@NonNull MusicCreateRequest request) {
         log.info("[음악 생성] 시작 - 제목: {}, 아티스트: {}", request.getTitle(), request.getArtist());
         
@@ -82,6 +83,7 @@ public class MusicService {
         }
     }
     
+    @Transactional
     public MusicDto updateMusic(@NonNull Long id, @NonNull MusicUpdateRequest request) {
         log.info("[음악 수정] 시작 - ID: {}, 제목: {}", id, request.getTitle());
         
@@ -109,6 +111,7 @@ public class MusicService {
         }
     }
     
+    @Transactional
     public void deleteMusic(@NonNull Long id) {
         log.info("[음악 삭제] 시작 - ID: {}", id);
         

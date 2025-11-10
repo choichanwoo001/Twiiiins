@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ProjectService {
     
     private final ProjectRepository projectRepository;
@@ -50,6 +50,7 @@ public class ProjectService {
         return projectMapper.toDto(project);
     }
     
+    @Transactional
     public ProjectDto createProject(@NonNull ProjectCreateRequest request) {
         final Project project = Objects.requireNonNull(
                 projectMapper.toEntity(request),
@@ -59,6 +60,7 @@ public class ProjectService {
         return projectMapper.toDto(savedProject);
     }
     
+    @Transactional
     public ProjectDto updateProject(@NonNull Long id, @NonNull ProjectUpdateRequest request) {
         final Project project = projectRepository.findWithDetailsById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
@@ -69,6 +71,7 @@ public class ProjectService {
         return projectMapper.toDto(savedProject);
     }
     
+    @Transactional
     public void deleteProject(@NonNull Long id) {
         final Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));

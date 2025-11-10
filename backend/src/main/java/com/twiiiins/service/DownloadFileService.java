@@ -17,7 +17,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class DownloadFileService {
     
     private final DownloadFileRepository downloadFileRepository;
@@ -36,6 +36,7 @@ public class DownloadFileService {
         return downloadFileMapper.toDto(downloadFile);
     }
     
+    @Transactional
     public DownloadFileDto createDownloadFile(@NonNull DownloadFileCreateRequest request) {
         DownloadFile downloadFile = Objects.requireNonNull(
                 downloadFileMapper.toEntity(request),
@@ -46,6 +47,7 @@ public class DownloadFileService {
         return downloadFileMapper.toDto(savedDownloadFile);
     }
     
+    @Transactional
     public DownloadFileDto updateDownloadFile(@NonNull Long id, @NonNull DownloadFileUpdateRequest request) {
         DownloadFile downloadFile = downloadFileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("DownloadFile not found with id: " + id));
@@ -57,6 +59,7 @@ public class DownloadFileService {
         return downloadFileMapper.toDto(savedDownloadFile);
     }
     
+    @Transactional
     public void deleteDownloadFile(@NonNull Long id) {
         downloadFileRepository.deleteById(id);
     }

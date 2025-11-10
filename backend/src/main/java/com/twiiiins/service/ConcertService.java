@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ConcertService {
     
     private final ConcertRepository concertRepository;
@@ -51,6 +51,7 @@ public class ConcertService {
         return concertMapper.toDto(concert);
     }
     
+    @Transactional
     public ConcertDto createConcert(@NonNull ConcertCreateRequest request) {
         Concert concert = Objects.requireNonNull(
                 concertMapper.toEntity(request),
@@ -60,6 +61,7 @@ public class ConcertService {
         return concertMapper.toDto(savedConcert);
     }
     
+    @Transactional
     public ConcertDto updateConcert(@NonNull Long id, @NonNull ConcertUpdateRequest request) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
@@ -70,12 +72,14 @@ public class ConcertService {
         return concertMapper.toDto(savedConcert);
     }
     
+    @Transactional
     public void deleteConcert(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concertRepository.delete(Objects.requireNonNull(concert, "Concert must not be null"));
     }
     
+    @Transactional
     public ConcertDto moveToPastEvent(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
@@ -84,6 +88,7 @@ public class ConcertService {
         return concertMapper.toDto(savedConcert);
     }
     
+    @Transactional
     public ConcertDto moveToUpcomingEvent(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
@@ -92,6 +97,7 @@ public class ConcertService {
         return concertMapper.toDto(savedConcert);
     }
     
+    @Transactional
     public int autoMovePastEvents(@NonNull LocalDate currentDate) {
         List<Concert> concertsToMove = concertRepository.findByDateBeforeAndIsPast(currentDate, false);
         
