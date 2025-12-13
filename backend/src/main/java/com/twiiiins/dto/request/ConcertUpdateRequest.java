@@ -1,5 +1,7 @@
 package com.twiiiins.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -12,11 +14,14 @@ import java.time.LocalDate;
 @Setter
 public class ConcertUpdateRequest {
 
+    @NotNull
     private LocalDate date;
 
+    @NotBlank
     @Size(min = 1, max = 255)
     private String location;
 
+    @NotBlank
     @Size(min = 1, max = 255)
     private String name;
 
@@ -38,5 +43,3 @@ public class ConcertUpdateRequest {
 
     private Boolean isPast;
 }
-
-
