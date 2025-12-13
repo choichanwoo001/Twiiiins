@@ -462,7 +462,7 @@ const toggleNews = (newsId) => {
 }
 
 .music-item {
-  text-align: center;
+  text-align: left;
 }
 
 .music-cover {
@@ -471,9 +471,8 @@ const toggleNews = (newsId) => {
   max-height: 12.5rem;
   aspect-ratio: 1;
   overflow: hidden;
-  margin-bottom: 1rem;
-  border-radius: 0.5rem;
-  margin: 0 auto;
+  margin-bottom: 0.5rem;
+  border-radius: 0;
 }
 
 .music-cover img {
@@ -504,7 +503,7 @@ const toggleNews = (newsId) => {
 .video-item {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .video-embed {
@@ -533,13 +532,11 @@ const toggleNews = (newsId) => {
 
 .video-info {
   flex: 1;
-  padding-top: 1rem;
 }
 
 .video-title {
   font-size: 1.2rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
 }
 
 .video-channel {

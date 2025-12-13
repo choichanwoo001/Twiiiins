@@ -16,6 +16,7 @@ import java.util.List;
 @Setter
 public class ProjectUpdateRequest {
 
+    @NotBlank
     @Size(min = 1, max = 255)
     private String title;
 
@@ -69,5 +70,3 @@ public class ProjectUpdateRequest {
         private String source;
     }
 }
-
-

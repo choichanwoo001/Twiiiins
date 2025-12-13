@@ -1,5 +1,6 @@
 package com.twiiiins.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -10,12 +11,15 @@ import org.hibernate.validator.constraints.URL;
 @Setter
 public class MusicUpdateRequest {
 
+    @NotBlank
     @Size(min = 1, max = 255)
     private String title;
 
+    @NotBlank
     @Size(min = 1, max = 255)
     private String artist;
 
+    @NotBlank
     @URL
     @Size(max = 2048)
     private String coverUrl;
@@ -27,5 +31,3 @@ public class MusicUpdateRequest {
     @PositiveOrZero
     private Integer displayOrder;
 }
-
-
