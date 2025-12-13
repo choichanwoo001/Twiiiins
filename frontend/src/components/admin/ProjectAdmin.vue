@@ -809,7 +809,10 @@ const deleteProjectPhoto = async (index) => {
       imageUrls.splice(index, 1)
 
       if (selectedProject.value.id) {
-        const payload = buildProjectUpdatePayload({ imageUrls })
+        const payload = buildProjectUpdatePayload({
+          ...selectedProject.value,
+          imageUrls
+        })
         const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
         const updatedProject = updatedProjectResponse.data.data || updatedProjectResponse.data
         
