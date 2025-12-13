@@ -128,7 +128,7 @@ const onImageLoad = (event) => {
       const maxItemWidth = rowWidth - 8 // gap 고려
       if (img.naturalWidth && img.naturalHeight) {
         const aspectRatio = img.naturalWidth / img.naturalHeight
-        const maxHeight = 400 // calculateRowHeight의 maxHeight와 동일
+        const maxHeight = 300 // calculateRowHeight의 maxHeight와 동일
         const calculatedWidth = maxHeight * aspectRatio
         // 행 너비를 초과하지 않도록 제한
         imageItem.style.width = `${Math.min(calculatedWidth, maxItemWidth)}px`
@@ -305,7 +305,7 @@ watch(() => projectImageUrls.value, () => {
   flex-shrink: 0;
   height: 100%;
   /* 초기 최대 너비 제한 - 행 너비를 절대 초과하지 않도록 */
-  max-width: 100%;
+  max-width: 25rem;
   /* calculateRowHeight에서 너비가 설정될 때까지 임시로 작은 크기 */
   width: auto;
   /* 이미지가 컨테이너를 넘어가지 않도록 */
