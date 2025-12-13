@@ -762,6 +762,7 @@ const uploadProjectPhotos = async () => {
     if (selectedProject.value.id) {
       // 기존 프로젝트 업데이트
       const payload = buildProjectUpdatePayload({
+        ...selectedProject.value,
         imageUrls: [...(selectedProject.value.imageUrls || []), ...uploadedUrls]
       })
       const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
