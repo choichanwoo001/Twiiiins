@@ -194,8 +194,8 @@ onUnmounted(() => {
   font-weight: bold;
   margin-bottom: 2rem;
   letter-spacing: 0.0625rem;
-  text-align: center;
-  margin-left: 8.75rem;
+  text-align: left;
+  margin-left: 14.25rem;
 }
 
 .events-list {
