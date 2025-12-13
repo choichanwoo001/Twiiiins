@@ -116,7 +116,7 @@
                 <div class="image-grid">
                   <div class="image-row">
                     <div class="image-item" v-for="(imageUrl, imgIndex) in news.imageUrls" :key="imgIndex">
-                      <img :src="toAbsoluteUrl(imageUrl)" :alt="`News image ${imgIndex + 1}`" @load="onImageLoad" />
+                      <img :src="toAbsoluteUrl(imageUrl)" :alt="`News image ${imgIndex + 1}`" />
                     </div>
                   </div>
                 </div>
@@ -142,10 +142,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from '../api/axios'
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
-import { calculateRowHeight } from '../utils/imageOptimization'
 import { logError } from '../utils/errorHandler'
 
 // 활성 섹션 상태
@@ -334,30 +333,6 @@ const loadNews = async () => {
     logError(error, '뉴스 데이터 로드')
     newsList.value = []
   }
-}
-
-// 이미지를 행으로 그룹화 (CSS flex-wrap으로 자동 줄바꿈 처리)
-const getImageRows = (imageUrls) => {
-  if (!imageUrls || imageUrls.length === 0) return []
-  
-  // 모든 이미지를 하나의 행에 배치하고 CSS flex-wrap으로 자동 줄바꿈
-  return [imageUrls]
-}
-
-// 이미지 로드 시 행 높이 계산
-const onImageLoad = (event) => {
-  nextTick(() => {
-    const img = event.target
-    const row = img.closest('.image-row')
-    if (!row) return
-    
-    const images = row.querySelectorAll('img')
-    // 모든 이미지가 로드되었는지 확인
-    const allLoaded = Array.from(images).every(img => img.complete && img.naturalWidth > 0)
-    if (allLoaded) {
-      calculateRowHeight(row, images, 0)
-    }
-  })
 }
 
 // 뉴스 토글 함수
@@ -693,7 +668,8 @@ const toggleNews = (newsId) => {
   gap: 0.5rem;
   flex-wrap: wrap;
   min-height: 18.75rem;
-  align-items: flex-start;
+  align-items: center; /* flex-start -> center */
+  justify-content: center; /* 추가: 중앙 정렬 */
 }
 
 .image-item {
@@ -703,13 +679,14 @@ const toggleNews = (newsId) => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  height: 100%;
+  height: 15rem; /* 고정 높이 */
+  width: auto;
 }
 
 .image-item img {
-  width: 100%;
+  width: auto;
   height: 100%;
-  object-fit: contain; /* 비율 유지하면서 축소 */
+  object-fit: cover; /* contain -> cover (꽉 채우기) */
   object-position: center;
   transition: transform 0.3s ease;
   display: block;
