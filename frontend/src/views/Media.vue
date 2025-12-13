@@ -636,7 +636,7 @@ const toggleNews = (newsId) => {
 
 /* 상세 정보 스타일 */
 .news-details {
-  padding: 1.5rem 5rem 2rem 5rem; /* 상단, 오른쪽, 하단, 왼쪽 (왼쪽과 오른쪽 동일한 여백) */
+  padding: 1.5rem 2rem 2rem 2rem; /* 상단, 오른쪽, 하단, 왼쪽 (좌우 여백 5rem -> 2rem 축소) */
   background-color: #f8f8f8;
   border-top: 0.0625rem solid #e0e0e0;
 }
@@ -659,7 +659,7 @@ const toggleNews = (newsId) => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-width: 62.5rem;
+  max-width: 100%; /* 62.5rem -> 100% (너비 제한 해제) */
   width: 100%;
 }
 
@@ -679,7 +679,7 @@ const toggleNews = (newsId) => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  height: 15rem; /* 고정 높이 */
+  height: 25rem; /* 15rem -> 25rem (높이 확대) */
   width: auto;
 }
 

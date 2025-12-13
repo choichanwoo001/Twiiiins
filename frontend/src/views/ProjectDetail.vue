@@ -207,7 +207,7 @@ onMounted(async () => {
 .project-images {
   padding: 4rem 2rem;
   padding-bottom: 6rem; /* 리뷰 섹션과 겹치지 않도록 하단 여백 추가 */
-  max-width: 75rem;
+  max-width: 100%; /* 75rem -> 100% (너비 확대) */
   margin: 0 auto;
   display: flex;
   justify-content: center;
@@ -217,7 +217,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-width: 62.5rem;
+  max-width: 90%; /* 62.5rem -> 90% (너비 확대) */
   width: 100%;
 }
 
@@ -241,7 +241,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  height: 15rem; /* 고정 높이 설정 */
+  height: 25rem; /* 15rem -> 25rem (높이 확대) */
   /* 초기 최대 너비 제한 - 행 너비를 절대 초과하지 않도록 */
   /* max-width: 25rem; <-- 제거: 비율에 맡김 */
   /* calculateRowHeight에서 너비가 설정될 때까지 임시로 작은 크기 */
