@@ -417,39 +417,63 @@ onMounted(() => {
   }
 
   .event-date {
-    min-width: 5rem; /* 너비 축소 */
-    margin-right: 1rem;
+    min-width: auto; /* 너비 자동 */
+    margin-right: 0.75rem;
+    display: block; /* 블록 요소로 변경하여 한 줄 처리 용이하게 */
+    white-space: nowrap; /* 줄바꿈 방지 */
   }
 
   .date-main {
     font-weight: 500;
     color: #1E1D1D;
+    font-size: 0.8rem; /* 폰트 축소 */
   }
 
   .date-year {
-    display: block; /* 줄바꿈 */
-    margin-left: 0;
+    display: inline; /* 한 줄 표시 */
+    margin-left: 0.2rem;
     color: #888;
-    font-size: 0.9em;
-    margin-top: 0.125rem;
+    font-size: 0.8rem; /* 폰트 축소 */
+    margin-top: 0;
   }
 
   .event-info {
     margin-left: 0; /* 좌측 여백 제거 */
-    margin-right: 1rem; /* 우측 여백 추가 */
+    margin-right: 0.5rem; /* 우측 여백 조정 */
+    min-width: 0; /* flex 자식 요소 말줄임 처리를 위해 */
   }
   
   .event-location {
-    font-size: 0.95rem; /* 폰트 사이즈 미세 축소 */
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 상세 정보 레이아웃 가로 배치에서 세로 배치로 변경 */
+  .detail-row {
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
   }
 
   .detail-label {
-    min-width: 7rem; /* 라벨 너비 축소 */
+    min-width: auto;
+    width: 100%;
+    font-size: 0.8rem;
+    color: #888;
   }
 
   /* 모바일에서 상세 정보 텍스트 크기 조정 */
-  .detail-value, .detail-link, .detail-label {
-    font-size: 0.85rem;
+  .detail-value, .detail-link {
+    font-size: 0.9rem;
+    word-break: break-all; /* 긴 URL 등 줄바꿈 */
   }
 }
 </style>
