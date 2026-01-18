@@ -417,43 +417,49 @@ onMounted(() => {
   }
 
   .event-date {
-    min-width: auto; /* 너비 자동 */
-    margin-right: 0.75rem;
-    display: block; /* 블록 요소로 변경하여 한 줄 처리 용이하게 */
-    white-space: nowrap; /* 줄바꿈 방지 */
+    min-width: 4rem; /* 최소 너비 확보 */
+    margin-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
   }
 
   .date-main {
     font-weight: 500;
     color: #1E1D1D;
-    font-size: 0.8rem; /* 폰트 축소 */
+    font-size: 0.9rem; /* 폰트 크기 복구 */
+    display: block;
   }
 
   .date-year {
-    display: inline; /* 한 줄 표시 */
-    margin-left: 0.2rem;
+    display: block; /* 줄바꿈 복구 */
+    margin-left: 0;
     color: #888;
-    font-size: 0.8rem; /* 폰트 축소 */
-    margin-top: 0;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
   }
 
   .event-info {
-    margin-left: 0; /* 좌측 여백 제거 */
-    margin-right: 0.5rem; /* 우측 여백 조정 */
-    min-width: 0; /* flex 자식 요소 말줄임 처리를 위해 */
+    margin-left: 0;
+    margin-right: 0.5rem;
+    min-width: 0;
+    flex: 1; /* 남은 공간 차지 */
   }
   
   .event-location {
     font-size: 0.95rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal; /* 줄바꿈 허용 */
+    overflow: visible; /* 잘림 방지 */
+    text-overflow: clip; /* ... 제거 */
+    line-height: 1.3;
+    margin-bottom: 0.2rem;
   }
 
   .event-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal; /* 줄바꿈 허용 */
+    overflow: visible; /* 잘림 방지 */
+    text-overflow: clip; /* ... 제거 */
+    line-height: 1.3;
   }
 
   /* 상세 정보 레이아웃 가로 배치에서 세로 배치로 변경 */
@@ -466,14 +472,15 @@ onMounted(() => {
   .detail-label {
     min-width: auto;
     width: 100%;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: #888;
   }
 
   /* 모바일에서 상세 정보 텍스트 크기 조정 */
   .detail-value, .detail-link {
-    font-size: 0.9rem;
+    font-size: 0.95rem; /* 가독성 위해 약간 키움 */
     word-break: break-all; /* 긴 URL 등 줄바꿈 */
+    line-height: 1.4;
   }
 }
 </style>
