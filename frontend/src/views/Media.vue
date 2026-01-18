@@ -1,7 +1,7 @@
 <template>
   <div class="media">
-    <!-- 왼쪽 네비게이션 -->
-    <div class="media-nav">
+    <!-- 왼쪽 네비게이션 (모바일에서는 숨김) -->
+    <div class="media-nav" v-if="!isMobile">
       <div class="nav-item main-title"
            :class="{ active: activeSection === 'music' || activeSection === '' }"
            @click="setActiveSection('music')">
@@ -33,6 +33,9 @@
     <div class="media-content">
       <!-- MUSIC 섹션 (기본 표시) -->
       <div v-if="activeSection === 'music' || activeSection === ''" class="content-section">
+        <div class="mobile-section-title" v-if="isMobile">
+          <h1>MUSIC</h1>
+        </div>
         <div class="albums-grid">
           <div class="music-item" v-for="item in musicItems" :key="item.id">
             <div class="music-cover">
@@ -48,6 +51,9 @@
 
       <!-- VIDEOS 섹션 -->
       <div v-if="activeSection === 'videos'" class="content-section">
+        <div class="mobile-section-title" v-if="isMobile">
+          <h1>VIDEOS</h1>
+        </div>
         <div class="video-list" v-if="videos.length > 0">
           <div class="video-item" v-for="video in videos" :key="video.id">
             <div class="video-embed" v-if="isValidEmbedUrl(video.embedUrl)">
@@ -77,6 +83,9 @@
 
       <!-- PHOTOS 섹션 -->
       <div v-if="activeSection === 'photos'" class="content-section">
+        <div class="mobile-section-title" v-if="isMobile">
+          <h1>PHOTOS</h1>
+        </div>
         <div class="photos-gallery">
           <div class="photo-group" v-for="group in photoGroups" :key="group.id">
             <div class="photo-group-title">{{ group.title }}</div>
@@ -126,6 +135,7 @@
         </div>
       </div>
 
+
       <!-- EQUIPMENT 섹션 -->
       <div v-if="activeSection === 'equipment'" class="content-section">
         <div class="equipment-grid">
@@ -139,13 +149,36 @@
       </div>
     </div>
   </div>
+
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import axios from '../api/axios'
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
+
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+// 모바일 감지
+const isMobile = ref(false)
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768 // 48rem
+  
+  // 쿼리 파라미터가 있으면 해당 섹션을 보여줌
+  if (route.query.section) {
+    activeSection.value = route.query.section
+    return
+  }
+
+  // 기본값은 music
+  if (!activeSection.value) {
+    activeSection.value = 'music'
+  }
+}
 
 // 활성 섹션 상태
 const activeSection = ref('')
@@ -154,6 +187,13 @@ const activeSection = ref('')
 const setActiveSection = (section) => {
   activeSection.value = section
 }
+
+// 쿼리 파라미터 변경 감지
+watch(() => route.query.section, (newSection) => {
+  if (newSection) {
+    activeSection.value = newSection
+  } 
+})
 
 // 음악 데이터
 const musicItems = ref([])
@@ -265,11 +305,25 @@ const loadVideos = async () => {
 
 // 페이지 로드 시 데이터 가져오기
 onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+  
+  // 초기 섹션 설정
+  if (route.query.section) {
+    activeSection.value = route.query.section
+  } else {
+    activeSection.value = 'music'
+  }
+
   loadMusic()
   loadVideos()
   loadPhotoGroups()
   loadNews()
   loadEquipment()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
 })
 
 // 사진 그룹 데이터
@@ -345,6 +399,7 @@ const toggleNews = (newsId) => {
 </script>
 
 <style scoped>
+/* 데스크톱 스타일은 그대로 유지 */
 .media {
   display: flex;
   background-color: white;
@@ -442,12 +497,11 @@ const toggleNews = (newsId) => {
 
 .music-cover {
   width: 100%;
-  max-width: 12.5rem;
-  max-height: 12.5rem;
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   margin-bottom: 0.5rem;
   border-radius: 0;
+  position: relative; /* relative positioning for absolute child if needed, though aspect-ratio usually handles it */
 }
 
 .music-cover img {
@@ -560,7 +614,7 @@ const toggleNews = (newsId) => {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease;
-  border-radius: 0.5rem;
+  border-radius: 0;
 }
 
 .photo-item:hover {
@@ -727,5 +781,157 @@ const toggleNews = (newsId) => {
   font-weight: bold;
   color: #1E1D1D;
   text-align: center;
+}
+
+/* 모바일 전용 스타일 추가 */
+@media (max-width: 48rem) {
+  .media {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    padding-top: 5rem;
+  }
+  
+  /* 모바일에서 기존 nav는 숨김 (모바일 전용 메뉴 사용) */
+  .media-nav {
+    display: none;
+  }
+  
+  .media-content {
+    padding: 1rem;
+    padding-bottom: 8rem; /* SNS 링크와 겹치지 않도록 여백 추가 */
+    overflow: visible; /* 모바일은 전체 페이지 스크롤 */
+  }
+  
+  /* 모바일 콘텐츠 그리드 조정 */
+  .albums-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    row-gap: 2rem;
+  }
+  
+  /* 모바일에서 이미지 크기 강제 */
+  .music-cover {
+    max-width: none;
+    max-height: none;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .mobile-section-title {
+    display: block;
+    margin-bottom: 2rem;
+    padding-left: 0.5rem;
+  }
+
+  .mobile-section-title h1 {
+    font-size: 2.5rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: #FBCE7B;
+    text-transform: uppercase;
+    line-height: 1;
+    margin: 0;
+  }
+
+  .music-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+
+  .music-artist {
+    font-size: 0.75rem;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+
+  /* News Section Mobile Optimization */
+  .news-preview {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem 0; /* 20px */
+    position: relative;
+  }
+
+  .news-date {
+    width: 100%;
+    margin-bottom: 0.5rem; /* 8px */
+    font-size: 0.875rem; /* 14px */
+    color: #999;
+  }
+
+  .news-content {
+    margin-left: 0;
+    width: 100%;
+    padding-right: 2rem; /* Space for expand icon */
+  }
+
+  .news-title {
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.4;
+    word-break: keep-all;
+  }
+
+  .news-expand {
+    position: absolute;
+    right: 0;
+    top: 1.25rem; /* Align with top padding */
+    /* top: 50% transform: translateY(-50%) could work if date is small enough, 
+       but fixing to top often looks cleaner with stacked layout */
+  }
+
+  /* News Details (Unfolded) Mobile Optimization */
+  .news-details {
+    padding: 1.5rem 1rem; /* Reduced side padding (16px) */
+    background-color: #fafafa;
+  }
+
+  .news-description {
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: #444;
+  }
+
+  .news-images {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+  }
+
+  .image-row {
+    flex-direction: column; /* Stack images vertically on mobile */
+    gap: 1rem;
+  }
+
+  .image-item {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9; /* Ensure good aspect ratio for photos */
+  }
+
+  /* Equipment Section Mobile Optimization */
+  .equipment-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem; /* 48px */
+  }
+
+  .equipment-item {
+    align-items: flex-end; /* Right align content */
+    gap: 0.5rem;
+  }
+
+  .equipment-image {
+    max-width: none;
+    width: 100%; /* Full width */
+  }
+
+  .equipment-name {
+    text-align: right;
+    font-size: 0.875rem; /* 14px */
+    width: 100%;
+  }
 }
 </style>

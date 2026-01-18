@@ -42,13 +42,13 @@
           <!-- 두 번째 행 -->
           <div class="image-row">
             <div class="image-item">
-              <img src="../imgs/About/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
+              <img src="../imgs/About/unnamed 1.png" alt="TWIIIINS Performance">
             </div>
             <div class="image-item">
               <img src="../imgs/About/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
             </div>
             <div class="image-item">
-              <img src="../imgs/About/unnamed 1.png" alt="TWIIIINS Performance">
+              <img src="../imgs/About/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
             </div>
           </div>
         </div>
@@ -194,8 +194,11 @@
   .about {
     flex-direction: column;
     gap: 2rem;
-    padding-left: 1rem;
+    padding-left: 1rem; /* 모바일 여백 조정 */
     padding-right: 1rem;
+    height: auto; /* 모바일에서는 자연스러운 스크롤 허용 */
+    overflow-y: visible;
+    padding-bottom: 4rem; /* 하단 여백 추가 */
   }
 
   .about-title-section {
@@ -209,6 +212,62 @@
 
   .about-content {
     max-width: 100%;
+  }
+
+  .about-content p {
+    font-size: 0.85rem; /* 폰트 크기 축소 */
+    line-height: 1.5;
+  }
+
+  /* 모바일에서 이미지 그리드: 비대칭 2열 레이아웃 (10컬럼 그리드) */
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0.1rem;
+  }
+
+  .image-row {
+    display: contents;
+  }
+  
+  .image-item {
+    width: 100%;
+  }
+
+  /* 1번 이미지: 좁게 (4/10) */
+  .image-row:nth-child(1) .image-item:nth-child(1) {
+    grid-column: span 4;
+    height: 60vw;
+  }
+  
+  /* 2번 이미지: 넓게 (6/10) */
+  .image-row:nth-child(1) .image-item:nth-child(2) {
+    grid-column: span 6;
+    height: 60vw;
+  }
+
+  /* 3번 이미지: 넓게 (6/10) - 두 번째 줄 시작 */
+  .image-row:nth-child(1) .image-item:nth-child(3) {
+    grid-column: span 5;
+    height: 50vw;
+  }
+
+  /* 4번 이미지: 좁게 (4/10) */
+  .image-row:nth-child(2) .image-item:nth-child(1) {
+    grid-column: span 5;
+    height: 50vw;
+  }
+
+  /* 5번 이미지: 반반 (5/10) - 세 번째 줄 시작 */
+  .image-row:nth-child(2) .image-item:nth-child(2) {
+    grid-column: span 5;
+    height: 45vw;
+  }
+
+  /* 6번 이미지: 반반 (5/10) */
+  .image-row:nth-child(2) .image-item:nth-child(3) {
+    grid-column: span 5;
+    height: 45vw;
   }
 }
 </style>

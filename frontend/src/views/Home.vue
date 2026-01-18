@@ -13,12 +13,15 @@
         <h2 class="events-title">UPCOMING EVENTS</h2>
         <div class="events-list" v-if="events && events.length > 0">
           <div class="event-item" v-for="event in events" :key="event.id">
-            <div class="event-date">{{ event.date }}</div>
+            <div class="event-date">
+              <span>{{ event.dateMonthDay }}</span>
+              <span>{{ event.dateYear }}</span>
+            </div>
             <div class="event-info">
               <div class="event-location">{{ event.location }}</div>
               <div class="event-name">{{ event.name }}</div>
             </div>
-            <div class="event-arrow" @click="goToConcert">→</div>
+            <div class="event-arrow" @click="goToConcert">↗</div>
           </div>
         </div>
         <div v-else class="no-events">
@@ -54,13 +57,24 @@ const router = useRouter()
 // 이벤트 데이터 (스토어에서 가져온 데이터를 변환)
 const events = computed(() => {
   return concertStore.upcomingConcerts
-    .map(concert => ({
-      id: concert.id,
-      date: formatDate(concert.date, 'date', 'en-US'),
-      dateValue: new Date(concert.date), // 정렬을 위한 원본 날짜
-      location: concert.location,
-      name: concert.name
-    }))
+    .map(concert => {
+      // 날짜 포맷팅: "July 30, 2026"
+      const dateObj = new Date(concert.date);
+      // 날짜 부분: "July 30,"
+      const monthDay = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(dateObj) + ',';
+      // 연도 부분: "2026"
+      const year = dateObj.getFullYear();
+      
+      return {
+        id: concert.id,
+        date: formatDate(concert.date, 'date', 'en-US'),
+        dateMonthDay: monthDay,
+        dateYear: year,
+        dateValue: dateObj, 
+        location: concert.location,
+        name: concert.name
+      }
+    })
     .sort((a, b) => a.dateValue - b.dateValue) // 오름차순 정렬 (가장 이른 날짜가 위로)
 })
 
@@ -134,7 +148,7 @@ onUnmounted(() => {
 .fullpage-scroll {
   scroll-snap-type: y mandatory;
   overflow-y: scroll;
-  height: 100vh;
+  height: 100dvh; /* 모바일 주소창 대응 */
   position: relative;
   z-index: 1;
 }
@@ -151,7 +165,7 @@ onUnmounted(() => {
 
 /* 히어로 섹션 */
 .hero-section {
-  height: 100vh;
+  height: 100dvh; /* 모바일 주소창 대응 */
   scroll-snap-align: start;
   position: relative;
   overflow: hidden;
@@ -172,7 +186,7 @@ onUnmounted(() => {
 
 /* 이벤트 섹션 */
 .events-section {
-  height: 100vh;
+  height: 100dvh; /* 모바일 주소창 대응 */
   scroll-snap-align: start;
   background-color: #943C31;
   display: flex;
@@ -180,7 +194,7 @@ onUnmounted(() => {
   justify-content: center;
   color: white;
   position: relative;
-  z-index: 1;
+  z-index: 2; /* Hero 이미지 위에 확실히 올라오도록 설정 */
 }
 
 .events-container {
@@ -252,17 +266,18 @@ onUnmounted(() => {
 }
 
 .event-arrow {
-  font-size: 1.2rem;
-  font-weight: bold;
-  min-width: 1.25rem;
+  font-size: 1.5rem; /* 화살표 크기 키움 */
+  font-weight: 300; /* 얇게 */
+  min-width: 1.5rem;
   text-align: right;
   flex-shrink: 0;
   cursor: pointer;
   transition: all 0.3s ease;
+  transform: rotate(0deg); /* 초기 상태 */
 }
 
 .event-arrow:hover {
-  transform: scale(1.2);
+  transform: scale(1.2) translate(2px, -2px); /* 호버 시 우상단으로 살짝 이동 */
   color: #ffd700;
 }
 
@@ -307,6 +322,132 @@ onUnmounted(() => {
 
 .no-events p {
   font-size: 1rem;
+}
+
+/* 모바일 반응형 스타일 */
+/* 모바일 반응형 스타일 */
+@media (max-width: 48rem) {
+  .events-title {
+    margin-left: 0;
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 2rem; /* 간격 조정 */
+    font-weight: 350;
+    letter-spacing: 0.05rem;
+    width: 100%;
+    flex-shrink: 0; /* 크기 줄어들지 않도록 설정 */
+  }
+
+  .events-container {
+    width: 85%;
+    max-width: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: flex-start; /* 상단부터 채움 */
+    padding-top: 6rem; /* 상단 여백 확보 (헤더 등을 위해) */
+    padding-bottom: 5rem; /* SNS 링크 공간 */
+    margin: 0 auto;
+    overflow: hidden; /* 컨테이너 자체는 스크롤 없음 */
+  }
+
+  .events-list {
+    width: 100%;
+    gap: 2rem;
+    overflow-y: auto; /* 내부 스크롤 허용 */
+    flex: 1; /* 남은 공간 차지 */
+    padding-right: 0.5rem; /* 스크롤 공간 */
+    
+    /* 스크롤바 숨기기 */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .events-list::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .event-item {
+    align-items: flex-start;
+    padding: 0;
+    justify-content: flex-start;
+    width: 100%;
+    position: relative;
+    padding-bottom: 1rem; /* 아이템 하단 여백 추가 */
+  }
+
+  .event-date {
+    min-width: 4.5rem;
+    width: 4.5rem;
+    font-size: 0.75rem;
+    margin-right: 1.2rem;
+    line-height: 1.6;
+    white-space: normal;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+  }
+
+  .event-info {
+    font-size: 0.8rem;
+    line-height: 1.6;
+    padding-top: 0;
+    flex: 1;
+    min-width: 0;
+    padding-right: 2rem;
+  }
+
+  .event-location {
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
+    font-weight: 300;
+    word-break: keep-all;
+    word-wrap: break-word;
+  }
+  
+  .event-name {
+    font-size: 0.8rem;
+    font-weight: 300;
+    word-break: keep-all;
+    word-wrap: break-word;
+  }
+  
+  .event-arrow {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-left: 0;
+    font-size: 1.2rem;
+    font-weight: 100;
+  }
+  
+  /* 모바일에서 인디케이터 숨김 */
+  .page-indicators {
+    display: none;
+  }
+  
+  /* Hero 이미지 모바일 최적화 */
+  .hero-section {
+    background-color: #fff;
+  }
+
+  .hero-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-image img {
+    object-position: center top; /* 상단(얼굴) 중심으로 배치 */
+    object-fit: cover; /* 화면을 꽉 채움 (잘림 발생 가능하지만 user requested full screen) */
+    width: 100%;
+    height: 100%;
+    transform: none;
+    margin: 0;
+  }
 }
 </style>
 
