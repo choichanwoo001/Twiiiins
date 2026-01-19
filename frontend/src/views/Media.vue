@@ -153,7 +153,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import axios from '../api/axios'
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
@@ -245,6 +245,7 @@ const isValidEmbedUrl = (url) => {
   const isValid = youtubeEmbedPattern.test(cleanUrl)
   
   // 디버깅용 (개발 환경에서만)
+  /*
   if (import.meta.env.DEV && !isValid) {
     console.log('embedUrl 검사 실패:', {
       originalUrl: trimmedUrl,
@@ -252,6 +253,7 @@ const isValidEmbedUrl = (url) => {
       pattern: youtubeEmbedPattern.toString()
     })
   }
+  */
   
   return isValid
 }
