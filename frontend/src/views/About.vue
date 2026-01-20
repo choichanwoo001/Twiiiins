@@ -61,7 +61,7 @@
 .about {
   background-color: white;
   color: #1E1D1D;
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'Jost', sans-serif;
   height: calc(100vh - 3.75rem);
   overflow-y: auto;
   overflow-x: hidden;

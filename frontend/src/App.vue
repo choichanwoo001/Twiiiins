@@ -73,9 +73,13 @@ const route = useRoute()
 const appStore = useAppStore()
 const showScrollUp = ref(false)
 const scrollY = ref(0)
+const isBottomReached = ref(false) // 바닥 도달 여부
 const isMobileMenuOpen = ref(false) // 모바일 메뉴 상태
 let scrollContainer = null
 let scrollListener = null
+
+const isMobile = ref(false)
+const resizeObserver = ref(null)
 
 // 현재 페이지가 관리자 페이지인지 확인
 const isAdminPage = computed(() => route.path.startsWith('/admin'))
@@ -91,11 +95,7 @@ const shouldShowSnsLinks = computed(() => {
   const pathsWithSnsLinks = ['/', '/about', '/projects', '/concerts', '/media', '/shop', '/contact']
   const isAllowedPath = pathsWithSnsLinks.includes(route.path) && !route.path.startsWith('/admin')
   
-  // about 페이지에서는 스크롤을 내렸을 때만 표시
-  if (isAboutPage.value) {
-    return isAllowedPath && scrollY.value > 100
-  }
-  
+  // 조건 없이 항상 표시
   return isAllowedPath
 })
 
@@ -107,12 +107,34 @@ const updateScrollUpVisibility = () => {
 }
 
 const updateScrollY = () => {
-  if (isAboutPage.value && scrollContainer) {
+  let currentScrollTop = 0
+  let currentClientHeight = 0
+  let currentScrollHeight = 0
+
+  // About 페이지이면서 데스크탑일 때만 내부 스크롤 컨테이너 사용
+  if (isAboutPage.value && !isMobile.value && scrollContainer) {
     // about 페이지의 스크롤 컨테이너에서 스크롤 위치 확인
-    scrollY.value = scrollContainer.scrollTop
+    currentScrollTop = scrollContainer.scrollTop
+    currentClientHeight = scrollContainer.clientHeight
+    currentScrollHeight = scrollContainer.scrollHeight
+    
+    scrollY.value = currentScrollTop
   } else {
-    // 다른 페이지에서는 window 스크롤 확인
-    scrollY.value = window.scrollY
+    // 다른 페이지거나 모바일 About 페이지는 window 스크롤 확인
+    currentScrollTop = window.scrollY
+    currentClientHeight = window.innerHeight
+    currentScrollHeight = document.documentElement.scrollHeight
+    
+    scrollY.value = currentScrollTop
+  }
+
+  // 바닥 도달 체크 (여유값 150px)
+  const threshold = 150
+  if (currentScrollHeight <= currentClientHeight) {
+    // 스크롤이 없는 경우 (컨텐츠가 짧음) -> 항상 바닥으로 간주
+    isBottomReached.value = true
+  } else {
+    isBottomReached.value = (currentScrollTop + currentClientHeight) >= (currentScrollHeight - threshold)
   }
 }
 
@@ -122,21 +144,28 @@ const setupAboutPageScroll = () => {
     scrollContainer.removeEventListener('scroll', scrollListener)
   }
   
-  // about 페이지인 경우 스크롤 컨테이너 찾기
+  scrollContainer = null
+  scrollListener = null
+
+  // about 페이지인 경우
   if (isAboutPage.value) {
     nextTick(() => {
-      // .about 클래스를 가진 요소 찾기
-      const aboutElement = document.querySelector('.about')
-      if (aboutElement) {
-        scrollContainer = aboutElement
-        scrollListener = () => updateScrollY()
-        scrollContainer.addEventListener('scroll', scrollListener, { passive: true })
-        updateScrollY() // 초기값 설정
+      // 데스크탑일 때만 .about 컨테이너의 스크롤 감지
+      if (!isMobile.value) {
+        const aboutElement = document.querySelector('.about')
+        if (aboutElement) {
+          scrollContainer = aboutElement
+          scrollListener = () => {
+            updateScrollY()
+          }
+          scrollContainer.addEventListener('scroll', scrollListener, { passive: true })
+        }
       }
+      // 모바일이거나 컨테이너를 못 찾은 경우엔 window 스크롤(handleWindowScroll)이 처리함
+      updateScrollY() // 초기값 설정
     })
   } else {
-    scrollContainer = null
-    scrollListener = null
+    updateScrollY() // 초기값 설정 (window 기준)
   }
 }
 
@@ -169,26 +198,61 @@ const closeMobileMenu = () => {
 watch(() => route.path, () => {
   setupAboutPageScroll()
   closeMobileMenu() // 페이지 이동 시 메뉴 닫기
+  // 라우트 변경 시 상태 초기화 및 재계산
+  isBottomReached.value = false
+  nextTick(() => {
+    updateScrollY()
+  })
 }, { immediate: true })
 
+// 윈도우 스크롤 핸들러 (통합)
+const handleWindowScroll = () => {
+  updateScrollUpVisibility()
+  // About 페이지 데스크탑 모드가 아닐 때만 window 스크롤 업데이트
+  if (!(isAboutPage.value && !isMobile.value)) {
+    updateScrollY()
+  }
+}
 
+const checkMobile = () => {
+  const wasMobile = isMobile.value
+  isMobile.value = window.innerWidth <= 768 // 48rem
+  
+  // 모바일/데스크탑 전환 시 스크롤 설정 재초기화
+  if (wasMobile !== isMobile.value) {
+    setupAboutPageScroll()
+  }
+  
+  updateScrollUpVisibility()
+  updateScrollY()
+}
 
 onMounted(() => {
   // 앱 스토어 초기화
   appStore.initialize()
   
-  updateScrollUpVisibility()
-  updateScrollY()
-  window.addEventListener('scroll', updateScrollUpVisibility, { passive: true })
-  window.addEventListener('resize', updateScrollUpVisibility)
+  checkMobile()
+  window.addEventListener('scroll', handleWindowScroll, { passive: true })
+  window.addEventListener('resize', checkMobile)
+  
+  // ResizeObserver로 body 높이 변화 감지 (아코디언 등으로 컨텐츠 길이 변할 때 대응)
+  resizeObserver.value = new ResizeObserver(() => {
+    updateScrollY()
+    updateScrollUpVisibility()
+  })
+  resizeObserver.value.observe(document.body)
   
   // about 페이지 스크롤 설정
   setupAboutPageScroll()
 })
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', updateScrollUpVisibility)
-  window.removeEventListener('resize', updateScrollUpVisibility)
+  window.removeEventListener('scroll', handleWindowScroll)
+  window.removeEventListener('resize', checkMobile)
+  
+  if (resizeObserver.value) {
+    resizeObserver.value.disconnect()
+  }
   
   // about 페이지 스크롤 리스너 제거
   if (scrollListener && scrollContainer) {
@@ -197,10 +261,17 @@ onUnmounted(() => {
 })
 
 const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  })
+  if (isAboutPage.value && !isMobile.value && scrollContainer) {
+    scrollContainer.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  } else {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
 }
 </script>
 
@@ -218,7 +289,20 @@ const scrollToTop = () => {
   .sns-links {
     gap: 1rem !important; /* 간격 줄임 */
     flex-wrap: nowrap !important; /* 줄바꿈 방지 */
+    
+    /* 모바일 가시성 제어 - 항상 표시 */
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transition: opacity 0.5s ease;
   }
+  
+  /* 바닥에 도달했을 때만 표시 (제거됨 - 항상 표시) */
+  /*
+  .sns-links.mobile-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  */
   
   /* 모바일 네비게이션 여백 조정 (로고/햄버거 위치) */
   .navbar .container {

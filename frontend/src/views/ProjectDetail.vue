@@ -122,7 +122,7 @@ onMounted(async () => {
 .project-detail {
   background-color: white;
   color: #1E1D1D;
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'Jost', sans-serif;
   height: calc(100vh - 3.75rem);
   margin-top: -3.75rem;
   padding-top: 6rem;

@@ -323,9 +323,7 @@ onMounted(() => {
   
   .download-section h2 {
     font-size: 1rem;
-    border-bottom: 1px solid #ddd;
     padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
   }
 }
 </style>

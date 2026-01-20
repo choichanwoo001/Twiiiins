@@ -29,13 +29,39 @@
       </div>
     </div>
 
+    <!-- 모바일 네비게이션 -->
+    <div class="mobile-nav" v-if="isMobile">
+      <div class="mobile-nav-item"
+           :class="{ active: activeSection === 'music' || activeSection === '' }"
+           @click="setActiveSection('music')">
+        MUSIC
+      </div>
+      <div class="mobile-nav-item" 
+           :class="{ active: activeSection === 'videos' }"
+           @click="setActiveSection('videos')">
+        VIDEOS
+      </div>
+      <div class="mobile-nav-item" 
+           :class="{ active: activeSection === 'photos' }"
+           @click="setActiveSection('photos')">
+        PHOTOS
+      </div>
+      <div class="mobile-nav-item" 
+           :class="{ active: activeSection === 'news' }"
+           @click="setActiveSection('news')">
+        NEWS
+      </div>
+      <div class="mobile-nav-item" 
+           :class="{ active: activeSection === 'equipment' }"
+           @click="setActiveSection('equipment')">
+        EQUIPMENT
+      </div>
+    </div>
+
     <!-- 메인 콘텐츠 영역 -->
     <div class="media-content">
       <!-- MUSIC 섹션 (기본 표시) -->
       <div v-if="activeSection === 'music' || activeSection === ''" class="content-section">
-        <div class="mobile-section-title" v-if="isMobile">
-          <h1>MUSIC</h1>
-        </div>
         <div class="albums-grid">
           <div class="music-item" v-for="item in musicItems" :key="item.id">
             <div class="music-cover">
@@ -51,9 +77,6 @@
 
       <!-- VIDEOS 섹션 -->
       <div v-if="activeSection === 'videos'" class="content-section">
-        <div class="mobile-section-title" v-if="isMobile">
-          <h1>VIDEOS</h1>
-        </div>
         <div class="video-list" v-if="videos.length > 0">
           <div class="video-item" v-for="video in videos" :key="video.id">
             <div class="video-embed" v-if="isValidEmbedUrl(video.embedUrl)">
@@ -83,9 +106,6 @@
 
       <!-- PHOTOS 섹션 -->
       <div v-if="activeSection === 'photos'" class="content-section">
-        <div class="mobile-section-title" v-if="isMobile">
-          <h1>PHOTOS</h1>
-        </div>
         <div class="photos-gallery">
           <div class="photo-group" v-for="group in photoGroups" :key="group.id">
             <div class="photo-group-title">{{ group.title }}</div>
@@ -595,7 +615,7 @@ const toggleNews = (newsId) => {
 .photo-group {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 .photo-group-title {
@@ -603,13 +623,12 @@ const toggleNews = (newsId) => {
   font-weight: 600;
   color: #FBCE7B;
   text-align: left;
-  margin-bottom: 0.5rem;
 }
 
 .photos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
-  gap: 1rem;
+  gap: 0.3rem;
 }
 
 .photo-item {
@@ -799,10 +818,38 @@ const toggleNews = (newsId) => {
     display: none;
   }
   
+  /* 모바일 네비게이션 스타일 */
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    gap: 0.5rem;
+  }
+
+  .mobile-nav-item {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: rgba(251, 206, 123, 0.6); /* 비활성 상태: 연한 주황색 + 투명도 */
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+  }
+
+  .mobile-nav-item.active {
+    font-size: clamp(2.2rem, 11vw, 3rem); /* 화면 폭에 따라 유동적으로 조절 (2.2rem ~ 3rem) */
+    color: #FBCE7B;
+    opacity: 1;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word; /* 혹시라도 넘치면 줄바꿈, 하지만 폰트 조절로 한줄 유지 목표 */
+  }
+
   .media-content {
     padding: 1rem;
-    padding-bottom: 8rem; /* SNS 링크와 겹치지 않도록 여백 추가 */
-    overflow: visible; /* 모바일은 전체 페이지 스크롤 */
+    padding-bottom: 8rem;
+    overflow: visible;
+    padding-top: 0; /* 네비게이션이 위에 있으므로 상단 패딩 제거 */
   }
   
   /* 모바일 콘텐츠 그리드 조정 */
@@ -818,22 +865,6 @@ const toggleNews = (newsId) => {
     max-height: none;
     width: 100%;
     aspect-ratio: 1 / 1;
-  }
-
-  .mobile-section-title {
-    display: block;
-    margin-bottom: 2rem;
-    padding-left: 0.5rem;
-  }
-
-  .mobile-section-title h1 {
-    font-size: 2.5rem;
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    color: #FBCE7B;
-    text-transform: uppercase;
-    line-height: 1;
-    margin: 0;
   }
 
   .music-title {

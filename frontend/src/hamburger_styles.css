@@ -3,8 +3,8 @@
     display: none;
     flex-direction: column;
     justify-content: space-around;
-    width: 2rem;
-    height: 2rem;
+    width: 0.5rem;
+    height: 0.5rem;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -14,7 +14,7 @@
 }
 
 .hamburger-button span {
-    width: 2rem;
+    width: 0.5rem;
     height: 0.125rem;
     background: #1E1D1D;
     transition: all 0.3s linear;

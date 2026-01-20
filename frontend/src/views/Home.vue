@@ -3,7 +3,10 @@
     <!-- 히어로 섹션 (메인 이미지) -->
     <section class="hero-section">
       <div class="hero-image">
-        <img src="../imgs/home.png" alt="TWIIIINS Performance">
+        <picture>
+          <source media="(max-width: 48rem)" :srcset="mobileHomeImg">
+          <img :src="homeImg" alt="TWIIIINS Performance">
+        </picture>
       </div>
     </section>
 
@@ -49,6 +52,10 @@ import { useConcertStore } from '../stores'
 import { useRouter } from 'vue-router'
 import { formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
+
+// 이미지 리소스 임포트
+import homeImg from '../imgs/home.png'
+import mobileHomeImg from '../imgs/mobile_home.png'
 
 // 스토어 사용
 const concertStore = useConcertStore()
@@ -173,6 +180,14 @@ onUnmounted(() => {
 }
 
 .hero-image {
+  width: 100%;
+  height: 100%;
+}
+
+
+
+.hero-image picture {
+  display: block;
   width: 100%;
   height: 100%;
 }

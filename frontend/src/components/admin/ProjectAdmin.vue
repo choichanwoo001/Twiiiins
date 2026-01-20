@@ -1028,7 +1028,7 @@ onMounted(() => {
   background-color: #f5f5f5;
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'Jost', sans-serif;
   font-size: 0.875rem;
   color: #333;
 }
