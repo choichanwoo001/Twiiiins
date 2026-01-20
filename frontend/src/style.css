@@ -1,15 +1,143 @@
 @font-face {
-  font-family: 'Josefin Sans';
-  src: url('./assets/fonts/JosefinSans-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-100-Hairline.ttf') format('truetype');
+  font-weight: 100;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Josefin Sans';
-  src: url('./assets/fonts/JosefinSans-Italic-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-100-HairlineItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-200-Thin.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-200-ThinItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-300-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-300-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-400-Book.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-400-BookItalic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-500-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-500-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-600-Semi.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-600-SemiItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-700-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-700-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-800-Heavy.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-800-HeavyItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-900-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Jost';
+  src: url('./assets/fonts/Jost-900-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
   font-style: italic;
   font-display: swap;
 }
@@ -21,7 +149,7 @@
 }
 
 body {
-  font-family: 'Josefin Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
   color: #1E1D1D;
   background: #fff;
@@ -38,13 +166,16 @@ body.has-fullpage-scroll {
   background: none;
   color: #1E1D1D;
   padding: 1rem 0;
+  padding-top: calc(1rem + env(safe-area-inset-top));
+  /* 노치 영역 대응 */
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
   transition: all 0.5s ease;
-  height: 3.75rem; /* 정확한 헤더 높이 설정 */
+  height: auto;
+  min-height: 3.75rem;
   opacity: 1;
 }
 
@@ -57,6 +188,7 @@ body.events-section-active .navbar {
 /* 홈 페이지에서 로고가 커질 때 네비게이션 바의 패딩 조정 */
 body:has(.router-link-active[href="/"]) .navbar {
   padding: 1rem 0;
+  padding-top: calc(1rem + env(safe-area-inset-top));
 }
 
 .navbar .container {
@@ -84,6 +216,14 @@ body:has(.router-link-active[href="/"]) .logo {
   line-height: 1;
 }
 
+/* 모바일 화면에서 로고 크기 조절 */
+@media (max-width: 48rem) {
+  body:has(.router-link-active[href="/"]) .logo {
+    font-size: 3rem;
+    /* 모바일에서는 크기 축소 */
+  }
+}
+
 .nav-links {
   display: flex;
   gap: 2rem;
@@ -108,7 +248,8 @@ body:has(.router-link-active[href="/"]) .logo {
 
 /* 메인 컨텐츠 */
 main {
-  padding-top: 3.75rem; /* fixed 헤더를 위한 정확한 상단 패딩 */
+  padding-top: 3.75rem;
+  /* fixed 헤더를 위한 정확한 상단 패딩 */
 }
 
 /* Admin 페이지에서는 패딩 제거 */
@@ -119,7 +260,9 @@ main:has(.admin) {
 /* 풀페이지 스크롤을 위한 메인 컨텐츠 조정 */
 main:has(.fullpage-scroll) {
   padding: 0;
-  min-height: 100vh;
+  min-height: 100dvh;
+  /* 모바일 브라우저 주소창 대응 */
+  height: 100dvh;
   background: transparent;
 }
 
@@ -173,7 +316,7 @@ body.events-section-active .sns-link {
   bottom: 1rem;
   right: 1rem;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.9);
+  background: transparent;
   border: none;
   width: 2.5rem;
   height: 2.5rem;
@@ -187,7 +330,6 @@ body.events-section-active .sns-link {
 }
 
 .scroll-up-button:hover {
-  background: rgba(255, 255, 255, 1);
   transform: translateY(-0.125rem);
 }
 
@@ -222,3 +364,123 @@ body.events-section-active .sns-link {
 
 /* 스크롤바가 컨텐츠 영역 내부에 표시되도록 설정 */
 /* 각 컴포넌트에서 scrollbar-gutter를 개별적으로 적용 */
+
+/* 모바일 반응형 스타일 */
+@media (max-width: 48rem) {
+
+  /* SNS 링크와의 간격을 위해 메인 컨텐츠 하단 여백 추가 */
+  main {
+    padding-bottom: 8rem;
+  }
+
+  .sns-links {
+    width: 100%;
+    left: 0;
+    right: 0;
+    bottom: 2rem;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0 1rem;
+    flex-wrap: wrap;
+    /* 화면이 매우 좁을 경우 줄바꿈 */
+  }
+
+  .sns-link {
+    font-size: 0.75rem;
+    /* 모바일에서 폰트 크기 약간 축소 */
+  }
+}
+
+/* ?�버�?버튼 ?��???(기본?�으�??��?) */
+.hamburger-button {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2000;
+  /* ?�버?�이보다 ?�에 ?�치 */
+}
+
+.hamburger-button span {
+  width: 1.5rem;
+  height: 0.125rem;
+  background: #1E1D1D;
+  transition: all 0.3s linear;
+  position: relative;
+  transform-origin: 1px;
+}
+
+/* ?�버�?버튼 ?�니메이??*/
+.hamburger-button.is-open span:first-child {
+  transform: rotate(45deg);
+}
+
+.hamburger-button.is-open span:nth-child(2) {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.hamburger-button.is-open span:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+/* 모바??메뉴 ?�버?�이 */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  z-index: 1500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-menu-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.mobile-nav-links a {
+  font-size: 1.5rem;
+  color: #1E1D1D;
+  text-decoration: none;
+  font-weight: 300;
+  letter-spacing: 0.1rem;
+}
+
+/* 모바??반응???��????�데?�트 */
+@media (max-width: 48rem) {
+
+  /* ?�스?�탑 메뉴 ?�기�?*/
+  .desktop-nav {
+    display: none;
+  }
+
+  /* ?�버�?버튼 보이�?*/
+  .hamburger-button {
+    display: flex;
+  }
+
+  /* 모바일에서 스크롤 업 버튼 숨기기 */
+  .scroll-up-button {
+    display: none !important;
+  }
+}

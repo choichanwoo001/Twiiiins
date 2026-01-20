@@ -14,7 +14,10 @@
           <div class="events-list">
           <div class="event-item" v-for="event in upcomingEvents" :key="event.id">
             <div class="event-preview" @click="toggleEvent(event.id)">
-              <div class="event-date">{{ event.date }}</div>
+              <div class="event-date">
+                <span class="date-main">{{ event.dateMain }}</span>
+                <span class="date-year">{{ event.dateYear }}</span>
+              </div>
               <div class="event-info">
                 <div class="event-location">{{ event.location }}</div>
                 <div class="event-name">{{ event.name }}</div>
@@ -61,7 +64,10 @@
           <div class="events-list">
           <div class="event-item" v-for="event in pastEvents" :key="event.id">
             <div class="event-preview" @click="togglePastEvent(event.id)">
-              <div class="event-date">{{ event.date }}</div>
+              <div class="event-date">
+                <span class="date-main">{{ event.dateMain }}</span>
+                <span class="date-year">{{ event.dateYear }}</span>
+              </div>
               <div class="event-info">
                 <div class="event-location">{{ event.location }}</div>
                 <div class="event-name">{{ event.name }}</div>
@@ -114,19 +120,27 @@ const pastEvents = ref([])
 const loadConcerts = async () => {
   try {
     const response = await axios.get('/concerts')
-    const allConcerts = response.data.data.map(concert => ({
-      id: concert.id,
-      date: formatDate(concert.date, 'date', 'en-US'),
-      location: concert.location,
-      name: concert.name,
-      expanded: false,
-      startTime: concert.startTime || '',
-      ticketInfo: concert.ticketInfo || '',
-      fullLocation: concert.fullLocation || '',
-      googleMap: concert.googleMapUrl || '',
-      collaborationInfo: concert.collaborationInfo || '',
-      isPast: concert.isPast
-    }))
+    const allConcerts = response.data.data.map(concert => {
+      const formattedDate = formatDate(concert.date, 'date', 'en-US')
+      // 날짜 분리 (예: "July 30, 2026" -> ["July 30,", "2026"])
+      const [dateMain, dateYear] = formattedDate.split(/(?=\s\d{4})/).map(s => s.trim())
+      
+      return {
+        id: concert.id,
+        date: formattedDate,
+        dateMain: dateMain || formattedDate,
+        dateYear: dateYear || '',
+        location: concert.location,
+        name: concert.name,
+        expanded: false,
+        startTime: concert.startTime || '',
+        ticketInfo: concert.ticketInfo || '',
+        fullLocation: concert.fullLocation || '',
+        googleMap: concert.googleMapUrl || '',
+        collaborationInfo: concert.collaborationInfo || '',
+        isPast: concert.isPast
+      }
+    })
     
     // 다가오는 이벤트와 과거 이벤트로 분리하고 날짜순으로 정렬
     upcomingEvents.value = allConcerts
@@ -268,6 +282,17 @@ onMounted(() => {
   color: #555;
   min-width: 9.375rem;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.date-main {
+  display: inline;
+}
+
+.date-year {
+  display: inline;
+  margin-left: 0.25rem;
 }
 
 .event-info {
@@ -347,4 +372,115 @@ onMounted(() => {
   text-decoration: underline;
 }
 
+/* 모바일 반응형 스타일 */
+@media (max-width: 48rem) {
+  .concert {
+    display: block; /* 그리드 해제 */
+    padding: 6rem 1.5rem 2rem 1.5rem; /* 좌우 여백 축소 */
+    height: auto; /* 전체 스크롤 허용 */
+    overflow: visible;
+    gap: 0;
+  }
+
+  .concert-title {
+    padding-top: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .concert-title h1 {
+    font-size: 2.22rem; /* 모바일 타이틀 사이즈 조정 */
+    text-align: left;
+  }
+
+  .events-container {
+    padding-top: 0;
+    overflow: visible;
+    height: auto;
+  }
+
+  .section-layout {
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+    gap: 1rem;
+  }
+
+  .section-title {
+    padding-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 300;
+  }
+
+  .event-preview {
+    align-items: flex-start; /* 상단 정렬 */
+    padding: 1.25rem 0;
+  }
+
+  .event-date {
+    min-width: 4rem; /* 최소 너비 확보 */
+    margin-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+  }
+
+  .date-main {
+    font-weight: 500;
+    color: #1E1D1D;
+    font-size: 0.9rem; /* 폰트 크기 복구 */
+    display: block;
+  }
+
+  .date-year {
+    display: block; /* 줄바꿈 복구 */
+    margin-left: 0;
+    color: #888;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+  }
+
+  .event-info {
+    margin-left: 0;
+    margin-right: 0.5rem;
+    min-width: 0;
+    flex: 1; /* 남은 공간 차지 */
+  }
+  
+  .event-location {
+    font-size: 0.95rem;
+    white-space: normal; /* 줄바꿈 허용 */
+    overflow: visible; /* 잘림 방지 */
+    text-overflow: clip; /* ... 제거 */
+    line-height: 1.3;
+    margin-bottom: 0.2rem;
+  }
+
+  .event-name {
+    white-space: normal; /* 줄바꿈 허용 */
+    overflow: visible; /* 잘림 방지 */
+    text-overflow: clip; /* ... 제거 */
+    line-height: 1.3;
+  }
+
+  /* 상세 정보 레이아웃 가로 배치에서 세로 배치로 변경 */
+  .detail-row {
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .detail-label {
+    min-width: auto;
+    width: 100%;
+    font-size: 0.85rem;
+    color: #888;
+  }
+
+  /* 모바일에서 상세 정보 텍스트 크기 조정 */
+  .detail-value, .detail-link {
+    font-size: 0.95rem; /* 가독성 위해 약간 키움 */
+    word-break: break-all; /* 긴 URL 등 줄바꿈 */
+    line-height: 1.4;
+  }
+}
 </style>

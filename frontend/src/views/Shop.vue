@@ -77,4 +77,32 @@
   font-weight: 300;
 }
 
+@media (max-width: 768px) {
+  .shop {
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 1.5rem 2rem;
+    gap: 1.5rem;
+    height: auto;
+    min-height: calc(100vh - 3.75rem);
+    overflow-y: auto;
+  }
+
+  .shop-title {
+    padding-top: 0;
+    width: 100%;
+  }
+
+  .shop-content {
+    margin-right: 0;
+    padding-top: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .no-products {
+    padding: 2rem 0;
+  }
+}
 </style>

@@ -541,8 +541,8 @@ onUnmounted(() => {
 .photos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
   /* 이미지 로딩 시 레이아웃 시프트 방지 */
   contain: layout;
 }

@@ -122,7 +122,7 @@ onMounted(async () => {
 .project-detail {
   background-color: white;
   color: #1E1D1D;
-  font-family: 'Josefin Sans', sans-serif;
+  font-family: 'Jost', sans-serif;
   height: calc(100vh - 3.75rem);
   margin-top: -3.75rem;
   padding-top: 6rem;
@@ -317,4 +317,72 @@ onMounted(async () => {
   letter-spacing: 0.05em;
 }
 
+
+/* 모바일 최적화 (768px 이하) */
+@media (max-width: 768px) {
+  .project-detail {
+    height: auto;
+    overflow: visible;
+    padding-top: 4rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 4rem;
+  }
+
+  /* 텍스트 섹션 */
+  .project-text h1 {
+    font-size: 2.5rem;
+    max-width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .project-content {
+    max-width: 100%;
+  }
+
+  .project-subtitle {
+    font-size: 1.5rem;
+  }
+
+  /* 이미지 섹션 */
+  .project-images {
+    padding: 2rem 0; /* 좌우 패딩 제거 (부모 패딩 사용) */
+    padding-bottom: 4rem;
+  }
+
+  .image-grid {
+    max-width: 100%;
+    gap: 1rem;
+  }
+
+  .image-row {
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .image-item {
+    height: auto;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .image-item img {
+    width: 100%;
+    height: auto;
+    max-height: none;
+  }
+
+  /* 리뷰 섹션 */
+  .reviews-section {
+    padding: 3rem 1rem;
+    padding-bottom: 6rem;
+  }
+
+  .reviews-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
 </style>

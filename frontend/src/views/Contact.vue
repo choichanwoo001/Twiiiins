@@ -249,4 +249,81 @@ onMounted(() => {
   color: #666;
 }
 
+/* 모바일 반응형 */
+@media screen and (max-width: 768px) {
+  .contact {
+    display: block; /* Grid 대신 Block 사용 */
+    padding-top: 5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    height: auto; 
+    overflow-y: visible; /* 전체 스크롤 허용 */
+  }
+
+  /* 좌측 타이틀 */
+  .contact-title {
+    padding-top: 0;
+    margin-bottom: 2rem;
+  }
+
+  .contact-title h1 {
+    font-size: 2.5rem; /* 모바일 타이틀 크기 조정 */
+  }
+
+  /* 우측 콘텐츠 */
+  .contact-content {
+    margin-right: 0;
+    padding-top: 0;
+    padding-bottom: 4rem;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* 안내 문구 */
+  .contact-info {
+    margin-bottom: 2.5rem;
+  }
+  
+  .intro-text {
+    font-size: 0.8125rem; /* 13px */
+  }
+
+  /* 연락처 + 다운로드 섹션 스택킹 */
+  .contact-body {
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .contact-details {
+    max-width: none;
+    width: 100%;
+    gap: 1.5rem;
+  }
+
+  .contact-item {
+    gap: 0.125rem;
+  }
+
+  .contact-name {
+    font-size: 1rem;
+  }
+  
+  .contact-role {
+    font-size: 0.8125rem;
+  }
+
+  .download-section {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .download-section h2 {
+    font-size: 1rem;
+    padding-bottom: 0.5rem;
+  }
+}
 </style>
