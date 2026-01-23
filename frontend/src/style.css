@@ -142,6 +142,24 @@
   font-display: swap;
 }
 
+:root {
+  /* Colors */
+  --color-primary: #1E1D1D;
+  --color-text: #1E1D1D;
+  --color-text-light: #555;
+  --color-text-lighter: #888;
+  --color-background: #fff;
+  --color-accent: #FBCE7B;
+  --color-border: #e0e0e0;
+  --color-scrollbar: rgba(0, 0, 0, 0.2);
+  --color-scrollbar-hover: rgba(0, 0, 0, 0.3);
+  --color-overlay-bg: rgba(255, 255, 255, 0.45);
+
+  /* Layout */
+  --navbar-height: 3.75rem;
+  --safe-area-top: env(safe-area-inset-top);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -151,8 +169,8 @@
 body {
   font-family: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
-  color: #1E1D1D;
-  background: #fff;
+  color: var(--color-text);
+  background: var(--color-background);
   overflow-x: hidden;
 }
 
@@ -164,9 +182,9 @@ body.has-fullpage-scroll {
 /* 네비게이션 */
 .navbar {
   background: none;
-  color: #1E1D1D;
+  color: var(--color-text);
   padding: 1rem 0;
-  padding-top: calc(1rem + env(safe-area-inset-top));
+  padding-top: calc(1rem + var(--safe-area-top));
   /* 노치 영역 대응 */
   position: fixed;
   top: 0;
@@ -175,7 +193,7 @@ body.has-fullpage-scroll {
   z-index: 1000;
   transition: all 0.5s ease;
   height: auto;
-  min-height: 3.75rem;
+  min-height: var(--navbar-height);
   opacity: 1;
 }
 
@@ -188,7 +206,7 @@ body.events-section-active .navbar {
 /* 홈 페이지에서 로고가 커질 때 네비게이션 바의 패딩 조정 */
 body:has(.router-link-active[href="/"]) .navbar {
   padding: 1rem 0;
-  padding-top: calc(1rem + env(safe-area-inset-top));
+  padding-top: calc(1rem + var(--safe-area-top));
 }
 
 .navbar .container {
@@ -202,7 +220,7 @@ body:has(.router-link-active[href="/"]) .navbar {
 .logo {
   font-size: 1.8rem;
   font-weight: 400;
-  color: #1E1D1D;
+  color: var(--color-text);
   text-decoration: none;
   letter-spacing: 0.125rem;
   line-height: 1;
@@ -231,7 +249,7 @@ body:has(.router-link-active[href="/"]) .logo {
 }
 
 .nav-links a {
-  color: #1E1D1D;
+  color: var(--color-text);
   text-decoration: none;
   transition: opacity 0.3s;
   line-height: 1.5rem;
@@ -243,12 +261,12 @@ body:has(.router-link-active[href="/"]) .logo {
 }
 
 .nav-links a.router-link-active {
-  border-bottom: 0.125rem solid #1E1D1D;
+  border-bottom: 0.125rem solid var(--color-text);
 }
 
 /* 메인 컨텐츠 */
 main {
-  padding-top: 3.75rem;
+  padding-top: var(--navbar-height);
   /* fixed 헤더를 위한 정확한 상단 패딩 */
 }
 
@@ -299,7 +317,7 @@ body.events-section-active .sns-link {
 }
 
 .sns-link {
-  color: #1E1D1D;
+  color: var(--color-text);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
@@ -336,8 +354,10 @@ body.events-section-active .sns-link {
 /* 스크롤바가 컨테이너 내부에 표시되도록 설정 */
 /* 웹킷 브라우저 (Chrome, Edge, Safari) */
 *::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 0.75rem;
+  /* 12px */
+  height: 0.75rem;
+  /* 12px */
 }
 
 *::-webkit-scrollbar-track {
@@ -345,21 +365,23 @@ body.events-section-active .sns-link {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  border: 2px solid transparent;
+  background: var(--color-scrollbar);
+  border-radius: 0.375rem;
+  /* 6px */
+  border: 0.125rem solid transparent;
+  /* 2px */
   background-clip: padding-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--color-scrollbar-hover);
   background-clip: padding-box;
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  scrollbar-color: var(--color-scrollbar) transparent;
 }
 
 /* 스크롤바가 컨텐츠 영역 내부에 표시되도록 설정 */
@@ -391,7 +413,7 @@ body.events-section-active .sns-link {
   }
 }
 
-/* ?�버�?버튼 ?��???(기본?�으�??��?) */
+/* 햄버거 버튼 스타일(기본적으로 숨김) */
 .hamburger-button {
   display: none;
   flex-direction: column;
@@ -403,33 +425,34 @@ body.events-section-active .sns-link {
   cursor: pointer;
   padding: 0;
   z-index: 2000;
-  /* ?�버?�이보다 ?�에 ?�치 */
+  /* 오버레이보다 위에 배치 */
 }
 
 .hamburger-button span {
   width: 1.5rem;
   height: 0.125rem;
-  background: #1E1D1D;
+  background: var(--color-text);
   transition: all 0.3s linear;
   position: relative;
   transform-origin: 1px;
 }
 
-/* ?�버�?버튼 ?�니메이??*/
+/* 햄버거 버튼 애니메이션 */
 .hamburger-button.is-open span:first-child {
   transform: rotate(45deg);
 }
 
 .hamburger-button.is-open span:nth-child(2) {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(1.25rem);
+  /* 20px -> 1.25rem */
 }
 
 .hamburger-button.is-open span:nth-child(3) {
   transform: rotate(-45deg);
 }
 
-/* 모바??메뉴 ?�버?�이 */
+/* 모바일 메뉴 오버레이 */
 .mobile-menu-overlay {
   position: fixed;
   top: 0;
@@ -460,21 +483,21 @@ body.events-section-active .sns-link {
 
 .mobile-nav-links a {
   font-size: 1.5rem;
-  color: #1E1D1D;
+  color: var(--color-text);
   text-decoration: none;
   font-weight: 300;
   letter-spacing: 0.1rem;
 }
 
-/* 모바??반응???��????�데?�트 */
+/* 모바일 반응형 업데이트 */
 @media (max-width: 48rem) {
 
-  /* ?�스?�탑 메뉴 ?�기�?*/
+  /* 데스크탑 메뉴 숨기기 */
   .desktop-nav {
     display: none;
   }
 
-  /* ?�버�?버튼 보이�?*/
+  /* 햄버거 버튼 보이기 */
   .hamburger-button {
     display: flex;
   }
@@ -482,5 +505,107 @@ body.events-section-active .sns-link {
   /* 모바일에서 스크롤 업 버튼 숨기기 */
   .scroll-up-button {
     display: none !important;
+  }
+
+  /* --- App.vue에서 이관된 모바일 스타일 --- */
+
+  .sns-link {
+    font-size: 3.2vw !important;
+    /* 글자 크기 더 축소 */
+    font-weight: 300 !important;
+    max-width: 100%;
+  }
+
+  /* SNS 링크 간격 조정 */
+  .sns-links {
+    gap: 1rem !important;
+    /* 간격 줄임 */
+    flex-wrap: nowrap !important;
+    /* 줄바꿈 방지 */
+
+    /* 모바일 가시성 제어 - 항상 표시 */
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transition: opacity 0.5s ease;
+  }
+
+  /* 모바일 네비게이션 여백 조정 (로고/햄버거 위치) */
+  .navbar .container {
+    padding: 0 1.5rem !important;
+    /* 양쪽 여백 늘림 */
+  }
+
+  /* 로고 사이즈 오버라이드 */
+  .logo {
+    font-size: 2rem !important;
+    /* 모바일 로고 축소 */
+  }
+
+  /* 모바일 메뉴 오버레이 스크롤 및 배경 스타일 */
+  .mobile-menu-overlay {
+    background: var(--color-overlay-bg) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+
+    /* 레이아웃 수정: 상단 잘림 방지 */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    /* 중앙 정렬 대신 상단 정렬 */
+    padding-top: 8rem !important;
+    /* 상단 여백 확보 */
+    padding-bottom: 4rem !important;
+  }
+
+  .mobile-menu-overlay::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* 모바일 메뉴 컨텐츠 여백 확보 */
+  .mobile-nav-links {
+    padding: 0 !important;
+    /* 오버레이 패딩으로 대체 */
+    min-height: min-content !important;
+    width: 100%;
+  }
+
+  /* MEDIA 토글 버튼 스타일 (링크와 동일하게) */
+  .mobile-menu-item {
+    font-size: 1.5rem !important;
+    color: var(--color-text) !important;
+    font-weight: 300 !important;
+    letter-spacing: 0.1rem !important;
+    cursor: pointer !important;
+  }
+
+  /* 모바일 메뉴 미디어 서브항목 스타일 */
+  .mobile-sub-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  .mobile-sub-link {
+    font-size: 1rem !important;
+    /* 메인 메뉴보다 작게 */
+    font-weight: 300 !important;
+    color: var(--color-text-lighter) !important;
+    /* 약간 연하게 */
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: color 0.3s ease !important;
+  }
+
+  .mobile-sub-link:hover {
+    color: var(--color-accent) !important;
+  }
+
+  .mobile-menu-item.active {
+    color: var(--color-text) !important;
   }
 }
