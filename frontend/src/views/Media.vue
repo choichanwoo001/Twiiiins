@@ -631,6 +631,12 @@ const toggleNews = (newsId) => {
   gap: 0.3rem;
 }
 
+@media (max-width: 48rem) {
+  .photos-grid {
+    gap: 0.1rem;
+  }
+}
+
 .photo-item {
   overflow: hidden;
   cursor: pointer;
@@ -691,7 +697,7 @@ const toggleNews = (newsId) => {
 
 .news-title {
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .news-expand {
@@ -740,7 +746,7 @@ const toggleNews = (newsId) => {
 
 .image-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.1rem;
   flex-wrap: wrap;
   min-height: 18.75rem;
   align-items: center; /* flex-start -> center */
@@ -855,7 +861,7 @@ const toggleNews = (newsId) => {
   /* 모바일 콘텐츠 그리드 조정 */
   .albums-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.8rem;
+    gap: 0.1rem;
     row-gap: 2rem;
   }
   
@@ -935,7 +941,7 @@ const toggleNews = (newsId) => {
 
   .image-row {
     flex-direction: column; /* Stack images vertically on mobile */
-    gap: 1rem;
+    gap: 0.1rem;
   }
 
   .image-item {

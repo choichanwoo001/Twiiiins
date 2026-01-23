@@ -136,7 +136,7 @@
 
 .image-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.1rem;
   height: 18.75rem;
 }
 
