@@ -223,7 +223,7 @@ onMounted(async () => {
 
 .image-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.1rem;
   flex-wrap: wrap;
   min-height: 18.75rem;
   align-items: center; /* flex-start -> center */
@@ -352,14 +352,14 @@ onMounted(async () => {
 
   .image-grid {
     max-width: 100%;
-    gap: 1rem;
+    gap: 0.1rem;
   }
 
   .image-row {
     height: auto;
     min-height: 0;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.1rem;
   }
 
   .image-item {

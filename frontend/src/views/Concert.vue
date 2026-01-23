@@ -303,7 +303,7 @@ onMounted(() => {
 
 .event-location {
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: 500;
   color: #1E1D1D;
   margin-bottom: 0.25rem;
 }
