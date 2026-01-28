@@ -40,7 +40,7 @@ DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 
 # CORS 설정 (도메인 연결 전 임시 IP 및 로컬 허용)
-CORS_ORIGINS=http://35.159.96.92,http://localhost:5173
+CORS_ORIGINS=https://twiiiins.com,https://www.twiiiins.com,http://twiiiins.com,http://www.twiiiins.com,http://localhost:5173
 
 # 서버 설정
 PORT=8080
