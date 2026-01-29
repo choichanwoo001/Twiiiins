@@ -93,7 +93,7 @@ jobs:
           # GHCR 로그인 정보 생성
           echo ${{ secrets.GITHUB_TOKEN }} > gh_token.txt
 
-          # 1. 디스크 정리 및 준비
+          # 1. 디스크 정리 및 준비 (순서 중요: 중지 -> 삭제 -> Prune)
           echo "=== EC2 배포 시작 ==="
           ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
             # 홈 디렉토리 변수 사용 (직접 $HOME 사용이 가장 안전)
@@ -101,15 +101,15 @@ jobs:
             mkdir -p $TARGET_DIR/frontend
             mkdir -p $TARGET_DIR/backend
             
-            # 1.1 시스템 및 도커 정리
+            # 1.1 컨테이너 강제 중지 및 삭제 (이름 기반으로 확실하게)
+            # 경로 의존적인 docker-compose down 대신 명시적 삭제 사용
+            echo "Stopping and removing containers..."
+            docker rm -f twiiiins-backend twiiiins-nginx || true
+            
+            # 1.2 시스템 및 도커 정리 (컨테이너가 삭제되었으므로 이미지가 지워짐)
+            echo "Pruning system..."
             sudo journalctl --vacuum-size=50M || true
             docker system prune -af --volumes || true
-            
-            # 1.2 기존 컨테이너 중지
-            cd $TARGET_DIR || true
-            if [ -f "docker-compose.yml" ]; then
-              docker-compose down || true
-            fi
             
             # 디스크 공간 확인
             df -h
