@@ -1,9 +1,10 @@
 services:
   # Spring Boot 백엔드
   backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
+    # build: 
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+    image: ghcr.io/choichanwoo001/twiiiins-backend:latest
     container_name: twiiiins-backend
     restart: unless-stopped
     ports:
