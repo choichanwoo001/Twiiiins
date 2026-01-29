@@ -265,15 +265,7 @@ const isValidEmbedUrl = (url) => {
   const isValid = youtubeEmbedPattern.test(cleanUrl)
   
   // 디버깅용 (개발 환경에서만)
-  /*
-  if (import.meta.env.DEV && !isValid) {
-    console.log('embedUrl 검사 실패:', {
-      originalUrl: trimmedUrl,
-      cleanUrl: cleanUrl,
-      pattern: youtubeEmbedPattern.toString()
-    })
-  }
-  */
+
   
   return isValid
 }
