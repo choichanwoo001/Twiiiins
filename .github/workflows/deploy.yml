@@ -96,17 +96,17 @@ jobs:
           # 1. 디스크 정리 및 준비
           echo "=== EC2 배포 시작 ==="
           ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
-            # 홈 디렉토리 변수 사용
-            export HOME_DIR="/home/$USER"
-            mkdir -p $HOME_DIR/twiiiins/Twiiiins/frontend
-            mkdir -p $HOME_DIR/twiiiins/Twiiiins/backend
+            # 홈 디렉토리 변수 사용 (직접 $HOME 사용이 가장 안전)
+            export TARGET_DIR="$HOME/twiiiins/Twiiiins"
+            mkdir -p $TARGET_DIR/frontend
+            mkdir -p $TARGET_DIR/backend
             
             # 1.1 시스템 및 도커 정리
             sudo journalctl --vacuum-size=50M || true
             docker system prune -af --volumes || true
             
             # 1.2 기존 컨테이너 중지
-            cd $HOME_DIR/twiiiins/Twiiiins || true
+            cd $TARGET_DIR || true
             if [ -f "docker-compose.yml" ]; then
               docker-compose down || true
             fi
@@ -116,8 +116,7 @@ jobs:
           ENDSSH
           
           # 2. 파일 전송
-          # GHCR 토큰 전송 (경로 주의: EC2의 홈 디렉토리를 알 수 없으므로 상대 경로 또는 변수 활용이 어려움. 
-          # 하지만 scp는 리모트 경로를 홈 기준 상대경로로 쓸 수 있음)
+          # GHCR 토큰 전송
           scp -i ~/.ssh/deploy_key gh_token.txt $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/gh_token.txt
 
           # 프론트엔드 빌드 (Github Actions Runner에서 실행)
@@ -125,7 +124,7 @@ jobs:
           npm run build --prefix frontend
 
           echo "=== 프론트엔드 dist 전송 ==="
-          # rsync로 dist 전송 (홈 디렉토리 기준 상대 경로 사용)
+          # rsync로 dist 전송
           rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key" \
             frontend/dist/ $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/dist
           
@@ -136,8 +135,6 @@ jobs:
             
           # 3. 원격 실행 (이미지 풀 -> 실행)
           ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST "
-            # 홈 디렉토리 동적 감지
-            export HOME_DIR=\"/home/\$USER\"
             cd ~/twiiiins/Twiiiins
             
             # GHCR 로그인
