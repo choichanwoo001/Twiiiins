@@ -11,40 +11,16 @@ permissions:
   packages: write
 
 jobs:
-  # 1. 빌드 및 이미지 푸시 (GitHub Actions 서버에서 실행)
-  build-and-push:
+  # 1. 백엔드 빌드 및 이미지 푸시 (Docker 캐싱 활용)
+  build-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      # 프론트엔드 빌드 (정적 파일 생성)
-      - name: Build frontend
-        working-directory: ./frontend
-        run: |
-          npm ci
-          npm run build
-
-      # Gradle 빌드 (테스트 제외)
-      - name: Build with Gradle
-        working-directory: ./backend
-        run: chmod +x gradlew && ./gradlew clean build -x test
-
-      # Docker 이미지 빌드 및 GHCR 푸시
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -59,11 +35,11 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/twiiiins-backend:latest
-          # 빌드 아티팩트(JAR)를 Dockerfile에서 활용하려면 context를 backend로 지정해야 함
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-  # 2. EC2 배포 (이미지만 다운로드해서 실행)
-  deploy:
-    needs: build-and-push
+  # 2. 프론트엔드 빌드 (병렬 실행)
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -75,6 +51,32 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+      
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+  # 3. EC2 배포 (빌드 완료 후 실행)
+  deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
 
       - name: Deploy to EC2
         env:
@@ -93,38 +95,28 @@ jobs:
           # GHCR 로그인 정보 생성
           echo ${{ secrets.GITHUB_TOKEN }} > gh_token.txt
 
-          # 1. 디스크 정리 및 준비 (순서 중요: 중지 -> 삭제 -> Prune)
+          # 1. 디스크 정리 및 준비
           echo "=== EC2 배포 시작 ==="
           ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
-            # 홈 디렉토리 변수 사용 (직접 $HOME 사용이 가장 안전)
             export TARGET_DIR="$HOME/twiiiins/Twiiiins"
             mkdir -p $TARGET_DIR/frontend
             mkdir -p $TARGET_DIR/backend
             
-            # 1.1 컨테이너 강제 중지 및 삭제 (이름 기반으로 확실하게)
-            # 경로 의존적인 docker-compose down 대신 명시적 삭제 사용
+            # 컨테이너 정리 (중지 및 삭제)
             echo "Stopping and removing containers..."
             docker rm -f twiiiins-backend twiiiins-nginx || true
             
-            # 1.2 시스템 및 도커 정리 (컨테이너가 삭제되었으므로 이미지가 지워짐)
+            # 시스템 정리
             echo "Pruning system..."
-            sudo journalctl --vacuum-size=50M || true
             docker system prune -af --volumes || true
-            
-            # 디스크 공간 확인
-            df -h
           ENDSSH
           
           # 2. 파일 전송
           # GHCR 토큰 전송
           scp -i ~/.ssh/deploy_key gh_token.txt $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/gh_token.txt
 
-          # 프론트엔드 빌드 (Github Actions Runner에서 실행)
-          npm ci --prefix frontend
-          npm run build --prefix frontend
-
           echo "=== 프론트엔드 dist 전송 ==="
-          # rsync로 dist 전송
+          # rsync로 dist 전송 (이미 빌드된 파일)
           rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key" \
             frontend/dist/ $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/dist
           
@@ -133,7 +125,7 @@ jobs:
           rsync -avz -e "ssh -i ~/.ssh/deploy_key" \
             docker-compose.yml $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
             
-          # 3. 원격 실행 (이미지 풀 -> 실행)
+          # 3. 원격 실행
           ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST "
             cd ~/twiiiins/Twiiiins
             
