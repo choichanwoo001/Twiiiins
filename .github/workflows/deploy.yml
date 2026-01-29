@@ -54,6 +54,15 @@ jobs:
             # 2. Docker 리소스 정리 (중지된 컨테이너/이미지 삭제)
             docker system prune -af --volumes || true
             docker builder prune -af || true
+
+            # 2.1 강력한 시스템 청소 (Disk Full 방지)
+            # 시스템 로그 정리 (최근 50M만 유지)
+            sudo journalctl --vacuum-size=50M || true
+            # 패키지 캐시 정리
+            sudo apt-get clean || true
+            sudo apt-get autoremove -y || true
+            # 오래된 Snap 버전 정리 (디스크 킬러)
+            sudo bash -c 'set -eu; snap list --all | awk "/disabled/{print \$1, \$3}" | while read snapname revision; do snap remove "$snapname" --revision="$revision"; done' || true
             
             # 3. 기타 파일 정리
             # 로그 파일 정리
