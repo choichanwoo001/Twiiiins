@@ -625,7 +625,21 @@ const toggleNews = (newsId) => {
 
 @media (max-width: 48rem) {
   .photos-grid {
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.1rem;
+  }
+
+  .photo-item {
+    aspect-ratio: 1 / 1;
+    height: auto;
+  }
+
+  .photo-item img {
+    height: 100%;
+  }
+
+  .photo-item:hover {
+    transform: none;
   }
 }
 
