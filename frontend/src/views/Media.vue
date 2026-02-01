@@ -142,13 +142,11 @@
               
               <!-- 사진 섹션 -->
               <div class="news-images" v-if="news.imageUrls && news.imageUrls.length > 0">
-                <div class="image-grid">
-                  <div class="image-row">
-                    <div class="image-item" v-for="(imageUrl, imgIndex) in news.imageUrls" :key="imgIndex">
-                      <img :src="toAbsoluteUrl(imageUrl)" :alt="`News image ${imgIndex + 1}`" />
-                    </div>
-                  </div>
-                </div>
+                <ImageGrid 
+                  :images="news.imageUrls" 
+                  :alt-text-prefix="news.title" 
+                  mobile-aspect-ratio="16 / 9"
+                />
               </div>
             </div>
           </div>
@@ -176,6 +174,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import axios from '../api/axios'
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
+import { ImageGrid } from '../components/common'
 import { logError } from '../utils/errorHandler'
 
 import { useRoute } from 'vue-router'
@@ -394,7 +393,7 @@ const loadNews = async () => {
       date: formatDate(news.date, 'news'),
       title: news.title,
       description: news.description,
-      imageUrls: news.imageUrls || [],
+      imageUrls: news.imageUrls ? news.imageUrls.map(url => toAbsoluteUrl(url)) : [],
       expanded: false
     }))
   } catch (error) {
@@ -742,47 +741,6 @@ const toggleNews = (newsId) => {
   border-top: 1px solid #e0e0e0;
 }
 
-.image-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 100%; /* 62.5rem -> 100% (너비 제한 해제) */
-  width: 100%;
-}
-
-.image-row {
-  display: flex;
-  gap: 0.1rem;
-  flex-wrap: wrap;
-  min-height: 18.75rem;
-  align-items: center; /* flex-start -> center */
-  justify-content: center; /* 추가: 중앙 정렬 */
-}
-
-.image-item {
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  height: 25rem; /* 15rem -> 25rem (높이 확대) */
-  width: auto;
-}
-
-.image-item img {
-  width: auto;
-  height: 100%;
-  object-fit: cover; /* contain -> cover (꽉 채우기) */
-  object-position: center;
-  transition: transform 0.3s ease;
-  display: block;
-}
-
-.image-item:hover img {
-  transform: scale(1.05);
-}
-
 /* EQUIPMENT 섹션 */
 .equipment-grid {
   display: grid;
@@ -943,17 +901,6 @@ const toggleNews = (newsId) => {
   .news-images {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-  }
-
-  .image-row {
-    flex-direction: column; /* Stack images vertically on mobile */
-    gap: 0.1rem;
-  }
-
-  .image-item {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9; /* Ensure good aspect ratio for photos */
   }
 
   /* Equipment Section Mobile Optimization */

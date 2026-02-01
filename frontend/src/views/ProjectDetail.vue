@@ -19,13 +19,7 @@
 
     <!-- 이미지 섹션 -->
     <section class="project-images" v-if="project">
-      <div class="image-grid">
-        <div class="image-row">
-          <div class="image-item" v-for="(imageUrl, index) in projectImageUrls" :key="index">
-            <img :src="imageUrl" :alt="`${project.title} image ${index + 1}`" />
-          </div>
-        </div>
-      </div>
+      <ImageGrid :images="projectImageUrls" :alt-text-prefix="project.title" />
     </section>
 
     <!-- 리뷰 섹션 -->
@@ -47,6 +41,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '../api/axios'
+import { ImageGrid } from '../components/common'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
@@ -213,61 +208,6 @@ onMounted(async () => {
   justify-content: center;
 }
 
-.image-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 90%; /* 62.5rem -> 90% (너비 확대) */
-  width: 100%;
-}
-
-.image-row {
-  display: flex;
-  gap: 0.1rem;
-  flex-wrap: wrap;
-  min-height: 18.75rem;
-  align-items: center; /* flex-start -> center */
-  width: 100%;
-  max-width: 100%;
-  /* 행 내 이미지가 행 너비를 초과하지 않도록 */
-  box-sizing: border-box;
-  justify-content: center; /* 중앙 정렬 추가 */
-}
-
-.image-item {
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  height: 25rem; /* 15rem -> 25rem (높이 확대) */
-  /* 초기 최대 너비 제한 - 행 너비를 절대 초과하지 않도록 */
-  /* max-width: 25rem; <-- 제거: 비율에 맡김 */
-  /* calculateRowHeight에서 너비가 설정될 때까지 임시로 작은 크기 */
-  width: auto;
-  /* 이미지가 컨테이너를 넘어가지 않도록 */
-  box-sizing: border-box;
-}
-
-.image-item img {
-  width: auto; /* width: 100% -> auto */
-  height: 100%;
-  object-fit: cover; /* contain -> cover */
-  object-position: center;
-  transition: transform 0.3s ease;
-  display: block;
-  /* 이미지 자체가 컨테이너를 절대 초과하지 않도록 */
-  max-width: 100%;
-  max-height: 100%;
-  /* 원본 크기로 표시되지 않도록 보장 */
-  box-sizing: border-box;
-}
-
-.image-item:hover img {
-  transform: scale(1.05);
-}
-
 /* 리뷰 섹션 */
 .reviews-section {
   padding: 4rem 2rem;
@@ -348,30 +288,6 @@ onMounted(async () => {
   .project-images {
     padding: 2rem 0; /* 좌우 패딩 제거 (부모 패딩 사용) */
     padding-bottom: 4rem;
-  }
-
-  .image-grid {
-    max-width: 100%;
-    gap: 0.1rem;
-  }
-
-  .image-row {
-    height: auto;
-    min-height: 0;
-    flex-direction: column;
-    gap: 0.1rem;
-  }
-
-  .image-item {
-    height: auto;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .image-item img {
-    width: 100%;
-    height: auto;
-    max-height: none;
   }
 
   /* 리뷰 섹션 */
