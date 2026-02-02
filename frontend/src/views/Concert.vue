@@ -27,7 +27,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from '../api/axios'
+import { concertService } from '../services'
 import ConcertSection from '../components/ConcertSection.vue'
 import { formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
@@ -39,8 +39,13 @@ const pastEvents = ref([])
 // 콘서트 데이터 로드
 const loadConcerts = async () => {
   try {
-    const response = await axios.get('/concerts')
-    const allConcerts = response.data.data.map(concert => {
+    const allConcerts = await concertService.getAllConcerts()
+    // concertService에서 이미 표준 응답의 data를 반환하므로 바로 사용 가능 (단, map을 돌려야 함)
+    
+    // 만약 service가 raw data를 반환한다면 그대로 map
+    // concertService.getAllConcerts() -> returns response.data.data
+    
+    const formattedConcerts = allConcerts.map(concert => {
       const formattedDate = formatDate(concert.date, 'date', 'en-US')
       // 날짜 분리 (예: "July 30, 2026" -> ["July 30,", "2026"])
       const [dateMain, dateYear] = formattedDate.split(/(?=\s\d{4})/).map(s => s.trim())
@@ -63,11 +68,11 @@ const loadConcerts = async () => {
     })
     
     // 다가오는 이벤트와 과거 이벤트로 분리하고 날짜순으로 정렬
-    upcomingEvents.value = allConcerts
+    upcomingEvents.value = formattedConcerts
       .filter(concert => !concert.isPast)
       .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
     
-    pastEvents.value = allConcerts
+    pastEvents.value = formattedConcerts
       .filter(concert => concert.isPast)
       .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
   } catch (error) {

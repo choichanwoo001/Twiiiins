@@ -69,7 +69,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from '../api/axios'
+import { projectService } from '../services'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
@@ -81,10 +81,7 @@ const projects = ref([])
 // 프로젝트 데이터 로드
 const loadProjects = async () => {
   try {
-    const response = await axios.get('/projects')
-    const projectData = response.data.data || response.data || []
-    
-    // 원본 데이터를 그대로 저장 (News와 동일한 방식)
+    const projectData = await projectService.getAllProjects()
     projects.value = projectData
   } catch (error) {
     logError(error, '프로젝트 데이터 로드')

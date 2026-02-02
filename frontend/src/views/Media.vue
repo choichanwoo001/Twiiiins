@@ -172,7 +172,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import axios from '../api/axios'
+import { 
+  musicService, 
+  videoService, 
+  photoService, 
+  newsService, 
+  equipmentService 
+} from '../services'
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
 import { ImageGrid } from '../components/common'
 import { logError } from '../utils/errorHandler'
@@ -226,10 +232,10 @@ const equipmentList = ref([])
 // 음악 데이터 로드
 const loadMusic = async () => {
   try {
-    const response = await axios.get('/media/music')
+    const musicData = await musicService.getAllMusic()
     
-    if (response.data.data && response.data.data.length > 0) {
-      musicItems.value = response.data.data.map(music => ({
+    if (musicData && musicData.length > 0) {
+      musicItems.value = musicData.map(music => ({
         id: music.id,
         title: music.title,
         artist: music.artist,
@@ -272,8 +278,7 @@ const isValidEmbedUrl = (url) => {
 // 비디오 데이터 로드
 const loadVideos = async () => {
   try {
-    const response = await axios.get('/media/videos')
-    const videoData = response.data?.data || []
+    const videoData = await videoService.getAllVideos()
     
     if (Array.isArray(videoData)) {
       videos.value = videoData
@@ -345,8 +350,7 @@ const photoGroups = ref([])
 // 사진 그룹 데이터 로드
 const loadPhotoGroups = async () => {
   try {
-    const response = await axios.get('/media/photo-groups')
-    const data = response.data?.data || response.data || []
+    const data = await photoService.getAllPhotoGroups()
     
     if (Array.isArray(data)) {
       photoGroups.value = data.map(group => ({
@@ -369,8 +373,8 @@ const loadPhotoGroups = async () => {
 // 장비 데이터 로드
 const loadEquipment = async () => {
   try {
-    const response = await axios.get('/media/equipment')
-    equipmentList.value = response.data.data.map(equipment => ({
+    const equipmentData = await equipmentService.getAllEquipment()
+    equipmentList.value = equipmentData.map(equipment => ({
       id: equipment.id,
       name: equipment.name,
       imageUrl: toAbsoluteUrl(equipment.imageUrl)
@@ -387,8 +391,8 @@ const newsList = ref([])
 // 뉴스 데이터 로드
 const loadNews = async () => {
   try {
-    const response = await axios.get('/media/news')
-    newsList.value = response.data.data.map(news => ({
+    const newsData = await newsService.getAllNews()
+    newsList.value = newsData.map(news => ({
       id: news.id,
       date: formatDate(news.date, 'news'),
       title: news.title,

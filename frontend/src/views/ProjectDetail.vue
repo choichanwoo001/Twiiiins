@@ -40,7 +40,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from '../api/axios'
+import { projectService } from '../services'
 import { ImageGrid } from '../components/common'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
@@ -91,8 +91,7 @@ const loadProject = async () => {
   }
   
   try {
-    const response = await axios.get(`/projects/slug/${urlSlug}`)
-    const projectData = response.data.data || response.data
+    const projectData = await projectService.getProjectBySlug(urlSlug)
     
     if (projectData) {
       project.value = {
