@@ -66,7 +66,7 @@ const activeTab = ref('music')
 
 .tabs {
   display: flex;
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid var(--color-border);
   margin-bottom: 2rem;
 }
 
@@ -76,7 +76,7 @@ const activeTab = ref('music')
   border: none;
   font-size: 1rem;
   font-weight: 500;
-  color: #666;
+  color: var(--color-text-light);
   cursor: pointer;
   transition: all 0.2s;
   border-bottom: 3px solid transparent;

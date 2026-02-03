@@ -874,36 +874,36 @@ onMounted(() => {
 <style scoped>
 @import './common/admin-common.css';
 
-.content-section {
-  padding: 2rem;
-}
+.content-section  /* 헤더 스타일 */
+  .admin-header h2 {
+    color: var(--color-text); /* #1E1D1D */
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
 
-.section-title {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  color: #1E1D1D;
-}
+  /* 테이블 스타일 */
+  table th {
+    background-color: var(--color-background);
+    color: var(--color-text-secondary); /* #555 -> var(--color-text-secondary) */
+    font-weight: 500;
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 0.0625rem solid var(--color-border);
+  }
 
-.date-range {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+  table td {
+    padding: 1rem;
+    border-bottom: 0.0625rem solid var(--color-border);
+    color: var(--color-text); /* #1E1D1D */
+  }
 
-.projects-list {
-  margin-bottom: 2rem;
-  background: white;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.projects-header {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #1E1D1D;
-}
+  /* 폼 스타일 */
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-text); /* #1E1D1D */
+  }
 
 .projects-table {
   overflow-x: auto;

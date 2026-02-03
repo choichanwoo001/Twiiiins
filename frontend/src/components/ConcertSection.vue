@@ -86,7 +86,7 @@ defineEmits(['toggle'])
 /* 섹션 제목 */
 .section-title {
   font-size: 1.1rem;
-  color: #666;
+  color: var(--color-text-tertiary); /* #666 */
   margin: 0;
   font-weight: 500;
   padding-top: 1.5rem;
@@ -99,7 +99,7 @@ defineEmits(['toggle'])
 }
 
 .event-item {
-  border-bottom: 0.0625rem solid #e0e0e0;
+  border-bottom: 0.0625rem solid var(--color-border); /* #e0e0e0 -> var(--color-border) */
   transition: background-color 0.3s ease;
 }
 
@@ -122,7 +122,7 @@ defineEmits(['toggle'])
 
 .event-date {
   font-size: 1rem;
-  color: #555;
+  color: var(--color-text-secondary); /* #555 */
   min-width: 9.375rem;
   text-align: left;
   display: flex;
@@ -147,17 +147,17 @@ defineEmits(['toggle'])
 .event-location {
   font-size: 1rem;
   font-weight: 500;
-  color: #1E1D1D;
+  color: var(--color-text); /* #1E1D1D */
   margin-bottom: 0.25rem;
 }
 
 .event-name {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-tertiary); /* #666 */
 }
 
 .event-expand {
-  color: #999;
+  color: var(--color-text-muted); /* #999 */
   transition: all 0.3s ease;
   min-width: 1.875rem;
   text-align: right;
@@ -168,14 +168,14 @@ defineEmits(['toggle'])
 }
 
 .event-expand:hover {
-  color: #666;
+  color: var(--color-text-tertiary); /* #666 */
 }
 
 /* 상세 정보 스타일 */
 .event-details {
   padding: 1.5rem 0 2rem 0;
   background-color: #f8f8f8;
-  border-top: 0.0625rem solid #e0e0e0;
+  border-top: 0.0625rem solid var(--color-border); /* #e0e0e0 */
 }
 
 .detail-row {
@@ -191,7 +191,7 @@ defineEmits(['toggle'])
 
 .detail-label {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-tertiary); /* #666 */
   min-width: 12.5rem;
   font-weight: 500;
   flex-shrink: 0;
@@ -199,19 +199,19 @@ defineEmits(['toggle'])
 
 .detail-value {
   font-size: 0.9rem;
-  color: #1E1D1D;
+  color: var(--color-text); /* #1E1D1D */
   flex: 1;
 }
 
 .detail-link {
   font-size: 0.9rem;
-  color: #8B0000;
+  color: var(--color-accent-red); /* #8B0000 */
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .detail-link:hover {
-  color: #A00000;
+  color: var(--color-accent-red-hover); /* #A00000 */
   text-decoration: underline;
 }
 
@@ -245,7 +245,7 @@ defineEmits(['toggle'])
 
   .date-main {
     font-weight: 500;
-    color: #1E1D1D;
+    color: var(--color-text); /* #1E1D1D */
     font-size: 0.9rem; /* 폰트 크기 복구 */
     display: block;
   }
@@ -253,7 +253,7 @@ defineEmits(['toggle'])
   .date-year {
     display: block; /* 줄바꿈 복구 */
     margin-left: 0;
-    color: #888;
+    color: var(--color-text-lighter); /* #888 */
     font-size: 0.85rem;
     margin-top: 0.2rem;
   }
@@ -292,7 +292,7 @@ defineEmits(['toggle'])
     min-width: auto;
     width: 100%;
     font-size: 0.85rem;
-    color: #888;
+    color: var(--color-text-lighter); /* #888 */
   }
 
   /* 모바일에서 상세 정보 텍스트 크기 조정 */

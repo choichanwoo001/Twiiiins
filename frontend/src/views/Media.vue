@@ -182,28 +182,15 @@ import {
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
 import { ImageGrid } from '../components/common'
 import { logError } from '../utils/errorHandler'
+import { useMobile } from '../composables/useMobile' 
 
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
 // 모바일 감지
-const isMobile = ref(false)
-
-const checkMobile = () => {
-  isMobile.value = window.innerWidth <= 768 // 48rem
-  
-  // 쿼리 파라미터가 있으면 해당 섹션을 보여줌
-  if (route.query.section) {
-    activeSection.value = route.query.section
-    return
-  }
-
-  // 기본값은 music
-  if (!activeSection.value) {
-    activeSection.value = 'music'
-  }
-}
+// 모바일 감지
+const { isMobile } = useMobile()
 
 // 활성 섹션 상태
 const activeSection = ref('')
@@ -322,10 +309,8 @@ const loadVideos = async () => {
 }
 
 // 페이지 로드 시 데이터 가져오기
+// 페이지 로드 시 데이터 가져오기
 onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-  
   // 초기 섹션 설정
   if (route.query.section) {
     activeSection.value = route.query.section
@@ -338,10 +323,6 @@ onMounted(() => {
   loadPhotoGroups()
   loadNews()
   loadEquipment()
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
 })
 
 // 사진 그룹 데이터
@@ -419,7 +400,7 @@ const toggleNews = (newsId) => {
 /* 데스크톱 스타일은 그대로 유지 */
 .media {
   display: flex;
-  background-color: white;
+  background-color: var(--color-background);
   padding-top: 6rem;
   height: calc(100vh - 3.75rem);
   overflow: hidden;
@@ -429,7 +410,7 @@ const toggleNews = (newsId) => {
 .media-nav {
   width: 34.375rem;
   padding: 2rem 2rem;
-  background-color: white;
+  background-color: var(--color-background);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -446,16 +427,22 @@ const toggleNews = (newsId) => {
 }
 
 .nav-item h2 {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(2.5rem, font-size: 4.5rem;
   font-weight: 400;
-  letter-spacing: 0.12em;
-  color: rgba(251, 206, 123, 0.5); /* 비활성 상태: 더 연한 색상 */
-  text-transform: uppercase;
-  line-height: 1;
+  letter-spacing: 0.125rem;
+  color: var(--color-text-lighter); /* #888 */
   margin: 0;
-  transition: color 0.3s ease;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: all 0.5s ease;
+  position: relative;
 }
 
+/* 활성 탭 스타일 */
+.active-tab h2 {
+  color: #154560; /* This seems specific (Navy). Keep? Or use primary? Keeping for now */
+  font-weight: 400;
+}
 .nav-item.main-title {
   cursor: pointer;
   display: flex;
@@ -524,42 +511,49 @@ const toggleNews = (newsId) => {
 .music-cover img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+}
+.music-info {
+  margin-top: 1rem;
 }
 
-.music-title {
+.album-title {
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 600;
+  color: var(--color-text); /* #1E1D1D */
   margin-bottom: 0.25rem;
-  color: #1E1D1D;
 }
 
-.music-artist {
+.album-artist {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-tertiary); /* #666 */
+  margin-bottom: 0.25rem;
 }
 
-/* VIDEOS 섹션 */
-.video-list {
+.album-year {
+  font-size: 0.8rem;
+  color: var(--color-text-muted); /* #999 */
+  margin-bottom: 1rem;
+}
+
+.album-links {
   display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  gap: 1rem;
 }
 
-.video-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.album-link {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary); /* #555 */
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.video-embed {
-  position: relative;
-  width: 100%;
-  max-width: 60rem;
-  aspect-ratio: 16 / 9;
-  background: #000;
+.album-link:hover {
+  color: var(--color-text); /* #000 -> var(--color-text) */
+  border-bottom-color: var(--color-text); /* #000 */
 }
-
 .video-embed iframe {
   position: absolute;
   inset: 0;
@@ -693,38 +687,46 @@ const toggleNews = (newsId) => {
 }
 
 .news-date {
-  font-size: 1rem;
-  color: #666;
-  min-width: 5rem;
-  text-align: left;
+  font-family: 'Jost', sans-serif;
+  font-weight: 500;
+  color: var(--color-text); /* #1E1D1D */
+  font-size: 1.1rem;
+  min-width: 10rem;
 }
 
 .news-content {
   flex: 1;
-  margin-left: 2rem;
+}
+
+.news-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .news-title {
   font-size: 1.1rem;
   font-weight: 500;
+  color: var(--color-text-secondary); /* #555 */
 }
 
-.news-expand {
-  color: #999;
-  transition: all 0.3s ease;
-  min-width: 1.875rem;
-  text-align: right;
+.news-toggle {
+  color: var(--color-text-muted); /* #999 */
+  transition: transform 0.3s ease;
 }
 
-.news-expand.expanded {
+.news-toggle.expanded {
   transform: rotate(180deg);
 }
 
-.news-expand:hover {
-  color: #666;
+.news-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-tertiary); /* #666 */
+  margin-top: 1rem;
+  white-space: pre-line;
 }
-
-/* 상세 정보 스타일 */
 .news-details {
   padding: 1.5rem 2rem 2rem 2rem; /* 상단, 오른쪽, 하단, 왼쪽 (좌우 여백 5rem -> 2rem 축소) */
   background-color: #f8f8f8;
@@ -772,12 +774,12 @@ const toggleNews = (newsId) => {
 }
 
 .equipment-name {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #1E1D1D;
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: var(--color-text); /* #1E1D1D */
   text-align: center;
+  font-weight: 500;
 }
-
 /* 모바일 전용 스타일 추가 */
 @media (max-width: 48rem) {
   .media {

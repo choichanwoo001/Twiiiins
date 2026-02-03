@@ -110,10 +110,11 @@
 }
 
 .about-content p {
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--color-text-secondary); /* #555 */
+  margin-bottom: 1.5rem;
+  word-break: keep-all; /* 한글 줄바꿈 최적화 */
   font-weight: 400;
   white-space: pre-line;
 }

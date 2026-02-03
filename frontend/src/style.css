@@ -146,10 +146,14 @@
   /* Colors */
   --color-primary: #1E1D1D;
   --color-text: #1E1D1D;
-  --color-text-light: #555;
-  --color-text-lighter: #888;
+  --color-text-secondary: #555; /* #555 대체 */
+  --color-text-tertiary: #666; /* #666 대체 */
+  --color-text-quaternary: #888; /* #888 대체 */
+  --color-text-muted: #999; /* #999 대체 */
   --color-background: #fff;
   --color-accent: #FBCE7B;
+  --color-accent-red: #8B0000; /* #8B0000 대체 */
+  --color-accent-red-hover: #A00000; /* #A00000 대체 */
   --color-border: #e0e0e0;
   --color-scrollbar: rgba(0, 0, 0, 0.2);
   --color-scrollbar-hover: rgba(0, 0, 0, 0.3);

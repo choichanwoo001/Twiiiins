@@ -118,7 +118,25 @@ onMounted(() => {
   justify-content: flex-start;
   padding-top: 2rem;
 }
+/* 섹션 제목 */
+.contact-container h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--color-text); /* #1E1D1D */
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  line-height:1;
+}
 
+/* 설명 텍스트 */
+.contact-description {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary); /* #555 */
+  margin-bottom: 3rem;
+  max-width: 40rem;
+}
 .contact-title h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
@@ -184,6 +202,21 @@ onMounted(() => {
   gap: 0.25rem;
 }
 
+.contact-info-item h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text); /* #1E1D1D */
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.contact-info-item p {
+  font-size: 1rem;
+  color: var(--color-text-secondary); /* #555 */
+  line-height: 1.5;
+}
+
 .contact-name {
   font-size: 1.1rem;
   font-weight: bold;
@@ -207,6 +240,36 @@ onMounted(() => {
   margin-top: 0;
   min-width: 15rem;
   max-width: 18.75rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text); /* #1E1D1D */
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 0;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text); /* #1E1D1D */
+  background: transparent;
+  border: none;
+  border-bottom: 0.0625rem solid var(--color-text-lighter); /* #888 */
+  border-radius: 0;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-bottom-color: var(--color-text); /* #1E1D1D */
 }
 
 .download-section h2 {

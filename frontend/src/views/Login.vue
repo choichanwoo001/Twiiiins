@@ -96,20 +96,20 @@ const handleLogin = async () => {
 }
 
 .login-card {
-  background: white;
-  padding: 3rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  padding: 2rem;
+  background-color: var(--color-background); /* white */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .login-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
   text-align: center;
-  color: #1E1D1D;
+  margin-bottom: 2rem;
+  color: var(--color-text); /* #1E1D1D */
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 .login-form {
@@ -127,20 +127,20 @@ const handleLogin = async () => {
 .form-group label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #555;
+  color: var(--color-text-secondary); /* #555 */
 }
 
-.form-group input {
+.form-input {
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border); /* #ddd -> #e0e0e0 (var(--color-border)) */
   border-radius: 4px;
   font-size: 1rem;
-  transition: border-color 0.2s;
+  transition: border-color 0.3s;
 }
 
-.form-group input:focus {
+.form-input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-text); /* #1E1D1D */
 }
 
 .error-message {

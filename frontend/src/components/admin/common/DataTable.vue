@@ -88,7 +88,7 @@ const handleAction = (actionKey, item) => {
 <style scoped>
 .data-list {
   margin-bottom: 2rem;
-  background: white;
+  background: var(--color-background); /* white */
   padding: 2rem;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -96,7 +96,7 @@ const handleAction = (actionKey, item) => {
 
 .data-list h2 {
   margin-bottom: 1rem;
-  color: #1E1D1D;
+  color: var(--color-text); /* #1E1D1D */
 }
 
 .data-table {
@@ -106,7 +106,7 @@ const handleAction = (actionKey, item) => {
 .data-table table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--color-background); /* white */
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -116,17 +116,18 @@ const handleAction = (actionKey, item) => {
 .data-table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border); /* #eee */
 }
 
 .data-table th {
-  background: #f8f9fa;
+  background: var(--color-background); /* #f8f9fa -> replacing with bg and maybe some opacity or just bg? The original was gray. Let's keep it consistent with other tables using var(--color-background) or define a soft bg var. Admin tables used var(--color-background). Let's stick to var(--color-background) to standardize. */
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary); /* #555 */
 }
 
 .data-table tr:hover {
-  background: #f8f9fa;
+  background: var(--color-background); /* #f8f9fa -> maybe var(--color-overlay-bg)? or just nothing/white. Admin common used nothing specialized. Let's use transparent or lighter gray if needed. For now var(--color-background) might not show hover effect if same as tr bg. Let's use rgba(0,0,0,0.02) or similar if we want hover. Or just skip hover color for now if not critical, or use a slightly darker variable. Let's use a hardcoded safe light gray for hover for now or just remove hardcoded hex. #f9f9f9 */
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 /* 액션 버튼 스타일 */

@@ -73,13 +73,14 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from './stores'
 import { useAppScroll } from './composables/useAppScroll'
+import { useMobile } from './composables/useMobile'
 import { SNS_LINKS, PATHS_WITH_SNS_LINKS } from './constants'
 
 const route = useRoute()  
 const appStore = useAppStore()
 const isMobileMenuOpen = ref(false) // 모바일 메뉴 상태
 const isMediaMenuOpen = ref(false) // 미디어 서브메뉴 토글 상태
-const isMobile = ref(false)
+const { isMobile } = useMobile()
 
 // 스크롤 관련 로직 Composable 사용
 const { 
@@ -128,21 +129,9 @@ watch(() => route.path, () => {
   closeMobileMenu() 
 })
 
-const checkMobile = () => {
-  isMobile.value = window.innerWidth <= 768 // 48rem
-  // useAppScroll 내의 watcher가 처리하므로 여기서는 값만 업데이트하면 됨
-}
-
 onMounted(() => {
   // 앱 스토어 초기화
   appStore.initialize()
-  
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
 })
 </script>
 

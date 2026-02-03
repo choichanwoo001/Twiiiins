@@ -190,6 +190,14 @@ onMounted(() => {
 .section-title {
   font-size: 1.5rem;
   margin-bottom: 2rem;
-  color: #1E1D1D;
+  color: var(--color-text);
+}
+
+/* 헤더 */
+.admin-header h2 {
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 </style>
+```

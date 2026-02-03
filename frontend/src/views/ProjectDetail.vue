@@ -114,8 +114,8 @@ onMounted(async () => {
 
 <style scoped>
 .project-detail {
-  background-color: white;
-  color: #1E1D1D;
+  background-color: var(--color-background); /* white */
+  color: var(--color-text); /* #1E1D1D */
   font-family: 'Jost', sans-serif;
   height: calc(100vh - 3.75rem);
   margin-top: -3.75rem;
@@ -156,14 +156,14 @@ onMounted(async () => {
 
 .project-subtitle {
   font-size: 2rem;
-  color: #666;
+  color: var(--color-text-tertiary); /* #666 */
   margin-bottom: 1rem;
   font-style: italic;
 }
 
 .project-date-location {
   font-size: 1rem;
-  color: #999;
+  color: var(--color-text-muted); /* #999 */
 }
 
 .project-director {
@@ -176,7 +176,7 @@ onMounted(async () => {
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
-  color: #555;
+  color: var(--color-text-secondary); /* #555 */
   font-weight: 400;
 }
 
@@ -185,7 +185,7 @@ onMounted(async () => {
 }
 
 .more-info a {
-  color: #8B0000;
+  color: var(--color-accent-red); /* #8B0000 */
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9rem;
@@ -193,7 +193,7 @@ onMounted(async () => {
 }
 
 .more-info a:hover {
-  color: #A00000;
+  color: var(--color-accent-red-hover); /* #A00000 */
   text-decoration: underline;
 }
 
@@ -217,7 +217,7 @@ onMounted(async () => {
 
 .reviews-section h2 {
   font-size: 1.5rem;
-  color: #1E1D1D;
+  color: var(--color-text); /* #1E1D1D */
   margin-bottom: 3rem;
   text-align: center;
   text-transform: uppercase;
@@ -241,16 +241,16 @@ onMounted(async () => {
 .review-item blockquote {
   font-size: 0.9rem;
   line-height: 1.6;
-  color: #555;
+  color: var(--color-text-secondary); /* #555 */
   margin: 0 0 1.5rem 0;
   font-style: italic;
-  border-left: 0.1875rem solid #8B0000;
+  border-left: 0.1875rem solid var(--color-accent-red); /* #8B0000 */
   padding-left: 1rem;
 }
 
 .review-item cite {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--color-text-muted); /* #999 */
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;

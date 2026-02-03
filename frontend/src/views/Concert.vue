@@ -108,8 +108,8 @@ onMounted(() => {
 <style scoped>
 /* 레이아웃 */
 .concert {
-  background: #fff;
-  color: #222;
+  background: var(--color-background);
+  color: var(--color-text);
   padding-top: 6rem;
   height: calc(100vh - 3.75rem);
   overflow: hidden;
@@ -135,7 +135,7 @@ onMounted(() => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
   letter-spacing: 0.12em;
-  color: #CEC0A3;
+  color: #CEC0A3; /* This seems specific (Gold/Beige). Keeping it unless I add --color-accent-gold */
   text-transform: uppercase;
   line-height: 1;
   margin: 0;

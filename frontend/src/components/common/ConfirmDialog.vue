@@ -86,11 +86,11 @@ const handleOverlayClick = () => {
 }
 
 .dialog-content {
-  background: white;
-  border-radius: 0.5rem;
+  background: var(--color-background);
   padding: 2rem;
-  max-width: 90vw;
-  width: 400px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -98,11 +98,11 @@ const handleOverlayClick = () => {
   margin-bottom: 1.5rem;
 }
 
-.dialog-header h3 {
-  margin: 0;
-  color: #1E1D1D;
+h3 {
+  margin-top: 0;
+  color: var(--color-text); /* #1E1D1D */
   font-size: 1.25rem;
-  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .dialog-body {
