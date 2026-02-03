@@ -427,7 +427,7 @@ const toggleNews = (newsId) => {
 }
 
 .nav-item h2 {
-  font-size: clamp(2.5rem, font-size: 4.5rem;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
   letter-spacing: 0.125rem;
   color: var(--color-text-lighter); /* #888 */
