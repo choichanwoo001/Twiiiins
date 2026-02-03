@@ -189,7 +189,7 @@ const totalPhotosCount = computed(() =>
 .section-title {
   font-size: 1.5rem;
   margin-bottom: 2rem;
-  color: #1E1D1D;
+  color: var(--color-text);
 }
 
 /* Dashboard Styles */
@@ -201,10 +201,11 @@ const totalPhotosCount = computed(() =>
 }
 
 .stat-card {
-  background: white;
+  background: var(--color-background);
   padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   gap: 1rem;

@@ -66,39 +66,43 @@ const handleOverlayClick = () => {
   z-index: 1000;
 }
 
-.modal-content {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  max-width: 90vw;
+.modal-container {
+  background: var(--color-background);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  width: 1000px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border); /* #eee -> var(--color-border) */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #1E1D1D;
+  font-size: 1.25rem;
+  color: var(--color-text); /* #1E1D1D */
 }
 
-.btn-close {
+.close-btn {
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-muted); /* #999 */
+  padding: 0.5rem;
   line-height: 1;
 }
 
-.btn-close:hover {
-  color: #1E1D1D;
+.close-btn:hover {
+  color: var(--color-text); /* #1E1D1D */
 }
 
 .modal-body {

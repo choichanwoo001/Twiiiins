@@ -209,4 +209,35 @@ onMounted(() => {
   margin-bottom: 2rem;
   color: #1E1D1D;
 }
+
+/* 헤더 */
+.admin-header h2 {
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* 테이블 */
+table th {
+  background-color: var(--color-background);
+  color: var(--color-text-secondary); /* #555 */
+  font-weight: 500;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+/* 폼 */
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
 </style>

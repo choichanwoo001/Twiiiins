@@ -69,7 +69,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from '../api/axios'
+import { projectService } from '../services'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
@@ -81,10 +81,7 @@ const projects = ref([])
 // 프로젝트 데이터 로드
 const loadProjects = async () => {
   try {
-    const response = await axios.get('/projects')
-    const projectData = response.data.data || response.data || []
-    
-    // 원본 데이터를 그대로 저장 (News와 동일한 방식)
+    const projectData = await projectService.getAllProjects()
     projects.value = projectData
   } catch (error) {
     logError(error, '프로젝트 데이터 로드')
@@ -118,8 +115,8 @@ onMounted(() => {
 <style scoped>
 /* 레이아웃 */
 .projects {
-  background:#fff;
-  color:#222;
+  background: var(--color-background); /* #fff */
+  color: var(--color-text); /* #222 -> var(--color-text) */
   padding-top: 6rem;
   display:grid;
   grid-template-columns: 1fr 2.2fr;
@@ -144,7 +141,7 @@ onMounted(() => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
   letter-spacing: 0.12em;
-  color:#5B8793;
+  color: #5B8793; /* This seems specific, keeping it or should I add a var? */
   text-transform: uppercase;
   line-height:1;
   margin:0;
@@ -228,7 +225,7 @@ onMounted(() => {
 .caption-left{
   font-size: 1.125rem; /* 18px */
   letter-spacing: 0.02em;
-  color:#1E1D1D;
+  color: var(--color-text); /* #1E1D1D */
   font-weight: 600;
   text-transform: uppercase; /* 대문자 강제 */
   line-height: 1.2;
@@ -238,7 +235,7 @@ onMounted(() => {
   align-items:center;
   gap: 0.25rem; /* 간격 미세 조정 */
   font-size: 0.8125rem; /* 13px */
-  color:#888;
+  color: var(--color-text-lighter); /* #888 */
   font-weight: 400;
   transition: color 0.2s ease;
   line-height: 1.2;
@@ -274,7 +271,7 @@ onMounted(() => {
 .project-item:hover .caption-arrow {
   transform: translate(2px, -2px); /* 대각선 이동 효과 */
   opacity: 1;
-  color: #1E1D1D;
+  color: var(--color-text); /* #1E1D1D */
 }
 
 /* 호버 미세 인터랙션(선택) */

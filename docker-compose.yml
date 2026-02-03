@@ -43,11 +43,22 @@ services:
       - "443:443"
     volumes:
       - ./aws/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./aws/nginx/ssl:/etc/nginx/ssl
+      - ./aws/nginx/data/certbot/conf:/etc/letsencrypt
+      - ./aws/nginx/data/certbot/www:/var/www/certbot
       - ./frontend/dist:/usr/share/nginx/html:ro
     depends_on:
       backend:
         condition: service_healthy
+    networks:
+      - twiiiins-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: twiiiins-certbot
+    volumes:
+      - ./aws/nginx/data/certbot/conf:/etc/letsencrypt
+      - ./aws/nginx/data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     networks:
       - twiiiins-network
 

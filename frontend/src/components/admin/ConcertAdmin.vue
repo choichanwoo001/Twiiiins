@@ -450,17 +450,35 @@ const triggerAutoMove = async () => {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.concerts-table th,
-.concerts-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
+/* 헤더 */
+.admin-header h2 {
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
-.concerts-table th {
-  background: #f8f9fa;
-  font-weight: 600;
-  color: #555;
+/* 테이블 */
+table th {
+  background-color: var(--color-background);
+  color: var(--color-text-secondary); /* #555 */
+  font-weight: 500;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+/* 폼 */
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 .concerts-table tr:hover {

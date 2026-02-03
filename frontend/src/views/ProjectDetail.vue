@@ -19,13 +19,7 @@
 
     <!-- 이미지 섹션 -->
     <section class="project-images" v-if="project">
-      <div class="image-grid">
-        <div class="image-row">
-          <div class="image-item" v-for="(imageUrl, index) in projectImageUrls" :key="index">
-            <img :src="imageUrl" :alt="`${project.title} image ${index + 1}`" />
-          </div>
-        </div>
-      </div>
+      <ImageGrid :images="projectImageUrls" :alt-text-prefix="project.title" />
     </section>
 
     <!-- 리뷰 섹션 -->
@@ -46,7 +40,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from '../api/axios'
+import { projectService } from '../services'
+import { ImageGrid } from '../components/common'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
@@ -96,8 +91,7 @@ const loadProject = async () => {
   }
   
   try {
-    const response = await axios.get(`/projects/slug/${urlSlug}`)
-    const projectData = response.data.data || response.data
+    const projectData = await projectService.getProjectBySlug(urlSlug)
     
     if (projectData) {
       project.value = {
@@ -120,8 +114,8 @@ onMounted(async () => {
 
 <style scoped>
 .project-detail {
-  background-color: white;
-  color: #1E1D1D;
+  background-color: var(--color-background); /* white */
+  color: var(--color-text); /* #1E1D1D */
   font-family: 'Jost', sans-serif;
   height: calc(100vh - 3.75rem);
   margin-top: -3.75rem;
@@ -162,14 +156,14 @@ onMounted(async () => {
 
 .project-subtitle {
   font-size: 2rem;
-  color: #666;
+  color: var(--color-text-tertiary); /* #666 */
   margin-bottom: 1rem;
   font-style: italic;
 }
 
 .project-date-location {
   font-size: 1rem;
-  color: #999;
+  color: var(--color-text-muted); /* #999 */
 }
 
 .project-director {
@@ -182,7 +176,7 @@ onMounted(async () => {
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
-  color: #555;
+  color: var(--color-text-secondary); /* #555 */
   font-weight: 400;
 }
 
@@ -191,7 +185,7 @@ onMounted(async () => {
 }
 
 .more-info a {
-  color: #8B0000;
+  color: var(--color-accent-red); /* #8B0000 */
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9rem;
@@ -199,7 +193,7 @@ onMounted(async () => {
 }
 
 .more-info a:hover {
-  color: #A00000;
+  color: var(--color-accent-red-hover); /* #A00000 */
   text-decoration: underline;
 }
 
@@ -213,61 +207,6 @@ onMounted(async () => {
   justify-content: center;
 }
 
-.image-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 90%; /* 62.5rem -> 90% (너비 확대) */
-  width: 100%;
-}
-
-.image-row {
-  display: flex;
-  gap: 0.1rem;
-  flex-wrap: wrap;
-  min-height: 18.75rem;
-  align-items: center; /* flex-start -> center */
-  width: 100%;
-  max-width: 100%;
-  /* 행 내 이미지가 행 너비를 초과하지 않도록 */
-  box-sizing: border-box;
-  justify-content: center; /* 중앙 정렬 추가 */
-}
-
-.image-item {
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  height: 25rem; /* 15rem -> 25rem (높이 확대) */
-  /* 초기 최대 너비 제한 - 행 너비를 절대 초과하지 않도록 */
-  /* max-width: 25rem; <-- 제거: 비율에 맡김 */
-  /* calculateRowHeight에서 너비가 설정될 때까지 임시로 작은 크기 */
-  width: auto;
-  /* 이미지가 컨테이너를 넘어가지 않도록 */
-  box-sizing: border-box;
-}
-
-.image-item img {
-  width: auto; /* width: 100% -> auto */
-  height: 100%;
-  object-fit: cover; /* contain -> cover */
-  object-position: center;
-  transition: transform 0.3s ease;
-  display: block;
-  /* 이미지 자체가 컨테이너를 절대 초과하지 않도록 */
-  max-width: 100%;
-  max-height: 100%;
-  /* 원본 크기로 표시되지 않도록 보장 */
-  box-sizing: border-box;
-}
-
-.image-item:hover img {
-  transform: scale(1.05);
-}
-
 /* 리뷰 섹션 */
 .reviews-section {
   padding: 4rem 2rem;
@@ -278,7 +217,7 @@ onMounted(async () => {
 
 .reviews-section h2 {
   font-size: 1.5rem;
-  color: #1E1D1D;
+  color: var(--color-text); /* #1E1D1D */
   margin-bottom: 3rem;
   text-align: center;
   text-transform: uppercase;
@@ -302,16 +241,16 @@ onMounted(async () => {
 .review-item blockquote {
   font-size: 0.9rem;
   line-height: 1.6;
-  color: #555;
+  color: var(--color-text-secondary); /* #555 */
   margin: 0 0 1.5rem 0;
   font-style: italic;
-  border-left: 0.1875rem solid #8B0000;
+  border-left: 0.1875rem solid var(--color-accent-red); /* #8B0000 */
   padding-left: 1rem;
 }
 
 .review-item cite {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--color-text-muted); /* #999 */
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -348,30 +287,6 @@ onMounted(async () => {
   .project-images {
     padding: 2rem 0; /* 좌우 패딩 제거 (부모 패딩 사용) */
     padding-bottom: 4rem;
-  }
-
-  .image-grid {
-    max-width: 100%;
-    gap: 0.1rem;
-  }
-
-  .image-row {
-    height: auto;
-    min-height: 0;
-    flex-direction: column;
-    gap: 0.1rem;
-  }
-
-  .image-item {
-    height: auto;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .image-item img {
-    width: 100%;
-    height: auto;
-    max-height: none;
   }
 
   /* 리뷰 섹션 */
