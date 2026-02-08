@@ -26,7 +26,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: '알림'
+    default: 'Alert'
   },
   message: {
     type: String,
@@ -34,7 +34,7 @@ const props = defineProps({
   },
   buttonText: {
     type: String,
-    default: '확인'
+    default: 'OK'
   },
   buttonVariant: {
     type: String,

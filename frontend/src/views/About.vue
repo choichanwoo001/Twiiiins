@@ -67,7 +67,7 @@
   overflow-x: hidden;
   padding-top: 6rem;
   padding-left: 2rem;
-  padding-right: 2rem;
+  padding-right: 4rem;
   scrollbar-gutter: stable;
   box-sizing: border-box;
   display: flex;
@@ -195,15 +195,17 @@
   .about {
     flex-direction: column;
     gap: 2rem;
-    padding-left: 1rem; /* 모바일 여백 조정 */
-    padding-right: 1rem;
+    padding-top: 4rem;
+    padding-left: 1.5rem; /* 모바일 여백 조정 */
+    padding-right: 1.5rem;
     height: auto; /* 모바일에서는 자연스러운 스크롤 허용 */
     overflow-y: visible;
     padding-bottom: 4rem; /* 하단 여백 추가 */
   }
 
   .about-title-section {
-    padding-top: 1rem;
+    padding-top: 0;
+    margin-bottom: 2rem;
   }
 
   .about-content-section {
@@ -272,4 +274,3 @@
   }
 }
 </style>
-

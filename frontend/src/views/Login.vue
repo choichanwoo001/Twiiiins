@@ -1,28 +1,28 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h1 class="login-title">관리자 로그인</h1>
+      <h1 class="login-title">Admin Login</h1>
       
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label for="username">아이디</label>
+          <label for="username">Username</label>
           <input
             id="username"
             v-model="form.username"
             type="text"
-            placeholder="아이디를 입력하세요"
+            placeholder="Enter username"
             required
             autocomplete="username"
           />
         </div>
         
         <div class="form-group">
-          <label for="password">비밀번호</label>
+          <label for="password">Password</label>
           <input
             id="password"
             v-model="form.password"
             type="password"
-            placeholder="비밀번호를 입력하세요"
+            placeholder="Enter password"
             required
             autocomplete="current-password"
           />
@@ -33,7 +33,7 @@
         </div>
         
         <button type="submit" class="login-button" :disabled="isLoading">
-          {{ isLoading ? '로그인 중...' : '로그인' }}
+          {{ isLoading ? 'Logging in...' : 'Login' }}
         </button>
       </form>
     </div>
@@ -65,8 +65,8 @@ const handleLogin = async () => {
     await login(form.value.username, form.value.password)
     router.push('/admin')
   } catch (err) {
-    // 에러 메시지 추출
-    let errorMessage = '로그인에 실패했습니다.'
+    // Extract error message
+    let errorMessage = 'Login failed.'
     
     if (err.message) {
       errorMessage = err.message
@@ -79,7 +79,7 @@ const handleLogin = async () => {
     }
     
     error.value = errorMessage
-    console.error('로그인 오류:', err)
+    console.error('Login error:', err)
   } finally {
     isLoading.value = false
   }

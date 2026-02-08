@@ -28,7 +28,7 @@
           </div>
         </div>
         <div v-else class="no-events">
-          <p>예정된 공연이 없습니다.</p>
+          <p>No upcoming events.</p>
         </div>
       </div>
     </section>

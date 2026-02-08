@@ -81,7 +81,7 @@
   .shop {
     display: flex;
     flex-direction: column;
-    padding: 5rem 1.5rem 2rem;
+    padding: 4rem 1.5rem 2rem;
     gap: 1.5rem;
     height: auto;
     min-height: calc(100vh - 3.75rem);
@@ -91,6 +91,7 @@
   .shop-title {
     padding-top: 0;
     width: 100%;
+    margin-bottom: 2rem;
   }
 
   .shop-content {
@@ -102,7 +103,11 @@
   }
 
   .no-products {
-    padding: 2rem 0;
+    padding: 0;
+  }
+
+  .no-products p {
+    font-size: 1rem;
   }
 }
 </style>

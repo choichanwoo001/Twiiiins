@@ -10,7 +10,7 @@
       </div>
       
       <div class="dialog-footer">
-        <BaseButton variant="secondary" @click="handleCancel">취소</BaseButton>
+        <BaseButton variant="secondary" @click="handleCancel">{{ cancelText }}</BaseButton>
         <BaseButton :variant="confirmVariant" @click="handleConfirm">{{ confirmText }}</BaseButton>
       </div>
     </div>
@@ -27,7 +27,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: '확인'
+    default: 'Confirm'
   },
   message: {
     type: String,
@@ -35,11 +35,11 @@ const props = defineProps({
   },
   confirmText: {
     type: String,
-    default: '확인'
+    default: 'Confirm'
   },
   cancelText: {
     type: String,
-    default: '취소'
+    default: 'Cancel'
   },
   confirmVariant: {
     type: String,

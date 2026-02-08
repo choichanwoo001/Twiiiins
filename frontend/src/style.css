@@ -146,22 +146,34 @@
   /* Colors */
   --color-primary: #1E1D1D;
   --color-text: #1E1D1D;
-  --color-text-secondary: #555; /* #555 대체 */
-  --color-text-tertiary: #666; /* #666 대체 */
-  --color-text-quaternary: #888; /* #888 대체 */
-  --color-text-muted: #999; /* #999 대체 */
+  --color-text-secondary: #555;
+  /* #555 대체 */
+  --color-text-tertiary: #666;
+  /* #666 대체 */
+  --color-text-quaternary: #888;
+  /* #888 대체 */
+  --color-text-muted: #999;
+  /* #999 대체 */
   --color-background: #fff;
   --color-accent: #FBCE7B;
-  --color-accent-red: #8B0000; /* #8B0000 대체 */
-  --color-accent-red-hover: #A00000; /* #A00000 대체 */
+  --color-accent-red: #8B0000;
+  /* #8B0000 대체 */
+  --color-accent-red-hover: #A00000;
+  /* #A00000 대체 */
   --color-border: #e0e0e0;
   --color-scrollbar: rgba(0, 0, 0, 0.2);
   --color-scrollbar-hover: rgba(0, 0, 0, 0.3);
   --color-overlay-bg: rgba(255, 255, 255, 0.45);
 
   /* Layout */
-  --navbar-height: 3.75rem;
+  --navbar-height: 7rem;
   --safe-area-top: env(safe-area-inset-top);
+}
+
+@media (max-width: 48rem) {
+  :root {
+    --navbar-height: 5rem;
+  }
 }
 
 * {
@@ -221,9 +233,10 @@ body:has(.router-link-active[href="/"]) .navbar {
   padding: 0 2rem;
 }
 
+/* 로고 스타일 (모든 페이지 통일) */
 .logo {
-  font-size: 1.8rem;
-  font-weight: 400;
+  font-size: 5rem;
+  font-weight: 350;
   color: var(--color-text);
   text-decoration: none;
   letter-spacing: 0.125rem;
@@ -231,20 +244,7 @@ body:has(.router-link-active[href="/"]) .navbar {
   display: inline-block;
 }
 
-/* 홈 페이지에서만 로고 크게 */
-body:has(.router-link-active[href="/"]) .logo {
-  font-size: 5rem;
-  font-weight: 350;
-  line-height: 1;
-}
-
-/* 모바일 화면에서 로고 크기 조절 */
-@media (max-width: 48rem) {
-  body:has(.router-link-active[href="/"]) .logo {
-    font-size: 3rem;
-    /* 모바일에서는 크기 축소 */
-  }
-}
+/* 홈 페이지 전용 스타일 제거됨 (위의 .logo 스타일로 통합) */
 
 .nav-links {
   display: flex;
@@ -504,6 +504,8 @@ body.events-section-active .sns-link {
   /* 햄버거 버튼 보이기 */
   .hamburger-button {
     display: flex;
+    margin-top: 0.25rem;
+    /* 버튼 위치 내리기 */
   }
 
   /* 모바일에서 스크롤 업 버튼 숨기기 */
@@ -556,7 +558,7 @@ body.events-section-active .sns-link {
     /* 양쪽 여백 늘림 */
   }
 
-  /* 로고 사이즈 오버라이드 */
+  /* 로고 사이즈 오버라이드 (모바일 통일) */
   .logo {
     font-size: 2rem !important;
     /* 모바일 로고 축소 */

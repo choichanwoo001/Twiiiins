@@ -283,7 +283,7 @@ onMounted(() => {
 .download-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .download-item {
@@ -316,9 +316,9 @@ onMounted(() => {
 @media screen and (max-width: 768px) {
   .contact {
     display: block; /* Grid 대신 Block 사용 */
-    padding-top: 5rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-top: 4rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     height: auto; 
     overflow-y: visible; /* 전체 스크롤 허용 */
   }
@@ -326,7 +326,7 @@ onMounted(() => {
   /* 좌측 타이틀 */
   .contact-title {
     padding-top: 0;
-    margin-bottom: 2rem;
+    margin-bottom: 4rem;
   }
 
   .contact-title h1 {
@@ -337,7 +337,7 @@ onMounted(() => {
   .contact-content {
     margin-right: 0;
     padding-top: 0;
-    padding-bottom: 4rem;
+    padding-bottom: 2rem;
     width: 100%;
     max-width: none;
     height: auto;

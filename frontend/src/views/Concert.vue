@@ -158,19 +158,19 @@ onMounted(() => {
 @media (max-width: 48rem) {
   .concert {
     display: block; /* 그리드 해제 */
-    padding: 6rem 1.5rem 2rem 1.5rem; /* 좌우 여백 축소 */
+    padding: 4rem 1.5rem 2rem 1.5rem; /* 좌우 여백 축소 */
     height: auto; /* 전체 스크롤 허용 */
     overflow: visible;
     gap: 0;
   }
 
   .concert-title {
-    padding-top: 1rem;
-    margin-bottom: 3rem;
+    padding-top: 0;
+    margin-bottom: 2rem;
   }
 
   .concert-title h1 {
-    font-size: 2.22rem; /* 모바일 타이틀 사이즈 조정 */
+    font-size: 2.5rem; /* 모바일 타이틀 사이즈 조정 */
     text-align: left;
   }
 

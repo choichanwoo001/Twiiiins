@@ -27,7 +27,7 @@
               @error="handleImageError($event)"
             />
             <div v-else class="image-error">
-              이미지를 불러올 수 없습니다
+              Image not found
             </div>
           </figure>
 
@@ -60,7 +60,7 @@
 
       <!-- 프로젝트가 없을 때 -->
       <div v-else class="empty-state">
-        <p>등록된 프로젝트가 없습니다.</p>
+        <p>No projects found.</p>
       </div>
     </main>
   </div>
@@ -103,7 +103,7 @@ const handleImageError = (event) => {
   img.style.display = 'none'
   const errorDiv = document.createElement('div')
   errorDiv.className = 'image-error'
-  errorDiv.textContent = '이미지를 불러올 수 없습니다'
+  errorDiv.textContent = 'Image not found'
   img.parentElement.appendChild(errorDiv)
 }
 

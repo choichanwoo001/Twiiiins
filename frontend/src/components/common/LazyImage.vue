@@ -18,7 +18,7 @@
         <div class="spinner"></div>
       </div>
       <div class="error-placeholder" v-else-if="hasError">
-        <span>이미지 로드 실패</span>
+        <span>Failed to load image</span>
       </div>
     </div>
   </div>

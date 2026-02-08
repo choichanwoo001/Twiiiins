@@ -8,124 +8,124 @@
  * @returns {string} 구체적인 에러 원인
  */
 function getNetworkErrorDetail(error) {
-  // 타임아웃 오류
+  // Timeout error
   if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-    return '타임아웃'
+    return 'Timeout'
   }
-  
-  // CORS 오류
+
+  // CORS error
   if (error.message?.includes('CORS') || error.message?.includes('cross-origin')) {
-    return 'CORS 정책 위반'
+    return 'CORS Policy Violation'
   }
-  
-  // 네트워크 연결 오류
+
+  // Network connection error
   if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
-    return '서버 연결 실패'
+    return 'Server Connection Failed'
   }
-  
-  // DNS 오류
+
+  // DNS error
   if (error.code === 'ENOTFOUND' || error.code === 'EAI_AGAIN') {
-    return 'DNS 조회 실패'
+    return 'DNS Lookup Failed'
   }
-  
-  // 기타 네트워크 오류
+
+  // Other network errors
   if (error.code) {
-    return `네트워크 오류 (${error.code})`
+    return `Network Error (${error.code})`
   }
-  
-  return '네트워크 연결 오류'
+
+  return 'Network Connection Error'
 }
 
 /**
- * API 에러를 사용자 친화적인 메시지로 변환
- * @param {Object} error - 에러 객체
- * @returns {string} 사용자 친화적인 에러 메시지
+ * Convert API error to user-friendly message
+ * @param {Object} error - Error object
+ * @returns {string} User-friendly error message
  */
 export function getErrorMessage(error) {
-  // 네트워크 오류
+  // Network error
   if (!error.response) {
     const errorDetail = getNetworkErrorDetail(error)
-    
-    // 타임아웃은 별도 메시지
-    if (errorDetail === '타임아웃') {
-      return '요청 시간이 초과되었습니다. 다시 시도해주세요.'
+
+    // Timeout specific message
+    if (errorDetail === 'Timeout') {
+      return 'Request timed out. Please try again.'
     }
-    
-    // CORS 오류
-    if (errorDetail === 'CORS 정책 위반') {
-      return 'CORS 정책 위반으로 요청이 차단되었습니다.'
+
+    // CORS error
+    if (errorDetail === 'CORS Policy Violation') {
+      return 'Request blocked by CORS policy.'
     }
-    
-    // 서버 연결 실패
-    if (errorDetail === '서버 연결 실패') {
-      return '서버에 연결할 수 없습니다. 서버 상태를 확인해주세요.'
+
+    // Server connection failed
+    if (errorDetail === 'Server Connection Failed') {
+      return 'Cannot connect to server. Please check server status.'
     }
-    
-    // DNS 오류
-    if (errorDetail === 'DNS 조회 실패') {
-      return '서버 주소를 찾을 수 없습니다. 네트워크 설정을 확인해주세요.'
+
+    // DNS error
+    if (errorDetail === 'DNS Lookup Failed') {
+      return 'Server address not found. Please check network settings.'
     }
-    
-    return `네트워크 오류가 발생했습니다. (${errorDetail})`
+
+    return `A network error occurred. (${errorDetail})`
   }
 
   const { status, data } = error.response
 
-  // 서버에서 제공하는 에러 메시지가 있는 경우
+  // If server provides error message
   if (data && data.error && data.error.message) {
     return data.error.message
   }
 
-  // HTTP 상태 코드별 기본 메시지
+  // Default messages by HTTP status code
   switch (status) {
     case 400:
-      return '잘못된 요청입니다.'
+      return 'Bad Request.'
     case 401:
-      return '로그인이 필요합니다.'
+      return 'Login required.'
     case 403:
-      return '접근 권한이 없습니다.'
+      return 'Access denied.'
     case 404:
-      return '요청한 리소스를 찾을 수 없습니다.'
+      return 'Requested resource not found.'
     case 422:
-      return '입력 데이터를 확인해주세요.'
+      return 'Please check input data.'
     case 429:
-      return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.'
+      return 'Too many requests. Please try again later.'
     case 500:
-      return '서버 오류가 발생했습니다. 관리자에게 문의해주세요.'
+      return 'Server error occurred. Please contact administrator.'
     case 502:
-      return '서버 게이트웨이 오류가 발생했습니다.'
+      return 'Bad Gateway.'
     case 503:
-      return '서비스를 사용할 수 없습니다. 잠시 후 다시 시도해주세요.'
+      return 'Service unavailable. Please try again later.'
     case 504:
-      return '서버 응답 시간이 초과되었습니다.'
+      return 'Gateway Timeout.'
     default:
-      return `오류가 발생했습니다. (${status})`
+      return `An error occurred. (${status})`
   }
 }
 
 /**
- * 에러 로깅
- * @param {Object} error - 에러 객체
- * @param {string} context - 에러가 발생한 컨텍스트
+ * Error logging
+ * @param {Object} error - Error object
+ * @param {string} context - Context where error occurred
  */
 export function logError(error, context = '') {
   const errorInfo = {
     context,
     timestamp: new Date().toISOString(),
-    message: error.message || '알 수 없는 오류',
+    message: error.message || 'Unknown Error',
     code: error.code,
     status: error.status || error.response?.status,
     url: error.config?.url || error.request?.url,
     method: error.config?.method?.toUpperCase(),
   }
 
-  // 네트워크 오류인 경우
+  // Network error
   if (!error.response) {
     const networkDetail = getNetworkErrorDetail(error)
     errorInfo.type = 'NETWORK_ERROR'
     errorInfo.detail = networkDetail
-    errorInfo.fullMessage = `[${context}] 네트워크 오류 발생 - ${networkDetail}: ${error.message || '알 수 없음'}`
-    
+    errorInfo.fullMessage = `[${context}] Network Error - ${networkDetail}: ${error.message || 'Unknown'}`
+
     console.error(errorInfo.fullMessage, {
       ...errorInfo,
       stack: error.stack,
@@ -134,19 +134,19 @@ export function logError(error, context = '') {
     return
   }
 
-  // HTTP 응답 오류인 경우
+  // HTTP response error
   const { status, data } = error.response
   errorInfo.type = 'HTTP_ERROR'
   errorInfo.status = status
   errorInfo.responseData = data
-  
-  // 서버 에러 메시지가 있는 경우
+
+  // If server error message exists
   if (data?.error?.message) {
     errorInfo.serverMessage = data.error.message
     errorInfo.serverCode = data.error.code
   }
 
-  errorInfo.fullMessage = `[${context}] HTTP ${status} 오류 발생: ${data?.error?.message || error.message || '알 수 없음'}`
+  errorInfo.fullMessage = `[${context}] HTTP ${status} Error: ${data?.error?.message || error.message || 'Unknown'}`
 
   console.error(errorInfo.fullMessage, {
     ...errorInfo,
@@ -159,30 +159,30 @@ export function logError(error, context = '') {
 }
 
 /**
- * 재시도 가능한 에러인지 확인
- * @param {Object} error - 에러 객체
- * @returns {boolean} 재시도 가능 여부
+ * Check if error is retryable
+ * @param {Object} error - Error object
+ * @returns {boolean} Retryable status
  */
 export function isRetryableError(error) {
   if (!error.response) {
-    return true // 네트워크 오류는 재시도 가능
+    return true // Network errors are retryable
   }
 
   const { status } = error.response
-  return status >= 500 || status === 429 // 서버 오류나 요청 제한은 재시도 가능
+  return status >= 500 || status === 429 // Server errors or rate limits are retryable
 }
 
 /**
- * 에러 타입별 처리 전략
- * @param {Object} error - 에러 객체
- * @returns {Object} 처리 전략
+ * Error handling strategy by type
+ * @param {Object} error - Error object
+ * @returns {Object} Handling strategy
  */
 export function getErrorStrategy(error) {
   if (!error.response) {
     return {
       type: 'network',
       retryable: true,
-      userMessage: '네트워크 연결을 확인해주세요.',
+      userMessage: 'Please check your network connection.',
       action: 'retry'
     }
   }
@@ -194,49 +194,49 @@ export function getErrorStrategy(error) {
       return {
         type: 'auth',
         retryable: false,
-        userMessage: '로그인이 필요합니다.',
+        userMessage: 'Login required.',
         action: 'redirect'
       }
     case 403:
       return {
         type: 'permission',
         retryable: false,
-        userMessage: '접근 권한이 없습니다.',
+        userMessage: 'Access denied.',
         action: 'show'
       }
     case 404:
       return {
         type: 'not_found',
         retryable: false,
-        userMessage: '요청한 리소스를 찾을 수 없습니다.',
+        userMessage: 'Requested resource not found.',
         action: 'show'
       }
     case 422:
       return {
         type: 'validation',
         retryable: false,
-        userMessage: '입력 데이터를 확인해주세요.',
+        userMessage: 'Please check input data.',
         action: 'show'
       }
     case 429:
       return {
         type: 'rate_limit',
         retryable: true,
-        userMessage: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
+        userMessage: 'Too many requests. Please try again later.',
         action: 'retry'
       }
     case 500:
       return {
         type: 'server',
         retryable: true,
-        userMessage: '서버 오류가 발생했습니다. 관리자에게 문의해주세요.',
+        userMessage: 'Server error occurred. Please contact administrator.',
         action: 'retry'
       }
     default:
       return {
         type: 'unknown',
         retryable: false,
-        userMessage: `오류가 발생했습니다. (${status})`,
+        userMessage: `An error occurred. (${status})`,
         action: 'show'
       }
   }

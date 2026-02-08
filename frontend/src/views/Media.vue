@@ -91,7 +91,7 @@
               ></iframe>
             </div>
             <div v-else class="video-error">
-              <p>비디오 URL이 유효하지 않습니다.</p>
+              <p>Invalid video URL.</p>
             </div>
             <div class="video-info">
               <div class="video-title">{{ video.title }}</div>
@@ -100,7 +100,7 @@
           </div>
         </div>
         <div v-else class="empty-state">
-          <p>등록된 비디오가 없습니다.</p>
+          <p>No videos found.</p>
         </div>
       </div>
 
@@ -272,21 +272,21 @@ const loadVideos = async () => {
         .filter(video => {
           if (!video || !video.id || !video.title) {
             if (import.meta.env.DEV) {
-              console.warn('비디오 필수 필드 누락:', video)
+              console.warn('Missing required video fields:', video)
             }
             return false
           }
           
           if (!video.embedUrl) {
             if (import.meta.env.DEV) {
-              console.warn('비디오 embedUrl 없음:', video.id, video.title)
+              console.warn('Missing video embedUrl:', video.id, video.title)
             }
             return false
           }
           
           const isValid = isValidEmbedUrl(video.embedUrl)
           if (!isValid && import.meta.env.DEV) {
-            console.warn('유효하지 않은 embedUrl:', {
+            console.warn('Invalid embedUrl:', {
               id: video.id,
               title: video.title,
               embedUrl: video.embedUrl
@@ -429,7 +429,7 @@ const toggleNews = (newsId) => {
 .nav-item h2 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
-  letter-spacing: 0.125rem;
+  letter-spacing: 0.12em;
   color: var(--color-text-lighter); /* #888 */
   margin: 0;
   line-height: 1;
@@ -469,7 +469,7 @@ const toggleNews = (newsId) => {
 .nav-item.active h1,
 .nav-item.active h2 {
   color: #FBCE7B; /* 활성 상태: 진한 색상 */
-  font-weight: 500; /* 약간 더 굵게 */
+  font-weight: 400; /* 약간 더 굵게 -> Projects와 동일하게 400으로 변경 */
 }
 
 /* 메인 콘텐츠 영역 */
@@ -554,9 +554,19 @@ const toggleNews = (newsId) => {
   color: var(--color-text); /* #000 -> var(--color-text) */
   border-bottom-color: var(--color-text); /* #000 */
 }
+.video-embed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  overflow: hidden;
+  border-radius: 0.25rem; /* Optional: Slight rounding for better visuals */
+}
+
 .video-embed iframe {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   border: none;
@@ -568,6 +578,13 @@ const toggleNews = (newsId) => {
   color: #999;
   background: #f5f5f5;
   border-radius: 0.5rem;
+}
+
+/* 비디오 리스트 컨테이너 */
+.video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .video-info {
@@ -608,8 +625,8 @@ const toggleNews = (newsId) => {
 }
 
 .photo-group-title {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 0.9em;
+  font-weight: 400;
   color: #FBCE7B;
   text-align: left;
 }
@@ -786,7 +803,9 @@ const toggleNews = (newsId) => {
     flex-direction: column;
     height: auto;
     min-height: 100vh;
-    padding-top: 5rem;
+    padding-top: 4rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
   
   /* 모바일에서 기존 nav는 숨김 (모바일 전용 메뉴 사용) */
@@ -798,8 +817,8 @@ const toggleNews = (newsId) => {
   .mobile-nav {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
-    margin-bottom: 2rem;
+    padding: 0;
+    margin-bottom: 4rem;
     gap: 0.5rem;
   }
 
@@ -814,15 +833,15 @@ const toggleNews = (newsId) => {
   }
 
   .mobile-nav-item.active {
-    font-size: clamp(2.2rem, 11vw, 3rem); /* 화면 폭에 따라 유동적으로 조절 (2.2rem ~ 3rem) */
+    font-size: 2.5rem; /* Projects 모바일 타이틀과 동일한 크기 */
+    letter-spacing: 0.12em;
     color: #FBCE7B;
     opacity: 1;
-    margin-bottom: 0.5rem;
     word-wrap: break-word; /* 혹시라도 넘치면 줄바꿈, 하지만 폰트 조절로 한줄 유지 목표 */
   }
 
   .media-content {
-    padding: 1rem;
+    padding: 0;
     padding-bottom: 8rem;
     overflow: visible;
     padding-top: 0; /* 네비게이션이 위에 있으므로 상단 패딩 제거 */
@@ -831,7 +850,7 @@ const toggleNews = (newsId) => {
   /* 모바일 콘텐츠 그리드 조정 */
   .albums-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.1rem;
+    gap: 1rem;
     row-gap: 2rem;
   }
   
@@ -930,6 +949,10 @@ const toggleNews = (newsId) => {
     text-align: right;
     font-size: 0.875rem; /* 14px */
     width: 100%;
+  }
+  /* Mobile Video Section */
+  .video-info {
+    display: none;
   }
 }
 </style>
