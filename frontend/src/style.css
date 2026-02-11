@@ -164,6 +164,8 @@
   --color-scrollbar: rgba(0, 0, 0, 0.2);
   --color-scrollbar-hover: rgba(0, 0, 0, 0.3);
   --color-overlay-bg: rgba(255, 255, 255, 0.45);
+  --color-background-soft: #f8f8f8;
+  --color-background-mute: #f5f5f5;
 
   /* Layout */
   --navbar-height: 7rem;

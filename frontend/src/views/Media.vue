@@ -430,7 +430,7 @@ const toggleNews = (newsId) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 300;
   letter-spacing: 0.12em;
-  color: #FBCE7B;
+  color: var(--color-accent);
   margin: 0;
   line-height: 1;
   text-transform: uppercase;
@@ -440,7 +440,7 @@ const toggleNews = (newsId) => {
 
 /* 활성 탭 스타일 */
 .active-tab h2 {
-  color: #FBCE7B;
+  color: var(--color-accent);
   font-weight: 500;
 }
 .nav-item.main-title {
@@ -454,7 +454,7 @@ const toggleNews = (newsId) => {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 300;
   letter-spacing: 0.12em;
-  color: #FBCE7B;
+  color: var(--color-accent);
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
@@ -463,12 +463,12 @@ const toggleNews = (newsId) => {
 
 .nav-item:hover h1,
 .nav-item:hover h2 {
-  color: #FBCE7B;
+  color: var(--color-accent);
 }
 
 .nav-item.active h1,
 .nav-item.active h2 {
-  color: #FBCE7B;
+  color: var(--color-accent);
   font-weight: 500;
 }
 
@@ -576,7 +576,7 @@ const toggleNews = (newsId) => {
   padding: 2rem;
   text-align: center;
   color: #999;
-  background: #f5f5f5;
+  background: var(--color-background-mute);
   border-radius: 0.5rem;
 }
 
@@ -627,7 +627,7 @@ const toggleNews = (newsId) => {
 .photo-group-title {
   font-size: 0.9em;
   font-weight: 400;
-  color: #FBCE7B;
+  color: var(--color-accent);
   text-align: left;
 }
 
@@ -683,7 +683,7 @@ const toggleNews = (newsId) => {
 }
 
 .news-item {
-  border-bottom: 0.0625rem solid #e0e0e0;
+  border-bottom: 0.0625rem solid var(--color-border);
   transition: background-color 0.3s ease;
 }
 
@@ -746,13 +746,13 @@ const toggleNews = (newsId) => {
 }
 .news-details {
   padding: 1.5rem 2rem 2rem 2rem; /* 상단, 오른쪽, 하단, 왼쪽 (좌우 여백 5rem -> 2rem 축소) */
-  background-color: #f8f8f8;
-  border-top: 0.0625rem solid #e0e0e0;
+  background-color: var(--color-background-soft);
+  border-top: 0.0625rem solid var(--color-border);
 }
 
 .news-description {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-tertiary);
   line-height: 1.5;
   margin-bottom: 2rem;
 }
@@ -761,7 +761,7 @@ const toggleNews = (newsId) => {
 .news-images {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--color-border);
 }
 
 /* EQUIPMENT 섹션 */
@@ -835,7 +835,7 @@ const toggleNews = (newsId) => {
   .mobile-nav-item.active {
     font-size: 2.5rem; /* Projects 모바일 타이틀과 동일한 크기 */
     letter-spacing: 0.12em;
-    color: #FBCE7B;
+    color: var(--color-accent);
     opacity: 1;
     word-wrap: break-word; /* 혹시라도 넘치면 줄바꿈, 하지만 폰트 조절로 한줄 유지 목표 */
   }
@@ -887,7 +887,7 @@ const toggleNews = (newsId) => {
     width: 100%;
     margin-bottom: 0.5rem; /* 8px */
     font-size: 0.875rem; /* 14px */
-    color: #999;
+    color: var(--color-text-muted);
   }
 
   .news-content {
