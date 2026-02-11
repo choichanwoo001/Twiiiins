@@ -428,9 +428,9 @@ const toggleNews = (newsId) => {
 
 .nav-item h2 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 400;
+  font-weight: 300;
   letter-spacing: 0.12em;
-  color: var(--color-text-lighter); /* #888 */
+  color: #FBCE7B;
   margin: 0;
   line-height: 1;
   text-transform: uppercase;
@@ -440,8 +440,8 @@ const toggleNews = (newsId) => {
 
 /* 활성 탭 스타일 */
 .active-tab h2 {
-  color: #154560; /* This seems specific (Navy). Keep? Or use primary? Keeping for now */
-  font-weight: 400;
+  color: #FBCE7B;
+  font-weight: 500;
 }
 .nav-item.main-title {
   cursor: pointer;
@@ -452,9 +452,9 @@ const toggleNews = (newsId) => {
 
 .nav-item.main-title h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 400;
+  font-weight: 300;
   letter-spacing: 0.12em;
-  color: rgba(251, 206, 123, 0.5); /* 비활성 상태: 더 연한 색상 */
+  color: #FBCE7B;
   text-transform: uppercase;
   line-height: 1;
   margin: 0;
@@ -463,13 +463,13 @@ const toggleNews = (newsId) => {
 
 .nav-item:hover h1,
 .nav-item:hover h2 {
-  color: rgba(251, 206, 123, 0.7); /* 호버 시 중간 색상 */
+  color: #FBCE7B;
 }
 
 .nav-item.active h1,
 .nav-item.active h2 {
-  color: #FBCE7B; /* 활성 상태: 진한 색상 */
-  font-weight: 400; /* 약간 더 굵게 -> Projects와 동일하게 400으로 변경 */
+  color: #FBCE7B;
+  font-weight: 500;
 }
 
 /* 메인 콘텐츠 영역 */
