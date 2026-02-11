@@ -79,6 +79,6 @@ jar {
 }
 
 bootJar {
-	archiveFileName = 'twiiiins-backend-${version}.jar'
+	archiveFileName = "twiiiins-backend-${version}.jar"
 }
 

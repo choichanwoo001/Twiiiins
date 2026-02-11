@@ -95,20 +95,31 @@ jobs:
           # GHCR 로그인 정보 생성
           echo ${{ secrets.GITHUB_TOKEN }} > gh_token.txt
 
-          # 1. 디스크 정리 및 준비
-          echo "=== EC2 배포 시작 ==="
-          ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
-            export TARGET_DIR="$HOME/twiiiins/Twiiiins"
-            mkdir -p $TARGET_DIR/frontend
-            mkdir -p $TARGET_DIR/backend
+            # 1. 디스크 공간 확인 및 정리
+            echo "=== 디스크 공간 확인 (정리 전) ==="
+            df -h
             
-            # 컨테이너 정리 (중지 및 삭제)
-            echo "Stopping and removing containers..."
+            echo "=== 컨테이너 및 이미지 정리 ==="
+            # 실행 중인 컨테이너 중지 및 삭제
             docker rm -f twiiiins-backend twiiiins-nginx || true
             
-            # 시스템 정리
-            echo "Pruning system..."
+            # 기존 이미지 강제 삭제 (공간 확보 핵심)
+            docker rmi -f ghcr.io/${{ github.repository_owner }}/twiiiins-backend:latest || true
+            docker rmi -f nginx:alpine || true
+            
+            # 시스템 정리 (사용하지 않는 모든 이미지, 컨테이너, 볼륨, 네트워크 삭제)
             docker system prune -af --volumes || true
+            
+            echo "=== 디스크 공간 확인 (정리 후) ==="
+            df -h
+
+            # 2. 디렉토리 설정 (권한 문제 방지)
+            export TARGET_DIR="$HOME/twiiiins/Twiiiins"
+            mkdir -p $TARGET_DIR/frontend
+            mkdir -p $TARGET_DIR/backend/uploads
+            
+            # 업로드 디렉토리 권한 설정 (컨테이너가 쓸 수 있도록 777 부여)
+            chmod 777 $TARGET_DIR/backend/uploads
           ENDSSH
           
           # 2. 파일 전송
@@ -134,15 +145,18 @@ jobs:
             rm gh_token.txt
 
             # 최신 이미지 다운로드
+            echo "=== Docker 이미지 Pull ==="
             docker-compose pull backend
             
             # 서비스 실행
+            echo "=== Docker Compose Up ==="
             docker-compose up -d
             docker-compose ps
             
-            # 로그 확인
+            # 로그 확인 (실행 실패 시 원인 파악용)
+            echo "=== Backend Container Logs ==="
             sleep 5
-            docker-compose logs --tail=20 backend
+            docker logs twiiiins-backend 2>&1 | tail -n 50 || echo "Container not running, checking stopped container logs..."
           "
           
           # SSH 키 정리
