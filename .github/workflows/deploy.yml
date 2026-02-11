@@ -95,7 +95,11 @@ jobs:
           # GHCR 로그인 정보 생성
           echo ${{ secrets.GITHUB_TOKEN }} > gh_token.txt
 
-            # 1. 디스크 공간 확인 및 정리
+          # 1. 디스크 공간 확인 및 정리
+          echo "=== EC2 배포 시작 ==="
+          ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
+            export TARGET_DIR="$HOME/twiiiins/Twiiiins"
+            
             echo "=== 디스크 공간 확인 (정리 전) ==="
             df -h
             
