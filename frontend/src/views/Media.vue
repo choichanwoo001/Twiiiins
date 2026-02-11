@@ -401,8 +401,8 @@ const toggleNews = (newsId) => {
 .media {
   display: flex;
   background-color: var(--color-background);
-  padding-top: 6rem;
-  height: calc(100vh - 3.75rem);
+  padding-top: 3rem;
+  height: calc(100vh - var(--navbar-height));
   overflow: hidden;
 }
 

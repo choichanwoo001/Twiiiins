@@ -19,7 +19,7 @@
 .shop {
   background: #fff;
   color: #222;
-  padding-top: 6rem;
+  padding-top: 3rem;
   display: grid;
   grid-template-columns: 1fr 2.2fr;
   align-items: start;
@@ -28,7 +28,7 @@
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
-  height: calc(100vh - 3.75rem);
+  height: calc(100vh - var(--navbar-height));
   overflow: hidden;
 }
 

@@ -62,10 +62,10 @@
   background-color: white;
   color: #1E1D1D;
   font-family: 'Jost', sans-serif;
-  height: calc(100vh - 3.75rem);
+  height: calc(100vh - var(--navbar-height));
   overflow-y: auto;
   overflow-x: hidden;
-  padding-top: 6rem;
+  padding-top: 3rem;
   padding-left: 2rem;
   padding-right: 4rem;
   scrollbar-gutter: stable;
