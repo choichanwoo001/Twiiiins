@@ -491,7 +491,7 @@ const toggleNews = (newsId) => {
 /* MUSIC 섹션 */
 .albums-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 2rem;
 }
 
