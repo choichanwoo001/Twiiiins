@@ -242,6 +242,12 @@ body:has(.router-link-active[href="/"]) .navbar {
   letter-spacing: 0.125rem;
   line-height: 1;
   display: inline-block;
+  transition: font-size 0.3s ease;
+}
+
+/* 홈 페이지가 아닐 때 (데스크탑) 로고 크기 축소 */
+.logo.small {
+  font-size: 2.5rem;
 }
 
 /* 홈 페이지 전용 스타일 제거됨 (위의 .logo 스타일로 통합) */
