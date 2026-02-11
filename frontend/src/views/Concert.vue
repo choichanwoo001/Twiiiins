@@ -110,8 +110,8 @@ onMounted(() => {
 .concert {
   background: var(--color-background);
   color: var(--color-text);
-  padding-top: 6rem;
-  height: calc(100vh - 3.75rem);
+  padding-top: 3rem;
+  height: calc(100vh - var(--navbar-height));
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 2fr;

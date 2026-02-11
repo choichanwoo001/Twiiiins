@@ -164,6 +164,8 @@
   --color-scrollbar: rgba(0, 0, 0, 0.2);
   --color-scrollbar-hover: rgba(0, 0, 0, 0.3);
   --color-overlay-bg: rgba(255, 255, 255, 0.45);
+  --color-background-soft: #f8f8f8;
+  --color-background-mute: #f5f5f5;
 
   /* Layout */
   --navbar-height: 7rem;
@@ -242,6 +244,12 @@ body:has(.router-link-active[href="/"]) .navbar {
   letter-spacing: 0.125rem;
   line-height: 1;
   display: inline-block;
+  transition: font-size 0.3s ease;
+}
+
+/* 홈 페이지가 아닐 때 (데스크탑) 로고 크기 축소 */
+.logo.small {
+  font-size: 2.5rem;
 }
 
 /* 홈 페이지 전용 스타일 제거됨 (위의 .logo 스타일로 통합) */

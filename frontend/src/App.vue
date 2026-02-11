@@ -3,7 +3,7 @@
     <!-- 관리자 페이지가 아닐 때만 네비게이션 표시 -->
     <nav v-if="!isAdminPage" class="navbar">
       <div class="container">
-        <router-link to="/" class="logo">TWIIIINS</router-link>
+        <router-link to="/" class="logo" :class="{ 'small': !isHomePage }">TWIIIINS</router-link>
         
         <!-- 데스크탑 메뉴 -->
         <div class="nav-links desktop-nav">
@@ -94,6 +94,9 @@ const {
 
 // 현재 페이지가 관리자 페이지인지 확인
 const isAdminPage = computed(() => route.path.startsWith('/admin'))
+
+// 현재 페이지가 홈인지 확인
+const isHomePage = computed(() => route.path === '/')
 
 // SNS 링크를 표시할 페이지들 (홈 + 메인 페이지들)
 const shouldShowSnsLinks = computed(() => {
