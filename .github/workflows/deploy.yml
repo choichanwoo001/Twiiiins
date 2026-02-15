@@ -148,6 +148,8 @@ jobs:
 
               # 2. 디렉토리 설정
               export TARGET_DIR="$HOME/twiiiins/Twiiiins"
+              # 프론트엔드 기존 빌드 삭제 (Clean Deploy)
+              rm -rf $TARGET_DIR/frontend/dist
               mkdir -p $TARGET_DIR/frontend
               mkdir -p $TARGET_DIR/backend/uploads
               mkdir -p $TARGET_DIR/db_data  # DB 데이터 폴더 생성
@@ -164,14 +166,12 @@ jobs:
           scp -i ~/.ssh/deploy_key .env $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
 
           echo "=== 프론트엔드 dist 전송 ==="
-            # rsync로 dist 전송
-            rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key" \
-              frontend/dist/ $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/dist
+            # scp로 dist 전송 (rsync 대체, 의존성 제거)
+            scp -r -i ~/.ssh/deploy_key frontend/dist $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/
             
             # docker-compose.yml 전송
             echo "=== docker-compose.yml 전송 ==="
-            rsync -avz -e "ssh -i ~/.ssh/deploy_key" \
-              docker-compose.yml $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
+            scp -i ~/.ssh/deploy_key docker-compose.yml $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
               
             # 3. 원격 실행
             ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST "
