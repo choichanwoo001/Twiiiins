@@ -173,6 +173,10 @@ jobs:
             echo "=== docker-compose.yml 전송 ==="
             scp -i ~/.ssh/deploy_key docker-compose.yml $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
               
+            # aws 폴더(Nginx 설정) 전송
+            echo "=== aws 폴더 전송 ==="
+            scp -r -i ~/.ssh/deploy_key aws $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
+              
             # 3. 원격 실행
             ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'EOF'
               cd ~/twiiiins/Twiiiins
