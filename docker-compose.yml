@@ -16,6 +16,11 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     networks:
       - twiiiins-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # 2. Spring Boot 백엔드
   backend:
@@ -51,6 +56,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # 3. Nginx 리버스 프록시
   nginx:
@@ -70,6 +80,11 @@ services:
         condition: service_healthy
     networks:
       - twiiiins-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   certbot:
     image: certbot/certbot
@@ -77,9 +92,19 @@ services:
     volumes:
       - ./aws/nginx/data/certbot/conf:/etc/letsencrypt
       - ./aws/nginx/data/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: >
+      /bin/sh -c ' apk add --no-cache docker-cli && trap exit TERM; while :; do
+        certbot renew --deploy-hook "docker kill -s SIGHUP twiiiins-nginx" --quiet;
+        sleep 12h & wait $${!};
+      done; '
     networks:
       - twiiiins-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   twiiiins-network:

@@ -177,10 +177,14 @@ jobs:
             echo "=== aws 폴더 전송 ==="
             scp -r -i ~/.ssh/deploy_key aws $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
               
-            # 3. 원격 실행
+              # 3. 원격 실행
             ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'EOF'
               cd ~/twiiiins/Twiiiins
-            
+              
+              # 스크립트 실행 권한 부여
+              chmod +x aws/*.sh
+              chmod +x aws/nginx/*.sh || true
+
               # GHCR 로그인
               cat gh_token.txt | docker login ghcr.io -u ${{ github.actor }} --password-stdin
               rm gh_token.txt
