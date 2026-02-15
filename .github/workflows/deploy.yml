@@ -154,7 +154,7 @@ jobs:
               
               # 업로드 디렉토리 권한 설정
               chmod 777 $TARGET_DIR/backend/uploads
-            ENDSSH
+          ENDSSH
             
             # 2. 파일 전송
             # GHCR 토큰 전송
