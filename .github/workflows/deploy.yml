@@ -174,15 +174,15 @@ jobs:
             scp -i ~/.ssh/deploy_key docker-compose.yml $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
               
             # 3. 원격 실행
-            ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST "
+            ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'EOF'
               cd ~/twiiiins/Twiiiins
             
-            # GHCR 로그인
-            cat gh_token.txt | docker login ghcr.io -u $USERNAME --password-stdin
-            rm gh_token.txt
-            
-            # .env 파일을 이용해 Docker 실행 환경 구성 (이미 복사됨)
-
+              # GHCR 로그인
+              cat gh_token.txt | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+              rm gh_token.txt
+              
+              # .env 파일을 이용해 Docker 실행 환경 구성 (이미 복사됨)
+ 
               # 최신 이미지 다운로드 (백엔드만)
               echo "=== Docker 이미지 Pull ==="
               docker-compose pull backend nginx
@@ -197,7 +197,7 @@ jobs:
               echo "=== Backend Container Logs ==="
               sleep 5
               docker logs twiiiins-backend 2>&1 | tail -n 50 || echo "Container not running..."
-            "
+          EOF
           
           # SSH 키 정리
           rm -f ~/.ssh/deploy_key
