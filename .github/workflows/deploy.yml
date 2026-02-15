@@ -189,13 +189,13 @@ jobs:
  
               # 최신 이미지 다운로드 (백엔드만)
               echo "=== Docker 이미지 Pull ==="
-              docker-compose pull backend nginx
+              docker compose pull backend nginx
               
               # 서비스 실행 (백엔드와 Nginx만 재시작, DB는 계속 실행 중이어야 함)
               echo "=== Docker Compose Up (Backend & Nginx) ==="
-              docker-compose up -d backend nginx certbot
+              docker compose up -d backend nginx certbot
               
-              docker-compose ps
+              docker compose ps
               
               # 로그 확인
               echo "=== Backend Container Logs ==="
