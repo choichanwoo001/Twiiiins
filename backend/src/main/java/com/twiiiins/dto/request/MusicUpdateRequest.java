@@ -5,6 +5,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import com.twiiiins.validation.ValidMediaUrl;
 import org.hibernate.validator.constraints.URL;
 
 @Getter
@@ -20,7 +21,7 @@ public class MusicUpdateRequest {
     private String artist;
 
     @NotBlank
-    @URL
+    @ValidMediaUrl
     @Size(max = 2048)
     private String coverUrl;
 

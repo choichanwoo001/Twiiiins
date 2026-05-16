@@ -4,18 +4,18 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.URL;
+import com.twiiiins.validation.ValidMediaUrl;
 
 @Getter
 @Setter
 public class PhotoCreateRequest {
 
     @NotBlank
-    @URL
+    @ValidMediaUrl
     @Size(max = 2048)
     private String imageUrl;
 
-    @URL
+    @ValidMediaUrl
     @Size(max = 2048)
     private String thumbnailUrl;
 
