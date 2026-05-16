@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +56,7 @@ public class ConcertService {
                 concertMapper.toEntity(request),
                 "ConcertMapper.toEntity returned null"
         );
-        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
+        Concert savedConcert = concertRepository.save(concert);
         return concertMapper.toDto(savedConcert);
     }
     
@@ -65,10 +64,8 @@ public class ConcertService {
     public ConcertDto updateConcert(@NonNull Long id, @NonNull ConcertUpdateRequest request) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
-        
         concertMapper.updateEntityFromUpdateRequest(request, concert);
-        
-        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
+        Concert savedConcert = concertRepository.save(concert);
         return concertMapper.toDto(savedConcert);
     }
     
@@ -76,7 +73,7 @@ public class ConcertService {
     public void deleteConcert(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
-        concertRepository.delete(Objects.requireNonNull(concert, "Concert must not be null"));
+        concertRepository.delete(concert);
     }
     
     @Transactional
@@ -84,7 +81,7 @@ public class ConcertService {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concert.setIsPast(true);
-        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
+        Concert savedConcert = concertRepository.save(concert);
         return concertMapper.toDto(savedConcert);
     }
     
@@ -93,19 +90,17 @@ public class ConcertService {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concert.setIsPast(false);
-        Concert savedConcert = concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
+        Concert savedConcert = concertRepository.save(concert);
         return concertMapper.toDto(savedConcert);
     }
     
     @Transactional
     public int autoMovePastEvents(@NonNull LocalDate currentDate) {
         List<Concert> concertsToMove = concertRepository.findByDateBeforeAndIsPast(currentDate, false);
-        
         for (Concert concert : concertsToMove) {
             concert.setIsPast(true);
-            concertRepository.save(Objects.requireNonNull(concert, "Concert must not be null"));
+            concertRepository.save(concert);
         }
-        
         return concertsToMove.size();
     }
     

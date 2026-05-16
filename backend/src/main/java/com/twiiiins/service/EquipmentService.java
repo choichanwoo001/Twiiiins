@@ -49,8 +49,7 @@ public class EquipmentService {
                 equipmentMapper.toEntity(request),
                 "EquipmentMapper.toEntity returned null"
         );
-        Equipment savedEquipment = equipmentRepository.save(
-                Objects.requireNonNull(equipment, "Equipment must not be null"));
+        Equipment savedEquipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(savedEquipment);
     }
     
@@ -61,13 +60,15 @@ public class EquipmentService {
         
         equipmentMapper.updateEntityFromUpdateRequest(request, equipment);
         
-        Equipment savedEquipment = equipmentRepository.save(
-                Objects.requireNonNull(equipment, "Equipment must not be null"));
+        Equipment savedEquipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(savedEquipment);
     }
     
     @Transactional
     public void deleteEquipment(@NonNull Long id) {
+        if (!equipmentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Equipment not found with id: " + id);
+        }
         equipmentRepository.deleteById(id);
     }
 }

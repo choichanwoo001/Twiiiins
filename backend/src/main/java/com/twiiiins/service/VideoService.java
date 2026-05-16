@@ -49,7 +49,7 @@ public class VideoService {
                 videoMapper.toEntity(request),
                 "VideoMapper.toEntity returned null"
         );
-        final Video savedVideo = videoRepository.save(Objects.requireNonNull(video, "Video must not be null"));
+        final Video savedVideo = videoRepository.save(video);
         return videoMapper.toDto(savedVideo);
     }
     
@@ -60,12 +60,15 @@ public class VideoService {
         
         videoMapper.updateEntityFromUpdateRequest(request, video);
         
-        final Video savedVideo = videoRepository.save(Objects.requireNonNull(video, "Video must not be null"));
+        final Video savedVideo = videoRepository.save(video);
         return videoMapper.toDto(savedVideo);
     }
     
     @Transactional
     public void deleteVideo(@NonNull Long id) {
+        if (!videoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Video not found with id: " + id);
+        }
         videoRepository.deleteById(id);
     }
 }

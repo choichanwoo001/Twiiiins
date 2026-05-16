@@ -50,7 +50,7 @@ public class NewsService {
                 newsMapper.toEntity(request),
                 "NewsMapper.toEntity returned null"
         );
-        News savedNews = newsRepository.save(Objects.requireNonNull(news, "News must not be null"));
+        News savedNews = newsRepository.save(news);
         return newsMapper.toDto(savedNews);
     }
     
@@ -61,12 +61,15 @@ public class NewsService {
         
         newsMapper.updateEntityFromUpdateRequest(request, news);
         
-        News savedNews = newsRepository.save(Objects.requireNonNull(news, "News must not be null"));
+        News savedNews = newsRepository.save(news);
         return newsMapper.toDto(savedNews);
     }
     
     @Transactional
     public void deleteNews(@NonNull Long id) {
+        if (!newsRepository.existsById(id)) {
+            throw new ResourceNotFoundException("News not found with id: " + id);
+        }
         newsRepository.deleteById(id);
     }
 }

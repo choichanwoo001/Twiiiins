@@ -56,7 +56,7 @@ public class ProjectService {
                 projectMapper.toEntity(request),
                 "ProjectMapper.toEntity returned null"
         );
-        final Project savedProject = projectRepository.save(Objects.requireNonNull(project, "Project must not be null"));
+        final Project savedProject = projectRepository.save(project);
         return projectMapper.toDto(savedProject);
     }
     
@@ -67,7 +67,7 @@ public class ProjectService {
         
         projectMapper.updateEntityFromUpdateRequest(request, project);
 
-        final Project savedProject = projectRepository.save(Objects.requireNonNull(project, "Project must not be null"));
+        final Project savedProject = projectRepository.save(project);
         return projectMapper.toDto(savedProject);
     }
     
@@ -75,7 +75,7 @@ public class ProjectService {
     public void deleteProject(@NonNull Long id) {
         final Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
-        projectRepository.delete(Objects.requireNonNull(project, "Project must not be null"));
+        projectRepository.delete(project);
     }
     
 }
