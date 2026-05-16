@@ -39,14 +39,6 @@ class ApiCache {
   }
 
   /**
-   * 특정 키 삭제
-   * @param {string} key - 삭제할 키
-   */
-  delete(key) {
-    this.cache.delete(key)
-  }
-
-  /**
    * 패턴에 맞는 키들 삭제
    * @param {string} pattern - 삭제할 패턴 (정규식)
    */
@@ -57,21 +49,6 @@ class ApiCache {
         this.cache.delete(key)
       }
     }
-  }
-
-  /**
-   * 전체 캐시 클리어
-   */
-  clear() {
-    this.cache.clear()
-  }
-
-  /**
-   * 캐시 크기 반환
-   * @returns {number} 캐시된 항목 수
-   */
-  size() {
-    return this.cache.size
   }
 }
 

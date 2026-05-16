@@ -9,7 +9,7 @@
  */
 export const formatDate = (date, format = 'date', locale = 'ko-KR') => {
   if (!date) return ''
-  
+
   const d = new Date(date)
   if (isNaN(d.getTime())) return ''
 
@@ -52,21 +52,18 @@ export const formatDate = (date, format = 'date', locale = 'ko-KR') => {
   }
 
   const formatted = d.toLocaleDateString(locale, options[format] || options.date)
-  
-  // short/numeric 포맷의 경우 슬래시를 점으로 변경 (프로젝트 요구사항)
+
   if (format === 'short' || format === 'numeric') {
     return formatted.replace(/\//g, '.')
   }
-  
-  // news 포맷의 경우: DD.MM.YY 형식으로 변환 (슬래시를 점으로 변경하고 순서 조정)
+
   if (format === 'news') {
-    // 로케일에 따라 다른 순서로 반환될 수 있으므로 직접 포맷팅
     const day = String(d.getDate()).padStart(2, '0')
     const month = String(d.getMonth() + 1).padStart(2, '0')
     const year = String(d.getFullYear()).slice(-2)
     return `${day}.${month}.${year}`
   }
-  
+
   return formatted
 }
 
@@ -75,7 +72,7 @@ export const formatDate = (date, format = 'date', locale = 'ko-KR') => {
  * @param {Date} date - 날짜
  * @returns {string} 상대적 시간 문자열
  */
-export const getRelativeTime = (date) => {
+const getRelativeTime = (date) => {
   const now = new Date()
   const diff = now - date
   const seconds = Math.floor(diff / 1000)
@@ -87,252 +84,20 @@ export const getRelativeTime = (date) => {
   if (minutes < 60) return `${minutes}분 전`
   if (hours < 24) return `${hours}시간 전`
   if (days < 7) return `${days}일 전`
-  
+
   return formatDate(date, 'date')
 }
 
 /**
- * 문자열 자르기
- * @param {string} str - 원본 문자열
- * @param {number} length - 자를 길이
- * @param {string} suffix - 접미사
- * @returns {string} 잘린 문자열
- */
-export const truncateString = (str, length = 50, suffix = '...') => {
-  if (!str || str.length <= length) return str
-  return str.substring(0, length) + suffix
-}
-
-/**
- * 숫자 포맷팅 (천 단위 구분)
- * @param {number} num - 숫자
- * @returns {string} 포맷된 숫자 문자열
- */
-export const formatNumber = (num) => {
-  if (num === null || num === undefined) return '0'
-  return num.toLocaleString('ko-KR')
-}
-
-/**
- * 파일 크기 포맷팅
- * @param {number} bytes - 바이트 크기
- * @returns {string} 포맷된 파일 크기
- */
-export const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes'
-  
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
-
-/**
- * URL에서 파일명 추출
- * @param {string} url - URL
- * @returns {string} 파일명
- */
-export const getFileNameFromUrl = (url) => {
-  if (!url) return ''
-  return url.split('/').pop().split('?')[0]
-}
-
-/**
- * 파일 확장자 추출
- * @param {string} filename - 파일명
- * @returns {string} 확장자
- */
-export const getFileExtension = (filename) => {
-  if (!filename) return ''
-  return filename.split('.').pop().toLowerCase()
-}
-
-/**
- * 이미지 파일 여부 확인
- * @param {string} filename - 파일명
- * @returns {boolean} 이미지 파일 여부
- */
-export const isImageFile = (filename) => {
-  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']
-  const extension = getFileExtension(filename)
-  return imageExtensions.includes(extension)
-}
-
-/**
- * 비디오 파일 여부 확인
- * @param {string} filename - 파일명
- * @returns {boolean} 비디오 파일 여부
- */
-export const isVideoFile = (filename) => {
-  const videoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm']
-  const extension = getFileExtension(filename)
-  return videoExtensions.includes(extension)
-}
-
-/**
- * 디바운스 함수
- * @param {Function} func - 실행할 함수
- * @param {number} delay - 지연 시간 (ms)
- * @returns {Function} 디바운스된 함수
- */
-export const debounce = (func, delay) => {
-  let timeoutId
-  return (...args) => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => func.apply(null, args), delay)
-  }
-}
-
-/**
- * 스로틀 함수
- * @param {Function} func - 실행할 함수
- * @param {number} limit - 제한 시간 (ms)
- * @returns {Function} 스로틀된 함수
- */
-export const throttle = (func, limit) => {
-  let inThrottle
-  return (...args) => {
-    if (!inThrottle) {
-      func.apply(null, args)
-      inThrottle = true
-      setTimeout(() => inThrottle = false, limit)
-    }
-  }
-}
-
-/**
- * 객체 깊은 복사
- * @param {any} obj - 복사할 객체
- * @returns {any} 복사된 객체
- */
-export const deepClone = (obj) => {
-  if (obj === null || typeof obj !== 'object') return obj
-  if (obj instanceof Date) return new Date(obj.getTime())
-  if (obj instanceof Array) return obj.map(item => deepClone(item))
-  if (typeof obj === 'object') {
-    const clonedObj = {}
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        clonedObj[key] = deepClone(obj[key])
-      }
-    }
-    return clonedObj
-  }
-  return obj
-}
-
-/**
- * 객체 병합
- * @param {Object} target - 대상 객체
- * @param {...Object} sources - 소스 객체들
- * @returns {Object} 병합된 객체
- */
-export const mergeObjects = (target, ...sources) => {
-  if (!sources.length) return target
-  const source = sources.shift()
-
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
-      if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} })
-        mergeObjects(target[key], source[key])
-      } else {
-        Object.assign(target, { [key]: source[key] })
-      }
-    }
-  }
-
-  return mergeObjects(target, ...sources)
-}
-
-/**
- * 객체 여부 확인
- * @param {any} item - 확인할 항목
- * @returns {boolean} 객체 여부
- */
-const isObject = (item) => {
-  return item && typeof item === 'object' && !Array.isArray(item)
-}
-
-/**
- * 로컬 스토리지 헬퍼
- */
-export const storage = {
-  set(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value))
-    } catch (error) {
-      // 로컬 스토리지 저장 실패 (용량 초과 등)
-    }
-  },
-
-  get(key, defaultValue = null) {
-    try {
-      const item = localStorage.getItem(key)
-      return item ? JSON.parse(item) : defaultValue
-    } catch (error) {
-      // 로컬 스토리지 읽기 실패
-      return defaultValue
-    }
-  },
-
-  remove(key) {
-    try {
-      localStorage.removeItem(key)
-    } catch (error) {
-      // 로컬 스토리지 삭제 실패
-    }
-  },
-
-  clear() {
-    try {
-      localStorage.clear()
-    } catch (error) {
-      // 로컬 스토리지 전체 삭제 실패
-    }
-  }
-}
-
-/**
- * 쿠키 헬퍼
- */
-export const cookies = {
-  set(name, value, days = 7) {
-    const expires = new Date()
-    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000))
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`
-  },
-
-  get(name) {
-    const nameEQ = name + '='
-    const ca = document.cookie.split(';')
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i]
-      while (c.charAt(0) === ' ') c = c.substring(1, c.length)
-      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length)
-    }
-    return null
-  },
-
-  remove(name) {
-    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`
-  }
-}
-
-/**
  * 상대 URL을 절대 URL로 변환
- * 백엔드 API에서 반환된 상대 경로를 절대 경로로 변환합니다.
  * @param {string} url - 변환할 URL
  * @returns {string} 절대 URL
  */
 export const toAbsoluteUrl = (url) => {
   if (!url) return ''
-  // 이미 완전한 URL인 경우 (http://, https://, data:) 그대로 반환
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
     return url
   }
-  // 상대 경로인 경우: 개발 환경에서만 절대 URL 생성, 프로덕션에서는 상대 경로 그대로
   if (import.meta.env.DEV) {
     const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
     return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`

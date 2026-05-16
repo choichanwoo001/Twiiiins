@@ -61,31 +61,3 @@ function getNestedValue(obj, path) {
 
   return value
 }
-
-/**
- * 검색 필터 초기화 함수
- * @param {Array} filterConfig - 필터 설정 배열 [{ key: 'title', defaultValue: '' }]
- * @returns {Object} 초기화된 필터 객체
- */
-export function createSearchFilters(filterConfig) {
-  const filters = {}
-  filterConfig.forEach(filter => {
-    filters[filter.key] = filter.defaultValue || ''
-  })
-  return filters
-}
-
-/**
- * 검색 필터 리셋 함수
- * @param {Object} filters - 현재 필터 객체
- * @param {Array} filterConfig - 필터 설정 배열
- */
-export function resetSearchFilters(filters, filterConfig) {
-  if (!filters || !filterConfig) {
-    return
-  }
-  
-  filterConfig.forEach(filter => {
-    filters[filter.key] = filter.defaultValue || ''
-  })
-}
