@@ -4,7 +4,6 @@ import com.twiiiins.exception.FileUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,11 +17,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 /**
- * 로컬 파일 시스템 저장소 구현.
- * 개발 환경(local 프로필)에서만 활성화된다.
+ * 로컬 파일 시스템 저장소 구현 (기본 파일 저장소).
  */
 @Service
-@Profile("local")
 @RequiredArgsConstructor
 @Slf4j
 public class LocalFileService implements FileStorageService {

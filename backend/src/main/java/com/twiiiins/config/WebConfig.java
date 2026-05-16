@@ -1,9 +1,13 @@
 package com.twiiiins.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Web MVC 설정 클래스
@@ -13,12 +17,24 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    
+
+    @Value("${app.file.upload-dir:uploads}")
+    private String uploadDir;
+
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        // 로컬 파일 업로드 경로 (S3 사용 시 필요하지 않을 수 있음)
+        String location = resolveUploadLocation();
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
+                .addResourceLocations(location);
+    }
+
+    private String resolveUploadLocation() {
+        Path path = Paths.get(uploadDir).toAbsolutePath().normalize();
+        String uri = path.toUri().toString();
+        if (!uri.endsWith("/")) {
+            uri += "/";
+        }
+        return uri;
     }
 }
 

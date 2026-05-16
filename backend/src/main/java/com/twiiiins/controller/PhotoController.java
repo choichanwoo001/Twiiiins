@@ -150,7 +150,7 @@ public class PhotoController {
                 if (file == null) {
                     continue;
                 }
-                // 파일과 썸네일을 S3에 업로드
+                // 파일과 썸네일을 로컬 저장소에 업로드
                 var uploadResponse = fileUploadService.uploadImageWithThumbnail(file);
                 String imageUrl = uploadResponse.getUrl();
                 String thumbnailUrl = uploadResponse.getThumbnailUrl();

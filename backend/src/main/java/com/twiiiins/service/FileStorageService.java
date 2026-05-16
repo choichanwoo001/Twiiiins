@@ -4,7 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 파일 저장소 인터페이스
- * 저장 위치(S3, 로컬 등)에 따라 구현체를 분리하기 위한 공통 계약
+ * 파일 저장소 구현체를 위한 공통 계약
  */
 public interface FileStorageService {
 
