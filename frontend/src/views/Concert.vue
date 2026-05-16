@@ -112,6 +112,7 @@ onMounted(() => {
   color: var(--color-text);
   padding-top: 3rem;
   height: calc(100vh - var(--navbar-height));
+  box-sizing: border-box;
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -146,10 +147,17 @@ onMounted(() => {
   width: 100%;
   padding-top: 2rem;
   height: 100%;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
   box-sizing: border-box;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.events-container::-webkit-scrollbar {
+  display: none;
 }
 
 
