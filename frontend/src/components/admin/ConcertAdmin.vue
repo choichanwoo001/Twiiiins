@@ -43,9 +43,9 @@
               <th>No</th>
               <th>콘서트</th>
               <th>장소</th>
-              <th>날짜</th>
-              <th>상태</th>
-              <th>작업</th>
+              <th class="col-date">날짜</th>
+              <th class="col-status">상태</th>
+              <th class="col-actions">작업</th>
             </tr>
           </thead>
           <tbody>
@@ -53,13 +53,13 @@
               <td>{{ index + 1 }}</td>
               <td>{{ concert.name }}</td>
               <td>{{ concert.location }}</td>
-              <td>{{ formatDate(concert.date) }}</td>
-              <td>
+              <td class="col-date">{{ formatDate(concert.date) }}</td>
+              <td class="col-status">
                 <span class="status-badge" :class="{ past: concert.isPast }">
                   {{ concert.isPast ? '지난 공연' : '예정' }}
                 </span>
               </td>
-              <td>
+              <td class="col-actions">
                 <div class="action-buttons">
                   <BaseButton size="small" variant="secondary" @click="editConcert(concert)">수정</BaseButton>
                   <BaseButton size="small" variant="danger" @click="deleteConcert(concert.id)">삭제</BaseButton>
@@ -485,7 +485,20 @@ table td {
   background: #f8f9fa;
 }
 
+.col-date,
+.col-status {
+  white-space: nowrap;
+  width: 1%;
+}
+
+.col-actions {
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
 .status-badge {
+  display: inline-block;
+  white-space: nowrap;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.8rem;
@@ -512,7 +525,7 @@ table td {
 .action-buttons {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
 }
 </style>

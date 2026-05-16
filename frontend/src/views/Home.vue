@@ -216,6 +216,9 @@ onUnmounted(() => {
   max-width: 50rem;
   padding: 1.5rem;
   width: 90%;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 4rem);
 }
 
 .events-title {
@@ -225,12 +228,28 @@ onUnmounted(() => {
   letter-spacing: 0.0625rem;
   text-align: left;
   margin-left: 14.25rem;
+  flex-shrink: 0;
 }
 
 .events-list {
+  --events-visible: 6;
+  --event-gap: 1.5rem;
+  --event-row-height: 6.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--event-gap);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: min(
+    calc(var(--events-visible) * var(--event-row-height) + (var(--events-visible) - 1) * var(--event-gap)),
+    calc(100dvh - 14rem)
+  );
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.events-list::-webkit-scrollbar {
+  display: none;
 }
 
 /* 경계선은 삭제 */
@@ -241,6 +260,9 @@ onUnmounted(() => {
   padding: 1rem 0;
   transition: opacity 0.3s ease;
   gap: 1rem;
+  flex-shrink: 0;
+  min-height: var(--event-row-height, 6.5rem);
+  box-sizing: border-box;
 }
 
 .event-item:hover {
@@ -369,18 +391,22 @@ onUnmounted(() => {
 
   .events-list {
     width: 100%;
-    gap: 2rem;
-    overflow-y: auto; /* 내부 스크롤 허용 */
-    flex: 1; /* 남은 공간 차지 */
-    padding-right: 0.5rem; /* 스크롤 공간 */
-    
-    /* 스크롤바 숨기기 */
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    --event-gap: 2rem;
+    --event-row-height: 5.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 0 1 auto;
+    max-height: min(
+      calc(var(--events-visible) * var(--event-row-height) + (var(--events-visible) - 1) * var(--event-gap)),
+      calc(100dvh - 14rem)
+    );
+    padding-right: 0.5rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  
+
   .events-list::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
   }
 
   .event-item {
