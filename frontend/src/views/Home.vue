@@ -213,8 +213,7 @@ onUnmounted(() => {
 }
 
 .events-container {
-  --events-reference: 6;
-  --event-gap: 1.25rem;
+  --event-gap: 2.5rem;
   max-width: 50rem;
   padding: 1.5rem;
   width: 90%;
@@ -239,31 +238,17 @@ onUnmounted(() => {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
-}
-
-/* 6개 이하: 남는 세로 공간을 항목 사이·위아래로 분배 */
-.events-list:not(:has(.event-item:nth-child(7))) {
-  justify-content: space-between;
-  gap: 0;
-}
-
-/* 7개 이상: 6개 기준 밀도 유지 + 리스트 스크롤 */
-.events-list:has(.event-item:nth-child(7)) {
   justify-content: flex-start;
   gap: var(--event-gap);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 3rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .events-list::-webkit-scrollbar {
-  width: 0.35rem;
-}
-
-.events-list::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.45);
-  border-radius: 0.25rem;
+  display: none;
 }
 
 .event-item {
@@ -273,12 +258,7 @@ onUnmounted(() => {
   padding: 0.5rem 0;
   transition: opacity 0.3s ease;
   gap: 1rem;
-  flex: 0 1 auto;
-  min-height: 0;
-  max-height: calc(
-    (100% - (var(--events-reference) - 1) * var(--event-gap))
-    / var(--events-reference)
-  );
+  flex: 0 0 auto;
   box-sizing: border-box;
 }
 
@@ -411,7 +391,7 @@ onUnmounted(() => {
     padding-bottom: 5rem;
     margin: 0 auto;
     overflow: hidden;
-    --event-gap: 1rem;
+    --event-gap: 1.5rem;
   }
 
   .events-list {
@@ -420,18 +400,12 @@ onUnmounted(() => {
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding-right: 0.5rem;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   .events-list::-webkit-scrollbar {
-    width: 0.35rem;
-  }
-
-  .events-list::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.45);
-    border-radius: 0.25rem;
+    display: none;
   }
 
   .event-item {
@@ -440,12 +414,7 @@ onUnmounted(() => {
     justify-content: flex-start;
     width: 100%;
     position: relative;
-    flex: 0 1 auto;
-    min-height: 0;
-    max-height: calc(
-      (100% - (var(--events-reference) - 1) * var(--event-gap))
-      / var(--events-reference)
-    );
+    flex: 0 0 auto;
   }
 
   .event-date {
