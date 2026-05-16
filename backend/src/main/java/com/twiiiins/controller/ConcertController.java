@@ -1,7 +1,9 @@
 package com.twiiiins.controller;
 
 import com.twiiiins.dto.ApiResponse;
+import com.twiiiins.dto.ConcertAutoMoveResponse;
 import com.twiiiins.dto.ConcertDto;
+import com.twiiiins.dto.request.ConcertAutoMoveRequest;
 import com.twiiiins.dto.request.ConcertCreateRequest;
 import com.twiiiins.dto.request.ConcertUpdateRequest;
 import com.twiiiins.service.ConcertService;
@@ -10,17 +12,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/concerts")
@@ -131,41 +129,9 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<AutoMoveResponse>> autoMovePastEvents(@Valid @RequestBody AutoMoveRequest request) {
-        LocalDate currentDate = Objects.requireNonNull(request.getCurrentDate(), "currentDate must not be null");
-        int movedCount = concertService.autoMovePastEvents(currentDate);
-        AutoMoveResponse response = new AutoMoveResponse(movedCount);
-        return ResponseUtil.success(response, "자동 이동이 완료되었습니다.");
-    }
-    
-    public static class AutoMoveRequest {
-        @NotNull
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        private LocalDate currentDate;
-        
-        public LocalDate getCurrentDate() {
-            return currentDate;
-        }
-        
-        public void setCurrentDate(LocalDate currentDate) {
-            this.currentDate = currentDate;
-        }
-    }
-    
-    public static class AutoMoveResponse {
-        private int movedCount;
-        
-        public AutoMoveResponse(int movedCount) {
-            this.movedCount = movedCount;
-        }
-        
-        public int getMovedCount() {
-            return movedCount;
-        }
-        
-        public void setMovedCount(int movedCount) {
-            this.movedCount = movedCount;
-        }
+    public ResponseEntity<ApiResponse<ConcertAutoMoveResponse>> autoMovePastEvents(@Valid @RequestBody ConcertAutoMoveRequest request) {
+        int movedCount = concertService.autoMovePastEvents(request.getCurrentDate());
+        return ResponseUtil.success(new ConcertAutoMoveResponse(movedCount), "자동 이동이 완료되었습니다.");
     }
 }
 
