@@ -94,12 +94,7 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
-          FILE_UPLOAD_DIR: ${{ secrets.FILE_UPLOAD_DIR }}
           UPLOAD_MAX_SIZE: ${{ secrets.UPLOAD_MAX_SIZE }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: |
           # SSH 키 설정
           mkdir -p ~/.ssh
@@ -115,12 +110,7 @@ jobs:
           echo "DB_USERNAME=$DB_USERNAME" >> .env
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "CORS_ORIGINS=$CORS_ORIGINS" >> .env
-          echo "FILE_UPLOAD_DIR=$FILE_UPLOAD_DIR" >> .env
           echo "UPLOAD_MAX_SIZE=$UPLOAD_MAX_SIZE" >> .env
-          echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> .env
-          echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> .env
-          echo "AWS_REGION=$AWS_REGION" >> .env
-          echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> .env
           echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}" >> .env
 
             # 1. 디스크 공간 확인 및 정리
@@ -151,11 +141,11 @@ jobs:
               # 프론트엔드 기존 빌드 삭제 (Clean Deploy)
               rm -rf $TARGET_DIR/frontend/dist
               mkdir -p $TARGET_DIR/frontend
-              mkdir -p $TARGET_DIR/backend/uploads
+              mkdir -p $TARGET_DIR/uploads
               mkdir -p $TARGET_DIR/db_data  # DB 데이터 폴더 생성
               
               # 업로드 디렉토리 권한 설정
-              chmod 777 $TARGET_DIR/backend/uploads
+              chmod 777 $TARGET_DIR/uploads
           ENDSSH
             
             # 2. 파일 전송
@@ -176,6 +166,9 @@ jobs:
             # aws 폴더(Nginx 설정) 전송
             echo "=== aws 폴더 전송 ==="
             scp -r -i ~/.ssh/deploy_key aws $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
+
+            echo "=== scripts 폴더 전송 ==="
+            scp -r -i ~/.ssh/deploy_key scripts $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/ || true
               
               # 3. 원격 실행
             ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'EOF'

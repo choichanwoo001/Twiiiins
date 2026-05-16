@@ -37,13 +37,9 @@ services:
       # 기존 환경변수 유지
       - CORS_ORIGINS=${CORS_ORIGINS}
       - PORT=8080
-      - FILE_UPLOAD_DIR=${FILE_UPLOAD_DIR}
+      - FILE_UPLOAD_DIR=/app/uploads
+      - FILE_BASE_URL=/uploads
       - UPLOAD_MAX_SIZE=${UPLOAD_MAX_SIZE}
-      # AWS S3 (또는 OCI Object Storage) 키
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
     volumes:
       - ./uploads:/app/uploads
     depends_on:
