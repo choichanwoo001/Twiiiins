@@ -213,18 +213,21 @@ onUnmounted(() => {
 }
 
 .events-container {
+  --events-reference: 6;
+  --event-gap: 1.25rem;
   max-width: 50rem;
   padding: 1.5rem;
   width: 90%;
+  height: calc(100dvh - 3rem);
   display: flex;
   flex-direction: column;
-  max-height: calc(100dvh - 4rem);
+  min-height: 0;
 }
 
 .events-title {
   font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   letter-spacing: 0.0625rem;
   text-align: left;
   margin-left: 14.25rem;
@@ -232,36 +235,50 @@ onUnmounted(() => {
 }
 
 .events-list {
-  --events-visible: 6;
-  --event-gap: 1.5rem;
-  --event-row-height: 6.5rem;
   display: flex;
   flex-direction: column;
-  gap: var(--event-gap);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  max-height: min(
-    calc(var(--events-visible) * var(--event-row-height) + (var(--events-visible) - 1) * var(--event-gap)),
-    calc(100dvh - 14rem)
-  );
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
+}
+
+/* 6개 이하: 남는 세로 공간을 항목 사이·위아래로 분배 */
+.events-list:not(:has(.event-item:nth-child(7))) {
+  justify-content: space-between;
+  gap: 0;
+}
+
+/* 7개 이상: 6개 기준 밀도 유지 + 리스트 스크롤 */
+.events-list:has(.event-item:nth-child(7)) {
+  justify-content: flex-start;
+  gap: var(--event-gap);
 }
 
 .events-list::-webkit-scrollbar {
-  display: none;
+  width: 0.35rem;
 }
 
-/* 경계선은 삭제 */
+.events-list::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.45);
+  border-radius: 0.25rem;
+}
+
 .event-item {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   transition: opacity 0.3s ease;
   gap: 1rem;
-  flex-shrink: 0;
-  min-height: var(--event-row-height, 6.5rem);
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: calc(
+    (100% - (var(--events-reference) - 1) * var(--event-gap))
+    / var(--events-reference)
+  );
   box-sizing: border-box;
 }
 
@@ -290,16 +307,23 @@ onUnmounted(() => {
 .event-location {
   font-size: 0.85rem;
   margin-bottom: 0.3rem;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .event-name {
   font-size: 1rem;
   font-weight: bold;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
   line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .event-arrow {
@@ -381,32 +405,33 @@ onUnmounted(() => {
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    justify-content: flex-start; /* 상단부터 채움 */
-    padding-top: 6rem; /* 상단 여백 확보 (헤더 등을 위해) */
-    padding-bottom: 5rem; /* SNS 링크 공간 */
+    height: calc(100dvh - 2rem);
+    justify-content: flex-start;
+    padding-top: 6rem;
+    padding-bottom: 5rem;
     margin: 0 auto;
-    overflow: hidden; /* 컨테이너 자체는 스크롤 없음 */
+    overflow: hidden;
+    --event-gap: 1rem;
   }
 
   .events-list {
     width: 100%;
-    --event-gap: 2rem;
-    --event-row-height: 5.5rem;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    flex: 0 1 auto;
-    max-height: min(
-      calc(var(--events-visible) * var(--event-row-height) + (var(--events-visible) - 1) * var(--event-gap)),
-      calc(100dvh - 14rem)
-    );
     padding-right: 0.5rem;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
   }
 
   .events-list::-webkit-scrollbar {
-    display: none;
+    width: 0.35rem;
+  }
+
+  .events-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.45);
+    border-radius: 0.25rem;
   }
 
   .event-item {
@@ -415,7 +440,12 @@ onUnmounted(() => {
     justify-content: flex-start;
     width: 100%;
     position: relative;
-    padding-bottom: 1rem; /* 아이템 하단 여백 추가 */
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: calc(
+      (100% - (var(--events-reference) - 1) * var(--event-gap))
+      / var(--events-reference)
+    );
   }
 
   .event-date {
@@ -445,15 +475,23 @@ onUnmounted(() => {
     font-size: 0.8rem;
     margin-bottom: 0.2rem;
     font-weight: 300;
-    word-break: keep-all;
-    word-wrap: break-word;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
   }
   
   .event-name {
     font-size: 0.8rem;
     font-weight: 300;
-    word-break: keep-all;
-    word-wrap: break-word;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
   }
   
   .event-arrow {
