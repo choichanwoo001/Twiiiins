@@ -144,8 +144,10 @@ jobs:
               mkdir -p $TARGET_DIR/uploads
               mkdir -p $TARGET_DIR/db_data  # DB 데이터 폴더 생성
               
-              # 업로드 디렉토리 권한 설정
-              chmod 777 $TARGET_DIR/uploads
+              # 업로드 디렉토리 권한 설정 (Docker가 root 소유로 만든 경우 일반 chmod 실패)
+              if ! chmod 777 "$TARGET_DIR/uploads" 2>/dev/null; then
+                docker run --rm -v "$TARGET_DIR/uploads:/uploads" alpine chmod 777 /uploads
+              fi
           ENDSSH
             
             # 2. 파일 전송
