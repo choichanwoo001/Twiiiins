@@ -1,8 +1,8 @@
 // API 캐시 유틸리티
 class ApiCache {
-  constructor(ttl = 5 * 60 * 1000) { // 기본 5분 TTL
+  constructor(defaultTtl = 5 * 60 * 1000) { // 기본 5분 TTL
     this.cache = new Map()
-    this.ttl = ttl
+    this.defaultTtl = defaultTtl
   }
 
   /**
@@ -14,8 +14,9 @@ class ApiCache {
     const item = this.cache.get(key)
     if (!item) return null
 
-    // TTL 확인
-    if (Date.now() - item.timestamp > this.ttl) {
+    // 항목별 TTL 확인
+    const ttl = item.ttl ?? this.defaultTtl
+    if (Date.now() - item.timestamp > ttl) {
       this.cache.delete(key)
       return null
     }
@@ -27,11 +28,13 @@ class ApiCache {
    * 캐시에 데이터 저장
    * @param {string} key - 캐시 키
    * @param {any} data - 저장할 데이터
+   * @param {number|null} ttl - 항목별 TTL (ms), null이면 기본값 사용
    */
-  set(key, data) {
+  set(key, data, ttl = null) {
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      ttl
     })
   }
 
@@ -89,23 +92,13 @@ export const createCacheKey = (endpoint, params = {}) => {
 
 // 캐시된 API 호출 래퍼
 export const cachedApiCall = async (apiFunction, cacheKey, ttl = null) => {
-  // 캐시에서 먼저 확인
   const cached = apiCache.get(cacheKey)
   if (cached) {
     return cached
   }
 
-  // API 호출
   const result = await apiFunction()
-  
-  // 캐시에 저장
-  if (ttl) {
-    const tempCache = new ApiCache(ttl)
-    tempCache.set(cacheKey, result)
-    apiCache.set(cacheKey, result)
-  } else {
-    apiCache.set(cacheKey, result)
-  }
+  apiCache.set(cacheKey, result, ttl)
 
   return result
 }

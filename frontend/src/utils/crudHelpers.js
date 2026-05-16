@@ -1,3 +1,5 @@
+import { ref } from 'vue'
+
 // 공통 CRUD 헬퍼 함수들
 
 /**
