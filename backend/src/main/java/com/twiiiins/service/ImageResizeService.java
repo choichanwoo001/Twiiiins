@@ -88,6 +88,60 @@ public class ImageResizeService {
     }
 
     /**
+     * 긴 변 기준으로 비율을 유지하며 리사이즈합니다.
+     * 이미 maxLongEdge 이하인 경우 원본 바이트를 그대로 반환합니다.
+     *
+     * @param file        원본 이미지 파일
+     * @param maxLongEdge 긴 변의 최대 픽셀 크기
+     * @param quality     이미지 품질 (0.0 ~ 1.0)
+     * @return 리사이즈된 이미지 바이트 배열
+     */
+    public byte[] resizeToMaxLongEdge(MultipartFile file, int maxLongEdge, float quality) throws IOException {
+        try (InputStream inputStream = file.getInputStream()) {
+            BufferedImage bufferedImage = Thumbnails.of(inputStream)
+                    .scale(1.0)
+                    .asBufferedImage();
+
+            if (bufferedImage == null) {
+                return file.getBytes();
+            }
+
+            int width = bufferedImage.getWidth();
+            int height = bufferedImage.getHeight();
+            int longEdge = Math.max(width, height);
+
+            if (longEdge <= maxLongEdge) {
+                log.debug("이미지가 이미 {}px 이하입니다. 원본 사용: {}x{}", maxLongEdge, width, height);
+                return file.getBytes();
+            }
+
+            double scale = (double) maxLongEdge / longEdge;
+            int targetWidth = (int) Math.round(width * scale);
+            int targetHeight = (int) Math.round(height * scale);
+
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                String formatName = getFormatName(file.getOriginalFilename());
+                Thumbnails.of(bufferedImage)
+                        .size(targetWidth, targetHeight)
+                        .outputFormat(formatName)
+                        .outputQuality(quality)
+                        .toOutputStream(baos);
+
+                byte[] resizedBytes = baos.toByteArray();
+                log.info("이미지 리사이즈 완료: {}x{} -> {}x{} (원본: {} bytes, 리사이즈: {} bytes)",
+                        width, height, targetWidth, targetHeight, file.getSize(), resizedBytes.length);
+                return resizedBytes;
+            }
+        } catch (OutOfMemoryError e) {
+            log.error("메모리 부족으로 리사이즈 실패: {}", file.getOriginalFilename(), e);
+            throw new IOException("이미지가 너무 커서 처리할 수 없습니다.", e);
+        } catch (Exception e) {
+            log.error("이미지 리사이즈 실패: {}", e.getMessage(), e);
+            throw new IOException("이미지 리사이즈 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * 파일명에서 이미지 포맷 추출
      */
     private String getFormatName(String filename) {

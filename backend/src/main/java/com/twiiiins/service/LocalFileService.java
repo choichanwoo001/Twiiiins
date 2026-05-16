@@ -53,6 +53,24 @@ public class LocalFileService implements FileStorageService {
         }
     }
 
+    @Override
+    public String uploadBytes(byte[] bytes, String folder, String filename) {
+        try {
+            Path targetDirectory = resolveTargetDirectory(folder);
+            Files.createDirectories(targetDirectory);
+
+            Path targetFile = targetDirectory.resolve(filename);
+            Files.write(targetFile, bytes);
+
+            String fileUrl = buildFileUrl(folder, filename);
+            log.info("로컬 저장소에 바이트 배열이 업로드되었습니다: {}", fileUrl);
+            return fileUrl;
+        } catch (IOException e) {
+            log.error("로컬 바이트 업로드 중 오류 발생: {}", e.getMessage(), e);
+            throw new FileUploadException("로컬 파일 업로드에 실패했습니다.", e);
+        }
+    }
+
     private Path resolveTargetDirectory(String folder) {
         Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();
         if (StringUtils.hasText(folder)) {

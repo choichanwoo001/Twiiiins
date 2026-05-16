@@ -12,7 +12,6 @@ import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +28,10 @@ public class FileUploadService {
     
     private final FileStorageService fileStorageService;
     private final ImageResizeService imageResizeService;
-    
+
+    /** Photo 썸네일 최대 크기 (px, 정방형) */
+    private static final int THUMBNAIL_SIZE = 600;
+
     @Value("${UPLOAD_MAX_SIZE:100MB}")
     private String uploadMaxSize;
     
@@ -182,16 +184,36 @@ public class FileUploadService {
     
     private FileUploadResponseDto uploadFile(@NonNull MultipartFile file, @NonNull String uploadType) {
         String originalFilename = file.getOriginalFilename();
-        
+
         try {
-            String fileUrl = fileStorageService.uploadFile(file, uploadType);
-            String storedFileName = extractFileName(fileUrl);
-            
+            String extension = getFileExtension(originalFilename);
+            String uuid = UUID.randomUUID().toString();
+            String webFilename = uuid + extension;
+
+            // 1. 원본 그대로 originals/ 에 보관 (DB에 저장하지 않음)
+            try {
+                fileStorageService.uploadBytes(file.getBytes(), uploadType + "/originals", webFilename);
+                log.info("원본 파일 보관 완료: {}/{}/{}", uploadType, "originals", webFilename);
+            } catch (Exception e) {
+                log.warn("원본 보관 실패 (업로드는 계속 진행): {}", e.getMessage());
+            }
+
+            // 2. 웹용 리사이즈본 저장 → imageUrl (DB 저장)
+            int maxLongEdge = resolveMaxLongEdge(uploadType);
+            byte[] webBytes;
+            try {
+                webBytes = imageResizeService.resizeToMaxLongEdge(file, maxLongEdge, 0.85f);
+            } catch (Exception e) {
+                log.warn("리사이즈 실패, 원본 바이트 사용: {}", e.getMessage());
+                webBytes = file.getBytes();
+            }
+            String fileUrl = fileStorageService.uploadBytes(webBytes, uploadType, webFilename);
+
             log.info("파일 업로드 완료: {} -> {}", originalFilename, fileUrl);
             return new FileUploadResponseDto(
                 fileUrl,
                 null,
-                storedFileName,
+                webFilename,
                 originalFilename,
                 file.getSize(),
                 file.getContentType()
@@ -200,140 +222,88 @@ public class FileUploadService {
             log.error("[파일 업로드] 업로드 예외 - 파일명: {}, 오류: {}", originalFilename, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("[파일 업로드] 예상치 못한 오류 - 파일명: {}, 오류 타입: {}, 오류: {}", 
+            log.error("[파일 업로드] 예상치 못한 오류 - 파일명: {}, 오류 타입: {}, 오류: {}",
                     originalFilename, e.getClass().getSimpleName(), e.getMessage(), e);
             throw new FileUploadException("파일 업로드에 실패했습니다: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * 업로드 타입별 최대 긴 변 픽셀 크기 반환
+     */
+    private int resolveMaxLongEdge(@NonNull String uploadType) {
+        if (uploadType.startsWith("image")) {
+            // 기본값은 1920px; equipment, music 등 커버 이미지는 800px
+            return 1920;
+        }
+        return 1920;
+    }
+
+    private String getFileExtension(String filename) {
+        if (filename == null || filename.isEmpty()) return "";
+        int dot = filename.lastIndexOf('.');
+        return dot > 0 ? filename.substring(dot) : "";
+    }
     
     /**
-     * 이미지와 썸네일을 함께 업로드하는 메서드
+     * 이미지와 썸네일을 함께 업로드하는 메서드 (Photo 전용)
+     * UUID를 공유하여 originals/ 원본 + 웹용 리사이즈본 + 썸네일 세 가지를 저장합니다.
      */
     private FileUploadResponseDto uploadFileWithThumbnail(@NonNull MultipartFile file, @NonNull String uploadType) {
         String originalFilename = file.getOriginalFilename();
-        String fileUrl = null;
-        String thumbnailUrl = null;
-        
+
         try {
-            // 원본 이미지 업로드
-            fileUrl = fileStorageService.uploadFile(file, uploadType);
-            
-            if (fileUrl == null || fileUrl.isEmpty()) {
-                throw new FileUploadException("원본 이미지 업로드 실패");
-            }
-            
-            log.info("원본 이미지 업로드 완료: {} -> {}", originalFilename, fileUrl);
-            
-            // 썸네일 생성 및 업로드 (150x150, 품질 0.85)
+            String extension = getFileExtension(originalFilename);
+            String uuid = UUID.randomUUID().toString();
+            String webFilename = uuid + extension;
+
+            // 1. 원본 그대로 originals/ 에 보관 (DB에 저장하지 않음)
             try {
-                byte[] thumbnailBytes = imageResizeService.generateThumbnail(file, 150, 150, 0.85f);
-                
-                // 썸네일을 MultipartFile로 변환
-                MultipartFile thumbnailFile = new ThumbnailMultipartFile(
-                    "thumb_" + UUID.randomUUID(),
-                    "thumb_" + originalFilename,
-                    file.getContentType(),
-                    thumbnailBytes
-                );
-                
-                // 썸네일 업로드 (thumbnails 폴더)
-                thumbnailUrl = fileStorageService.uploadFile(thumbnailFile, uploadType + "/thumbnails");
-                
-                if (thumbnailUrl == null || thumbnailUrl.isEmpty()) {
-                    log.warn("썸네일 업로드 실패 (원본은 업로드됨): {}", fileUrl);
-                } else {
-                    log.info("썸네일 업로드 완료: {}", thumbnailUrl);
-                }
+                fileStorageService.uploadBytes(file.getBytes(), uploadType + "/originals", webFilename);
+                log.info("원본 파일 보관 완료: {}/{}", uploadType + "/originals", webFilename);
+            } catch (Exception e) {
+                log.warn("원본 보관 실패 (업로드는 계속 진행): {}", e.getMessage());
+            }
+
+            // 2. 웹용 리사이즈본 (1920px) → imageUrl (DB 저장)
+            byte[] webBytes;
+            try {
+                webBytes = imageResizeService.resizeToMaxLongEdge(file, 1920, 0.85f);
+            } catch (Exception e) {
+                log.warn("웹용 리사이즈 실패, 원본 바이트 사용: {}", e.getMessage());
+                webBytes = file.getBytes();
+            }
+            String fileUrl = fileStorageService.uploadBytes(webBytes, uploadType, webFilename);
+            log.info("웹용 이미지 업로드 완료: {} -> {}", originalFilename, fileUrl);
+
+            // 3. 썸네일 생성 및 업로드 → thumbnailUrl (DB 저장)
+            String thumbnailUrl = null;
+            try {
+                byte[] thumbnailBytes = imageResizeService.generateThumbnail(file, THUMBNAIL_SIZE, THUMBNAIL_SIZE, 0.85f);
+                thumbnailUrl = fileStorageService.uploadBytes(thumbnailBytes, uploadType + "/thumbnails", webFilename);
+                log.info("썸네일 업로드 완료: {}", thumbnailUrl);
             } catch (Exception thumbnailError) {
                 log.warn("썸네일 생성/업로드 실패 (원본은 업로드됨): {}", thumbnailError.getMessage());
-                // 썸네일 생성 실패해도 원본은 업로드되므로 계속 진행
             }
-            
+
             return new FileUploadResponseDto(
                 fileUrl,
                 thumbnailUrl,
-                extractFileName(fileUrl),
+                webFilename,
                 originalFilename,
                 file.getSize(),
                 file.getContentType()
             );
-            
+
         } catch (FileUploadException e) {
-            log.error("[이미지 업로드] 파일 업로드 예외 - 파일명: {}, 오류: {}", 
+            log.error("[이미지 업로드] 파일 업로드 예외 - 파일명: {}, 오류: {}",
                     originalFilename, e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            log.error("[이미지 업로드] 예상치 못한 오류 - 파일명: {}, 오류 타입: {}, 오류: {}", 
+            log.error("[이미지 업로드] 예상치 못한 오류 - 파일명: {}, 오류 타입: {}, 오류: {}",
                     originalFilename, e.getClass().getSimpleName(), e.getMessage(), e);
             throw new FileUploadException("이미지 업로드에 실패했습니다: " + e.getMessage());
         }
     }
-    
-    private String extractFileName(String fileUrl) {
-        if (fileUrl == null || fileUrl.isEmpty()) {
-            return null;
-        }
-        int lastSlash = fileUrl.lastIndexOf('/');
-        return lastSlash >= 0 ? fileUrl.substring(lastSlash + 1) : fileUrl;
-    }
-    
-    /**
-     * 썸네일을 MultipartFile로 변환하기 위한 래퍼 클래스
-     */
-    private static class ThumbnailMultipartFile implements MultipartFile {
-        private final @NonNull String name;
-        private final @NonNull String originalFilename;
-        private final String contentType;
-        private final @NonNull byte[] content;
-        
-        public ThumbnailMultipartFile(String name, String originalFilename, String contentType, byte[] content) {
-            this.name = Objects.requireNonNull(name, "name must not be null");
-            this.originalFilename = Objects.requireNonNull(originalFilename, "originalFilename must not be null");
-            this.contentType = contentType;
-            this.content = Objects.requireNonNull(content, "Content must not be null");
-        }
-        
-        @Override
-        public @NonNull String getName() { 
-            return name; 
-        }
-        
-        @Override
-        public @NonNull String getOriginalFilename() { 
-            return originalFilename; 
-        }
-        
-        @Override
-        public String getContentType() { 
-            return contentType; 
-        }
-        
-        @Override
-        public boolean isEmpty() { 
-            return content == null || content.length == 0; 
-        }
-        
-        @Override
-        public long getSize() { 
-            return content != null ? content.length : 0; 
-        }
-        
-        @Override
-        public @NonNull byte[] getBytes() throws IOException { 
-            return content; 
-        }
-        
-        @Override
-        public @NonNull InputStream getInputStream() throws IOException {
-            return new java.io.ByteArrayInputStream(
-                    Objects.requireNonNull(content, "Content is null"));
-        }
-        
-        @Override
-        public void transferTo(@NonNull java.io.File dest) throws IOException, IllegalStateException {
-            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(dest)) {
-                fos.write(content);
-            }
-        }
-    }
 }
+
