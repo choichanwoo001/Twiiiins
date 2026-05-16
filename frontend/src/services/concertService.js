@@ -2,8 +2,7 @@ import axios from '../api/axios'
 import { cachedApiCall, createCacheKey, apiCache } from '../utils/apiCache'
 import {
   buildConcertCreatePayload,
-  buildConcertUpdatePayload,
-  sanitizeQueryParams
+  buildConcertUpdatePayload
 } from './payloadMappers'
 
 export const concertService = {
@@ -17,17 +16,6 @@ export const concertService = {
       cacheKey,
       2 * 60 * 1000
     )
-  },
-
-  async getConcertById(id) {
-    const response = await axios.get(`/concerts/${id}`)
-    return response.data.data
-  },
-
-  async searchConcerts(filters) {
-    const params = sanitizeQueryParams(filters)
-    const response = await axios.get('/concerts', { params })
-    return response.data.data
   },
 
   async createConcert(concertData) {

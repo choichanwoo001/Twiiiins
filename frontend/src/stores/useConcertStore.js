@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { concertService } from '../services'
 
 export const useConcertStore = defineStore('concert', () => {
@@ -9,11 +9,6 @@ export const useConcertStore = defineStore('concert', () => {
   const pastConcerts = ref([])
   const isLoading = ref(false)
   const error = ref(null)
-
-  // 게터
-  const concertCount = computed(() => concerts.value.length)
-  const upcomingCount = computed(() => upcomingConcerts.value.length)
-  const pastCount = computed(() => pastConcerts.value.length)
 
   // 액션
   const setLoading = (loading) => {
@@ -152,10 +147,6 @@ export const useConcertStore = defineStore('concert', () => {
     pastConcerts,
     isLoading,
     error,
-    // 게터
-    concertCount,
-    upcomingCount,
-    pastCount,
     // 액션
     loadConcerts,
     addConcert,

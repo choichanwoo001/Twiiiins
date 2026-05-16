@@ -85,8 +85,6 @@ const musicList = computed(() => mediaStore.musicItems)
 const videos = computed(() => mediaStore.videos)
 const newsList = computed(() => mediaStore.newsItems)
 const equipmentList = computed(() => mediaStore.equipmentItems)
-const contacts = ref([]) // Contact 스토어가 있다면 사용
-const downloadFiles = ref([]) // DownloadFiles 스토어가 있다면 사용
 
 // Methods
 const loadDashboardData = async () => {

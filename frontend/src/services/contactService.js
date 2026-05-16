@@ -11,11 +11,6 @@ export const contactService = {
     return response.data.data
   },
 
-  async getContactById(id) {
-    const response = await axios.get(`/media/contacts/${id}`)
-    return response.data.data
-  },
-
   async searchContacts(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/contacts', { params })

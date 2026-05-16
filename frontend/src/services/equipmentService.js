@@ -11,11 +11,6 @@ export const equipmentService = {
     return response.data.data
   },
 
-  async getEquipmentById(id) {
-    const response = await axios.get(`/media/equipment/${id}`)
-    return response.data.data
-  },
-
   async searchEquipment(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/equipment', { params })

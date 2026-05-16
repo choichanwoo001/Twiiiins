@@ -28,22 +28,5 @@ export const projectService = {
             logError(error, 'getProjectBySlug')
             throw new Error(getErrorMessage(error))
         }
-    },
-
-    async createProject(projectData) {
-        const response = await axios.post('/projects', projectData)
-        apiCache.deletePattern('^/projects')
-        return response.data.data
-    },
-
-    async updateProject(id, projectData) {
-        const response = await axios.put(`/projects/${id}`, projectData)
-        apiCache.deletePattern('^/projects')
-        return response.data.data
-    },
-
-    async deleteProject(id) {
-        await axios.delete(`/projects/${id}`)
-        apiCache.deletePattern('^/projects')
     }
 }

@@ -11,11 +11,6 @@ export const videoService = {
     return response.data.data
   },
 
-  async getVideoById(id) {
-    const response = await axios.get(`/media/videos/${id}`)
-    return response.data.data
-  },
-
   async createVideo(data) {
     const payload = buildVideoCreatePayload(data)
     const response = await axios.post('/media/videos', payload)

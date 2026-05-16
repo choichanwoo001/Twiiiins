@@ -11,11 +11,6 @@ export const newsService = {
     return response.data.data
   },
 
-  async getNewsById(id) {
-    const response = await axios.get(`/media/news/${id}`)
-    return response.data.data
-  },
-
   async searchNews(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/news', { params })

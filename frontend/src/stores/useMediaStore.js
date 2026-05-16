@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { photoService, videoService, musicService, newsService, equipmentService } from '../services'
 
 export const useMediaStore = defineStore('media', () => {
@@ -11,13 +11,6 @@ export const useMediaStore = defineStore('media', () => {
   const equipmentItems = ref([])
   const isLoading = ref(false)
   const error = ref(null)
-
-  // 게터
-  const photoGroupCount = computed(() => photoGroups.value.length)
-  const videoCount = computed(() => videos.value.length)
-  const musicCount = computed(() => musicItems.value.length)
-  const newsCount = computed(() => newsItems.value.length)
-  const equipmentCount = computed(() => equipmentItems.value.length)
 
   // 액션
   const setLoading = (loading) => {
@@ -392,12 +385,6 @@ export const useMediaStore = defineStore('media', () => {
     equipmentItems,
     isLoading,
     error,
-    // 게터
-    photoGroupCount,
-    videoCount,
-    musicCount,
-    newsCount,
-    equipmentCount,
     // 액션
     loadPhotoGroups,
     addPhotoGroup,

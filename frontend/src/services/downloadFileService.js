@@ -11,11 +11,6 @@ export const downloadFileService = {
     return response.data.data
   },
 
-  async getDownloadFileById(id) {
-    const response = await axios.get(`/media/download-files/${id}`)
-    return response.data.data
-  },
-
   async searchDownloadFiles(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/download-files', { params })

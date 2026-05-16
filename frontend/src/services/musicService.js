@@ -11,11 +11,6 @@ export const musicService = {
     return response.data.data
   },
 
-  async getMusicById(id) {
-    const response = await axios.get(`/media/music/${id}`)
-    return response.data.data
-  },
-
   async searchMusic(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/music', { params })
