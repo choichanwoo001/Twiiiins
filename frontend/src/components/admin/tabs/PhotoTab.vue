@@ -373,7 +373,7 @@ const uploadPhotos = async () => {
     if (selectedGroup.value) {
       try {
         // 최신 그룹 정보 가져오기
-        const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
+        const updatedGroup = await photoService.getPhotoGroupById(selectedGroup.value.id)
         if (updatedGroup) {
           // photos 배열이 없으면 빈 배열로 초기화
           if (!updatedGroup.photos) {
@@ -433,7 +433,7 @@ const deletePhoto = async (photoId) => {
       // 그룹 정보 갱신
       if (selectedGroup.value) {
         try {
-          const updatedGroup = await photoService.getPhotoGroup(selectedGroup.value.id)
+          const updatedGroup = await photoService.getPhotoGroupById(selectedGroup.value.id)
           if (updatedGroup && updatedGroup.photos) {
             selectedGroup.value = updatedGroup
           } else {
