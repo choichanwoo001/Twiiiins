@@ -71,6 +71,7 @@ services:
       - ./aws/nginx/data/certbot/conf:/etc/letsencrypt
       - ./aws/nginx/data/certbot/www:/var/www/certbot
       - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./uploads:/app/uploads:ro
     depends_on:
       backend:
         condition: service_healthy
