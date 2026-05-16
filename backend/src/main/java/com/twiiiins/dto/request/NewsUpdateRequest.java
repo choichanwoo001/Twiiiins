@@ -6,7 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.URL;
+import com.twiiiins.validation.ValidMediaUrl;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,5 +29,5 @@ public class NewsUpdateRequest {
     private Integer displayOrder;
 
     @Size(max = 50)
-    private List<@NotBlank @Size(max = 2048) @URL String> imageUrls;
+    private List<@NotBlank @Size(max = 2048) @ValidMediaUrl String> imageUrls;
 }

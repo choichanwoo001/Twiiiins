@@ -7,6 +7,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import com.twiiiins.validation.ValidMediaUrl;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ public class ProjectUpdateRequest {
     @Size(max = 20)
     private List<@NotBlank @Size(max = 2000) String> descriptions;
 
-    @URL
+    @ValidMediaUrl
     @Size(max = 2048)
     private String coverImageUrl;
 
@@ -53,7 +54,7 @@ public class ProjectUpdateRequest {
     private Integer displayOrder;
 
     @Size(max = 50)
-    private List<@NotBlank @URL @Size(max = 2048) String> imageUrls;
+    private List<@NotBlank @ValidMediaUrl @Size(max = 2048) String> imageUrls;
 
     @Size(max = 20)
     private List<@Valid ReviewRequest> reviews;
