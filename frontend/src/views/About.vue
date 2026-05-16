@@ -33,22 +33,22 @@
               <img src="../imgs/About/20250719-P1250713 1.png" alt="TWIIIINS Performance">
             </div>
             <div class="image-item">
-              <img src="../imgs/About/20250719-P1250816 1.png" alt="TWIIIINS Performance">
+              <img src="../imgs/About/20250719-P1250816 1.png" alt="TWIIIINS Performance" loading="lazy">
             </div>
             <div class="image-item">
-              <img src="../imgs/About/20250719-P1250891 1.png" alt="TWIIIINS Performance">
+              <img src="../imgs/About/20250719-P1250891 1.png" alt="TWIIIINS Performance" loading="lazy">
             </div>
           </div>
           <!-- 두 번째 행 -->
           <div class="image-row">
             <div class="image-item">
-              <img src="../imgs/About/unnamed 1.png" alt="TWIIIINS Performance">
+              <img src="../imgs/About/unnamed 1.png" alt="TWIIIINS Performance" loading="lazy">
             </div>
             <div class="image-item">
-              <img src="../imgs/About/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance">
+              <img src="../imgs/About/TwinsMusicApril2024-9 1.png" alt="TWIIIINS Performance" loading="lazy">
             </div>
             <div class="image-item">
-              <img src="../imgs/About/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance">
+              <img src="../imgs/About/TwinsMusicApril2024-6 1.png" alt="TWIIIINS Performance" loading="lazy">
             </div>
           </div>
         </div>

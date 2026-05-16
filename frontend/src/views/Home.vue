@@ -5,7 +5,7 @@
       <div class="hero-image">
         <picture>
           <source media="(max-width: 48rem)" :srcset="mobileHomeImg">
-          <img :src="homeImg" alt="TWIIIINS Performance">
+          <img :src="homeImg" alt="TWIIIINS Performance" fetchpriority="high">
         </picture>
       </div>
     </section>

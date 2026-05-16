@@ -24,6 +24,7 @@
               v-if="project.coverImageUrl"
               :src="toAbsoluteUrl(project.coverImageUrl)"
               :alt="project.title || 'Project image'"
+              loading="lazy"
               @error="handleImageError($event)"
             />
             <div v-else class="image-error">

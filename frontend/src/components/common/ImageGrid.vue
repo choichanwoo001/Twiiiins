@@ -2,7 +2,7 @@
   <div class="image-grid">
     <div class="image-row">
       <div class="image-item" v-for="(imageUrl, index) in images" :key="index" :style="{ '--mobile-aspect-ratio': mobileAspectRatio }">
-        <img :src="imageUrl" :alt="`${altTextPrefix} ${index + 1}`" />
+        <img :src="imageUrl" :alt="`${altTextPrefix} ${index + 1}`" loading="lazy" />
       </div>
     </div>
   </div>

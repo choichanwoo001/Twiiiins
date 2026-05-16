@@ -113,7 +113,7 @@
               <div class="photo-item" 
                    v-for="photo in group.photos" 
                    :key="photo.src">
-                <img :src="photo.src" :alt="photo.alt">
+                <img :src="photo.src" :alt="photo.alt" loading="lazy">
               </div>
             </div>
           </div>
@@ -159,7 +159,7 @@
         <div class="equipment-grid">
           <div class="equipment-item" v-for="equipment in equipmentList" :key="equipment.id">
             <div class="equipment-image">
-              <img :src="equipment.imageUrl || '../imgs/exphoto1.png'" :alt="equipment.name">
+              <img :src="equipment.imageUrl || '../imgs/exphoto1.png'" :alt="equipment.name" loading="lazy">
             </div>
             <div class="equipment-name">{{ equipment.name }}</div>
           </div>
@@ -338,7 +338,8 @@ const loadPhotoGroups = async () => {
         id: group.id,
         title: group.title,
         photos: (group.photos && Array.isArray(group.photos)) ? group.photos.map(photo => ({
-          src: toAbsoluteUrl(photo.imageUrl),
+          src: toAbsoluteUrl(photo.thumbnailUrl || photo.imageUrl),
+          fullSrc: toAbsoluteUrl(photo.imageUrl),
           alt: photo.altText || `Photo from ${group.title}`
         })) : []
       }))
