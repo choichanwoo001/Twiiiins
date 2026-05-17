@@ -3,9 +3,9 @@ package com.twiiiins.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import com.twiiiins.validation.ValidMediaUrl;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.URL;
 
 @Getter
 @Setter
@@ -16,7 +16,7 @@ public class DownloadFileCreateRequest {
     private String name;
 
     @NotBlank
-    @URL
+    @ValidMediaUrl
     @Size(max = 2048)
     private String fileUrl;
 
