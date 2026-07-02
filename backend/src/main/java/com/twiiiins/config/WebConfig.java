@@ -23,10 +23,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        String location = resolveUploadLocation();
+        String location = "file:" + uploadDir + "/";
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/")
+                .addResourceLocations(location)
                 .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic().immutable());
     }
 }
-

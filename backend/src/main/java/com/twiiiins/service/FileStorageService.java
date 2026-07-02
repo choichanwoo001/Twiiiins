@@ -18,5 +18,6 @@ public interface FileStorageService {
     String uploadFile(MultipartFile file, String folder);
 
     String uploadFileAs(MultipartFile file, String folder, String fileName);
-}
 
+    String uploadBytes(byte[] bytes, String folder, String filename);
+}

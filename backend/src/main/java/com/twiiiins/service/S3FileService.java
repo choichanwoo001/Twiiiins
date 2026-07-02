@@ -89,6 +89,11 @@ public class S3FileService implements FileStorageService {
         }
     }
 
+    @Override
+    public String uploadBytes(byte[] bytes, String folder, String filename) {
+        throw new UnsupportedOperationException("uploadBytes is not supported for S3 storage. Use uploadFile instead.");
+    }
+
     /**
      * S3에서 파일 삭제
      * @param fileUrl 삭제할 파일의 S3 URL
