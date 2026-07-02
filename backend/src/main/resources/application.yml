@@ -67,16 +67,6 @@ logging:
     console: UTF-8
     file: UTF-8
 
-# AWS S3 설정
-aws:
-  access-key-id: ${AWS_ACCESS_KEY_ID:}
-  secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
-  region: ${AWS_REGION:eu-central-1}
-  endpoint: ${AWS_ENDPOINT:}
-
-s3:
-  bucket-name: ${S3_BUCKET_NAME:}
-
 app:
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:}
@@ -88,6 +78,7 @@ app:
   
   file:
     upload-dir: ${FILE_UPLOAD_DIR:uploads}
+    base-url: ${FILE_BASE_URL:/uploads}
     max-size: ${FILE_MAX_SIZE:104857600}  # 100MB in bytes
 
 # CORS 설정은 SecurityConfig.java에서 환경 변수 CORS_ORIGINS로 직접 처리합니다.

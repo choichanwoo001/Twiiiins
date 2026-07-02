@@ -1,6 +1,7 @@
 import axios from '../api/axios'
 import { cachedApiCall, createCacheKey } from '../utils/apiCache'
 import { getErrorMessage, logError } from '../utils/errorHandler'
+import { unwrapApiResponse } from './apiResponse'
 
 export const projectService = {
     // 프로젝트 목록 조회
@@ -11,7 +12,7 @@ export const projectService = {
                 try {
                     const response = await axios.get('/projects')
                     // 응답 구조가 표준화되어 있지 않은 경우를 대비 (기존 로직 유지)
-                    return response.data.data || response.data || []
+                    return unwrapApiResponse(response, [])
                 } catch (error) {
                     logError(error, 'getAllProjects')
                     throw new Error(getErrorMessage(error))
@@ -27,7 +28,7 @@ export const projectService = {
         try {
             // 상세 조회는 캐싱하지 않음 (또는 짧게 설정) - 현재는 실시간성이 중요할 수 있으므로 캐시 제외
             const response = await axios.get(`/projects/slug/${slug}`)
-            return response.data.data || response.data
+            return unwrapApiResponse(response)
         } catch (error) {
             logError(error, 'getProjectBySlug')
             throw new Error(getErrorMessage(error)) // View에서 null 처리 등을 할 수 있도록 에러 전파

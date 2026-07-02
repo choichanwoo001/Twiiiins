@@ -1,6 +1,7 @@
 import axios from '../api/axios'
 import { cachedApiCall, createCacheKey } from '../utils/apiCache'
 import { getErrorMessage, logError } from '../utils/errorHandler'
+import { unwrapApiResponse } from './apiResponse'
 import {
   buildConcertCreatePayload,
   buildConcertUpdatePayload,
@@ -15,7 +16,7 @@ export const concertService = {
       async () => {
         try {
           const response = await axios.get('/concerts')
-          return response.data.data // 표준화된 응답에서 data 추출
+          return unwrapApiResponse(response)
         } catch (error) {
           logError(error, 'getAllConcerts')
           throw new Error(getErrorMessage(error))
@@ -30,7 +31,7 @@ export const concertService = {
   async getConcertById(id) {
     try {
       const response = await axios.get(`/concerts/${id}`)
-      return response.data.data // 표준화된 응답에서 data 추출
+      return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'getConcertById')
       throw new Error(getErrorMessage(error))
@@ -42,7 +43,7 @@ export const concertService = {
     try {
       const params = sanitizeQueryParams(filters)
       const response = await axios.get('/concerts', { params })
-      return response.data.data // 표준화된 응답에서 data 추출
+      return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'searchConcerts')
       throw new Error(getErrorMessage(error))
@@ -57,7 +58,7 @@ export const concertService = {
       // 콘서트 목록 캐시 무효화
       const { apiCache } = await import('../utils/apiCache')
       apiCache.deletePattern('^/concerts')
-      return response.data.data // 표준화된 응답에서 data 추출
+      return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'createConcert')
       throw new Error(getErrorMessage(error))
@@ -72,7 +73,7 @@ export const concertService = {
       // 콘서트 목록 캐시 무효화
       const { apiCache } = await import('../utils/apiCache')
       apiCache.deletePattern('^/concerts')
-      return response.data.data // 표준화된 응답에서 data 추출
+      return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'updateConcert')
       throw new Error(getErrorMessage(error))
@@ -98,7 +99,7 @@ export const concertService = {
       const response = await axios.put(`/concerts/${id}/move-to-past`)
       const { apiCache } = await import('../utils/apiCache')
       apiCache.deletePattern('^/concerts')
-      return response.data.data // 표준화된 응답에서 data 추출
+      return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'moveToPastEvent')
       throw new Error(getErrorMessage(error))
@@ -111,7 +112,7 @@ export const concertService = {
       const response = await axios.put(`/concerts/${id}/move-to-upcoming`)
       const { apiCache } = await import('../utils/apiCache')
       apiCache.deletePattern('^/concerts')
-      return response.data.data // 표준화된 응답에서 data 추출
+      return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'moveToUpcomingEvent')
       throw new Error(getErrorMessage(error))
@@ -126,7 +127,7 @@ export const concertService = {
       })
       const { apiCache } = await import('../utils/apiCache')
       apiCache.deletePattern('^/concerts')
-      return response.data.data // 표준화된 응답에서 data 추출
+      return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'triggerAutoMove')
       throw new Error(getErrorMessage(error))

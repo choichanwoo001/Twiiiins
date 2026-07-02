@@ -1,4 +1,5 @@
 import axios from '../api/axios'
+import { unwrapApiResponse } from './apiResponse'
 import {
   buildNewsCreatePayload,
   buildNewsUpdatePayload,
@@ -9,34 +10,34 @@ export const newsService = {
   // 뉴스 목록 조회
   async getAllNews() {
     const response = await axios.get('/media/news')
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   // 뉴스 상세 조회
   async getNewsById(id) {
     const response = await axios.get(`/media/news/${id}`)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   // 뉴스 검색
   async searchNews(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/news', { params })
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   // 뉴스 생성
   async createNews(newsData) {
     const payload = buildNewsCreatePayload(newsData)
     const response = await axios.post('/media/news', payload)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   // 뉴스 수정
   async updateNews(id, newsData) {
     const payload = buildNewsUpdatePayload(newsData)
     const response = await axios.put(`/media/news/${id}`, payload)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   // 뉴스 삭제
@@ -52,6 +53,6 @@ export const newsService = {
     })
 
     const response = await axios.post(`/media/news/${newsId}/images`, formData)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   }
 }

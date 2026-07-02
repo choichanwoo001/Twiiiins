@@ -57,9 +57,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
-import { equipmentService } from '../../../services'
+import { equipmentService, uploadService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -239,20 +238,7 @@ const saveEquipment = async () => {
     const fileObject = crudFormRef.value?.getFileObject('imageUrl')
     
     if (fileObject) {
-      // FormData로 파일 업로드
-      const formData = new FormData()
-      formData.append('file', fileObject)
-      
-      // 파일 업로드 API 호출
-      const uploadResponse = await axios.post('/upload/image', formData)
-      
-      // 업로드된 파일의 S3 URL 저장
-      if (uploadResponse.data && uploadResponse.data.url) {
-        form.value.imageUrl = uploadResponse.data.url
-      } else if (uploadResponse.data && uploadResponse.data.data && uploadResponse.data.data.url) {
-        form.value.imageUrl = uploadResponse.data.data.url
-      }
-      
+      form.value.imageUrl = await uploadService.uploadImage(fileObject)
       // 파일 객체 제거
       crudFormRef.value?.clearFileObject('imageUrl')
     }

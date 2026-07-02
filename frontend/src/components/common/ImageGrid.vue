@@ -2,13 +2,23 @@
   <div class="image-grid">
     <div class="image-row">
       <div class="image-item" v-for="(imageUrl, index) in images" :key="index" :style="{ '--mobile-aspect-ratio': mobileAspectRatio }">
-        <img :src="imageUrl" :alt="`${altTextPrefix} ${index + 1}`" />
+        <img
+          :src="imageUrl"
+          :srcset="getImageSrcset(imageUrl)"
+          :sizes="sizes"
+          :alt="`${altTextPrefix} ${index + 1}`"
+          loading="lazy"
+          decoding="async"
+          @error="handleResponsiveImageError($event, imageUrl)"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { getImageSrcset, handleResponsiveImageError } from '../../utils/responsiveImages'
+
 defineProps({
   images: {
     type: Array,
@@ -22,6 +32,10 @@ defineProps({
   mobileAspectRatio: {
     type: String,
     default: 'auto'
+  },
+  sizes: {
+    type: String,
+    default: '(max-width: 768px) 100vw, 50vw'
   }
 })
 </script>

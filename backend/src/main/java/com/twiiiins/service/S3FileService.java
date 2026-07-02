@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 @Slf4j
 @Service
-@Profile("!local")
+@Profile("s3")
 @RequiredArgsConstructor
 public class S3FileService implements FileStorageService {
 
@@ -35,6 +35,14 @@ public class S3FileService implements FileStorageService {
      */
     @Override
     public String uploadFile(MultipartFile file, String folder) {
+        String originalFilename = file.getOriginalFilename();
+        String extension = getFileExtension(originalFilename);
+        String fileName = UUID.randomUUID() + extension;
+        return uploadFileAs(file, folder, fileName);
+    }
+
+    @Override
+    public String uploadFileAs(MultipartFile file, String folder, String fileName) {
         try {
             String bucketName = s3Config.getBucketName();
             if (bucketName == null || bucketName.isEmpty()) {
@@ -43,9 +51,6 @@ public class S3FileService implements FileStorageService {
             }
 
             // 고유한 파일명 생성
-            String originalFilename = file.getOriginalFilename();
-            String extension = getFileExtension(originalFilename);
-            String fileName = UUID.randomUUID().toString() + extension;
             String key = folder + "/" + fileName;
 
             // S3에 파일 업로드 (ACL은 사용하지 않음 - 버킷 정책으로 공개 접근 관리)

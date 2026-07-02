@@ -270,9 +270,12 @@ onMounted(async () => {
 
   /* 텍스트 섹션 */
   .project-text h1 {
-    font-size: 2.5rem;
+    font-size: clamp(1.9rem, 8vw, 2.5rem);
+    letter-spacing: 0.07em;
+    line-height: 1.15;
     max-width: 100%;
     margin-bottom: 2rem;
+    text-wrap: balance;
   }
   
   .project-content {
@@ -280,7 +283,9 @@ onMounted(async () => {
   }
 
   .project-subtitle {
-    font-size: 1.5rem;
+    font-size: clamp(1.15rem, 5vw, 1.32rem);
+    line-height: 1.45;
+    margin-bottom: 1.25rem;
   }
 
   /* 이미지 섹션 */

@@ -4,8 +4,16 @@
     <section class="hero-section">
       <div class="hero-image">
         <picture>
-          <source media="(max-width: 48rem)" :srcset="mobileHomeImg">
-          <img :src="homeImg" alt="TWIIIINS Performance">
+          <source media="(max-width: 48rem)" :srcset="mobileHomeSrcset" sizes="100vw">
+          <img
+            :src="homeImg1920"
+            :srcset="homeSrcset"
+            sizes="100vw"
+            alt="TWIIIINS Performance"
+            fetchpriority="high"
+            loading="eager"
+            decoding="async"
+          >
         </picture>
       </div>
     </section>
@@ -54,8 +62,14 @@ import { formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
 // 이미지 리소스 임포트
-import homeImg from '../imgs/home.png'
-import mobileHomeImg from '../imgs/mobile_home.png'
+import homeImg1280 from '../imgs/optimized/home-1280.jpg'
+import homeImg1920 from '../imgs/optimized/home-1920.jpg'
+import mobileHomeImg768 from '../imgs/optimized/mobile_home-768.jpg'
+import mobileHomeImg1280 from '../imgs/optimized/mobile_home-1280.jpg'
+import mobileHomeImg1920 from '../imgs/optimized/mobile_home-1920.jpg'
+
+const homeSrcset = `${homeImg1280} 1280w, ${homeImg1920} 1920w`
+const mobileHomeSrcset = `${mobileHomeImg768} 768w, ${mobileHomeImg1280} 1280w, ${mobileHomeImg1920} 1920w`
 
 // 스토어 사용
 const concertStore = useConcertStore()
@@ -216,6 +230,10 @@ onUnmounted(() => {
   max-width: 50rem;
   padding: 1.5rem;
   width: 90%;
+  max-height: calc(100dvh - 8rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .events-title {
@@ -231,6 +249,15 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  max-height: calc(100dvh - 14rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.events-list::-webkit-scrollbar {
+  display: none;
 }
 
 /* 경계선은 삭제 */
@@ -359,10 +386,10 @@ onUnmounted(() => {
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    justify-content: flex-start; /* 상단부터 채움 */
-    padding-top: 6rem; /* 상단 여백 확보 (헤더 등을 위해) */
-    padding-bottom: 5rem; /* SNS 링크 공간 */
+    max-height: calc(100dvh - 7rem);
+    justify-content: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     margin: 0 auto;
     overflow: hidden; /* 컨테이너 자체는 스크롤 없음 */
   }
@@ -371,7 +398,8 @@ onUnmounted(() => {
     width: 100%;
     gap: 2rem;
     overflow-y: auto; /* 내부 스크롤 허용 */
-    flex: 1; /* 남은 공간 차지 */
+    flex: 0 1 auto;
+    max-height: calc(100dvh - 13rem);
     padding-right: 0.5rem; /* 스크롤 공간 */
     
     /* 스크롤바 숨기기 */

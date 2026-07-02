@@ -16,5 +16,7 @@ public interface FileStorageService {
      * @return 저장된 파일의 접근 URL
      */
     String uploadFile(MultipartFile file, String folder);
+
+    String uploadFileAs(MultipartFile file, String folder, String fileName);
 }
 

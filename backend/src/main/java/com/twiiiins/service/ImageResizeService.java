@@ -90,6 +90,30 @@ public class ImageResizeService {
     /**
      * 파일명에서 이미지 포맷 추출
      */
+    public byte[] generateJpegVariant(MultipartFile file, int maxWidth, float quality) throws IOException {
+        try (InputStream inputStream = file.getInputStream();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+            Thumbnails.of(inputStream)
+                    .width(maxWidth)
+                    .outputFormat("jpg")
+                    .outputQuality(quality)
+                    .toOutputStream(baos);
+
+            byte[] resizedBytes = baos.toByteArray();
+            log.info("Image variant generated: maxWidth={}, original={} bytes, variant={} bytes",
+                    maxWidth, file.getSize(), resizedBytes.length);
+
+            return resizedBytes;
+        } catch (OutOfMemoryError e) {
+            log.error("Image variant generation failed due to memory pressure: {}", file.getOriginalFilename(), e);
+            throw new IOException("Image is too large to optimize.", e);
+        } catch (Exception e) {
+            log.error("Image variant generation failed: {}", e.getMessage(), e);
+            throw new IOException("Image optimization failed: " + e.getMessage(), e);
+        }
+    }
+
     private String getFormatName(String filename) {
         if (filename == null) {
             return "jpg";

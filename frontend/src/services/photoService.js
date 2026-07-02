@@ -1,4 +1,5 @@
 import axios from '../api/axios'
+import { unwrapApiResponse } from './apiResponse'
 import {
   buildPhotoGroupCreatePayload,
   buildPhotoGroupUpdatePayload,
@@ -9,35 +10,35 @@ export const photoService = {
   // 사진 그룹 관련
   async getAllPhotoGroups() {
     const response = await axios.get('/media/photo-groups')
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   async getPhotoGroup(id) {
     const response = await axios.get(`/media/photos/groups/${id}`)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   async createPhotoGroup(data) {
     const payload = buildPhotoGroupCreatePayload(data)
     const response = await axios.post('/media/photos/groups', payload)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   async updatePhotoGroup(id, data) {
     const payload = buildPhotoGroupUpdatePayload(data)
     const response = await axios.put(`/media/photos/groups/${id}`, payload)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   async deletePhotoGroup(id) {
     const response = await axios.delete(`/media/photos/groups/${id}`)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   async searchPhotoGroups(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/photo-groups', { params })
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   // 사진 관련
@@ -49,11 +50,11 @@ export const photoService = {
 
     // axios 인터셉터에서 FormData일 때 Content-Type을 자동으로 제거하므로 헤더 설정 불필요
     const response = await axios.post(`/media/photos/groups/${groupId}/photos`, formData)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   },
 
   async deletePhoto(photoId) {
     const response = await axios.delete(`/media/photos/${photoId}`)
-    return response.data.data || response.data
+    return unwrapApiResponse(response)
   }
 }
