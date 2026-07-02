@@ -1,4 +1,5 @@
 import axios from '../api/axios'
+import { unwrapApiResponse } from './apiResponse'
 import {
   buildPhotoGroupCreatePayload,
   buildPhotoGroupUpdatePayload,
@@ -8,34 +9,35 @@ import {
 export const photoService = {
   async getAllPhotoGroups() {
     const response = await axios.get('/media/photo-groups')
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async getPhotoGroupById(id) {
     const response = await axios.get(`/media/photos/groups/${id}`)
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async createPhotoGroup(data) {
     const payload = buildPhotoGroupCreatePayload(data)
     const response = await axios.post('/media/photos/groups', payload)
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async updatePhotoGroup(id, data) {
     const payload = buildPhotoGroupUpdatePayload(data)
     const response = await axios.put(`/media/photos/groups/${id}`, payload)
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async deletePhotoGroup(id) {
-    await axios.delete(`/media/photos/groups/${id}`)
+    const response = await axios.delete(`/media/photos/groups/${id}`)
+    return unwrapApiResponse(response)
   },
 
   async searchPhotoGroups(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/photo-groups', { params })
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async uploadPhotos(groupId, files) {
@@ -44,10 +46,11 @@ export const photoService = {
       formData.append('files', file)
     })
     const response = await axios.post(`/media/photos/groups/${groupId}/photos`, formData)
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async deletePhoto(photoId) {
-    await axios.delete(`/media/photos/${photoId}`)
+    const response = await axios.delete(`/media/photos/${photoId}`)
+    return unwrapApiResponse(response)
   }
 }

@@ -20,6 +20,7 @@ import java.util.UUID;
  * 로컬 파일 시스템 저장소 구현 (기본 파일 저장소).
  */
 @Service
+@Profile("!s3")
 @RequiredArgsConstructor
 @Slf4j
 public class LocalFileService implements FileStorageService {
@@ -27,15 +28,19 @@ public class LocalFileService implements FileStorageService {
     @Value("${app.file.upload-dir:uploads}")
     private String uploadDir;
 
-    @Value("${app.file.base-url:http://localhost:8080/uploads}")
+    @Value("${app.file.base-url:/uploads}")
     private String baseUrl;
 
     @Override
     public String uploadFile(MultipartFile file, String folder) {
-        try {
-            String extension = getFileExtension(file.getOriginalFilename());
-            String fileName = UUID.randomUUID() + extension;
+        String extension = getFileExtension(file.getOriginalFilename());
+        String fileName = UUID.randomUUID() + extension;
+        return uploadFileAs(file, folder, fileName);
+    }
 
+    @Override
+    public String uploadFileAs(MultipartFile file, String folder, String fileName) {
+        try {
             Path targetDirectory = resolveTargetDirectory(folder);
             Files.createDirectories(targetDirectory);
 

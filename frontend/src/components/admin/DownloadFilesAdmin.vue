@@ -38,8 +38,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import axios from '../../api/axios'
-import { downloadFileService } from '../../services'
+import { downloadFileService, uploadService } from '../../services'
 import SearchFilters from './common/SearchFilters.vue'
 import DataTable from './common/DataTable.vue'
 import CrudForm from './common/CrudForm.vue'
@@ -70,7 +69,7 @@ const tableActions = [
 // 폼 필드 설정
 const formFields = [
   { key: 'name', label: '파일명', type: 'text', required: true, placeholder: '파일명을 입력하세요' },
-  { key: 'fileUrl', label: '파일 업로드', type: 'file', required: true },
+  { key: 'fileUrl', label: '파일 업로드', type: 'file', required: true, accept: 'image/*,application/pdf' },
   { key: 'displayOrder', label: '표시 순서', type: 'number', min: 0 }
 ]
 
@@ -145,20 +144,7 @@ const saveFile = async () => {
     const fileObject = crudFormRef.value?.getFileObject('fileUrl')
     
     if (fileObject) {
-      // FormData로 파일 업로드
-      const formData = new FormData()
-      formData.append('file', fileObject)
-      
-      // 파일 업로드 API 호출 (axios 인터셉터에서 FormData 자동 처리)
-      const uploadResponse = await axios.post('/upload/file', formData)
-      
-      // 업로드된 파일의 S3 URL 저장
-      if (uploadResponse.data && uploadResponse.data.url) {
-        form.value.fileUrl = uploadResponse.data.url
-      } else if (uploadResponse.data && uploadResponse.data.data && uploadResponse.data.data.url) {
-        form.value.fileUrl = uploadResponse.data.data.url
-      }
-      
+      form.value.fileUrl = await uploadService.uploadFile(fileObject)
       // 파일 객체 제거
       crudFormRef.value?.clearFileObject('fileUrl')
     }

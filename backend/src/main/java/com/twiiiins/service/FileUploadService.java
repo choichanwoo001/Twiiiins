@@ -28,10 +28,9 @@ public class FileUploadService {
     
     private final FileStorageService fileStorageService;
     private final ImageResizeService imageResizeService;
-
-    /** Photo 썸네일 최대 크기 (px, 정방형) */
-    private static final int THUMBNAIL_SIZE = 600;
-
+    private static final int[] IMAGE_VARIANT_WIDTHS = {640, 1280, 1920};
+    private static final float IMAGE_VARIANT_QUALITY = 0.86f;
+    
     @Value("${UPLOAD_MAX_SIZE:100MB}")
     private String uploadMaxSize;
     
@@ -40,7 +39,7 @@ public class FileUploadService {
             return DataSize.parse(Objects.requireNonNull(uploadMaxSize, "UPLOAD_MAX_SIZE must not be null")).toBytes();
         } catch (Exception e) {
             log.warn("UPLOAD_MAX_SIZE 파싱 실패, 기본값 100MB 사용: {}", e.getMessage());
-            return 15 * 1024 * 1024; // 기본값 100MB
+            return 100 * 1024 * 1024; // 기본값 100MB
         }
     }
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList(
@@ -54,7 +53,7 @@ public class FileUploadService {
         log.info("이미지 파일 업로드 시작: 원본 파일명 = {}, 크기 = {} bytes", 
                 file.getOriginalFilename(), file.getSize());
         validateFile(file, ALLOWED_IMAGE_TYPES, "이미지 파일만 업로드 가능합니다.");
-        return uploadFile(file, "image");
+        return uploadFileWithVariants(file, "image");
     }
     
     /**
@@ -249,6 +248,57 @@ public class FileUploadService {
      * 이미지와 썸네일을 함께 업로드하는 메서드 (Photo 전용)
      * UUID를 공유하여 originals/ 원본 + 웹용 리사이즈본 + 썸네일 세 가지를 저장합니다.
      */
+    private FileUploadResponseDto uploadFileWithVariants(@NonNull MultipartFile file, @NonNull String uploadType) {
+        FileUploadResponseDto response = uploadFile(file, uploadType);
+        String firstVariantUrl = generateImageVariants(file, response.getUrl(), uploadType);
+        if (firstVariantUrl != null) {
+            response.setThumbnailUrl(firstVariantUrl);
+        }
+        return response;
+    }
+
+    private String generateImageVariants(@NonNull MultipartFile file, String originalUrl, @NonNull String uploadType) {
+        String contentType = file.getContentType();
+        if (contentType == null || contentType.equalsIgnoreCase("image/gif")) {
+            return null;
+        }
+
+        String storedFileName = extractFileName(originalUrl);
+        String baseName = stripExtension(storedFileName);
+        if (baseName == null || baseName.isBlank()) {
+            return null;
+        }
+
+        String firstVariantUrl = null;
+        for (int width : IMAGE_VARIANT_WIDTHS) {
+            try {
+                byte[] variantBytes = imageResizeService.generateJpegVariant(file, width, IMAGE_VARIANT_QUALITY);
+                String variantFileName = baseName + "-" + width + ".jpg";
+                MultipartFile variantFile = new ThumbnailMultipartFile(
+                        "variant_" + width,
+                        variantFileName,
+                        "image/jpeg",
+                        variantBytes
+                );
+                String variantUrl = fileStorageService.uploadFileAs(variantFile, uploadType + "/variants", variantFileName);
+                if (firstVariantUrl == null) {
+                    firstVariantUrl = variantUrl;
+                }
+            } catch (Exception e) {
+                log.warn("Image variant generation failed (width={}): {}", width, e.getMessage());
+            }
+        }
+        return firstVariantUrl;
+    }
+
+    private String stripExtension(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return null;
+        }
+        int lastDot = fileName.lastIndexOf('.');
+        return lastDot > 0 ? fileName.substring(0, lastDot) : fileName;
+    }
+
     private FileUploadResponseDto uploadFileWithThumbnail(@NonNull MultipartFile file, @NonNull String uploadType) {
         String originalFilename = file.getOriginalFilename();
 

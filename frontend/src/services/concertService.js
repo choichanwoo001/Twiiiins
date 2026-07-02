@@ -1,5 +1,7 @@
 import axios from '../api/axios'
-import { cachedApiCall, createCacheKey, apiCache } from '../utils/apiCache'
+import { cachedApiCall, createCacheKey } from '../utils/apiCache'
+import { getErrorMessage, logError } from '../utils/errorHandler'
+import { unwrapApiResponse } from './apiResponse'
 import {
   buildConcertCreatePayload,
   buildConcertUpdatePayload
@@ -10,26 +12,69 @@ export const concertService = {
     const cacheKey = createCacheKey('/concerts')
     return cachedApiCall(
       async () => {
-        const response = await axios.get('/concerts')
-        return response.data.data
+        try {
+          const response = await axios.get('/concerts')
+          return unwrapApiResponse(response)
+        } catch (error) {
+          logError(error, 'getAllConcerts')
+          throw new Error(getErrorMessage(error))
+        }
       },
       cacheKey,
       2 * 60 * 1000
     )
   },
 
+  // 콘서트 상세 조회
+  async getConcertById(id) {
+    try {
+      const response = await axios.get(`/concerts/${id}`)
+      return unwrapApiResponse(response)
+    } catch (error) {
+      logError(error, 'getConcertById')
+      throw new Error(getErrorMessage(error))
+    }
+  },
+
+  // 콘서트 검색
+  async searchConcerts(filters) {
+    try {
+      const params = sanitizeQueryParams(filters)
+      const response = await axios.get('/concerts', { params })
+      return unwrapApiResponse(response)
+    } catch (error) {
+      logError(error, 'searchConcerts')
+      throw new Error(getErrorMessage(error))
+    }
+  },
+
+  // 콘서트 생성
   async createConcert(concertData) {
-    const payload = buildConcertCreatePayload(concertData)
-    const response = await axios.post('/concerts', payload)
-    apiCache.deletePattern('^/concerts')
-    return response.data.data
+    try {
+      const payload = buildConcertCreatePayload(concertData)
+      const response = await axios.post('/concerts', payload)
+      // 콘서트 목록 캐시 무효화
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
+      return unwrapApiResponse(response)
+    } catch (error) {
+      logError(error, 'createConcert')
+      throw new Error(getErrorMessage(error))
+    }
   },
 
   async updateConcert(id, concertData) {
-    const payload = buildConcertUpdatePayload(concertData)
-    const response = await axios.put(`/concerts/${id}`, payload)
-    apiCache.deletePattern('^/concerts')
-    return response.data.data
+    try {
+      const payload = buildConcertUpdatePayload(concertData)
+      const response = await axios.put(`/concerts/${id}`, payload)
+      // 콘서트 목록 캐시 무효화
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
+      return unwrapApiResponse(response)
+    } catch (error) {
+      logError(error, 'updateConcert')
+      throw new Error(getErrorMessage(error))
+    }
   },
 
   async deleteConcert(id) {
@@ -38,22 +83,40 @@ export const concertService = {
   },
 
   async moveToPastEvent(id) {
-    const response = await axios.put(`/concerts/${id}/move-to-past`)
-    apiCache.deletePattern('^/concerts')
-    return response.data.data
+    try {
+      const response = await axios.put(`/concerts/${id}/move-to-past`)
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
+      return unwrapApiResponse(response)
+    } catch (error) {
+      logError(error, 'moveToPastEvent')
+      throw new Error(getErrorMessage(error))
+    }
   },
 
   async moveToUpcomingEvent(id) {
-    const response = await axios.put(`/concerts/${id}/move-to-upcoming`)
-    apiCache.deletePattern('^/concerts')
-    return response.data.data
+    try {
+      const response = await axios.put(`/concerts/${id}/move-to-upcoming`)
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
+      return unwrapApiResponse(response)
+    } catch (error) {
+      logError(error, 'moveToUpcomingEvent')
+      throw new Error(getErrorMessage(error))
+    }
   },
 
   async triggerAutoMove() {
-    const response = await axios.put('/concerts/auto-move-past', {
-      currentDate: new Date().toISOString().split('T')[0]
-    })
-    apiCache.deletePattern('^/concerts')
-    return response.data.data
+    try {
+      const response = await axios.put('/concerts/auto-move-past', {
+        currentDate: new Date().toISOString().split('T')[0]
+      })
+      const { apiCache } = await import('../utils/apiCache')
+      apiCache.deletePattern('^/concerts')
+      return unwrapApiResponse(response)
+    } catch (error) {
+      logError(error, 'triggerAutoMove')
+      throw new Error(getErrorMessage(error))
+    }
   }
 }

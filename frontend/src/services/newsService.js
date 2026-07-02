@@ -1,4 +1,5 @@
 import axios from '../api/axios'
+import { unwrapApiResponse } from './apiResponse'
 import {
   buildNewsCreatePayload,
   buildNewsUpdatePayload,
@@ -8,25 +9,32 @@ import {
 export const newsService = {
   async getAllNews() {
     const response = await axios.get('/media/news')
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
+  // 뉴스 상세 조회
+  async getNewsById(id) {
+    const response = await axios.get(`/media/news/${id}`)
+    return unwrapApiResponse(response)
+  },
+
+  // 뉴스 검색
   async searchNews(filters) {
     const params = sanitizeQueryParams(filters)
     const response = await axios.get('/media/news', { params })
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async createNews(newsData) {
     const payload = buildNewsCreatePayload(newsData)
     const response = await axios.post('/media/news', payload)
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async updateNews(id, newsData) {
     const payload = buildNewsUpdatePayload(newsData)
     const response = await axios.put(`/media/news/${id}`, payload)
-    return response.data.data
+    return unwrapApiResponse(response)
   },
 
   async deleteNews(id) {
@@ -39,6 +47,6 @@ export const newsService = {
       formData.append('files', file)
     })
     const response = await axios.post(`/media/news/${newsId}/images`, formData)
-    return response.data.data
+    return unwrapApiResponse(response)
   }
 }

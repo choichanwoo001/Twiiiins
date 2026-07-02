@@ -37,8 +37,8 @@ services:
       # 기존 환경변수 유지
       - CORS_ORIGINS=${CORS_ORIGINS}
       - PORT=8080
-      - FILE_UPLOAD_DIR=/app/uploads
-      - FILE_BASE_URL=/uploads
+      - FILE_UPLOAD_DIR=${FILE_UPLOAD_DIR}
+      - FILE_BASE_URL=${FILE_BASE_URL:-/uploads}
       - UPLOAD_MAX_SIZE=${UPLOAD_MAX_SIZE}
     volumes:
       - ./uploads:/app/uploads

@@ -94,6 +94,8 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
+          FILE_UPLOAD_DIR: ${{ secrets.FILE_UPLOAD_DIR }}
+          FILE_BASE_URL: ${{ secrets.FILE_BASE_URL }}
           UPLOAD_MAX_SIZE: ${{ secrets.UPLOAD_MAX_SIZE }}
         run: |
           # SSH 키 설정
@@ -110,6 +112,8 @@ jobs:
           echo "DB_USERNAME=$DB_USERNAME" >> .env
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
           echo "CORS_ORIGINS=$CORS_ORIGINS" >> .env
+          echo "FILE_UPLOAD_DIR=$FILE_UPLOAD_DIR" >> .env
+          echo "FILE_BASE_URL=${FILE_BASE_URL:-/uploads}" >> .env
           echo "UPLOAD_MAX_SIZE=$UPLOAD_MAX_SIZE" >> .env
           echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}" >> .env
 
@@ -144,10 +148,8 @@ jobs:
               mkdir -p $TARGET_DIR/uploads
               mkdir -p $TARGET_DIR/db_data  # DB 데이터 폴더 생성
               
-              # 업로드 디렉토리 권한 설정 (Docker가 root 소유로 만든 경우 일반 chmod 실패)
-              if ! chmod 777 "$TARGET_DIR/uploads" 2>/dev/null; then
-                docker run --rm -v "$TARGET_DIR/uploads:/uploads" alpine chmod 777 /uploads
-              fi
+              # 업로드 디렉토리 권한 설정
+              chmod 777 $TARGET_DIR/uploads
           ENDSSH
             
             # 2. 파일 전송

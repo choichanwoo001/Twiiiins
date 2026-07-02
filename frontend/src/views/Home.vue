@@ -4,8 +4,16 @@
     <section class="hero-section">
       <div class="hero-image">
         <picture>
-          <source media="(max-width: 48rem)" :srcset="mobileHomeImg">
-          <img :src="homeImg" alt="TWIIIINS Performance" fetchpriority="high">
+          <source media="(max-width: 48rem)" :srcset="mobileHomeSrcset" sizes="100vw">
+          <img
+            :src="homeImg1920"
+            :srcset="homeSrcset"
+            sizes="100vw"
+            alt="TWIIIINS Performance"
+            fetchpriority="high"
+            loading="eager"
+            decoding="async"
+          >
         </picture>
       </div>
     </section>
@@ -54,8 +62,14 @@ import { formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
 // 이미지 리소스 임포트
-import homeImg from '../imgs/home.png'
-import mobileHomeImg from '../imgs/mobile_home.png'
+import homeImg1280 from '../imgs/optimized/home-1280.jpg'
+import homeImg1920 from '../imgs/optimized/home-1920.jpg'
+import mobileHomeImg768 from '../imgs/optimized/mobile_home-768.jpg'
+import mobileHomeImg1280 from '../imgs/optimized/mobile_home-1280.jpg'
+import mobileHomeImg1920 from '../imgs/optimized/mobile_home-1920.jpg'
+
+const homeSrcset = `${homeImg1280} 1280w, ${homeImg1920} 1920w`
+const mobileHomeSrcset = `${mobileHomeImg768} 768w, ${mobileHomeImg1280} 1280w, ${mobileHomeImg1920} 1920w`
 
 // 스토어 사용
 const concertStore = useConcertStore()
@@ -217,10 +231,10 @@ onUnmounted(() => {
   max-width: 50rem;
   padding: 1.5rem;
   width: 90%;
-  height: calc(100dvh - 3rem);
+  max-height: calc(100dvh - 8rem);
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  justify-content: center;
 }
 
 .events-title {
@@ -236,15 +250,12 @@ onUnmounted(() => {
 .events-list {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  justify-content: flex-start;
-  gap: var(--event-gap);
+  gap: 1.5rem;
+  max-height: calc(100dvh - 14rem);
   overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-bottom: 3rem;
-  scrollbar-width: none;
+  padding-right: 0.5rem;
   -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .events-list::-webkit-scrollbar {
@@ -385,10 +396,10 @@ onUnmounted(() => {
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    height: calc(100dvh - 2rem);
-    justify-content: flex-start;
-    padding-top: 6rem;
-    padding-bottom: 5rem;
+    max-height: calc(100dvh - 7rem);
+    justify-content: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     margin: 0 auto;
     overflow: hidden;
     --event-gap: 1.5rem;
@@ -396,12 +407,15 @@ onUnmounted(() => {
 
   .events-list {
     width: 100%;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    gap: 2rem;
+    overflow-y: auto; /* 내부 스크롤 허용 */
+    flex: 0 1 auto;
+    max-height: calc(100dvh - 13rem);
+    padding-right: 0.5rem; /* 스크롤 공간 */
+    
+    /* 스크롤바 숨기기 */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   .events-list::-webkit-scrollbar {

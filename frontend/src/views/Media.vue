@@ -65,7 +65,15 @@
         <div class="albums-grid">
           <div class="music-item" v-for="item in musicItems" :key="item.id">
             <div class="music-cover">
-              <img :src="item.cover" :alt="item.title">
+              <img
+                :src="item.cover"
+                :srcset="getImageSrcset(item.cover)"
+                sizes="(max-width: 48rem) 33vw, 14vw"
+                :alt="item.title"
+                loading="lazy"
+                decoding="async"
+                @error="handleResponsiveImageError($event, item.cover)"
+              >
             </div>
             <div class="music-info">
               <div class="music-title">{{ item.title }}</div>
@@ -113,7 +121,15 @@
               <div class="photo-item" 
                    v-for="photo in group.photos" 
                    :key="photo.src">
-                <img :src="photo.src" :alt="photo.alt" loading="lazy">
+                <img
+                  :src="photo.src"
+                  :srcset="getImageSrcset(photo.src)"
+                  sizes="(max-width: 48rem) 50vw, 25vw"
+                  :alt="photo.alt"
+                  loading="lazy"
+                  decoding="async"
+                  @error="handleResponsiveImageError($event, photo.src)"
+                >
               </div>
             </div>
           </div>
@@ -159,7 +175,15 @@
         <div class="equipment-grid">
           <div class="equipment-item" v-for="equipment in equipmentList" :key="equipment.id">
             <div class="equipment-image">
-              <img :src="equipment.imageUrl || '../imgs/exphoto1.png'" :alt="equipment.name" loading="lazy">
+              <img
+                :src="equipment.imageUrl || fallbackEquipmentImage"
+                :srcset="getImageSrcset(equipment.imageUrl)"
+                sizes="(max-width: 48rem) 100vw, 33vw"
+                :alt="equipment.name"
+                loading="lazy"
+                decoding="async"
+                @error="handleResponsiveImageError($event, equipment.imageUrl || fallbackEquipmentImage)"
+              >
             </div>
             <div class="equipment-name">{{ equipment.name }}</div>
           </div>
@@ -180,11 +204,13 @@ import {
   equipmentService 
 } from '../services'
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
+import { getImageSrcset, handleResponsiveImageError } from '../utils/responsiveImages'
 import { ImageGrid } from '../components/common'
 import { logError } from '../utils/errorHandler'
 import { useMobile } from '../composables/useMobile' 
 
 import { useRoute } from 'vue-router'
+import fallbackEquipmentImage from '../imgs/exphoto1.png'
 
 const route = useRoute()
 

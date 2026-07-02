@@ -2,12 +2,12 @@ package com.twiiiins.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Web MVC 설정 클래스
@@ -25,16 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         String location = resolveUploadLocation();
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(location);
-    }
-
-    private String resolveUploadLocation() {
-        Path path = Paths.get(uploadDir).toAbsolutePath().normalize();
-        String uri = path.toUri().toString();
-        if (!uri.endsWith("/")) {
-            uri += "/";
-        }
-        return uri;
+                .addResourceLocations("file:uploads/")
+                .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePublic().immutable());
     }
 }
 

@@ -53,9 +53,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from '../../../api/axios'
 import { useMediaStore } from '../../../stores'
-import { musicService } from '../../../services'
+import { musicService, uploadService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -252,20 +251,7 @@ const saveMusic = async () => {
     const fileObject = crudFormRef.value?.getFileObject('coverUrl')
     
     if (fileObject) {
-      // FormData로 파일 업로드
-      const formData = new FormData()
-      formData.append('file', fileObject)
-      
-      // 파일 업로드 API 호출
-      const uploadResponse = await axios.post('/upload/image', formData)
-      
-      // 업로드된 파일의 S3 URL 저장
-      if (uploadResponse.data && uploadResponse.data.url) {
-        form.value.coverUrl = uploadResponse.data.url
-      } else if (uploadResponse.data && uploadResponse.data.data && uploadResponse.data.data.url) {
-        form.value.coverUrl = uploadResponse.data.data.url
-      }
-      
+      form.value.coverUrl = await uploadService.uploadImage(fileObject)
       // 파일 객체 제거
       crudFormRef.value?.clearFileObject('coverUrl')
     }

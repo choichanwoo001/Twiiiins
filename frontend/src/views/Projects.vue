@@ -22,10 +22,13 @@
           >
             <img
               v-if="project.coverImageUrl"
-              :src="toAbsoluteUrl(project.coverImageUrl)"
+              :src="getProjectCoverUrl(project)"
+              :srcset="getImageSrcset(getProjectCoverUrl(project))"
+              sizes="(max-width: 768px) 100vw, 60vw"
               :alt="project.title || 'Project image'"
               loading="lazy"
-              @error="handleImageError($event)"
+              decoding="async"
+              @error="handleImageError($event, getProjectCoverUrl(project))"
             />
             <div v-else class="image-error">
               Image not found
@@ -72,6 +75,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { projectService } from '../services'
 import { formatDate, toAbsoluteUrl } from '../utils/commonHelpers'
+import { getImageSrcset, handleResponsiveImageError } from '../utils/responsiveImages'
 import { logError } from '../utils/errorHandler'
 
 const router = useRouter()
@@ -98,7 +102,16 @@ const goToProjectDetail = (urlSlug) => {
 }
 
 // 이미지 로드 에러 처리
-const handleImageError = (event) => {
+const getProjectCoverUrl = (project) => {
+  return toAbsoluteUrl(project.coverImageUrl)
+}
+
+const handleImageError = (event, fallbackUrl) => {
+  if (event.target?.dataset?.fallbackApplied !== 'true') {
+    handleResponsiveImageError(event, fallbackUrl)
+    return
+  }
+
   // 이미지 로드 실패 시 이미지를 숨기고 에러 메시지 표시
   const img = event.target
   img.style.display = 'none'
@@ -366,6 +379,43 @@ onMounted(() => {
     justify-content: flex-end;
     flex: 1;
     margin-top: 0.1rem; /* 시각적 줄맞춤 */
+  }
+}
+@media (max-width: 768px) {
+  .project-caption {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0.45rem;
+    margin-top: 0.9rem;
+  }
+
+  .caption-left {
+    font-size: clamp(0.9rem, 3.8vw, 1rem);
+    max-width: 100%;
+    line-height: 1.15;
+  }
+
+  .caption-right {
+    width: 100%;
+    font-size: clamp(0.72rem, 3vw, 0.78rem);
+    line-height: 1.25;
+    text-align: left;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.25rem;
+    flex: 0 1 auto;
+    margin-top: 0;
+    padding-right: 1.35rem;
+    position: relative;
+  }
+
+  .caption-arrow {
+    position: absolute;
+    right: 0;
+    top: 0.05rem;
+    margin-left: 0;
   }
 }
 </style>

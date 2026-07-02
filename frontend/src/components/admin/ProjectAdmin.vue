@@ -308,6 +308,8 @@ import { BaseButton, ConfirmDialog, AlertDialog } from '../common'
 import Modal from './common/Modal.vue'
 import { formatDate } from '../../utils/commonHelpers'
 import { logError, getErrorMessage } from '../../utils/errorHandler'
+import { unwrapApiResponse } from '../../services/apiResponse'
+import { uploadService } from '../../services'
 import {
   buildProjectCreatePayload,
   buildProjectUpdatePayload,
@@ -428,22 +430,8 @@ const handleAlertClose = () => {
 
 // 이미지 업로드
 const uploadImage = async (file) => {
-  const formData = new FormData()
-  formData.append('file', file)
-  
   try {
-    const response = await axios.post('/upload/image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-    // FileUploadResponseDto는 직접 반환되므로 response.data.url 사용
-    const url = response.data.url || response.data.data?.url
-    if (!url) {
-      console.error('이미지 업로드 응답에 URL이 없습니다:', response.data)
-      throw new Error('이미지 업로드 응답에 URL이 없습니다')
-    }
-    return url
+    return await uploadService.uploadImage(file)
   } catch (error) {
     logError(error, '이미지 업로드')
     throw error
@@ -468,7 +456,7 @@ const handleCoverImageChange = async (event) => {
 const loadProjects = async () => {
   try {
     const response = await axios.get('/projects')
-    projects.value = response.data.data || response.data || []
+    projects.value = unwrapApiResponse(response, [])
     if (isFiltered.value) {
       await searchProjects()
     } else {
@@ -484,7 +472,7 @@ const searchProjects = async () => {
   try {
     const params = sanitizeQueryParams(searchFilters.value)
     const response = await axios.get('/projects', { params })
-    filteredProjects.value = response.data.data || response.data || []
+    filteredProjects.value = unwrapApiResponse(response, [])
     isFiltered.value = true
   } catch (error) {
     logError(error, '프로젝트 검색')
@@ -625,12 +613,12 @@ const saveProject = async () => {
     if (editingProject.value) {
       const payload = buildProjectUpdatePayload(basePayload)
       const response = await axios.put(`/projects/${editingProject.value.id}`, payload)
-      savedProject = response.data.data || response.data
+      savedProject = unwrapApiResponse(response)
       await showAlert('프로젝트가 수정되었습니다.', '성공', 'success')
     } else {
       const payload = buildProjectCreatePayload(basePayload)
       const response = await axios.post('/projects', payload)
-      savedProject = response.data.data || response.data
+      savedProject = unwrapApiResponse(response)
       await showAlert('프로젝트가 등록되었습니다. 상세 정보를 등록하시겠습니까?', '성공', 'success')
       
       // 새로 등록한 프로젝트를 선택하고 상세 등록 폼으로 전환
@@ -746,18 +734,7 @@ const uploadProjectPhotos = async () => {
   }
 
   try {
-    const formData = new FormData()
-    selectedProjectFiles.value.forEach(file => {
-      formData.append('files', file)
-    })
-
-    const response = await axios.post('/upload/images', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-    
-    const uploadedUrls = response.data.data?.urls || response.data.urls || []
+    const uploadedUrls = await uploadService.uploadImages(selectedProjectFiles.value)
     
     if (selectedProject.value.id) {
       // 기존 프로젝트 업데이트
@@ -766,7 +743,7 @@ const uploadProjectPhotos = async () => {
         imageUrls: [...(selectedProject.value.imageUrls || []), ...uploadedUrls]
       })
       const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
-      const updatedProject = updatedProjectResponse.data.data || updatedProjectResponse.data
+      const updatedProject = unwrapApiResponse(updatedProjectResponse)
       
       // 프로젝트 목록 새로고침
       await loadProjects()
@@ -814,7 +791,7 @@ const deleteProjectPhoto = async (index) => {
           imageUrls
         })
         const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
-        const updatedProject = updatedProjectResponse.data.data || updatedProjectResponse.data
+        const updatedProject = unwrapApiResponse(updatedProjectResponse)
         
         // 프로젝트 목록 새로고침
         await loadProjects()

@@ -1,6 +1,7 @@
 import axios from '../api/axios'
 import { cachedApiCall, createCacheKey, apiCache } from '../utils/apiCache'
 import { getErrorMessage, logError } from '../utils/errorHandler'
+import { unwrapApiResponse } from './apiResponse'
 
 export const projectService = {
     async getAllProjects() {
@@ -9,7 +10,8 @@ export const projectService = {
             async () => {
                 try {
                     const response = await axios.get('/projects')
-                    return response.data.data
+                    // 응답 구조가 표준화되어 있지 않은 경우를 대비 (기존 로직 유지)
+                    return unwrapApiResponse(response, [])
                 } catch (error) {
                     logError(error, 'getAllProjects')
                     throw new Error(getErrorMessage(error))
@@ -23,7 +25,7 @@ export const projectService = {
     async getProjectBySlug(slug) {
         try {
             const response = await axios.get(`/projects/slug/${slug}`)
-            return response.data.data
+            return unwrapApiResponse(response)
         } catch (error) {
             logError(error, 'getProjectBySlug')
             throw new Error(getErrorMessage(error))
