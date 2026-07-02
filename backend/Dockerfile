@@ -3,7 +3,7 @@ FROM gradle:8.14.3-jdk17 AS builder
 
 # Gradle 홈 디렉토리를 최소한으로 설정하여 디스크 공간 절약
 ENV GRADLE_USER_HOME=/tmp/.gradle
-ENV GRADLE_OPTS="-Dorg.gradle.caching=false -Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=false -Dorg.gradle.parallel=false"
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=false -Dorg.gradle.parallel=false"
 
 WORKDIR /app
 
@@ -12,12 +12,8 @@ COPY build.gradle settings.gradle gradlew ./
 COPY gradle gradle
 RUN chmod +x gradlew
 
-# 의존성 다운로드 (최소한의 캐시만 사용)
-RUN ./gradlew dependencies --no-daemon --refresh-dependencies || true \
-    && rm -rf /tmp/.gradle/caches/*/generated-gradle-jars \
-    && rm -rf /tmp/.gradle/caches/*/scripts-* \
-    && find /tmp/.gradle -type f -name "*.lock" -delete \
-    && find /tmp/.gradle -type d -name "*.lock" -empty -delete 2>/dev/null || true
+# 의존성 다운로드 (캐시 레이어 활용)
+RUN ./gradlew dependencies --no-daemon 2>/dev/null || true
 
 # 소스 코드만 복사 (build, bin, uploads 등 제외)
 COPY src ./src
