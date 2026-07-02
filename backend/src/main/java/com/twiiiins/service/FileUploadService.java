@@ -30,6 +30,7 @@ public class FileUploadService {
     private final ImageResizeService imageResizeService;
     private static final int[] IMAGE_VARIANT_WIDTHS = {640, 1280, 1920};
     private static final float IMAGE_VARIANT_QUALITY = 0.86f;
+    private static final int THUMBNAIL_SIZE = 400;
     
     @Value("${UPLOAD_MAX_SIZE:100MB}")
     private String uploadMaxSize;
@@ -274,13 +275,7 @@ public class FileUploadService {
             try {
                 byte[] variantBytes = imageResizeService.generateJpegVariant(file, width, IMAGE_VARIANT_QUALITY);
                 String variantFileName = baseName + "-" + width + ".jpg";
-                MultipartFile variantFile = new ThumbnailMultipartFile(
-                        "variant_" + width,
-                        variantFileName,
-                        "image/jpeg",
-                        variantBytes
-                );
-                String variantUrl = fileStorageService.uploadFileAs(variantFile, uploadType + "/variants", variantFileName);
+                String variantUrl = fileStorageService.uploadBytes(variantBytes, uploadType + "/variants", variantFileName);
                 if (firstVariantUrl == null) {
                     firstVariantUrl = variantUrl;
                 }
@@ -297,6 +292,12 @@ public class FileUploadService {
         }
         int lastDot = fileName.lastIndexOf('.');
         return lastDot > 0 ? fileName.substring(0, lastDot) : fileName;
+    }
+
+    private String extractFileName(String url) {
+        if (url == null || url.isBlank()) return "";
+        String path = url.split("\\?")[0];
+        return path.substring(path.lastIndexOf('/') + 1);
     }
 
     private FileUploadResponseDto uploadFileWithThumbnail(@NonNull MultipartFile file, @NonNull String uploadType) {
