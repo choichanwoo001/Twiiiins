@@ -234,7 +234,7 @@ onUnmounted(() => {
   max-width: 50rem;
   padding: 1.5rem;
   width: 90%;
-  max-height: calc(100dvh - 8rem);
+  max-height: calc(100dvh - 8rem - 2.5rem); /* 하단 SNS 바 보정 포함 */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -254,7 +254,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-height: calc(100dvh - 14rem);
+  max-height: calc(100dvh - 14rem - 2.5rem); /* 하단 SNS 바 보정 포함 */
   overflow-y: auto;
   padding-right: 0.5rem;
   -ms-overflow-style: none;
