@@ -221,5 +221,5 @@ jobs:
           echo "=== Public site smoke test ==="
           curl -fsSL --retry 5 --retry-delay 5 https://twiiiins.com/index.html | grep -q '<div id="app"></div>'
           curl -fsSL --retry 5 --retry-delay 5 https://twiiiins.com/ | grep -q '<div id="app"></div>'
-          curl -fsSIL --retry 5 --retry-delay 5 https://twiiiins.com/favicon.svg
+          curl -fsSIL --retry 5 --retry-delay 5 https://twiiiins.com/Website_logo.jpg
           curl -fsS --retry 5 --retry-delay 5 https://twiiiins.com/health
