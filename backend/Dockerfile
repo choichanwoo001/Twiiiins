@@ -1,11 +1,13 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
 USER root
-RUN apk add --no-cache curl \
-    && addgroup -S spring \
-    && adduser -S spring -G spring
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && addgroup --system spring \
+    && adduser --system --group spring
 
 USER spring:spring
 
