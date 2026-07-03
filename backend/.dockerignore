@@ -5,6 +5,10 @@
 
 # Build outputs and caches
 build/
+!build/
+build/*
+!build/libs/
+!build/libs/*.jar
 .gradle/
 bin/
 out/

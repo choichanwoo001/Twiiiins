@@ -11,12 +11,26 @@ permissions:
   packages: write
 
 jobs:
-  # 1. 백엔드 빌드 및 이미지 푸시 (Docker 캐싱 활용)
   build-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build backend JAR
+        working-directory: ./backend
+        run: |
+          chmod +x gradlew
+          ./gradlew bootJar -x test --build-cache --no-daemon
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -31,7 +45,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Docker image (ARM64 Support)
+      - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -42,7 +56,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 2. 프론트엔드 빌드 (병렬 실행)
   build-frontend:
     runs-on: ubuntu-latest
     steps:
@@ -61,14 +74,13 @@ jobs:
         run: |
           npm ci
           npm run build
-      
+
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
           path: frontend/dist
 
-  # 3. EC2 배포 (빌드 완료 후 실행)
   deploy:
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
@@ -87,9 +99,6 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_SSH_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ github.actor }}
-          # 환경변수 주입 (Secrets)
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -98,108 +107,68 @@ jobs:
           FILE_BASE_URL: ${{ secrets.FILE_BASE_URL }}
           UPLOAD_MAX_SIZE: ${{ secrets.UPLOAD_MAX_SIZE }}
         run: |
-          # SSH 키 설정
+          set -euo pipefail
+
           mkdir -p ~/.ssh
           echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
-          
-          # GHCR 로그인 정보 생성
-          echo ${{ secrets.GITHUB_TOKEN }} > gh_token.txt
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/deploy_key .env' EXIT
 
-          # .env 파일 생성
-          echo "DB_URL=$DB_URL" > .env
-          echo "DB_USERNAME=$DB_USERNAME" >> .env
-          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-          echo "CORS_ORIGINS=$CORS_ORIGINS" >> .env
-          echo "FILE_UPLOAD_DIR=$FILE_UPLOAD_DIR" >> .env
-          echo "FILE_BASE_URL=${FILE_BASE_URL:-/uploads}" >> .env
-          echo "UPLOAD_MAX_SIZE=$UPLOAD_MAX_SIZE" >> .env
-          echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}" >> .env
-
-            # 1. 디스크 공간 확인 및 정리
-            echo "=== OCI 배포 시작 ==="
-            ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
-              export TARGET_DIR="$HOME/twiiiins/Twiiiins"
-              
-              echo "=== 디스크 공간 확인 (정리 전) ==="
-              df -h
-              
-              echo "=== 컨테이너 및 이미지 정리 ==="
-              # 백엔드와 Nginx만 중지 (DB는 건드리지 않음!)
-              docker stop twiiiins-backend twiiiins-nginx || true
-              docker rm twiiiins-backend twiiiins-nginx || true
-              
-              # 기존 백엔드 이미지 삭제 (공간 확보)
-              docker rmi $(docker images 'ghcr.io/*/twiiiins-backend' -q) || true
-              docker rmi nginx:alpine || true
-              
-              # 시스템 정리 (사용하지 않는 리소스 정리, 단 실행 중인 DB 컨테이너와 볼륨은 안전함)
-              docker system prune -f
-              
-              echo "=== 디스크 공간 확인 (정리 후) ==="
-              df -h
-
-              # 2. 디렉토리 설정
-              export TARGET_DIR="$HOME/twiiiins/Twiiiins"
-              # 프론트엔드 기존 빌드 삭제 (Clean Deploy)
-              rm -rf $TARGET_DIR/frontend/dist
-              mkdir -p $TARGET_DIR/frontend
-              mkdir -p $TARGET_DIR/uploads
-              mkdir -p $TARGET_DIR/db_data  # DB 데이터 폴더 생성
-              
-              # 업로드 디렉토리 권한 설정 (Docker 컨테이너 유저 소유일 수 있으므로 실패 무시)
-              chmod 777 $TARGET_DIR/uploads || true
-          ENDSSH
-            
-            # 2. 파일 전송
-            # GHCR 토큰 전송
-          scp -i ~/.ssh/deploy_key gh_token.txt $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/gh_token.txt
-
-          # .env 파일 전송
-          scp -i ~/.ssh/deploy_key .env $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
-
-          echo "=== 프론트엔드 dist 전송 ==="
-            # scp로 dist 전송 (rsync 대체, 의존성 제거)
-            scp -r -i ~/.ssh/deploy_key frontend/dist $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/
-            
-            # docker-compose.yml 전송
-            echo "=== docker-compose.yml 전송 ==="
-            scp -i ~/.ssh/deploy_key docker-compose.yml $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
-              
-            # aws 폴더(Nginx 설정) 전송
-            echo "=== aws 폴더 전송 ==="
-            scp -r -i ~/.ssh/deploy_key aws $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/
-
-            echo "=== scripts 폴더 전송 ==="
-            scp -r -i ~/.ssh/deploy_key scripts $EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/ || true
-              
-              # 3. 원격 실행
-            ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'EOF'
-              cd ~/twiiiins/Twiiiins
-
-              # GHCR 로그인
-              cat gh_token.txt | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-              rm gh_token.txt
-              
-              # .env 파일을 이용해 Docker 실행 환경 구성 (이미 복사됨)
- 
-              # 최신 이미지 다운로드 (백엔드만)
-              echo "=== Docker 이미지 Pull ==="
-              docker compose pull backend nginx
-              
-              # 서비스 실행 (백엔드와 Nginx만 재시작, DB는 계속 실행 중이어야 함)
-              echo "=== Docker Compose Up (Backend & Nginx) ==="
-              docker compose up -d backend nginx certbot
-              
-              docker compose ps
-              
-              # 로그 확인
-              echo "=== Backend Container Logs ==="
-              sleep 5
-              docker logs twiiiins-backend 2>&1 | tail -n 50 || echo "Container not running..."
+          cat > .env <<EOF
+          DB_URL=$DB_URL
+          DB_USERNAME=$DB_USERNAME
+          DB_PASSWORD=$DB_PASSWORD
+          CORS_ORIGINS=$CORS_ORIGINS
+          FILE_UPLOAD_DIR=$FILE_UPLOAD_DIR
+          FILE_BASE_URL=${FILE_BASE_URL:-/uploads}
+          UPLOAD_MAX_SIZE=$UPLOAD_MAX_SIZE
+          GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
           EOF
-          
-          # SSH 키 정리
-          rm -f ~/.ssh/deploy_key
-          rm -f gh_token.txt
+
+          echo "=== Prepare remote deployment directory ==="
+          ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" << 'ENDSSH'
+            set -e
+            TARGET_DIR="$HOME/twiiiins/Twiiiins"
+
+            echo "=== Disk usage ==="
+            df -h
+
+            mkdir -p "$TARGET_DIR/frontend/dist"
+            mkdir -p "$TARGET_DIR/uploads"
+            mkdir -p "$TARGET_DIR/db_data"
+            chmod 777 "$TARGET_DIR/uploads" || true
+          ENDSSH
+
+          echo "=== Log in to GHCR on remote host ==="
+          echo "${{ secrets.GITHUB_TOKEN }}" | ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" \
+            "docker login ghcr.io -u ${{ github.actor }} --password-stdin"
+
+          echo "=== Transfer deployment files ==="
+          scp -i ~/.ssh/deploy_key .env "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/"
+          scp -i ~/.ssh/deploy_key docker-compose.yml "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/"
+
+          if ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" "command -v rsync >/dev/null 2>&1"; then
+            rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" frontend/dist/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/dist/"
+            rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" aws/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/"
+            rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" scripts/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/scripts/"
+          else
+            ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" "rm -rf ~/twiiiins/Twiiiins/frontend/dist ~/twiiiins/Twiiiins/aws ~/twiiiins/Twiiiins/scripts"
+            scp -r -i ~/.ssh/deploy_key frontend/dist "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/"
+            scp -r -i ~/.ssh/deploy_key aws "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/"
+            scp -r -i ~/.ssh/deploy_key scripts "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/" || true
+          fi
+
+          echo "=== Pull backend image and update services ==="
+          ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" << 'EOF'
+            set -e
+            cd ~/twiiiins/Twiiiins
+
+            docker compose pull backend
+            docker compose up -d backend nginx certbot
+            docker compose ps
+
+            echo "=== Backend Container Logs ==="
+            sleep 5
+            docker logs twiiiins-backend 2>&1 | tail -n 50 || echo "Container not running..."
+          EOF
