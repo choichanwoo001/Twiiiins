@@ -201,14 +201,17 @@ jobs:
 
             docker compose config >/dev/null
             docker compose pull backend
-            docker compose up -d backend nginx certbot
+            docker compose up -d backend
+            docker compose up -d --force-recreate nginx
+            docker compose up -d certbot
             docker compose ps
 
             docker compose exec -T nginx nginx -t
             docker compose exec -T nginx nginx -s reload
             docker compose exec -T nginx test -s /usr/share/nginx/html/index.html
             docker compose exec -T nginx ls -la /usr/share/nginx/html | head
-            docker compose exec -T nginx sh -c "wget -q -O - http://127.0.0.1/ | grep -q '<div id=\"app\"></div>'"
+            docker compose exec -T nginx sh -c "nginx -T 2>/dev/null | grep -q 'location = /'"
+            docker compose exec -T nginx sh -c "grep -q '<div id=\"app\"></div>' /usr/share/nginx/html/index.html"
 
             echo "=== Backend Container Logs ==="
             sleep 5
@@ -216,7 +219,7 @@ jobs:
           EOF
 
           echo "=== Public site smoke test ==="
-          curl -fsSIL --retry 5 --retry-delay 5 https://twiiiins.com/
+          curl -fsSL --retry 5 --retry-delay 5 https://twiiiins.com/index.html | grep -q '<div id="app"></div>'
           curl -fsSL --retry 5 --retry-delay 5 https://twiiiins.com/ | grep -q '<div id="app"></div>'
           curl -fsSIL --retry 5 --retry-delay 5 https://twiiiins.com/favicon.svg
           curl -fsS --retry 5 --retry-delay 5 https://twiiiins.com/health
