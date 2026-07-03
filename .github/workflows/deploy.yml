@@ -135,9 +135,11 @@ jobs:
             df -h
 
             mkdir -p "$TARGET_DIR/frontend/dist"
+            mkdir -p "$TARGET_DIR/aws/nginx"
+            mkdir -p "$TARGET_DIR/scripts"
             mkdir -p "$TARGET_DIR/uploads"
             mkdir -p "$TARGET_DIR/db_data"
-            chmod 777 "$TARGET_DIR/uploads" || true
+            chmod 777 "$TARGET_DIR/uploads" 2>/dev/null || true
           ENDSSH
 
           echo "=== Log in to GHCR on remote host ==="
@@ -150,12 +152,13 @@ jobs:
 
           if ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" "command -v rsync >/dev/null 2>&1"; then
             rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" frontend/dist/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/dist/"
-            rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" aws/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/"
+            rsync -az --delete --exclude 'nginx/data/' -e "ssh -i ~/.ssh/deploy_key" aws/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/"
             rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" scripts/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/scripts/"
           else
-            ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" "rm -rf ~/twiiiins/Twiiiins/frontend/dist ~/twiiiins/Twiiiins/aws ~/twiiiins/Twiiiins/scripts"
+            ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" "rm -rf ~/twiiiins/Twiiiins/frontend/dist ~/twiiiins/Twiiiins/scripts && mkdir -p ~/twiiiins/Twiiiins/frontend ~/twiiiins/Twiiiins/aws/nginx"
             scp -r -i ~/.ssh/deploy_key frontend/dist "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/"
-            scp -r -i ~/.ssh/deploy_key aws "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/"
+            scp -i ~/.ssh/deploy_key aws/nginx/nginx.conf "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/nginx/nginx.conf"
+            scp -i ~/.ssh/deploy_key aws/init-letsencrypt.sh "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/init-letsencrypt.sh"
             scp -r -i ~/.ssh/deploy_key scripts "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/" || true
           fi
 
