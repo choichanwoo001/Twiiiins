@@ -94,6 +94,11 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
+      - name: Validate frontend artifact
+        run: |
+          test -s frontend/dist/index.html
+          find frontend/dist -maxdepth 2 -type f | head -n 20
+
       - name: Deploy to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -113,7 +118,10 @@ jobs:
           echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
-          trap 'rm -f ~/.ssh/deploy_key .env' EXIT
+          trap 'rm -f ~/.ssh/deploy_key .env frontend-dist.tar.gz' EXIT
+
+          test -s frontend/dist/index.html
+          tar -C frontend/dist -czf frontend-dist.tar.gz .
 
           cat > .env <<EOF
           DB_URL=$DB_URL
@@ -149,18 +157,25 @@ jobs:
           echo "=== Transfer deployment files ==="
           scp -i ~/.ssh/deploy_key .env "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/"
           scp -i ~/.ssh/deploy_key docker-compose.yml "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/"
+          scp -i ~/.ssh/deploy_key frontend-dist.tar.gz "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend-dist.tar.gz"
+          scp -i ~/.ssh/deploy_key aws/nginx/nginx.conf "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/nginx/nginx.conf"
+          scp -i ~/.ssh/deploy_key aws/init-letsencrypt.sh "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/init-letsencrypt.sh"
+          scp -r -i ~/.ssh/deploy_key scripts "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/" || true
 
-          if ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" "command -v rsync >/dev/null 2>&1"; then
-            rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" frontend/dist/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/dist/"
-            rsync -az --delete --exclude 'nginx/data/' -e "ssh -i ~/.ssh/deploy_key" aws/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/"
-            rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" scripts/ "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/scripts/"
-          else
-            ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" "rm -rf ~/twiiiins/Twiiiins/frontend/dist ~/twiiiins/Twiiiins/scripts && mkdir -p ~/twiiiins/Twiiiins/frontend ~/twiiiins/Twiiiins/aws/nginx"
-            scp -r -i ~/.ssh/deploy_key frontend/dist "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/frontend/"
-            scp -i ~/.ssh/deploy_key aws/nginx/nginx.conf "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/nginx/nginx.conf"
-            scp -i ~/.ssh/deploy_key aws/init-letsencrypt.sh "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/init-letsencrypt.sh"
-            scp -r -i ~/.ssh/deploy_key scripts "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/" || true
-          fi
+          echo "=== Install frontend artifact on remote host ==="
+          ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" << 'ENDSSH'
+            set -e
+            TARGET_DIR="$HOME/twiiiins/Twiiiins"
+
+            rm -rf "$TARGET_DIR/frontend/dist"
+            mkdir -p "$TARGET_DIR/frontend/dist"
+            tar -xzf "$TARGET_DIR/frontend-dist.tar.gz" -C "$TARGET_DIR/frontend/dist"
+            rm -f "$TARGET_DIR/frontend-dist.tar.gz"
+
+            test -s "$TARGET_DIR/frontend/dist/index.html"
+            echo "=== Remote frontend files ==="
+            find "$TARGET_DIR/frontend/dist" -maxdepth 2 -type f | head -n 20
+          ENDSSH
 
           echo "=== Pull backend image and update services ==="
           ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" << 'EOF'
@@ -170,6 +185,9 @@ jobs:
             docker compose pull backend
             docker compose up -d backend nginx certbot
             docker compose ps
+
+            docker compose exec -T nginx test -s /usr/share/nginx/html/index.html
+            docker compose exec -T nginx ls -la /usr/share/nginx/html | head
 
             echo "=== Backend Container Logs ==="
             sleep 5
