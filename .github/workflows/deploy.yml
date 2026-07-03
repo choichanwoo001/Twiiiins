@@ -208,6 +208,7 @@ jobs:
             docker compose exec -T nginx nginx -s reload
             docker compose exec -T nginx test -s /usr/share/nginx/html/index.html
             docker compose exec -T nginx ls -la /usr/share/nginx/html | head
+            docker compose exec -T nginx sh -c "wget -q -O - http://127.0.0.1/ | grep -q '<div id=\"app\"></div>'"
 
             echo "=== Backend Container Logs ==="
             sleep 5
@@ -217,4 +218,5 @@ jobs:
           echo "=== Public site smoke test ==="
           curl -fsSIL --retry 5 --retry-delay 5 https://twiiiins.com/
           curl -fsSL --retry 5 --retry-delay 5 https://twiiiins.com/ | grep -q '<div id="app"></div>'
+          curl -fsSIL --retry 5 --retry-delay 5 https://twiiiins.com/favicon.svg
           curl -fsS --retry 5 --retry-delay 5 https://twiiiins.com/health
