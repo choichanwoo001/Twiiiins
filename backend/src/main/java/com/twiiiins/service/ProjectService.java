@@ -2,6 +2,7 @@ package com.twiiiins.service;
 
 import com.twiiiins.dto.ProjectDto;
 import com.twiiiins.dto.request.ProjectCreateRequest;
+import com.twiiiins.dto.request.ProjectImagesUpdateRequest;
 import com.twiiiins.dto.request.ProjectUpdateRequest;
 import com.twiiiins.entity.Project;
 import com.twiiiins.exception.ResourceNotFoundException;
@@ -66,6 +67,20 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
         
         projectMapper.updateEntityFromUpdateRequest(request, project);
+
+        final Project savedProject = projectRepository.save(project);
+        return projectMapper.toDto(savedProject);
+    }
+
+    @Transactional
+    public ProjectDto updateProjectImages(@NonNull Long id, @NonNull ProjectImagesUpdateRequest request) {
+        final Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+
+        project.getImageUrls().clear();
+        if (request.getImageUrls() != null) {
+            project.getImageUrls().addAll(request.getImageUrls());
+        }
 
         final Project savedProject = projectRepository.save(project);
         return projectMapper.toDto(savedProject);

@@ -3,6 +3,7 @@ package com.twiiiins.controller;
 import com.twiiiins.dto.ApiResponse;
 import com.twiiiins.dto.ProjectDto;
 import com.twiiiins.dto.request.ProjectCreateRequest;
+import com.twiiiins.dto.request.ProjectImagesUpdateRequest;
 import com.twiiiins.dto.request.ProjectUpdateRequest;
 import com.twiiiins.service.ProjectService;
 import com.twiiiins.util.ResponseUtil;
@@ -64,6 +65,13 @@ public class ProjectController {
             @PathVariable @NonNull Long id,
             @Valid @RequestBody @NonNull ProjectUpdateRequest request) {
         return ResponseUtil.success(projectService.updateProject(id, request), "프로젝트가 성공적으로 수정되었습니다.");
+    }
+
+    @PutMapping("/{id}/images")
+    public ResponseEntity<ApiResponse<ProjectDto>> updateProjectImages(
+            @PathVariable @NonNull Long id,
+            @Valid @RequestBody @NonNull ProjectImagesUpdateRequest request) {
+        return ResponseUtil.success(projectService.updateProjectImages(id, request), "프로젝트 이미지가 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")

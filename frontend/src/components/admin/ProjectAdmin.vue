@@ -309,11 +309,8 @@ import Modal from './common/Modal.vue'
 import { formatDate } from '../../utils/commonHelpers'
 import { logError, getErrorMessage } from '../../utils/errorHandler'
 import { unwrapApiResponse } from '../../services/apiResponse'
-import { uploadService } from '../../services'
+import { uploadService, projectService } from '../../services'
 import {
-  buildProjectCreatePayload,
-  buildProjectUpdatePayload,
-  buildProjectDetailPayload,
   sanitizeQueryParams
 } from '../../services/payloadMappers'
 
@@ -611,14 +608,10 @@ const saveProject = async () => {
 
     let savedProject
     if (editingProject.value) {
-      const payload = buildProjectUpdatePayload(basePayload)
-      const response = await axios.put(`/projects/${editingProject.value.id}`, payload)
-      savedProject = unwrapApiResponse(response)
+      savedProject = await projectService.updateProject(editingProject.value.id, basePayload)
       await showAlert('프로젝트가 수정되었습니다.', '성공', 'success')
     } else {
-      const payload = buildProjectCreatePayload(basePayload)
-      const response = await axios.post('/projects', payload)
-      savedProject = unwrapApiResponse(response)
+      savedProject = await projectService.createProject(basePayload)
       await showAlert('프로젝트가 등록되었습니다. 상세 정보를 등록하시겠습니까?', '성공', 'success')
       
       // 새로 등록한 프로젝트를 선택하고 상세 등록 폼으로 전환
@@ -688,12 +681,10 @@ const saveProjectDetail = async () => {
     }
 
     if (editingProjectDetail.value) {
-      const payload = buildProjectUpdatePayload(basePayload)
-      await axios.put(`/projects/${editingProjectDetail.value.id}`, payload)
+      await projectService.updateProject(editingProjectDetail.value.id, basePayload)
       await showAlert('프로젝트 상세가 수정되었습니다.', '성공', 'success')
     } else {
-      const payload = buildProjectDetailPayload(basePayload)
-      await axios.post('/projects', payload)
+      await projectService.createProject(basePayload)
       await showAlert('프로젝트 상세가 등록되었습니다.', '성공', 'success')
     }
     
@@ -738,12 +729,8 @@ const uploadProjectPhotos = async () => {
     
     if (selectedProject.value.id) {
       // 기존 프로젝트 업데이트
-      const payload = buildProjectUpdatePayload({
-        ...selectedProject.value,
-        imageUrls: [...(selectedProject.value.imageUrls || []), ...uploadedUrls]
-      })
-      const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
-      const updatedProject = unwrapApiResponse(updatedProjectResponse)
+      const imageUrls = [...(selectedProject.value.imageUrls || []), ...uploadedUrls]
+      const updatedProject = await projectService.updateProjectImages(selectedProject.value.id, imageUrls)
       
       // 프로젝트 목록 새로고침
       await loadProjects()
@@ -786,12 +773,7 @@ const deleteProjectPhoto = async (index) => {
       imageUrls.splice(index, 1)
 
       if (selectedProject.value.id) {
-        const payload = buildProjectUpdatePayload({
-          ...selectedProject.value,
-          imageUrls
-        })
-        const updatedProjectResponse = await axios.put(`/projects/${selectedProject.value.id}`, payload)
-        const updatedProject = unwrapApiResponse(updatedProjectResponse)
+        const updatedProject = await projectService.updateProjectImages(selectedProject.value.id, imageUrls)
         
         // 프로젝트 목록 새로고침
         await loadProjects()
@@ -833,7 +815,7 @@ const deleteProject = async (id) => {
   try {
     const confirmed = await showConfirm('정말 삭제하시겠습니까?', '삭제 확인')
     if (confirmed) {
-      await axios.delete(`/projects/${id}`)
+      await projectService.deleteProject(id)
       await showAlert('프로젝트가 삭제되었습니다.', '성공', 'success')
       await loadProjects()
     }

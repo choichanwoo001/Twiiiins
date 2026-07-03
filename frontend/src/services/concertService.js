@@ -1,11 +1,15 @@
 import axios from '../api/axios'
-import { cachedApiCall, createCacheKey } from '../utils/apiCache'
+import { cachedApiCall, createCacheKey, apiCache } from '../utils/apiCache'
 import { getErrorMessage, logError } from '../utils/errorHandler'
 import { unwrapApiResponse } from './apiResponse'
 import {
   buildConcertCreatePayload,
   buildConcertUpdatePayload
 } from './payloadMappers'
+
+const invalidateConcertCache = () => {
+  apiCache.deletePattern('^/concerts')
+}
 
 export const concertService = {
   async getAllConcerts() {
@@ -54,8 +58,7 @@ export const concertService = {
       const payload = buildConcertCreatePayload(concertData)
       const response = await axios.post('/concerts', payload)
       // 콘서트 목록 캐시 무효화
-      const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/concerts')
+      invalidateConcertCache()
       return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'createConcert')
@@ -68,8 +71,7 @@ export const concertService = {
       const payload = buildConcertUpdatePayload(concertData)
       const response = await axios.put(`/concerts/${id}`, payload)
       // 콘서트 목록 캐시 무효화
-      const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/concerts')
+      invalidateConcertCache()
       return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'updateConcert')
@@ -79,14 +81,13 @@ export const concertService = {
 
   async deleteConcert(id) {
     await axios.delete(`/concerts/${id}`)
-    apiCache.deletePattern('^/concerts')
+    invalidateConcertCache()
   },
 
   async moveToPastEvent(id) {
     try {
       const response = await axios.put(`/concerts/${id}/move-to-past`)
-      const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/concerts')
+      invalidateConcertCache()
       return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'moveToPastEvent')
@@ -97,8 +98,7 @@ export const concertService = {
   async moveToUpcomingEvent(id) {
     try {
       const response = await axios.put(`/concerts/${id}/move-to-upcoming`)
-      const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/concerts')
+      invalidateConcertCache()
       return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'moveToUpcomingEvent')
@@ -111,8 +111,7 @@ export const concertService = {
       const response = await axios.put('/concerts/auto-move-past', {
         currentDate: new Date().toISOString().split('T')[0]
       })
-      const { apiCache } = await import('../utils/apiCache')
-      apiCache.deletePattern('^/concerts')
+      invalidateConcertCache()
       return unwrapApiResponse(response)
     } catch (error) {
       logError(error, 'triggerAutoMove')

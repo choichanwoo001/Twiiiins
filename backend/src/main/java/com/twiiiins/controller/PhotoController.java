@@ -18,6 +18,7 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -130,6 +131,7 @@ public class PhotoController {
     }
     
     @PostMapping("/photos/groups/{groupId}/photos")
+    @Transactional
     @Operation(summary = "사진 생성", description = "새로운 사진을 생성합니다. (파일 업로드 지원)")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "성공적으로 생성됨"),

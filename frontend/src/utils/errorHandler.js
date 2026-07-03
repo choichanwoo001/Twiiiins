@@ -42,6 +42,14 @@ function getNetworkErrorDetail(error) {
  * @returns {string} User-friendly error message
  */
 export function getErrorMessage(error) {
+  if (error?.status && error?.message) {
+    return error.message
+  }
+
+  if (!error?.response && !error?.code && error?.message) {
+    return error.message
+  }
+
   // Network error
   if (!error.response) {
     const errorDetail = getNetworkErrorDetail(error)

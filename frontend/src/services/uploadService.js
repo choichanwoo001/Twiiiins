@@ -33,6 +33,18 @@ export const uploadService = {
 
     const response = await axios.post('/upload/images', formData)
     const data = unwrapApiResponse(response)
-    return data?.urls || []
+    const urls = data?.urls || []
+    const errors = data?.errors || []
+
+    if (errors.length > 0 || urls.length !== files.length) {
+      const details = errors.length > 0 ? ` ${errors.join(', ')}` : ''
+      throw new Error(`Some images failed to upload.${details}`)
+    }
+
+    if (urls.length === 0) {
+      throw new Error('No uploaded image URLs were returned.')
+    }
+
+    return urls
   }
 }
