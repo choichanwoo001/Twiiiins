@@ -224,6 +224,9 @@ onUnmounted(() => {
   color: white;
   position: relative;
   z-index: 2; /* Hero 이미지 위에 확실히 올라오도록 설정 */
+  /* 하단 SNS 바(fixed, ~2.5rem) 높이 보정 → flex 중심이 실제 가시 영역 중앙으로 */
+  padding-bottom: 2.5rem;
+  box-sizing: border-box;
 }
 
 .events-container {
