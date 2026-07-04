@@ -115,43 +115,10 @@ OCI ARM64 VPS Container Stack (Docker Compose)
 
 **운영하면서 배운 점**
 - 로컬이나 개발 환경에서는 발견하기 힘든 아키텍처 불일치(ARM64 vs x86_64)나 대용량 고화질 이미지 업로드로 인한 트래픽 지연 등을 겪으면서, 실서버 환경과 모바일 유저 사용성에 초점을 맞춘 성능 튜닝 및 인프라 자동화의 중요성을 깊이 체감했습니다.
+- local server, aws, oci 여러 migration을 겪으면서 리팩토링의 중요성, 지속적인 업데이트와 유지보수의 중요성을 깊이 체감했습니다.
 
 **다음 업데이트 계획**
-- **글로벌 다국어 지원**: 다국적 기획사/유저를 위해 한국어와 영어의 정교한 로컬라이제이션 위젯 제공
 - **음원 스트리밍 위젯**: 대표 음원을 웹 브라우저 내에서 즉각 감상할 수 있는 플레이어 위젯 연동
 - **공연 예매 API 연동**: 티켓 예매 대행 플랫폼 API 연동을 통한 실시간 티켓 예매 링크 활성화
-
+- **굿즈 판매 진행**: 굿즈 판매 진행을 위한 기능 활성화 
 ---
-
-<details>
-<summary>📦 로컬 개발 환경 설정 (접어두기)</summary>
-
-### 1. 레포지토리 클론
-```bash
-git clone https://github.com/choichanwoo001/Twiiiins.git
-cd Twiiiins
-```
-
-### 2. Frontend 실행 (Vue 3 / Vite)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-- Local URL: http://localhost:5173
-
-### 3. Backend 실행 (Spring Boot / Java 17)
-- 로컬 DB(MySQL)가 실행 중이거나 백엔드 설정 환경변수가 알맞게 설정되어 있어야 합니다.
-```bash
-cd backend
-./gradlew bootRun
-```
-- API Base: http://localhost:8080
-
-### 4. Docker Compose 활용 로컬 실행
-```bash
-# 루트 디렉토리에서 실행
-docker compose up -d --build
-```
-
-</details>
