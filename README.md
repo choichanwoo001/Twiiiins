@@ -4,7 +4,7 @@
 
 🔗 **[실제 서비스 바로가기](https://twiiiins.com)**
 
-![메인 화면](./assets/main-screen.jpg)
+![메인 화면](./assets/main-screen.png)
 
 **🟢 배포일 2025.03 ~ 현재까지 운영 중**
 
