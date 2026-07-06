@@ -1,124 +1,187 @@
 # TWIIIINS Official Website
 
-> 🎵 현대 음악 및 퍼포먼스 듀오 TWIIIINS의 공식 웹사이트로, 공연 정보·프로젝트 아카이빙·미디어를 실시간으로 제공하고 비개발자 멤버도 쉽게 편집할 수 있도록 자체 어드민 시스템을 구축하여 현재까지 지속적으로 운영 중인 서비스입니다.
+> 현대 음악 및 퍼포먼스 듀오 TWIIIINS의 공식 웹사이트.
+> 공연 정보·프로젝트 아카이빙·미디어를 실시간으로 제공하고, 비개발자 멤버도 쉽게 편집할 수 있는 자체 어드민 시스템을 구축하여 현재까지 운영 중인 서비스입니다.
 
-🔗 **[실제 서비스 바로가기](https://twiiiins.com)**
+**[실제 서비스 바로가기 →](https://twiiiins.com)**
 
 ![메인 화면](./assets/main-screen.png)
 
-**🟢 배포일 2025.12 ~ 현재까지 운영 중**
+`2025.12 ~ 현재 운영 중`
 
 ---
 
-## 📌 프로젝트 개요
+## 프로젝트 개요
 
-- **기간**: 2025.12 ~ 현재 (7개월째 운영 중)
-- **역할**: 개발 / 배포 / 운영 전체 담당 (1인 개발)
-- **목적**: 듀오 아티스트의 고유한 예술적 색깔을 살린 브랜드 웹사이트 구축 및 지속 가능한 콘텐츠 업데이트 시스템 마련
+| | |
+|---|---|
+| **기간** | 2025.12 ~ 현재 (7개월째 운영 중) |
+| **역할** | 개발 / 배포 / 운영 전체 담당 (1인 개발) |
+| **목적** | 듀오 아티스트의 예술적 색깔을 살린 브랜드 웹사이트 구축 및 지속 가능한 콘텐츠 업데이트 시스템 마련 |
 
-**왜 만들었고, 왜 계속 운영하고 있는지**
-- **아티스트 브랜딩 및 아카이빙**: 매해 진행되는 독창적인 현대 음악 공연과 예술 프로젝트를 체계적으로 기록하고 알리기 위해 시작했습니다.
-- **실사용 및 운영 효율성**: 비개발자 멤버도 별도의 코드 수정 없이 웹 브라우저를 통해 실시간으로 공연 일정, 장비 목록, 프로필 파일(PDF 등)을 업데이트할 수 있는 직관적인 CMS(콘텐츠 관리자 UI)를 탑재하여 실제 운영 리소스를 대폭 줄였습니다.
-- **지속성**: 실사용자 피드백을 수용하며 최적화와 새로운 기능을 덧붙여 실제 라이브 서비스를 안정적으로 가동하고 있습니다.
+**만든 이유**
 
----
-
-## 🎬 핵심 기능
-
-### 1. 반응형 공연 및 프로젝트 아카이브
-- 듀오의 독자적인 프로젝트와 공연(Concerts) 목록을 모바일/PC 환경 모두에 최적화하여 제공합니다.
-- 이미지 갤러리 및 상세 메타데이터(일시, 장소, 프로그램 내용 등)가 구조적으로 노출됩니다.
-
-### 2. 관리자 전용 어드민 대시보드 (자체 CMS)
-- 코드 수정 없이 콘서트 등록/수정/삭제, 파일 업로드, 장비 세팅 관리가 가능한 CRUD 제어판을 제공합니다.
-- 관리자 권한을 가진 멤버만 접근할 수 있도록 Spring Security와 JWT 기반 세션 처리가 되어 있습니다.
-
-### 3. 미디어 및 리소스 다운로드 파이프라인
-- 공연 기획사 및 프레스를 위한 공식 고화질 프로필 이미지와 테크니컬 라이더(PDF)를 다운로드할 수 있는 전용 파일 서빙 아키텍처를 지원합니다.
-- 원본 이미지 보안을 위해 원본 디렉토리 직접 접근은 통제하며, 압축 및 WebP 변환을 적용한 서빙 경로를 분리하였습니다.
+- **아티스트 브랜딩 및 아카이빙** — 독창적인 현대 음악 공연과 예술 프로젝트를 체계적으로 기록하고 알리기 위해 시작
+- **운영 효율화** — 비개발자 멤버도 코드 수정 없이 공연 일정·장비 목록·프로필 파일을 직접 업데이트할 수 있는 CMS 탑재
+- **지속성** — 실사용자 피드백을 수용하며 최적화와 새로운 기능을 추가해 라이브 서비스를 안정적으로 운영
 
 ---
 
-## 🏗 시스템 아키텍처
+## 핵심 기능
 
+### 1. 반응형 공연·프로젝트 아카이브
+- 모바일/PC 환경 모두에 최적화된 공연 및 프로젝트 목록 제공
+- 이미지 갤러리 및 메타데이터(일시, 장소, 프로그램 등) 구조적 노출
+
+### 2. 관리자 어드민 대시보드 (자체 CMS)
+- 코드 수정 없이 콘서트 등록/수정/삭제, 파일 업로드, 장비 관리 가능한 CRUD 제어판
+- Spring Security + JWT 기반 세션 처리로 관리자 전용 접근 제어
+
+### 3. 미디어·리소스 다운로드 파이프라인
+- 기획사·프레스 대상 고화질 프로필 이미지 및 테크니컬 라이더(PDF) 다운로드 지원
+- 원본 디렉토리 직접 접근 통제, WebP 변환 및 압축 경로 분리 서빙
+
+---
+
+## 시스템 아키텍처
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#2d2d2d", "primaryTextColor": "#c8c8c8", "primaryBorderColor": "#444444", "lineColor": "#666666", "secondaryColor": "#383838", "tertiaryColor": "#303030", "background": "#1e1e1e", "nodeBorder": "#555555", "clusterBkg": "#2a2a2a", "titleColor": "#aaaaaa", "edgeLabelBackground": "#2d2d2d", "fontFamily": "monospace"}}}%%
+graph LR
+    Client["Client<br/>Vue 3 / Vite"]
+
+    subgraph VPS["OCI ARM64 VPS — Docker Compose"]
+        Nginx["Nginx<br/>Reverse Proxy · Static Server"]
+        SpringBoot["Spring Boot<br/>API Server · port 8080"]
+        MySQL["MySQL 8.0<br/>Database · port 3306"]
+        Certbot["Certbot<br/>SSL Auto-Renewal"]
+        Uploads["/uploads<br/>Media Storage"]
+        Dist["frontend/dist<br/>SPA Assets"]
+    end
+
+    Client -->|"HTTPS"| Nginx
+    Nginx -->|"API Proxy"| SpringBoot
+    Nginx --- Dist
+    Nginx --- Uploads
+    SpringBoot -->|"JPA"| MySQL
+    Certbot -.->|"Volume Bind"| Nginx
 ```
-Client (Vue 3 / Vite)
-   │
-   ▼ (HTTPS / Nginx Port Routing)
-OCI ARM64 VPS Container Stack (Docker Compose)
-   ├── Nginx (Reverse Proxy & Static Web Server)
-   │     ├── SPA Web Assets Serve (frontend/dist)
-   │     └── Uploaded Media Content (/uploads)
-   ├── Spring Boot (API Server - port: 8080)
-   ├── MySQL 8.0 (Database - port: 3306)
-   └── Certbot (SSL Automated Renewal)
+
+**배포 파이프라인**
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#2d2d2d", "primaryTextColor": "#c8c8c8", "primaryBorderColor": "#444444", "lineColor": "#666666", "secondaryColor": "#383838", "background": "#1e1e1e", "nodeBorder": "#555555", "clusterBkg": "#2a2a2a", "edgeLabelBackground": "#2d2d2d", "fontFamily": "monospace"}}}%%
+flowchart LR
+    A["git push"] --> B["GitHub Actions"]
+    B --> C["Node / Gradle Build"]
+    C --> D["Docker ARM64 Image Build"]
+    D --> E["GHCR Push"]
+    E --> F["SSH to OCI Server"]
+    F --> G["Docker Compose\nRolling Reload"]
+    G --> H["Zero-Downtime\nDeploy Complete"]
 ```
 
-- **배포 방식**: GitHub Push ➔ GitHub Actions 워크플로우 작동 ➔ Node/Gradle 빌드 및 Docker ARM64 이미지 빌드/GHCR 푸시 ➔ Target 서버 SSH 원격 스크립트 실행 및 Docker Compose 컨테이너 롤링 재배포 (Zero-Downtime Reload)
-- **도메인/SSL 관리 방식**: Certbot 도커 컨테이너와 Nginx 웹 서버 간 볼륨 바인딩을 통해 Let's Encrypt SSL 인증서를 12시간마다 자동 체크 및 갱신 데몬 운영
+> **SSL 갱신**: Certbot 컨테이너와 Nginx 간 볼륨 바인딩으로 Let's Encrypt 인증서 12시간마다 자동 체크·갱신
 
 ---
 
-## 🛠 기술 스택 & 선택 이유
+## 기술 스택
 
 | 영역 | 기술 | 선택 이유 |
 |---|---|---|
-| **Frontend** | Vue 3, Vite, Pinia, Vue Router | 콤팩트한 번들 사이즈로 빠른 페이지 초동 로딩 속도 확보, 간결한 상태 관리 |
-| **Backend** | Spring Boot 3, Java 17 | 다중 기기/관리자 비즈니스 로직 처리의 안정성 확보 및 JPA를 활용한 강력한 ORM 구축 |
-| **Database** | MySQL 8.0 | 프로젝트와 공연 메타데이터, 장비 정보 등의 정형 데이터를 안전하게 보관 및 관리 |
-| **Proxy & Web Server** | Nginx | Vue 빌드 정적 파일과 업로드된 미디어 리소스(이미지/PDF)의 초고속 다이렉트 서빙 및 백엔드 포트 프록시 처리 |
-| **Infrastructure / DevOps** | Docker & Compose, OCI VPS, GitHub Actions | ARM 기반 저비용 고성능 인프라 최적화, 개발 및 서버 환경 일치화, 푸시 한 번으로 무중단 배포가 가능한 완전 자동화 파이프라인 구현 |
+| **Frontend** | Vue 3, Vite, Pinia, Vue Router | 콤팩트한 번들 사이즈, 빠른 초동 로딩, 간결한 상태 관리 |
+| **Backend** | Spring Boot 3, Java 17 | 안정적인 비즈니스 로직 처리, JPA 기반 강력한 ORM |
+| **Database** | MySQL 8.0 | 공연·장비 등 정형 데이터의 안정적 보관 및 관리 |
+| **Web Server** | Nginx | 정적 파일·미디어 리소스 초고속 서빙, 백엔드 포트 프록시 |
+| **DevOps** | Docker Compose, OCI VPS, GitHub Actions | 저비용 ARM 인프라, 환경 일치화, 완전 자동화 무중단 배포 |
 
 ---
 
-## 🔧 운영하며 겪은 이슈
+## 운영하며 겪은 이슈
 
-### 이슈 1. OCI ARM64 VPS 환경 배포 시 백엔드 이미지 실행 오류 (Exec format error)
-- **발견 경위**: GitHub Actions를 통한 자동 배포 완료 후, OCI 인스턴스에서 백엔드 컨테이너가 가동되지 않고 즉시 크래시되는 현상 확인.
-- **원인**: GitHub Actions의 기본 러너(ubuntu-latest)는 x86_64 아키텍처 기반이어서 x86_64 컴파일된 도커 이미지가 생성되었으나, 실 배포 서버는 Oracle Cloud의 ARM64 아키텍처 인스턴스여서 아키텍처 불일치로 실행 불가능했음.
-- **해결**: `.github/workflows/deploy.yml` 파일 내에 `setup-qemu-action` 및 `setup-buildx-action` 단계를 추가하고, `docker/build-push-action`에서 `platforms: linux/arm64` 멀티 플랫폼 빌드 옵션을 명시하여 ARM64 타겟용 이미지를 크로스 컴파일하도록 수정함.
-- **결과**: ARM 호환 도커 이미지가 정상 생성되어 배포 서버에서 안정적으로 서비스 가동 완료.
+### 이슈 1 — AWS EC2에서 Docker 이미지 직접 빌드 시 서버 자원 고갈
 
-### 이슈 2. 고화질 이미지 서빙에 따른 트래픽 낭비 및 초기 로딩 성능 저하
-- **발견 경위**: 모바일 데이터 환경에서 아티스트 갤러리 탭 진입 시 화면 로딩이 눈에 띄게 지연되고 버벅거리는 문제 접수.
-- **원인**: 아티스트가 어드민을 통해 업로드한 수십 MB 용량의 고화질 원본 카메라 사진이 그대로 웹 사이트에 노출되면서 대역폭 과다 차지 및 메모리 과부하 발생.
-- **해결**: 백엔드 업로드 라이프사이클 및 외부 유틸리티에 이미지 다중 해상도 리사이징 파이프라인(`create-image-variants.ps1` 및 스크립트)을 구성하여 WebP 포맷 변환 및 디바이스 너비별 최적화 이미지를 제공하고, Nginx 캐싱 헤더(`Cache-Control "public, immutable"`)를 부여함.
-- **결과**: 모바일 화면 로딩 용량을 최대 80% 이상 절감하여 Lighthouse LCP 성능 및 모바일 체감 로딩 속도 대폭 개선.
+**현상** 배포 스크립트 실행 중 EC2 인스턴스에서 `Killed` 또는 디스크 용량 초과로 빌드 프로세스가 강제 종료, 배포 실패 반복
 
-### 이슈 3. SPA 라우팅 후 페이지 새로고침 시 404 Not Found 발생
-- **발견 경위**: 사용자가 웹페이지 내에서 `/projects` 또는 `/concerts` 메뉴로 진입한 후 브라우저 새로고침을 누르면 Nginx 404 에러 페이지가 노출되는 문제 발견.
-- **원인**: Vue는 단일 페이지 애플리케이션(SPA)으로 실제 서버에는 `index.html` 파일만 존재하지만, Nginx는 브라우저가 요청한 `/projects` 등의 경로에 대응되는 물리 파일/디렉토리를 호스트 시스템에서 찾으려 했기 때문.
-- **해결**: Nginx 설정(`nginx.conf`)의 root server block 내 `location /` 항목에 `try_files $uri /index.html;` 구문을 추가하여 존재하는 정적 파일이 없을 경우 무조건 `index.html`로 요청을 포워딩해 Vue Router가 경로를 해석하게 만듦.
-- **결과**: 어떠한 서브 경로에서도 새로고침 및 직접 주소 입력 시 오류 없이 올바르게 화면이 로드됨.
+**원인** t2.micro 수준의 프리티어 EC2는 메모리 1GB, 저장공간이 협소한데,  
+Spring Boot + Vue를 서버에서 직접 빌드하면 Gradle/Node 컴파일 과정에서  
+메모리를 모두 소모하거나, 중간 레이어·로그·캐시가 쌓여 디스크를 꽉 채워버림
+
+**해결** 빌드를 서버에서 분리 — GitHub Actions Runner에서 Node/Gradle 빌드 후  
+Docker 이미지를 생성하여 GHCR(GitHub Container Registry)에 Push,  
+배포 서버는 SSH로 접속 후 `docker pull` + `docker compose up`만 실행하도록 전환
+
+**결과** EC2 서버는 빌드 부담 없이 컨테이너 실행만 담당,  
+이후 OCI ARM64로 마이그레이션 시에도 동일한 파이프라인 구조 그대로 활용
 
 ---
 
-## 🔄 변경 이력
+### 이슈 2 — 고화질 원본 이미지 서빙으로 인한 로딩 성능 저하
 
-| 버전 | 시기 | 변경 내용 |
+**현상** 모바일 환경에서 갤러리 탭 진입 시 화면 로딩 눈에 띄게 지연·버벅거림
+
+**원인** 수십 MB 고화질 원본 카메라 사진이 그대로 웹에 노출 → 대역폭 과부하
+
+**해결** 이미지 업로드 시 다중 해상도 리사이징 파이프라인(`create-image-variants.ps1`) 구성  
+WebP 변환 + 디바이스 너비별 최적화 이미지 서빙  
+Nginx 캐싱 헤더(`Cache-Control: public, immutable`) 적용
+
+**결과** 모바일 로딩 용량 **최대 80% 절감**, Lighthouse LCP 성능 대폭 개선
+
+---
+
+### 이슈 3 — Docker 볼륨 생성 디렉터리의 root 소유권으로 배포 스크립트 권한 오류
+
+**현상** 배포 중 `chmod 777 ./uploads` 명령이 `Operation not permitted` 오류로 실패,  
+컨테이너 재시작 후 파일 업로드 기능 전체 불능 상태 발생
+
+**원인** `/uploads` 디렉터리가 최초 `docker compose up` 실행 시 Docker 데몬(root)이 생성 →  
+SSH 접속 배포 유저에게는 해당 디렉터리의 소유권이 없어 `chmod` 명령 실패  
+로컬·개발 환경에서는 디렉터리를 직접 생성하므로 재현 자체가 불가능한 문제
+
+**해결** `chmod` 실패 시 Alpine 경량 컨테이너를 임시 실행하여 볼륨을 마운트 후  
+컨테이너 내부(root 권한)에서 권한을 변경하는 fallback 처리 추가
+```sh
+if ! chmod 777 "./uploads" 2>/dev/null; then
+  docker run --rm -v "./uploads:/uploads" alpine chmod 777 /uploads
+fi
+```
+
+**결과** 소유권 문제와 무관하게 배포 환경에서 안정적으로 권한 설정 완료
+
+---
+
+## 변경 이력
+
+| 버전 | 시기 | 주요 변경 내용 |
 |---|---|---|
-| **v1.0** | 2025.12 | **최초 공식 런칭 및 운영 개시**<br>• 공연 정보, 프로젝트 아카이브, 어드민 기능(CRUD) 제공<br>• AWS S3 파일 업로드 및 Nginx 리버스 프록시/SPA 라우팅 구축<br>• 상세 페이지 레이아웃 개선 및 갤러리 피드백 반영 |
-| **v1.1** | 2026.01 ~ 2026.02 | **모바일 최적화 및 인프라 파이프라인 자동화**<br>• 모바일 반응형 UI/UX 최적화 및 폰트 시스템 개선<br>• GitHub Actions + GHCR 배포 흐름으로의 전환 (서버 리소스 부족 해결)<br>• Certbot 연동을 통한 SSL 자동 갱신 및 Docker 컨테이너 로그 로테이션 구축 |
-| **v2.0** | 2026.05 | **인프라 비용 효율화 및 미디어 최적화**<br>• AWS S3를 제거하고 로컬 파일 스토리지로 통일하여 고정 비용 절감<br>• 웹용 이미지 최적화 업로드 파이프라인 및 Nginx alias 정적 파일 서빙 도입<br>• 프론트엔드 빌드 시 이미지 자동 압축(vite-plugin-imagemin) 및 미디어 URL 커스텀 검증(ValidMediaUrl) 강화 |
-| **v2.1** | 2026.07 | **시스템 안정성 확보 및 운영 고도화**<br>• 로컬 이미지 해상도별 다중 생성 스크립트 작성 및 업로드 에러 핸들링 보완<br>• Nginx SPA root fallback 새로고침 404 이슈 해결<br>• OCI ARM64 아키텍처 호환 빌드 구성 및 무중단 배포 검증 자동화 |
+| **v1.0** | 2025.12 | 최초 공식 런칭 — 공연 아카이브, 어드민 CRUD, S3 업로드, Nginx SPA 라우팅 구축 |
+| **v1.1** | 2026.01–02 | 모바일 반응형 최적화, GitHub Actions + GHCR 배포 전환, Certbot SSL 자동 갱신 |
+| **v2.0** | 2026.05 | AWS S3 제거 → 로컬 스토리지 통일, 이미지 최적화 파이프라인, Nginx alias 서빙 도입 |
+| **v2.1** | 2026.07 | 해상도별 이미지 다중 생성, SPA 404 이슈 해결, ARM64 빌드·무중단 배포 자동화 |
 
 ---
 
-## 📊 모니터링 / 운영 체계
+## 모니터링 / 운영 체계
 
-- **에러 및 상태 관리**: Spring Boot Actuator 연동 및 Docker log rotation(max-size: 10m 설정)을 도입하여 예기치 못한 어플리케이션 상태 모니터링 및 트러블슈팅 용이성 확보
-- **성능 관리**: Lighthouse를 통한 Core Web Vitals 정기 측정 및 이미지 최적화율 검증
+- **에러 모니터링** — Spring Boot Actuator + Docker log rotation(`max-size: 10m`)으로 상태 추적 및 트러블슈팅
+- **성능 측정** — Lighthouse Core Web Vitals 정기 측정 및 이미지 최적화율 검증
 
 ---
 
-## 💭 회고 및 다음 계획
+## 회고 및 다음 계획
 
 **운영하면서 배운 점**
-- 로컬이나 개발 환경에서는 발견하기 힘든 아키텍처 불일치(ARM64 vs x86_64)나 대용량 고화질 이미지 업로드로 인한 트래픽 지연 등을 겪으면서, 실서버 환경과 모바일 유저 사용성에 초점을 맞춘 성능 튜닝 및 인프라 자동화의 중요성을 깊이 체감했습니다.
-- local server, aws, oci 여러 migration을 겪으면서 리팩토링의 중요성, 지속적인 업데이트와 유지보수의 중요성을 깊이 체감했습니다.
+
+로컬에서는 발견하기 힘든 ARM64/x86_64 아키텍처 불일치, 대용량 이미지 트래픽 이슈 등을 겪으면서  
+실서버 환경과 모바일 사용성에 초점을 맞춘 **성능 튜닝과 인프라 자동화의 중요성**을 체감했습니다.
+
+local → AWS → OCI로의 반복적인 마이그레이션을 통해 **지속적인 리팩토링과 유지보수**의 가치도 깊이 느꼈습니다.
 
 **다음 업데이트 계획**
-- **음원 스트리밍 위젯**: 대표 음원을 웹 브라우저 내에서 즉각 감상할 수 있는 플레이어 위젯 연동
-- **공연 예매 API 연동**: 티켓 예매 대행 플랫폼 API 연동을 통한 실시간 티켓 예매 링크 활성화
-- **굿즈 판매 진행**: 굿즈 판매 진행을 위한 기능 활성화 
----
+
+| 기능 | 내용 |
+|---|---|
+| 음원 스트리밍 위젯 | 대표 음원을 웹 브라우저에서 즉각 감상할 수 있는 플레이어 위젯 연동 |
+| 공연 예매 API 연동 | 티켓 예매 플랫폼 API 연동을 통한 실시간 예매 링크 활성화 |
+| 굿즈 판매 기능 | 굿즈 판매를 위한 기능 활성화 |
