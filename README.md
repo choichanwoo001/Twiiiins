@@ -52,11 +52,11 @@ graph LR
 
     subgraph VPS["OCI ARM64 VPS — Docker Compose"]
         Nginx["Nginx<br/>Reverse Proxy · Static Server"]
-        SpringBoot["Spring Boot<br/>API Server · port 8080"]
-        MySQL["MySQL 8.0<br/>Database · port 3306"]
+        SpringBoot["Spring Boot<br/>API Server"]
+        MySQL["MySQL 8.0<br/>Database"]
         Certbot["Certbot<br/>SSL Auto-Renewal"]
-        Uploads["/uploads<br/>Media Storage"]
-        Dist["frontend/dist<br/>SPA Assets"]
+        Uploads["Media Storage"]
+        Dist["SPA Assets"]
     end
 
     Client -->|"HTTPS"| Nginx
@@ -103,7 +103,7 @@ flowchart LR
 
 **현상** 배포 스크립트 실행 중 EC2 인스턴스에서 `Killed` 또는 디스크 용량 초과로 빌드 프로세스가 강제 종료, 배포 실패 반복
 
-**원인** t2.micro 수준의 프리티어 EC2는 메모리 1GB, 저장공간이 협소한데,  
+**원인** 프리티어 EC2는 메모리·저장공간이 협소한데,  
 Spring Boot + Vue를 서버에서 직접 빌드하면 Gradle/Node 컴파일 과정에서  
 메모리를 모두 소모하거나, 중간 레이어·로그·캐시가 쌓여 디스크를 꽉 채워버림
 
@@ -139,13 +139,8 @@ Nginx 캐싱 헤더(`Cache-Control: public, immutable`) 적용
 SSH 접속 배포 유저에게는 해당 디렉터리의 소유권이 없어 `chmod` 명령 실패  
 로컬·개발 환경에서는 디렉터리를 직접 생성하므로 재현 자체가 불가능한 문제
 
-**해결** `chmod` 실패 시 Alpine 경량 컨테이너를 임시 실행하여 볼륨을 마운트 후  
-컨테이너 내부(root 권한)에서 권한을 변경하는 fallback 처리 추가
-```sh
-if ! chmod 777 "./uploads" 2>/dev/null; then
-  docker run --rm -v "./uploads:/uploads" alpine chmod 777 /uploads
-fi
-```
+**해결** `chmod` 실패 시 Alpine 경량 컨테이너를 임시 실행하여 볼륨을 마운트,  
+컨테이너 내부(root 권한)에서 소유권을 변경하는 fallback 처리를 배포 스크립트에 추가
 
 **결과** 소유권 문제와 무관하게 배포 환경에서 안정적으로 권한 설정 완료
 
