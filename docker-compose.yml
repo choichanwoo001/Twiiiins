@@ -98,7 +98,7 @@ services:
       trap exit TERM;
       while :; do
         mkdir -p /var/www/certbot/.well-known/acme-challenge;
-        if certbot renew --deploy-hook "docker kill -s SIGHUP twiiiins-nginx" --quiet; then
+        if certbot renew --no-random-sleep-on-renew --deploy-hook "docker kill -s SIGHUP twiiiins-nginx" --quiet; then
           rm -f /tmp/certbot-renew-failed;
         else
           touch /tmp/certbot-renew-failed;
