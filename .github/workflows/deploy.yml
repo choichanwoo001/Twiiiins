@@ -206,7 +206,10 @@ jobs:
             docker compose pull backend
             docker compose up -d backend
             docker compose up -d --force-recreate nginx
-            mkdir -p aws/nginx/data/certbot/www/.well-known/acme-challenge
+            docker run --rm \
+              -v "$PWD/aws/nginx/data/certbot/www:/var/www/certbot" \
+              alpine:3.20 \
+              mkdir -p /var/www/certbot/.well-known/acme-challenge
             docker compose up -d --force-recreate certbot
             docker compose ps
 
