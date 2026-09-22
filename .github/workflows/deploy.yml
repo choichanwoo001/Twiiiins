@@ -206,8 +206,26 @@ jobs:
             docker compose pull backend
             docker compose up -d backend
             docker compose up -d --force-recreate nginx
-            docker compose up -d certbot
+            mkdir -p aws/nginx/data/certbot/www/.well-known/acme-challenge
+            docker compose up -d --force-recreate certbot
             docker compose ps
+
+            certificate_ready=0
+            for attempt in $(seq 1 12); do
+              certificate_status="$(docker compose exec -T certbot certbot certificates 2>&1 || true)"
+              if echo "$certificate_status" | grep -q "Expiry Date:" && \
+                 ! echo "$certificate_status" | grep -q "INVALID"; then
+                certificate_ready=1
+                break
+              fi
+              sleep 5
+            done
+
+            if [ "$certificate_ready" -ne 1 ]; then
+              echo "$certificate_status"
+              docker compose logs --tail=100 certbot
+              exit 1
+            fi
 
             docker compose exec -T nginx nginx -t
             docker compose exec -T nginx nginx -s reload
