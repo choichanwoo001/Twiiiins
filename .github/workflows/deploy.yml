@@ -215,9 +215,8 @@ jobs:
 
             certificate_ready=0
             for attempt in $(seq 1 12); do
-              certificate_status="$(docker compose exec -T certbot certbot certificates 2>&1 || true)"
-              if echo "$certificate_status" | grep -q "Expiry Date:" && \
-                 ! echo "$certificate_status" | grep -q "INVALID"; then
+              if docker compose exec -T certbot \
+                test -e /tmp/certbot-renew-ok; then
                 certificate_ready=1
                 break
               fi
@@ -225,7 +224,6 @@ jobs:
             done
 
             if [ "$certificate_ready" -ne 1 ]; then
-              echo "$certificate_status"
               docker compose logs --tail=100 certbot
               exit 1
             fi

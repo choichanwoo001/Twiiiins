@@ -98,15 +98,16 @@ services:
       trap exit TERM;
       while :; do
         mkdir -p /var/www/certbot/.well-known/acme-challenge;
+        rm -f /tmp/certbot-renew-ok /tmp/certbot-renew-failed;
         if certbot renew --no-random-sleep-on-renew --deploy-hook "docker kill -s SIGHUP twiiiins-nginx" --quiet; then
-          rm -f /tmp/certbot-renew-failed;
+          touch /tmp/certbot-renew-ok;
         else
           touch /tmp/certbot-renew-failed;
         fi;
         sleep 12h & wait $${!};
       done; '
     healthcheck:
-      test: [ "CMD-SHELL", "test ! -e /tmp/certbot-renew-failed" ]
+      test: [ "CMD-SHELL", "test -e /tmp/certbot-renew-ok && test ! -e /tmp/certbot-renew-failed" ]
       interval: 30m
       timeout: 10s
       retries: 1
