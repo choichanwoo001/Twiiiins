@@ -193,7 +193,6 @@ onUnmounted(() => {
 .hero-image {
   width: 100%;
   height: 100%;
-  padding-top: calc(var(--navbar-height) + env(safe-area-inset-top, 0px));
 }
 
 
@@ -207,8 +206,9 @@ onUnmounted(() => {
 .hero-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center;
+  object-fit: cover;
+  /* Bias toward the printed copy on taller desktop screens. */
+  object-position: 75% center;
 }
 
 /* The desktop artwork contains the copy; keep it available to screen readers. */
@@ -509,15 +509,13 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    padding: calc(var(--navbar-height) + env(safe-area-inset-top, 0px)) 1rem calc(5rem + env(safe-area-inset-bottom, 0px));
+    gap: 0;
+    padding: calc(var(--navbar-height) + env(safe-area-inset-top, 0px)) 0 calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .hero-image picture {
-    /* Clip at x=1000 in the 1920x1080 artwork, before the printed copy begins. */
-    width: min(calc(100vw - 2rem), calc((100dvh - var(--navbar-height) - 16rem) * 25 / 27));
-    height: auto;
-    aspect-ratio: 25 / 27;
+    width: 100%;
+    height: min(108vw, 32rem, calc(100dvh - var(--navbar-height) - 13rem));
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
@@ -526,23 +524,31 @@ onUnmounted(() => {
   .hero-image img {
     position: absolute;
     top: 0;
-    left: 0;
+    /* Center the left 1000px of the artwork and blend its edges into the hero. */
+    left: 50%;
+    transform: translateX(-26.041667%);
     width: auto;
     max-width: none;
     height: 100%;
+    clip-path: inset(0 47.916667% 0 0);
+    mask-image: linear-gradient(to right, transparent, #000 3%, #000 49%, transparent 52.083333%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 85%, transparent);
+    mask-composite: intersect;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 49%, transparent 52.083333%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 85%, transparent);
+    -webkit-mask-composite: source-in;
   }
 
   .hero-description {
     position: static;
     width: auto;
     height: auto;
-    margin: 0;
+    margin: -0.25rem 0 0;
+    padding: 0 1.5rem;
     overflow: visible;
     clip-path: none;
-    max-width: 32rem;
+    max-width: 28rem;
     color: #9e3e40;
     text-align: center;
-    font-size: clamp(1.05rem, 4.8vw, 1.5rem);
+    font-size: clamp(1rem, 4.4vw, 1.35rem);
     font-weight: 500;
     line-height: 1.4;
   }
