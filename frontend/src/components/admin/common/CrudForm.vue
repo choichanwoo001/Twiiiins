@@ -155,6 +155,7 @@ const getFileObject = (fieldKey) => {
 // 파일 객체 제거
 const clearFileObject = (fieldKey) => {
   delete fileObjects.value[fieldKey]
+  if (fileInputs.value[fieldKey]) fileInputs.value[fieldKey].value = ''
 }
 
 // expose 메서드를 통해 부모에서 접근 가능하게 함

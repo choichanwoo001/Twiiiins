@@ -6,7 +6,9 @@
     </aside>
 
     <!-- 우측 콘텐츠 -->
-    <main class="contact-content">
+    <div class="contact-content" :lang="websiteLanguage">
+      <LanguageSwitch />
+      <p v-if="previewMode" class="preview-notice">Preview · sample contacts and downloads. Download links are inactive.</p>
       <!-- 안내 문구 -->
       <div class="contact-info">
         <p class="intro-text">
@@ -30,23 +32,49 @@
         <div class="download-section">
           <h2>Download</h2>
           <div class="download-list">
-            <div v-for="file in downloadFiles" :key="file.id" class="download-item" @click="downloadFile(file.fileUrl, file.name)">
-              <span>{{ file.name }}</span>
+            <a v-for="file in downloadFiles" :key="file.id" class="download-item"
+              :href="toAbsoluteUrl(file.fileUrl)" :download="isDropboxUrl(file.fileUrl) ? undefined : file.name"
+              @click="previewMode && $event.preventDefault()"
+              target="_blank" rel="noopener noreferrer">
+              <span>{{ file.name }} <small v-if="isDropboxUrl(file.fileUrl)">Dropbox ↗</small></span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-            </div>
+            </a>
           </div>
+          <p class="download-terms">{{ copy.downloadNotice }} <router-link to="/privacy#press-kit">{{ copy.terms }}</router-link>.</p>
         </div>
       </div>
-    </main>
+      <section class="newsletter-section">
+        <h2>{{ copy.newsletter }}</h2>
+        <p>{{ copy.newsletterIntro }}</p>
+        <button class="website-button" @click="newsletterOpen = true">{{ copy.subscribe }}</button>
+      </section>
+    </div>
+    <WebsiteDialog :open="newsletterOpen" :title="copy.comingSoon" title-id="newsletter-notice-title" @close="newsletterOpen = false">
+      <p>{{ copy.newsletterNotice }}</p>
+    </WebsiteDialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from '../api/axios'
 import { toAbsoluteUrl } from '../utils/commonHelpers'
+import { isDropboxUrl } from '../utils/downloadLinks'
+import { websiteLanguage, useWebsiteCopy } from '../composables/useWebsitePreferences'
+import LanguageSwitch from '../components/common/LanguageSwitch.vue'
+import WebsiteDialog from '../components/common/WebsiteDialog.vue'
+
+const newsletterOpen = ref(false)
+const route = useRoute()
+const previewMode = import.meta.env.DEV && route.query.preview === 'contact'
+const copy = useWebsiteCopy({
+ newsletter: 'Newsletter', newsletterIntro: 'Music, performances and news from TWIIIINS. Subscription is coming soon.', subscribe: 'Subscribe', comingSoon: 'Newsletter · coming soon', newsletterNotice: 'Newsletter subscriptions are not available yet. No email address is collected and no subscription has been created.', downloadNotice: 'By downloading these materials, you agree to our', terms: 'Press Kit and Download Terms'
+}, {
+ newsletter: 'Newsletter', newsletterIntro: 'Musik, Auftritte und Neuigkeiten von TWIIIINS. Das Abonnement ist demnächst verfügbar.', subscribe: 'Abonnieren', comingSoon: 'Newsletter · demnächst verfügbar', newsletterNotice: 'Newsletter-Abonnements sind noch nicht verfügbar. Es wird keine E-Mail-Adresse erhoben und kein Abonnement angelegt.', downloadNotice: 'Mit dem Download dieser Materialien stimmen Sie unseren', terms: 'Pressekit- und Download-Bedingungen zu'
+})
 
 // 데이터
 const contacts = ref([])
@@ -74,26 +102,39 @@ const loadDownloadFiles = async () => {
   }
 }
 
-// 파일 다운로드
-const downloadFile = (fileUrl, fileName) => {
-  const absoluteUrl = toAbsoluteUrl(fileUrl)
-  const link = document.createElement('a')
-  link.href = absoluteUrl
-  link.download = fileName
-  link.target = '_blank'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
 // 페이지 로드 시 데이터 가져오기
 onMounted(() => {
+  if (previewMode) {
+    contacts.value = [
+      { id: 1, name: 'TWIIIINS', role: 'Official · sample', email: 'duo@example.com' },
+      { id: 2, name: 'Artist One', role: 'Violin · sample', email: 'artist-one@example.com' },
+      { id: 3, name: 'Artist Two', role: 'Baritone Violin · sample', email: 'artist-two@example.com' },
+      { id: 4, name: 'Design Contact', role: 'Website Designer · sample', email: 'design@example.com' },
+      { id: 5, name: 'Website Contact', role: 'Website Operator · sample', email: 'website@example.com' }
+    ]
+    downloadFiles.value = [
+      { id: 1, name: 'About TWIIIINS [Deutsch] · sample', fileUrl: '/uploads/sample-de.pdf' },
+      { id: 2, name: 'About TWIIIINS [English] · sample', fileUrl: '/uploads/sample-en.pdf' },
+      { id: 3, name: 'Press Photos · sample', fileUrl: 'https://www.dropbox.com/scl/fo/sample-press-photos?dl=0' },
+      { id: 4, name: 'Press Kit · sample', fileUrl: 'https://www.dropbox.com/scl/fo/sample-press-kit?dl=0' }
+    ]
+    return
+  }
   loadContacts()
   loadDownloadFiles()
 })
 </script>
 
 <style scoped>
+.preview-notice { color: #815d47; font-size: 0.75rem; line-height: 1.5; }
+.newsletter-section { padding-top: 2rem; border-top: 1px solid #e8e3dd; }
+.newsletter-section h2 { font-size: 1.3rem; font-weight: 500; margin-bottom: 0.75rem; }
+.newsletter-section p { color: #666; margin-bottom: 1.25rem; }
+.download-terms { margin-top: 1.5rem; font-size: 0.8rem; line-height: 1.6; color: #666; }
+.download-terms a { color: #815d47; text-underline-offset: 0.15em; }
+.download-item { text-decoration: none; color: inherit; overflow-wrap: anywhere; }
+.download-item small { font-size: 0.65rem; color: #815d47; white-space: nowrap; }
+
 /* 레이아웃 */
 .contact {
   background: #fff;
@@ -107,7 +148,7 @@ onMounted(() => {
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
-  height: calc(100vh - var(--navbar-height));
+  height: calc(100dvh - var(--navbar-height) - 4rem);
   overflow: hidden;
 }
 
@@ -151,7 +192,8 @@ onMounted(() => {
 .contact-content {
   max-width: 50rem;
   width: 100%;
-  margin-right: 2rem;
+  margin-right: 0;
+  min-width: 0;
   justify-self: end;
   padding-top: 2rem;
   padding-bottom: 4rem;

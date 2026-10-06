@@ -23,6 +23,14 @@
       </template>
     </DataTable>
 
+    <div class="download-mode">
+      <label for="download-source">등록 방식</label>
+      <select id="download-source" v-model="downloadSource" @change="changeDownloadSource">
+        <option value="dropbox">Dropbox 공유 링크</option>
+        <option value="upload">서버 파일 업로드</option>
+      </select>
+      <p v-if="downloadSource === 'dropbox'">Dropbox에 파일 또는 폴더를 업로드한 후, 로그인 없이 열리고 다운로드 가능한 공유 링크를 등록하세요. 자료에 저작권과 크레딧을 유지하세요.</p>
+    </div>
     <!-- 파일 등록/수정 폼 -->
     <CrudForm
       ref="crudFormRef"
@@ -39,6 +47,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { downloadFileService, uploadService } from '../../services'
+import { isDropboxUrl } from '../../utils/downloadLinks'
 import SearchFilters from './common/SearchFilters.vue'
 import DataTable from './common/DataTable.vue'
 import CrudForm from './common/CrudForm.vue'
@@ -67,11 +76,14 @@ const tableActions = [
 ]
 
 // 폼 필드 설정
-const formFields = [
+const downloadSource = ref('dropbox')
+const formFields = computed(() => [
   { key: 'name', label: '파일명', type: 'text', required: true, placeholder: '파일명을 입력하세요' },
-  { key: 'fileUrl', label: '파일 업로드', type: 'file', required: true, accept: 'image/*,application/pdf' },
+  downloadSource.value === 'dropbox'
+    ? { key: 'fileUrl', label: 'Dropbox 공유 링크', type: 'url', required: true, placeholder: 'https://www.dropbox.com/scl/...' }
+    : { key: 'fileUrl', label: '파일 업로드', type: 'file', required: true, accept: 'image/*,application/pdf' },
   { key: 'displayOrder', label: '표시 순서', type: 'number', min: 0 }
-]
+])
 
 // 반응형 데이터
 const files = ref([])
@@ -124,7 +136,14 @@ const handleTableAction = (action, item) => {
   }
 }
 
+const changeDownloadSource = () => {
+  form.value.fileUrl = ''
+  crudFormRef.value?.clearFileObject('fileUrl')
+}
+
 const editFile = (file) => {
+  crudFormRef.value?.clearFileObject('fileUrl')
+  downloadSource.value = isDropboxUrl(file.fileUrl) ? 'dropbox' : 'upload'
   editingFile.value = file
   form.value = {
     name: file.name,
@@ -134,6 +153,8 @@ const editFile = (file) => {
 }
 
 const cancelEdit = () => {
+  crudFormRef.value?.clearFileObject('fileUrl')
+  downloadSource.value = 'dropbox'
   editingFile.value = null
   resetDownloadFileForm(form.value)
 }
@@ -143,19 +164,24 @@ const saveFile = async () => {
     // 파일이 선택된 경우 먼저 업로드
     const fileObject = crudFormRef.value?.getFileObject('fileUrl')
     
-    if (fileObject) {
+    if (downloadSource.value === 'dropbox') {
+      form.value.fileUrl = form.value.fileUrl.trim()
+      if (!isDropboxUrl(form.value.fileUrl)) throw new Error('올바른 HTTPS Dropbox 공유 링크를 입력하세요.')
+    } else if (fileObject) {
       form.value.fileUrl = await uploadService.uploadFile(fileObject)
       // 파일 객체 제거
       crudFormRef.value?.clearFileObject('fileUrl')
     }
     
+    if (!form.value.fileUrl) throw new Error('파일 또는 공유 링크를 등록하세요.')
+    const payload = { ...form.value, downloadSource: downloadSource.value }
     // 파일 정보 저장
     if (editingFile.value) {
       // 수정
-      await downloadFileService.updateDownloadFile(editingFile.value.id, form.value)
+      await downloadFileService.updateDownloadFile(editingFile.value.id, payload)
     } else {
       // 등록
-      await downloadFileService.createDownloadFile(form.value)
+      await downloadFileService.createDownloadFile(payload)
     }
     
     await loadFiles()
@@ -185,6 +211,11 @@ onMounted(() => {
 
 <style scoped>
 @import './common/admin-common.css';
+.download-mode { margin: 2rem 0 1rem; }
+.download-mode select { margin-left: 1rem; padding: 0.6rem; font: inherit; }
+.download-mode p { font-size: 0.85rem; color: #666; margin-top: 0.75rem; }
+
+
 
 .content-section {
   padding: 2rem;

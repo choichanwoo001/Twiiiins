@@ -89,6 +89,7 @@
           <div class="video-item" v-for="video in videos" :key="video.id">
             <div class="video-embed" v-if="isValidEmbedUrl(video.embedUrl)">
               <iframe
+                v-if="mediaAllowed"
                 :src="video.embedUrl"
                 title="YouTube video player"
                 style="border: none;"
@@ -97,6 +98,10 @@
                 allowfullscreen
                 loading="lazy"
               ></iframe>
+              <div v-else class="media-consent-placeholder">
+                <p>{{ websiteLanguage === 'de' ? 'YouTube wird erst mit Ihrer Einwilligung geladen.' : 'YouTube loads only with your permission.' }}</p>
+                <button class="website-button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Externe Medien aktivieren' : 'Enable external media' }}</button>
+              </div>
             </div>
             <div v-else class="video-error">
               <p>Invalid video URL.</p>
@@ -210,6 +215,7 @@ import { logError } from '../utils/errorHandler'
 import { useMobile } from '../composables/useMobile' 
 
 import { useRoute } from 'vue-router'
+import { mediaAllowed, websiteLanguage, cookieSettingsOpen } from '../composables/useWebsitePreferences'
 import fallbackEquipmentImage from '../imgs/exphoto1.png'
 
 const route = useRoute()
@@ -424,6 +430,9 @@ const toggleNews = (newsId) => {
 </script>
 
 <style scoped>
+.media-consent-placeholder { min-height: 15rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; padding: 2rem; background: #f5f1ec; }
+.video-embed:has(.media-consent-placeholder) { aspect-ratio: auto; }
+
 /* 데스크톱 스타일은 그대로 유지 */
 .media {
   display: flex;

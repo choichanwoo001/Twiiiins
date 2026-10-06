@@ -8,10 +8,12 @@ import Concert from '../views/Concert.vue'
 import Media from '../views/Media.vue'
 import Shop from '../views/Shop.vue'
 import Contact from '../views/Contact.vue'
+import Privacy from '../views/Privacy.vue'
 import Admin from '../views/Admin.vue'
 import Login from '../views/Login.vue'
 
 const routes = [
+  { path: '/privacy', name: 'Privacy', component: Privacy },
   {
     path: '/',
     name: 'Home',
@@ -67,7 +69,11 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) return { el: to.hash, top: 128 }
+    return savedPosition || { top: 0 }
+  }
 })
 
 // 인증 가드

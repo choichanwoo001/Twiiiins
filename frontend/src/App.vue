@@ -61,6 +61,12 @@
       </a>
     </div>
 
+    <footer v-if="!isAdminPage" class="legal-footer">
+      <router-link to="/privacy">{{ websiteLanguage === 'de' ? 'Datenschutz & Bedingungen' : 'Privacy & Terms' }}</router-link>
+      <button type="button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button>
+    </footer>
+    <CookieControls v-if="!isAdminPage" />
+
     <!-- 스크롤 업 버튼 (오른쪽 하단) - 관리자 페이지가 아닐 때만 표시 -->
     <button v-if="!isAdminPage && showScrollUp" class="scroll-up-button" @click="scrollToTop" aria-label="Scroll to top">
       ↑
@@ -75,6 +81,8 @@ import { useAppStore } from './stores'
 import { useAppScroll } from './composables/useAppScroll'
 import { useMobile } from './composables/useMobile'
 import { SNS_LINKS, PATHS_WITH_SNS_LINKS } from './constants'
+import CookieControls from './components/common/CookieControls.vue'
+import { websiteLanguage, cookieSettingsOpen } from './composables/useWebsitePreferences'
 
 const route = useRoute()  
 const appStore = useAppStore()

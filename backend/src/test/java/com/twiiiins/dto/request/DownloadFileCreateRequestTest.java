@@ -58,4 +58,16 @@ class DownloadFileCreateRequestTest {
         assertThat(violations).isNotEmpty();
         assertThat(violations).anyMatch(v -> v.getPropertyPath().toString().equals("fileUrl"));
     }
+    @Test
+    void shouldValidateDropboxSourceAgainstHost() {
+        DownloadFileCreateRequest request = new DownloadFileCreateRequest();
+        request.setName("Press photos");
+        request.setDownloadSource("dropbox");
+        request.setFileUrl("https://dropbox.com.evil.test/s/photo.jpg");
+        assertThat(validator.validate(request)).anyMatch(v -> v.getPropertyPath().toString().equals("downloadSourceValid"));
+        request.setFileUrl("https://www.dropbox.com/scl/fo/press?dl=0");
+        assertThat(validator.validate(request)).isEmpty();
+        request.setDownloadSource("unknown");
+        assertThat(validator.validate(request)).anyMatch(v -> v.getPropertyPath().toString().equals("downloadSource"));
+    }
 }

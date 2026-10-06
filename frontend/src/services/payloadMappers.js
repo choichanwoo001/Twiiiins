@@ -139,6 +139,8 @@ const buildBaseDownloadFilePayload = (data) => {
   if (displayOrder !== undefined) {
     payload.displayOrder = displayOrder;
   }
+  if (data.downloadSource !== undefined) payload.downloadSource = data.downloadSource;
+
   return payload;
 };
 
