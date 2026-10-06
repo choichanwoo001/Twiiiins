@@ -508,7 +508,7 @@ body.events-section-active .sns-link {
   /* --- App.vue에서 이관된 모바일 스타일 --- */
 
   .sns-link {
-    font-size: 3.2vw !important;
+    font-size: clamp(0.65rem, 3.2vw, 0.8rem) !important;
     /* 글자 크기 더 축소 */
     font-weight: 300 !important;
     max-width: 100%;
@@ -518,9 +518,8 @@ body.events-section-active .sns-link {
 
   /* SNS 링크 간격 조정 및 배경 디자인 */
   .sns-links {
-    gap: 0 !important;
-    /* space-between으로 간격 제어 */
-    flex-wrap: nowrap !important;
+    gap: 0.4rem 0.65rem;
+    flex-wrap: wrap;
     opacity: 1 !important;
     pointer-events: auto !important;
     transition: opacity 0.5s ease;
@@ -529,18 +528,18 @@ body.events-section-active .sns-link {
     background-color: var(--color-overlay-bg);
     backdrop-filter: blur(0.9375rem);
     -webkit-backdrop-filter: blur(0.9375rem);
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
     border-radius: 3.125rem;
     box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.05);
 
     /* 위치 및 너비 조정 - 가로 공간 활용 */
-    width: 88%;
-    max-width: 24rem;
+    width: calc(100% - 1rem);
+    max-width: 28rem;
     justify-content: space-between;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-    bottom: 0rem;
+    bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
   }
 

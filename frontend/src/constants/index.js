@@ -12,6 +12,10 @@ export const SNS_LINKS = [
         url: 'https://open.spotify.com/artist/5W2MPoNirjyFmHlBqN8uxZ?si=pWbiWGSrTM-DUDKLd-qwyw'
     },
     {
+        name: 'TIDAL',
+        url: 'https://tidal.com/artist/43968407/u'
+    },
+    {
         name: 'APPLE MUSIC',
         url: 'https://music.apple.com/kr/artist/twiiiins/1717657113?l=en-GB'
     }

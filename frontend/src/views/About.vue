@@ -8,20 +8,16 @@
     <!-- 오른쪽: 콘텐츠 영역 -->
     <div class="about-content-section">
       <!-- 텍스트 섹션 -->
-      <div class="about-content">
-        <p>
-          TWIIIINS IS A VIOLIN DUO FROM SOUTH KOREA AND GERMANY,<br>
-          KNOWN FOR THEIR ENERGETIC AND GENRE-BLENDING PERFORMANCES.<br>
-          THEY COMBINE CLASSICAL MUSIC WITH POP, FUNK, FILM SCORES, JAZZ, AND ROCK,<br>
-          CREATING A UNIQUE AND DYNAMIC SOUND.<br>
-        </p>
-        <p>
-          WITH THEIR LIVELY STAGE PRESENCE AND PASSION FOR LIVE MUSIC,<br>
-          TWIIIINS CAPTIVATES AUDIENCES, TURNING EACH PERFORMANCE INTO AN ENGAGING EXPERIENCE.<br>
-          MORE THAN JUST A DUO, THEY AIM TO SPREAD JOY THROUGH THEIR MUSIC,<br>
-          OFFERING A FRESH TAKE ON VIOLIN PERFORMANCES<br>
-          THAT CONNECT WITH PEOPLE ACROSS DIFFERENT GENRES AND STYLES.
-        </p>
+      <div class="about-content" :lang="language">
+        <div class="about-copy">
+          <p v-for="paragraph in content" :key="paragraph">{{ paragraph }}</p>
+        </div>
+        <div class="language-switch" role="group" aria-label="About language / Sprache">
+          <button v-for="option in ['en', 'de']" :key="option" type="button"
+            :aria-pressed="language === option" :lang="option"
+            :aria-label="option === 'en' ? 'English' : 'Deutsch'"
+            @click="language = option">{{ option.toUpperCase() }}</button>
+        </div>
       </div>
 
       <!-- 이미지 그리드 섹션 -->
@@ -57,12 +53,32 @@
   </div>
 </template>
 
+<script setup>
+import { computed, ref } from 'vue'
+
+const language = ref('en')
+const translations = {
+  "en": [
+    "TWIIIINS are a modern violin duo from South Korea and Germany. Their setup consists of two violins, one in standard tuning and one baritone violin tuned an octave lower. Loop stations and effect pedals turn them into basslines, kick drums, distorted riffs and wah-wah figures, with two-part vocals woven in throughout. What sounds like a full band is built layer by layer in front of the audience. The set moves between original songs and their own arrangements of well-known titles, ranging from folk-pop to classical, with influences from jazz, funk, rock and film music. That is exactly what draws Dowon Kim and Linus Shastri to it: hearing an instrument you think you know in an entirely different role.",
+    "Both have played classical violin since childhood, and both took an early interest in other instruments and in music production. They met in Sweden in 2022 during an international programme on social entrepreneurship, where one of their first songs together was written and named after the room it came from: “Common Room”. A year later they moved to Salzburg and built the duo there. The name comes from Two Violins; the four i’s stand for the instrument’s four strings. Their songs grow out of what they experience together — “Deep Into Cold Water” was written after the two of them jumped into the Eisbach in Salzburg. They work in blocks, each bringing their own ideas, trying things out side by side. Today they live in Linz and Munich, where Kim studies jazz violin and Shastri studies osteopathy.",
+    "In 2025 TWIIIINS composed the stage music for “The Resistible Rise of Arturo Ui” at Salzburger Landestheater and appeared on stage themselves in all 13 performances. They have played Herzberg Festival and Kirchheimer Musiknacht twice each, Flensburger Hofkultur and the gala show of the Tübingen Juggling Convention. In July 2026 they toured South Korea with five self-organised concerts, including Seongsu Art Hall in Seoul. Their debut album “Only The Beginning” was released in 2026, following the singles “Common Room” (2023) and “Time” (2024)."
+  ],
+  "de": [
+    "TWIIIINS sind ein modernes Violinduo aus Südkorea und Deutschland. Auf der Bühne stehen zwei Geigen, eine in Standardstimmung und eine eine Oktave tiefer gestimmte Baritonvioline. Über Loopstations und Effektpedale werden daraus Basslines, Kickdrums, verzerrte Riffs und Wah-Wah-Figuren, dazwischen immer wieder zweistimmiger Gesang. Was klingt wie eine ganze Band, entsteht Schicht für Schicht vor den Augen des Publikums. Gespielt werden eigene Songs und eigene Arrangements bekannter Titel, von Folk-Pop bis Klassik, mit Einflüssen aus Jazz, Funk, Rock und Filmmusik. Genau darin liegt für Dowon Kim und Linus Shastri der Reiz: ein Instrument, das man zu kennen glaubt, plötzlich in einer anderen Rolle zu hören.",
+    "Beide spielen seit ihrer Kindheit klassische Geige, beide interessierten sich früh für andere Instrumente und für Musikproduktion. Kennengelernt haben sie sich 2022 in Schweden, während eines internationalen Studienprogramms zu Social Entrepreneurship. Dort entstand auch einer ihrer ersten gemeinsamen Songs, benannt nach dem Raum, in dem sie ihn schrieben: „Common Room“. Ein Jahr später zogen beide nach Salzburg und bauten das Duo dort auf. Der Name steht für Two Violins, die vier i für die vier Saiten des Instruments. Ihre Songs entstehen aus dem, was sie gemeinsam erleben — „Deep Into Cold Water“ schrieben sie, nachdem sie in den Salzburger Eisbach gesprungen waren. Gearbeitet wird in Blöcken, jeder bringt eigene Ideen mit, ausprobiert wird zusammen. Heute leben die beiden in Linz und München, wo Kim Jazzvioline und Shastri Osteopathie studiert.",
+    "2025 komponierten TWIIIINS die Bühnenmusik zu „Der aufhaltsame Aufstieg des Arturo Ui“ am Salzburger Landestheater und standen in 13 Vorstellungen selbst auf der Bühne. Sie spielten zweimal beim Herzberg Festival und bei der Kirchheimer Musiknacht, bei der Flensburger Hofkultur und in der Galashow der Tübinger Jonglierconvention. Im Juli 2026 tourten sie mit fünf selbst organisierten Konzerten durch Südkorea, darunter die Seongsu Art Hall in Seoul. Nach den Singles „Common Room“ (2023) und „Time“ (2024) erschien 2026 das Debütalbum „Only The Beginning“."
+  ]
+}
+const content = computed(() => translations[language.value])
+</script>
+
 <style scoped>
 .about {
   background-color: white;
   color: #1E1D1D;
   font-family: 'Jost', sans-serif;
-  height: calc(100vh - var(--navbar-height));
+  /* Keep the internal desktop scroll area above the fixed social links. */
+  height: calc(100dvh - var(--navbar-height) - 4rem);
   overflow-y: auto;
   overflow-x: hidden;
   padding-top: 3rem;
@@ -105,8 +121,46 @@
 
 /* 텍스트 섹션 */
 .about-content {
-  text-align: left;
+  display: grid;
+  width: 100%;
   max-width: 50rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 2rem;
+  text-align: left;
+}
+
+.about-copy {
+  min-width: 0;
+}
+
+.language-switch {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.language-switch button {
+  padding: 0.25rem 0.1rem;
+  min-height: 2.75rem;
+  border: 0;
+  background: transparent;
+  color: #777;
+  font: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.language-switch button[aria-pressed='true'],
+.language-switch button:hover {
+  color: #8b4513;
+}
+
+.language-switch button:focus-visible {
+  outline: 1px solid #8b4513;
+  outline-offset: 3px;
 }
 
 .about-content p {
@@ -114,9 +168,9 @@
   line-height: 1.8;
   color: var(--color-text-secondary); /* #555 */
   margin-bottom: 1.5rem;
-  word-break: keep-all; /* 한글 줄바꿈 최적화 */
+  overflow-wrap: break-word;
+  hyphens: auto;
   font-weight: 400;
-  white-space: pre-line;
 }
 
 /* 이미지 그리드 섹션 */
@@ -214,7 +268,13 @@
   }
 
   .about-content {
-    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .language-switch {
+    grid-row: 1;
+    justify-self: end;
   }
 
   .about-content p {

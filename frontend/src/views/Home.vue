@@ -4,17 +4,17 @@
     <section class="hero-section">
       <div class="hero-image">
         <picture>
-          <source media="(max-width: 48rem)" :srcset="mobileHomeSrcset" sizes="100vw">
           <img
             :src="homeImg1920"
             :srcset="homeSrcset"
-            sizes="100vw"
-            alt="TWIIIINS Performance"
+            sizes="(max-width: 48rem) 178vw, 100vw"
+            alt="Dowon Kim and Linus Shastri holding their violins in a lively pose"
             fetchpriority="high"
             loading="eager"
             decoding="async"
           >
         </picture>
+        <p class="hero-description">TWIIIINS are a modern, dynamic violin duo with influences spanning folk, pop, classical, funk, jazz, rock, and cinematic elements.</p>
       </div>
     </section>
 
@@ -64,12 +64,8 @@ import { logError } from '../utils/errorHandler'
 // 이미지 리소스 임포트
 import homeImg1280 from '../imgs/optimized/home-1280.jpg'
 import homeImg1920 from '../imgs/optimized/home-1920.jpg'
-import mobileHomeImg768 from '../imgs/optimized/mobile_home-768.jpg'
-import mobileHomeImg1280 from '../imgs/optimized/mobile_home-1280.jpg'
-import mobileHomeImg1920 from '../imgs/optimized/mobile_home-1920.jpg'
 
 const homeSrcset = `${homeImg1280} 1280w, ${homeImg1920} 1920w`
-const mobileHomeSrcset = `${mobileHomeImg768} 768w, ${mobileHomeImg1280} 1280w, ${mobileHomeImg1920} 1920w`
 
 // 스토어 사용
 const concertStore = useConcertStore()
@@ -186,6 +182,7 @@ onUnmounted(() => {
 
 /* 히어로 섹션 */
 .hero-section {
+  background-color: #cec9c3;
   height: 100dvh; /* 모바일 주소창 대응 */
   scroll-snap-align: start;
   position: relative;
@@ -196,6 +193,7 @@ onUnmounted(() => {
 .hero-image {
   width: 100%;
   height: 100%;
+  padding-top: calc(var(--navbar-height) + env(safe-area-inset-top, 0px));
 }
 
 
@@ -209,8 +207,19 @@ onUnmounted(() => {
 .hero-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
+}
+
+/* The desktop artwork contains the copy; keep it available to screen readers. */
+.hero-description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
 /* 이벤트 섹션 */
@@ -495,23 +504,47 @@ onUnmounted(() => {
   }
   
   /* Hero 이미지 모바일 최적화 */
-  .hero-section {
-    background-color: #fff;
-  }
-
   .hero-image {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 1rem;
+    padding: calc(var(--navbar-height) + env(safe-area-inset-top, 0px)) 1rem calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .hero-image picture {
+    /* Clip at x=1000 in the 1920x1080 artwork, before the printed copy begins. */
+    width: min(calc(100vw - 2rem), calc((100dvh - var(--navbar-height) - 16rem) * 25 / 27));
+    height: auto;
+    aspect-ratio: 25 / 27;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
   }
 
   .hero-image img {
-    object-position: center top; /* 상단(얼굴) 중심으로 배치 */
-    object-fit: cover; /* 화면을 꽉 채움 (잘림 발생 가능하지만 user requested full screen) */
-    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: auto;
+    max-width: none;
     height: 100%;
-    transform: none;
+  }
+
+  .hero-description {
+    position: static;
+    width: auto;
+    height: auto;
     margin: 0;
+    overflow: visible;
+    clip-path: none;
+    max-width: 32rem;
+    color: #9e3e40;
+    text-align: center;
+    font-size: clamp(1.05rem, 4.8vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1.4;
   }
 }
 </style>
