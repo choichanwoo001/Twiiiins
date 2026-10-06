@@ -16,7 +16,7 @@
         </div>
 
         <!-- 햄버거 버튼 (모바일) -->
-        <button class="hamburger-button" @click="toggleMobileMenu" :class="{ 'is-open': isMobileMenuOpen }">
+        <button class="hamburger-button" @click="toggleMobileMenu" :class="{ 'is-open': isMobileMenuOpen }" :aria-expanded="isMobileMenuOpen" :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'" aria-controls="mobile-navigation">
           <span></span>
           <span></span>
           <span></span>
@@ -24,7 +24,7 @@
       </div>
 
       <!-- 모바일 메뉴 오버레이 -->
-      <div class="mobile-menu-overlay" :class="{ 'is-open': isMobileMenuOpen }">
+      <div id="mobile-navigation" class="mobile-menu-overlay" :class="{ 'is-open': isMobileMenuOpen }" :inert="!isMobileMenuOpen">
         <div class="mobile-nav-links">
           <router-link to="/about" @click="closeMobileMenu">ABOUT</router-link>
           <router-link to="/projects" @click="closeMobileMenu">PROJECTS</router-link>

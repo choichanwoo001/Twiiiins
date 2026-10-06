@@ -861,7 +861,7 @@ const toggleNews = (newsId) => {
   .mobile-nav-item {
     font-size: 1.5rem;
     font-weight: 400;
-    color: rgba(251, 206, 123, 0.6); /* 비활성 상태: 연한 주황색 + 투명도 */
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -871,7 +871,7 @@ const toggleNews = (newsId) => {
   .mobile-nav-item.active {
     font-size: 2.5rem; /* Projects 모바일 타이틀과 동일한 크기 */
     letter-spacing: 0.12em;
-    color: var(--color-accent);
+    color: #815d47;
     opacity: 1;
     word-wrap: break-word; /* 혹시라도 넘치면 줄바꿈, 하지만 폰트 조절로 한줄 유지 목표 */
   }
