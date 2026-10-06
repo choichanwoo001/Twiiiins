@@ -61,7 +61,7 @@
       </a>
     </div>
 
-    <footer v-if="!isAdminPage" class="legal-footer">
+    <footer v-if="!isAdminPage && !isHomePage" class="legal-footer">
       <router-link to="/privacy">{{ websiteLanguage === 'de' ? 'Datenschutz & Bedingungen' : 'Privacy & Terms' }}</router-link>
       <button type="button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button>
     </footer>
