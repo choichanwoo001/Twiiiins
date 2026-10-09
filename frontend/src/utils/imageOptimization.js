@@ -1,4 +1,5 @@
 // 이미지 최적화 유틸리티
+import { toAbsoluteUrl } from './commonHelpers'
 
 /**
  * 이미지 URL 생성 및 최적화
@@ -10,17 +11,7 @@ export const getOptimizedImageUrl = (imageUrl, options = {}) => {
   if (!imageUrl) {
     return getPlaceholderImage(options.width, options.height)
   }
-
-  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-    return imageUrl
-  }
-
-  if (import.meta.env.DEV) {
-    const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-    const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
-    return `${baseURL}${path}`
-  }
-  return imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
+  return toAbsoluteUrl(imageUrl)
 }
 
 /**

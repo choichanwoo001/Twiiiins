@@ -1,12 +1,13 @@
 <template>
   <div id="app">
     <!-- 관리자 페이지가 아닐 때만 네비게이션 표시 -->
-    <nav v-if="!isAdminPage" class="navbar">
+    <nav v-if="!isEditorPage" class="navbar">
       <div class="container">
         <router-link to="/" class="logo" :class="{ 'small': !isHomePage }">TWIIIINS</router-link>
         
         <!-- 데스크탑 메뉴 -->
         <div class="nav-links desktop-nav">
+          <LanguageSwitch v-if="!isHomePage && !isMobile" />
           <router-link to="/about">ABOUT</router-link>
           <router-link to="/projects">PROJECTS</router-link>
           <router-link to="/concerts">CONCERTS</router-link>
@@ -26,7 +27,10 @@
       <!-- 모바일 메뉴 오버레이 -->
       <div id="mobile-navigation" class="mobile-menu-overlay" :class="{ 'is-open': isMobileMenuOpen }" :inert="!isMobileMenuOpen">
         <div class="mobile-nav-links">
-          <router-link to="/about" @click="closeMobileMenu">ABOUT</router-link>
+          <div class="mobile-about-links">
+            <LanguageSwitch v-if="!isHomePage && isMobile" />
+            <router-link to="/about" @click="closeMobileMenu">ABOUT</router-link>
+          </div>
           <router-link to="/projects" @click="closeMobileMenu">PROJECTS</router-link>
           <router-link to="/concerts" @click="closeMobileMenu">CONCERTS</router-link>
           
@@ -45,7 +49,7 @@
       </div>
     </nav>
     
-    <main>
+    <main :class="{ 'editor-shell': isEditorPage }">
       <router-view />
     </main>
     
@@ -61,14 +65,14 @@
       </a>
     </div>
 
-    <footer v-if="!isAdminPage && !isHomePage" class="legal-footer">
+    <footer v-if="!isEditorPage && !isHomePage" class="legal-footer">
       <router-link to="/privacy">{{ websiteLanguage === 'de' ? 'Datenschutz & Bedingungen' : 'Privacy & Terms' }}</router-link>
       <button type="button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button>
     </footer>
-    <CookieControls v-if="!isAdminPage" />
+    <CookieControls v-if="!isEditorPage" />
 
     <!-- 스크롤 업 버튼 (오른쪽 하단) - 관리자 페이지가 아닐 때만 표시 -->
-    <button v-if="!isAdminPage && showScrollUp" class="scroll-up-button" @click="scrollToTop" aria-label="Scroll to top">
+    <button v-if="!isEditorPage && showScrollUp" class="scroll-up-button" @click="scrollToTop" aria-label="Scroll to top">
       ↑
     </button>
   </div>
@@ -82,6 +86,7 @@ import { useAppScroll } from './composables/useAppScroll'
 import { useMobile } from './composables/useMobile'
 import { SNS_LINKS, PATHS_WITH_SNS_LINKS } from './constants'
 import CookieControls from './components/common/CookieControls.vue'
+import LanguageSwitch from './components/common/LanguageSwitch.vue'
 import { websiteLanguage, cookieSettingsOpen } from './composables/useWebsitePreferences'
 
 const route = useRoute()  
@@ -102,6 +107,7 @@ const {
 
 // 현재 페이지가 관리자 페이지인지 확인
 const isAdminPage = computed(() => route.path.startsWith('/admin'))
+const isEditorPage = computed(() => isAdminPage.value || route.meta.hideSiteChrome === true)
 
 // 현재 페이지가 홈인지 확인
 const isHomePage = computed(() => route.path === '/')
@@ -147,6 +153,7 @@ onMounted(() => {
 </script>
 
 <style>
+main.editor-shell { padding-top: 0; }
 /* 기본 스타일은 style.css에서 관리 */
 /* 모바일 오버라이드 스타일은 style.css로 이관됨 */
 </style>

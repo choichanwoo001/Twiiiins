@@ -5,17 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:dummy": "vite --mode dummy",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@stripe/stripe-js": "^2.4.0",
+    "@tiptap/pm": "^3.31.4",
+    "@tiptap/starter-kit": "^3.31.4",
+    "@tiptap/vue-3": "^3.31.4",
     "axios": "^1.6.2",
     "pinia": "^2.1.7",
     "vue": "^3.4.0",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@vitejs/plugin-vue": "^5.0.0",
     "vite": "^5.0.0"
   }

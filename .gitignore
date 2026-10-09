@@ -36,7 +36,12 @@ frontend/*.log
 backend/test-results/
 frontend/test-results/
 coverage/
+backups/
 
 # OS
+# Local development database and process logs
+.local/
+__pycache__/
+
 Thumbs.db
 

@@ -1,0 +1,1124 @@
+{
+  "concerts": [
+    {
+      "id": 34,
+      "date": "2026-12-19",
+      "location": "Märchenbazar München [DE]",
+      "name": "TWIIIINS Concert",
+      "startTime": null,
+      "ticketInfo": null,
+      "fullLocation": null,
+      "googleMapUrl": null,
+      "collaborationInfo": null,
+      "isPast": false
+    },
+    {
+      "id": 37,
+      "date": "2026-11-14",
+      "location": "Hüttengaudi Kirchheim [DE]",
+      "name": "TWIIIINS Concert",
+      "startTime": "20:00",
+      "ticketInfo": "https://huettengaudi-kirchheim.de/Startseite/",
+      "fullLocation": "Roßmarkt, 73230 Kirchheim unter Teck, Deutschland",
+      "googleMapUrl": "https://maps.app.goo.gl/D6xzv3hH5M3NM2Gn8",
+      "collaborationInfo": null,
+      "isPast": false
+    },
+    {
+      "id": 26,
+      "date": "2026-11-13",
+      "location": "Fulda U1 [DE]",
+      "name": "TWIIIINS concert",
+      "startTime": "20:00",
+      "ticketInfo": "https://www.reservix.de/p/reservix/group/549501",
+      "fullLocation": "Lindenstraße 14 36037 Fulda",
+      "googleMapUrl": "https://maps.app.goo.gl/CCzrQqLYaWff8P6e6",
+      "collaborationInfo": null,
+      "isPast": false
+    },
+    {
+      "id": 36,
+      "date": "2026-11-07",
+      "location": "Lost Weekend, Munich [DE]",
+      "name": "Band Battle Final",
+      "startTime": null,
+      "ticketInfo": null,
+      "fullLocation": null,
+      "googleMapUrl": null,
+      "collaborationInfo": null,
+      "isPast": false
+    },
+    {
+      "id": 33,
+      "date": "2026-10-17",
+      "location": "Doppio, Kneipenfestival in Aichach [DE]",
+      "name": "TWIIIINS Concert",
+      "startTime": "22:00",
+      "ticketInfo": "https://paarrauschen.de/kneipenfestival/",
+      "fullLocation": null,
+      "googleMapUrl": "https://maps.app.goo.gl/jTyTDRBm5U9nBay57?g_st=ic",
+      "collaborationInfo": null,
+      "isPast": false
+    },
+    {
+      "id": 35,
+      "date": "2026-09-18",
+      "location": "Lost Weekend, Munich [DE]",
+      "name": "Band Battle Round 01",
+      "startTime": "20:00",
+      "ticketInfo": "https://lostweekend.de/events/",
+      "fullLocation": null,
+      "googleMapUrl": null,
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 31,
+      "date": "2026-09-04",
+      "location": "Tübingen [DE]",
+      "name": "Tübingen Juggling Convention Gala Show",
+      "startTime": "20:00",
+      "ticketInfo": "https://jonglaria.org/gala/",
+      "fullLocation": "Geschwister-Scholl-Schule Berliner Ring 33 72076 Tübingen",
+      "googleMapUrl": "https://maps.app.goo.gl/j7X1gvD2qxKq9TQs6",
+      "collaborationInfo": "we are gonna be part of Gala show!",
+      "isPast": true
+    },
+    {
+      "id": 15,
+      "date": "2026-08-29",
+      "location": "Mc Daids Irish Pub [DE]",
+      "name": "TWIIIINS concert",
+      "startTime": null,
+      "ticketInfo": "[https://www.instagram.com/mcdaids.irish.pub?igsh=MTVnNjZmb2VsdndobA==](https://www.instagram.com/mcdaids.irish.pub?igsh=MTVnNjZmb2VsdndobA==)",
+      "fullLocation": "Waldstraße 34, 63594 Hasselroth, Germany",
+      "googleMapUrl": "https://maps.app.goo.gl/qwaJijkoRYWpaJAk9",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 32,
+      "date": "2026-08-27",
+      "location": "Hamburg [DE]",
+      "name": "Sofar",
+      "startTime": "20:00",
+      "ticketInfo": "https://www.sofarsounds.com/events/66304?utm_medium=email&utm_source=transactional&utm_campaign=ArtistReminder&ticket_type_63090=1",
+      "fullLocation": "Sternaschanze | Messe",
+      "googleMapUrl": "https://maps.app.goo.gl/QrhSYKCqEpmZAQtp9",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 11,
+      "date": "2026-07-31",
+      "location": "Herzberg Festival [DE]",
+      "name": "TWIIIINS Concert",
+      "startTime": "18:30",
+      "ticketInfo": "https://herzberg-festival.com/",
+      "fullLocation": "Hofhuhnstadt, 36287 Breitenbach am Herzberg, Germany",
+      "googleMapUrl": "https://maps.app.goo.gl/hW5iV3QHHnXxhU2d6",
+      "collaborationInfo": "",
+      "isPast": true
+    },
+    {
+      "id": 30,
+      "date": "2026-07-25",
+      "location": "의왕 롯데 타임빌라스 (Lotte Timevillas) [ROK]",
+      "name": "TWIIIINS Concert",
+      "startTime": "13:00",
+      "ticketInfo": null,
+      "fullLocation": "1 Barasan-ro, Uiwang-si, Gyeonggi-do",
+      "googleMapUrl": null,
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 29,
+      "date": "2026-07-19",
+      "location": "플로팅하우스 (Philroasting House) [ROK]",
+      "name": "TWIIIINS concert",
+      "startTime": "16:00",
+      "ticketInfo": null,
+      "fullLocation": "광주광역시 북구 임동 419번지 4층",
+      "googleMapUrl": null,
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 28,
+      "date": "2026-07-18",
+      "location": "밝맑도서관_홍동 [ROK]",
+      "name": "TWIIIINS concert",
+      "startTime": "19:00",
+      "ticketInfo": null,
+      "fullLocation": "368-21 Unwol-ri, Hongdong-myeon, Hongseong-gun, Chungcheongnam-do",
+      "googleMapUrl": null,
+      "collaborationInfo": "Opening concert - 이수연",
+      "isPast": true
+    },
+    {
+      "id": 27,
+      "date": "2026-07-17",
+      "location": "비욘더힐 카페 (cafe beyond the hill) [ROK]",
+      "name": "TWIIIINS concert",
+      "startTime": "17:00",
+      "ticketInfo": null,
+      "fullLocation": "South Korea, Gyeonggi-do, Uiwang-si, Cheonggye-dong, Haogae-ro, 29 비욘더힐",
+      "googleMapUrl": null,
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 25,
+      "date": "2026-07-16",
+      "location": "성수아트홀 (Seoungsu Art Hall) [ROK]",
+      "name": "TWIIIINS concert",
+      "startTime": "19:00",
+      "ticketInfo": "https://ticket.yes24.com/Perf/58944",
+      "fullLocation": "43 Ttukseom-ro 1-gil, Seongdong-gu, Seoul, South Korea",
+      "googleMapUrl": "https://maps.app.goo.gl/V2texYLYpTatfLpMA",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 24,
+      "date": "2026-06-12",
+      "location": "Quax [DE]",
+      "name": "TWIIIINS concert",
+      "startTime": "19:00",
+      "ticketInfo": "https://echoev.de/einrichtungen-und-projekte/quax/",
+      "fullLocation": "Helsinkistraße 100 81829 München",
+      "googleMapUrl": "https://maps.app.goo.gl/esqQjgQeD9dNye6S9",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 18,
+      "date": "2026-05-30",
+      "location": "Kirchheim Musiknacht [DE]",
+      "name": "TWIIIINS Concert",
+      "startTime": null,
+      "ticketInfo": "https://musiknacht-kirchheim.de/tickets-buttons/",
+      "fullLocation": "73230 Kirchheim unter Teck, Germany",
+      "googleMapUrl": "https://maps.app.goo.gl/ebc7yK3H9QzkQkKC7",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 23,
+      "date": "2026-05-17",
+      "location": "Das Varieté am Kopfbau [DE]",
+      "name": "Das Varieté",
+      "startTime": "16:00",
+      "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+      "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+      "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 22,
+      "date": "2026-05-16",
+      "location": "Das Varieté am Kopfbau [DE]",
+      "name": "Das Varieté",
+      "startTime": "19:00",
+      "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+      "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+      "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 21,
+      "date": "2026-05-15",
+      "location": "Das Varieté am Kopfbau [DE]",
+      "name": "Das Varieté",
+      "startTime": "19:00",
+      "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+      "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+      "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 20,
+      "date": "2026-05-14",
+      "location": "Das Varieté am Kopfbau [DE]",
+      "name": "Das Varieté",
+      "startTime": "16:00",
+      "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+      "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+      "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 19,
+      "date": "2026-05-13",
+      "location": "Das Varieté am Kopfbau [DE]",
+      "name": "Das Varieté",
+      "startTime": "19:00",
+      "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+      "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+      "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 17,
+      "date": "2026-04-26",
+      "location": "Somewhere in Munich",
+      "name": "TWIIIINS Concert",
+      "startTime": null,
+      "ticketInfo": null,
+      "fullLocation": "Spcecial Concert",
+      "googleMapUrl": null,
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 13,
+      "date": "2026-04-06",
+      "location": "Initiative Forum, Järna [SE]",
+      "name": "TWIIIINS Concert",
+      "startTime": "19:30",
+      "ticketInfo": "https://initiativeforum.yip.se/program/",
+      "fullLocation": "Kulturhuset i Ytterjärna, Kulturcentrum 14, 153 91 Järna, Sweden",
+      "googleMapUrl": "https://maps.app.goo.gl/1D4LWgB938TXR42UA",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 12,
+      "date": "2026-03-03",
+      "location": "Bar-Café Hildegard, Kirchdorf [AT]",
+      "name": "TWIIIINS concert (Jam session opener)",
+      "startTime": "19:30",
+      "ticketInfo": "http://www.hildegard.bar/",
+      "fullLocation": "Simon-Redtenbacher-Platz 3, 4560 Kirchdorf an der Krems",
+      "googleMapUrl": "https://maps.app.goo.gl/5zvJibrCQFhCM4RC9",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 10,
+      "date": "2025-12-18",
+      "location": "Koreanisches Kulturzentrum, Vienna [AT]",
+      "name": "TWIIIINS Concert",
+      "startTime": "18:00",
+      "ticketInfo": "https://vienna.korean-culture.org/ad/1463/board/1139/read/140963",
+      "fullLocation": "Kärntner Straße 43, 1010 Wien, Österreich",
+      "googleMapUrl": "https://maps.app.goo.gl/oupu1vYxPmjBmSU78",
+      "collaborationInfo": null,
+      "isPast": true
+    },
+    {
+      "id": 9,
+      "date": "2025-12-13",
+      "location": "Kopfbau, Munich [DE]",
+      "name": "TWIIIINS Concert ",
+      "startTime": "19:30",
+      "ticketInfo": "",
+      "fullLocation": "Kopfbau (Kulturzentrum) Werner-Eckert-Straße 1, 81829 München, Germany",
+      "googleMapUrl": "https://maps.app.goo.gl/ZsM7LFrULi2RHzEF7",
+      "collaborationInfo": "",
+      "isPast": true
+    },
+    {
+      "id": 8,
+      "date": "2025-12-06",
+      "location": "Kopfbau, Munich [DE]",
+      "name": "TWIIIINS Concert",
+      "startTime": "19:30",
+      "ticketInfo": "https://experimentkopfbau.de/veranstaltungen/schraeger-die-glocken-nie-klingen-der-etwas-andere-weihnachtsmarkt-im-kopfbau-3/",
+      "fullLocation": "Kopfbau (Kulturzentrum) Werner-Eckert-Straße 1, 81829 München, Germany",
+      "googleMapUrl": "https://maps.app.goo.gl/ZsM7LFrULi2RHzEF7",
+      "collaborationInfo": "",
+      "isPast": true
+    },
+    {
+      "id": 7,
+      "date": "2025-11-29",
+      "location": "Märchenbazar, Munich [DE]",
+      "name": "TWIIIINS Concert",
+      "startTime": "16:30",
+      "ticketInfo": "https://maerchenbazar.de/",
+      "fullLocation": "Olympiapark München Spiridon-Louis-Ring 21, 80809 München, Germany",
+      "googleMapUrl": "https://maps.app.goo.gl/1Qk3S7JeBzhiDtNH7",
+      "collaborationInfo": "",
+      "isPast": true
+    },
+    {
+      "id": 1,
+      "date": "2025-10-25",
+      "location": "Schloss Salon, Linz [AT]",
+      "name": "TWIIIINS Concert",
+      "startTime": " 20:30",
+      "ticketInfo": " https://aeskil.at/",
+      "fullLocation": "Schloss Eschelberg  Eschelberg 1, 4112 St. Gotthard im Mühlkreis",
+      "googleMapUrl": "https://maps.app.goo.gl/qSDyev6zUo7BP1YEA",
+      "collaborationInfo": "",
+      "isPast": true
+    }
+  ],
+  "projects": [
+    {
+      "id": 9,
+      "title": "THE RESISTIBLE RISE OF ARTURO UI",
+      "subtitle": "Collaboration with Salzburger Landestheater",
+      "premiereDate": "2025-02-22",
+      "location": "Salzburg State Theatre",
+      "descriptions": [
+        "We joined the production of Bertolt Brecht’s The Resistible Rise of Arturo Ui as composers and performers, creating all of the music for the show using the sound of the violin as the central element.\n\nThroughout 13 performances, we appeared on stage in a minor role while performing live alongside the actors and dancers. Sharing the stage with such a talented ensemble made this collaboration a particularly meaningful experience for us.\n\nImprovisation was an important part of our contribution. Playing close to the actors allowed us to respond to their performances in real time, adding another layer of energy to the scenes.\n\nWe would like to thank Alexandra Liedtke and Paul Blackman for their trust and collaboration."
+      ],
+      "coverImageUrl": "/uploads/dummy/29a927d5a4178154.jpg",
+      "moreInfoUrl": "https://www.salzburger-landestheater.at/en/produktionen/der-aufhaltsame-aufstieg-des-arturo-ui.html?m=537",
+      "director": "Alexandra Liedtke",
+      "thankYouText": null,
+      "urlSlug": "the-resistible-rise-of-arturo-ui",
+      "displayOrder": null,
+      "imageUrls": [
+        "/uploads/dummy/0f6eaeef666d5ee0.jpg"
+      ],
+      "reviews": [
+        {
+          "text": "„Eine gelungene expressiv körperbetonte Interpretation – die von der anfänglichen Lächerlichkeit des Unbeholfenen, zur erschreckend blutrünstigen Unmenschlichkeit entartet. Eine fantastische Umsetzung eines erschreckend aktuellen Stoffs.“",
+          "source": "Reichenhaller Tagblatt"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Loopstation",
+      "subtitle": "Using the RC-600 as an Audio Interface and Loopstation at the Same Time",
+      "premiereDate": "2026-05-30",
+      "location": "Munich",
+      "descriptions": [
+        "We figured out how RC-600 loopstation routing works. It could be useful information for anyone who wants to use it with a DAW. This way of routing our violin and microphone opened up our compact setup on stage and created many possibilities to design the sound of our music!"
+      ],
+      "coverImageUrl": "/uploads/dummy/79a2b51f40a3c8ea.jpg",
+      "moreInfoUrl": null,
+      "director": null,
+      "thankYouText": null,
+      "urlSlug": "loopstation",
+      "displayOrder": null,
+      "imageUrls": [
+        "/uploads/dummy/c5d2b946d6a037c4.jpg"
+      ],
+      "reviews": []
+    }
+  ],
+  "media/music": [
+    {
+      "id": 4,
+      "title": "Common Room",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/177805366b2ba48a.jpg",
+      "linkUrl": "https://open.spotify.com/track/1Io8OY15mHCEbuvSEBLcGJ?si=4f6c4294b1f44729",
+      "displayOrder": 1
+    },
+    {
+      "id": 8,
+      "title": "Dad's Car",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/73cd4950d3fee36e.jpg",
+      "linkUrl": "https://open.spotify.com/track/2OFWn3VyyfexQC4Bt80ODB?si=21e2dca241ed4d48",
+      "displayOrder": 2
+    },
+    {
+      "id": 9,
+      "title": "Mira",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/defdcc8834c8194a.jpg",
+      "linkUrl": "https://open.spotify.com/track/2QVPLY7dlQs0GgVaobOVYm?si=3df6133273d347cf",
+      "displayOrder": 3
+    },
+    {
+      "id": 10,
+      "title": "The Doc Lost His Shoes",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/96bb912f44bdf8eb.jpg",
+      "linkUrl": "https://open.spotify.com/track/41BZiM6UMot2t7Zo7KqKvK?si=f5b6b24408514505",
+      "displayOrder": 4
+    },
+    {
+      "id": 11,
+      "title": "Deep Into Cold Water",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/f52cceec03e632b4.jpg",
+      "linkUrl": "https://open.spotify.com/track/0GbQABev2JRPMVtkD2sPte?si=dda50003b1a84b77",
+      "displayOrder": 5
+    },
+    {
+      "id": 12,
+      "title": "Grit",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/e6f7e0552d9cb0ba.jpg",
+      "linkUrl": "https://open.spotify.com/track/3GCnzb1DsCE7tqlev3QAdb?si=da18241fcebc437e",
+      "displayOrder": 6
+    },
+    {
+      "id": 13,
+      "title": "Time",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/0f7e4fa8c187c1a4.jpg",
+      "linkUrl": "https://open.spotify.com/track/6VksycBPMxNMyWYP0ZK0Hu?si=429d61c387ff4ce6",
+      "displayOrder": 7
+    },
+    {
+      "id": 14,
+      "title": "Before Going To Sleep",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/f75f1304791a98b8.jpg",
+      "linkUrl": "https://open.spotify.com/track/0PhJhOL7FNPW3BojtiXEhH?si=023d7d2877034d54",
+      "displayOrder": 8
+    },
+    {
+      "id": 7,
+      "title": "Common Room",
+      "artist": "TWIIIINS",
+      "coverUrl": "/uploads/dummy/9183a617d999b549.jpg",
+      "linkUrl": "https://open.spotify.com/track/42Rbpf4FAXpFOdKWCe4wyh?si=bfc687a66a87437f",
+      "displayOrder": 9
+    }
+  ],
+  "media/videos": [
+    {
+      "id": 8,
+      "title": "About TWIIIINS",
+      "embedUrl": "https://www.youtube.com/embed/7D3tv-8Fmlw",
+      "displayOrder": 1
+    },
+    {
+      "id": 7,
+      "title": "Common Room - TWIIIINS",
+      "embedUrl": "https://www.youtube.com/embed/anb6UtTP-wE",
+      "displayOrder": 2
+    },
+    {
+      "id": 9,
+      "title": "Time - TWIIIINS",
+      "embedUrl": "https://www.youtube.com/embed/qj-EO0di6S4",
+      "displayOrder": 3
+    },
+    {
+      "id": 6,
+      "title": "Come Together (Beatles) Cover by TWIIIINS",
+      "embedUrl": "https://www.youtube.com/embed/QSG4jJmb5mA",
+      "displayOrder": 4
+    },
+    {
+      "id": 10,
+      "title": "Little Blue (Jacob Collier) Cover by TWIIIINS",
+      "embedUrl": "https://www.youtube.com/embed/VvWbhaPbXPA",
+      "displayOrder": 5
+    }
+  ],
+  "media/news": [
+    {
+      "id": 1,
+      "date": "2023-12-01",
+      "title": "Introducing Our Debut Single: Common Room",
+      "description": "Hello Everybody:)\nWe are excited to announce to you,  that our very first single “Common Room” will\nbe coming out on 1st December 2023 on all\nstreaming platforms!\nOnce we will get closer to the Release date,\nwe will let you know more about the\nCreation of the song.\nWe are looking forward to your reactions\nand hope you enjoy our music:)",
+      "displayOrder": 50,
+      "imageUrls": [
+        "/uploads/dummy/9197268d8d4bbfbf.jpg",
+        "/uploads/dummy/cb2814474acfd010.jpg",
+        "/uploads/dummy/6687e918f6f7c831.jpg"
+      ]
+    }
+  ],
+  "media/photos/groups": [
+    {
+      "id": 21,
+      "title": "27.08.2026 in Hamburg by Peter Jacob",
+      "displayOrder": 37,
+      "photos": [
+        {
+          "id": 107,
+          "imageUrl": "/uploads/dummy/b320bcefed6c3847.jpg",
+          "thumbnailUrl": "/uploads/dummy/d8d2107906c7cb5f.jpg",
+          "altText": null,
+          "photoGroupId": 21
+        },
+        {
+          "id": 108,
+          "imageUrl": "/uploads/dummy/147e2d7e39ed6727.jpg",
+          "thumbnailUrl": "/uploads/dummy/5827d14ecab26837.jpg",
+          "altText": null,
+          "photoGroupId": 21
+        },
+        {
+          "id": 109,
+          "imageUrl": "/uploads/dummy/9a0b4d38aadc78ed.jpg",
+          "thumbnailUrl": "/uploads/dummy/27c3ec15c823a986.jpg",
+          "altText": null,
+          "photoGroupId": 21
+        },
+        {
+          "id": 110,
+          "imageUrl": "/uploads/dummy/37c723afb8974e95.jpg",
+          "thumbnailUrl": "/uploads/dummy/d46c93ec69559cf0.jpg",
+          "altText": null,
+          "photoGroupId": 21
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "title": "24.07.2026 in Seoul by Park Hangyeol",
+      "displayOrder": 38,
+      "photos": [
+        {
+          "id": 103,
+          "imageUrl": "/uploads/dummy/6eab3a80b9dd3852.jpg",
+          "thumbnailUrl": "/uploads/dummy/d232121912c59993.jpg",
+          "altText": null,
+          "photoGroupId": 20
+        },
+        {
+          "id": 104,
+          "imageUrl": "/uploads/dummy/1b69e0a8f19e47bb.jpg",
+          "thumbnailUrl": "/uploads/dummy/7309bf93cf010f62.jpg",
+          "altText": null,
+          "photoGroupId": 20
+        },
+        {
+          "id": 105,
+          "imageUrl": "/uploads/dummy/a76d4f825d6a6f15.jpg",
+          "thumbnailUrl": "/uploads/dummy/daa10d5f6c7bb219.jpg",
+          "altText": null,
+          "photoGroupId": 20
+        },
+        {
+          "id": 106,
+          "imageUrl": "/uploads/dummy/73f55e4252dd941a.jpg",
+          "thumbnailUrl": "/uploads/dummy/9bbc13ee4520e748.jpg",
+          "altText": null,
+          "photoGroupId": 20
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "25.07.2026 in Uiwang by Duwon Kim",
+      "displayOrder": 39,
+      "photos": [
+        {
+          "id": 100,
+          "imageUrl": "/uploads/dummy/55445d5d576c5c10.jpg",
+          "thumbnailUrl": "/uploads/dummy/467c16942858f298.jpg",
+          "altText": null,
+          "photoGroupId": 19
+        },
+        {
+          "id": 101,
+          "imageUrl": "/uploads/dummy/c52dfe6cd950eb19.jpg",
+          "thumbnailUrl": "/uploads/dummy/ed47dda972a366ef.jpg",
+          "altText": null,
+          "photoGroupId": 19
+        },
+        {
+          "id": 102,
+          "imageUrl": "/uploads/dummy/915f767fab55c712.jpg",
+          "thumbnailUrl": "/uploads/dummy/95bb9dc97dac7aa5.jpg",
+          "altText": null,
+          "photoGroupId": 19
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "title": "19.07.2026 in Kuwangju by Duwon Kim",
+      "displayOrder": 40,
+      "photos": [
+        {
+          "id": 97,
+          "imageUrl": "/uploads/dummy/eabdd534d67c3f8c.jpg",
+          "thumbnailUrl": "/uploads/dummy/4cf9910a965a0203.jpg",
+          "altText": null,
+          "photoGroupId": 18
+        },
+        {
+          "id": 98,
+          "imageUrl": "/uploads/dummy/e102c536c62ba4c8.jpg",
+          "thumbnailUrl": "/uploads/dummy/ce647a120ba7818b.jpg",
+          "altText": null,
+          "photoGroupId": 18
+        },
+        {
+          "id": 99,
+          "imageUrl": "/uploads/dummy/92b587e6c056f1a0.jpg",
+          "thumbnailUrl": "/uploads/dummy/1604f9d8f6ac43aa.jpg",
+          "altText": null,
+          "photoGroupId": 18
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "18.07.2026 in Hongdong by Duwon Kim",
+      "displayOrder": 41,
+      "photos": [
+        {
+          "id": 94,
+          "imageUrl": "/uploads/dummy/e85c3b74c81ad4c5.jpg",
+          "thumbnailUrl": "/uploads/dummy/b61b44785154d1f0.jpg",
+          "altText": null,
+          "photoGroupId": 17
+        },
+        {
+          "id": 95,
+          "imageUrl": "/uploads/dummy/e6be7c753f2b91b8.jpg",
+          "thumbnailUrl": "/uploads/dummy/841a907d23a0ba60.jpg",
+          "altText": null,
+          "photoGroupId": 17
+        },
+        {
+          "id": 96,
+          "imageUrl": "/uploads/dummy/435537038311c917.jpg",
+          "thumbnailUrl": "/uploads/dummy/7b3c73ef40ca0113.jpg",
+          "altText": null,
+          "photoGroupId": 17
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "17.07.2026 in Uiwang by Duwon Kim",
+      "displayOrder": 42,
+      "photos": [
+        {
+          "id": 90,
+          "imageUrl": "/uploads/dummy/760b77e8adbef728.jpg",
+          "thumbnailUrl": "/uploads/dummy/a9c913c4265dd4d7.jpg",
+          "altText": null,
+          "photoGroupId": 16
+        },
+        {
+          "id": 91,
+          "imageUrl": "/uploads/dummy/f27068b300db2d6b.jpg",
+          "thumbnailUrl": "/uploads/dummy/45a431fd0b45437b.jpg",
+          "altText": null,
+          "photoGroupId": 16
+        },
+        {
+          "id": 92,
+          "imageUrl": "/uploads/dummy/cdd64329b0f00252.jpg",
+          "thumbnailUrl": "/uploads/dummy/c54be4374f96502e.jpg",
+          "altText": null,
+          "photoGroupId": 16
+        },
+        {
+          "id": 93,
+          "imageUrl": "/uploads/dummy/ca7651972854aeaf.jpg",
+          "thumbnailUrl": "/uploads/dummy/4a4a8ddf1aee0a5e.jpg",
+          "altText": null,
+          "photoGroupId": 16
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "16.07.2026 in Seoul by Duwon Kim",
+      "displayOrder": 43,
+      "photos": [
+        {
+          "id": 86,
+          "imageUrl": "/uploads/dummy/178fadb7336c2819.jpg",
+          "thumbnailUrl": "/uploads/dummy/ff72996c939a7628.jpg",
+          "altText": null,
+          "photoGroupId": 15
+        },
+        {
+          "id": 87,
+          "imageUrl": "/uploads/dummy/15a8579517d6f49d.jpg",
+          "thumbnailUrl": "/uploads/dummy/19124534d5bd4331.jpg",
+          "altText": null,
+          "photoGroupId": 15
+        },
+        {
+          "id": 88,
+          "imageUrl": "/uploads/dummy/249f12566680f0ed.jpg",
+          "thumbnailUrl": "/uploads/dummy/b945a104163679b1.jpg",
+          "altText": null,
+          "photoGroupId": 15
+        },
+        {
+          "id": 89,
+          "imageUrl": "/uploads/dummy/f83230dca86891b3.jpg",
+          "thumbnailUrl": "/uploads/dummy/d31ab365d40a87a3.jpg",
+          "altText": null,
+          "photoGroupId": 15
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "20.06.2026 in Linz by Ilja Hitsch",
+      "displayOrder": 44,
+      "photos": [
+        {
+          "id": 82,
+          "imageUrl": "/uploads/dummy/5fbf9ff80fc58208.jpg",
+          "thumbnailUrl": "/uploads/dummy/9b7c1620cb8173c2.jpg",
+          "altText": null,
+          "photoGroupId": 14
+        },
+        {
+          "id": 83,
+          "imageUrl": "/uploads/dummy/f3b5d58422e16525.jpg",
+          "thumbnailUrl": "/uploads/dummy/acec556fb4ca22f8.jpg",
+          "altText": null,
+          "photoGroupId": 14
+        },
+        {
+          "id": 84,
+          "imageUrl": "/uploads/dummy/25b679590f4cbb49.jpg",
+          "thumbnailUrl": "/uploads/dummy/6e95f1fa62d862ef.jpg",
+          "altText": null,
+          "photoGroupId": 14
+        },
+        {
+          "id": 85,
+          "imageUrl": "/uploads/dummy/bcf888fab2477c30.jpg",
+          "thumbnailUrl": "/uploads/dummy/e14bbe23289f3d73.jpg",
+          "altText": null,
+          "photoGroupId": 14
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "03.05.2026 in Kirchhiem Musiknacht by Thomas Kaltenecker",
+      "displayOrder": 45,
+      "photos": [
+        {
+          "id": 74,
+          "imageUrl": "/uploads/dummy/0f967588a6e73366.jpg",
+          "thumbnailUrl": "/uploads/dummy/b3c7f25c497732b2.jpg",
+          "altText": null,
+          "photoGroupId": 12
+        },
+        {
+          "id": 75,
+          "imageUrl": "/uploads/dummy/46c8b95c10f11264.jpg",
+          "thumbnailUrl": "/uploads/dummy/fe0afe149640badc.jpg",
+          "altText": null,
+          "photoGroupId": 12
+        },
+        {
+          "id": 76,
+          "imageUrl": "/uploads/dummy/b959ee9d83002432.jpg",
+          "thumbnailUrl": "/uploads/dummy/48392feec9257001.jpg",
+          "altText": null,
+          "photoGroupId": 12
+        },
+        {
+          "id": 77,
+          "imageUrl": "/uploads/dummy/1ac6bb7b8f9426e4.jpg",
+          "thumbnailUrl": "/uploads/dummy/45fd389e5d5214eb.jpg",
+          "altText": null,
+          "photoGroupId": 12
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "26.04.2026 in Munich by Sofar",
+      "displayOrder": 45,
+      "photos": [
+        {
+          "id": 78,
+          "imageUrl": "/uploads/dummy/a241c3b75d3334ec.jpg",
+          "thumbnailUrl": "/uploads/dummy/ce16720fb3c829f2.jpg",
+          "altText": null,
+          "photoGroupId": 13
+        },
+        {
+          "id": 79,
+          "imageUrl": "/uploads/dummy/1121cf7039ef8d2f.jpg",
+          "thumbnailUrl": "/uploads/dummy/52222bbd6143622f.jpg",
+          "altText": null,
+          "photoGroupId": 13
+        },
+        {
+          "id": 80,
+          "imageUrl": "/uploads/dummy/57a4bda227c21e08.jpg",
+          "thumbnailUrl": "/uploads/dummy/08d83240d8a821c8.jpg",
+          "altText": null,
+          "photoGroupId": 13
+        },
+        {
+          "id": 81,
+          "imageUrl": "/uploads/dummy/8a8580019ae1be93.jpg",
+          "thumbnailUrl": "/uploads/dummy/c83dacfc3ff0da35.jpg",
+          "altText": null,
+          "photoGroupId": 13
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "06.04.2026 in Järna by Bella",
+      "displayOrder": 46,
+      "photos": [
+        {
+          "id": 69,
+          "imageUrl": "/uploads/dummy/9153cfbbed6c9617.jpg",
+          "thumbnailUrl": "/uploads/dummy/010a12f54153b9fd.jpg",
+          "altText": null,
+          "photoGroupId": 11
+        },
+        {
+          "id": 70,
+          "imageUrl": "/uploads/dummy/9b50a38fff13fc4c.jpg",
+          "thumbnailUrl": "/uploads/dummy/c65bf9c26e55fb52.jpg",
+          "altText": null,
+          "photoGroupId": 11
+        },
+        {
+          "id": 71,
+          "imageUrl": "/uploads/dummy/41d3c9606d15092e.jpg",
+          "thumbnailUrl": "/uploads/dummy/2b4cccbd189642b9.jpg",
+          "altText": null,
+          "photoGroupId": 11
+        },
+        {
+          "id": 72,
+          "imageUrl": "/uploads/dummy/1a8ae76c4cd3eae8.jpg",
+          "thumbnailUrl": "/uploads/dummy/dc09be0acafabe14.jpg",
+          "altText": null,
+          "photoGroupId": 11
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "18.12.2025 in Vienna by Korea Culturecenter",
+      "displayOrder": 47,
+      "photos": [
+        {
+          "id": 56,
+          "imageUrl": "/uploads/dummy/86ab242dae11f1d5.jpg",
+          "thumbnailUrl": "/uploads/dummy/467178e970da766e.jpg",
+          "altText": null,
+          "photoGroupId": 10
+        },
+        {
+          "id": 57,
+          "imageUrl": "/uploads/dummy/72192eb18d09203d.jpg",
+          "thumbnailUrl": "/uploads/dummy/31f8b2b3fef47427.jpg",
+          "altText": null,
+          "photoGroupId": 10
+        },
+        {
+          "id": 58,
+          "imageUrl": "/uploads/dummy/0d81db60f768de90.jpg",
+          "thumbnailUrl": "/uploads/dummy/766e887af93112bd.jpg",
+          "altText": null,
+          "photoGroupId": 10
+        },
+        {
+          "id": 59,
+          "imageUrl": "/uploads/dummy/84ed74b8f444abc2.jpg",
+          "thumbnailUrl": "/uploads/dummy/0aa6e88e6636cdd2.jpg",
+          "altText": null,
+          "photoGroupId": 10
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "29.11.2025 in Munich by Noam Hitsch",
+      "displayOrder": 48,
+      "photos": [
+        {
+          "id": 60,
+          "imageUrl": "/uploads/dummy/74cb92033eb8fc74.jpg",
+          "thumbnailUrl": "/uploads/dummy/e2be7baf5121b7d9.jpg",
+          "altText": null,
+          "photoGroupId": 9
+        },
+        {
+          "id": 61,
+          "imageUrl": "/uploads/dummy/efd6de8ea729900d.jpg",
+          "thumbnailUrl": "/uploads/dummy/c7eaaa1f96e1c207.jpg",
+          "altText": null,
+          "photoGroupId": 9
+        },
+        {
+          "id": 62,
+          "imageUrl": "/uploads/dummy/91f2d2caab6e4196.jpg",
+          "thumbnailUrl": "/uploads/dummy/fd36534806430981.jpg",
+          "altText": null,
+          "photoGroupId": 9
+        },
+        {
+          "id": 64,
+          "imageUrl": "/uploads/dummy/1b09522a5d329a01.jpg",
+          "thumbnailUrl": "/uploads/dummy/5f2ac937036afa7b.jpg",
+          "altText": null,
+          "photoGroupId": 9
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "25.10.2025 in Linz Aeskil by Clemens Schmiedbauer",
+      "displayOrder": 49,
+      "photos": [
+        {
+          "id": 65,
+          "imageUrl": "/uploads/dummy/2a5eafd41ad8217e.jpg",
+          "thumbnailUrl": "/uploads/dummy/ad074bf64d5e19c6.jpg",
+          "altText": null,
+          "photoGroupId": 5
+        },
+        {
+          "id": 66,
+          "imageUrl": "/uploads/dummy/a3019c390e9be434.jpg",
+          "thumbnailUrl": "/uploads/dummy/77f7170229bd4d08.jpg",
+          "altText": null,
+          "photoGroupId": 5
+        },
+        {
+          "id": 67,
+          "imageUrl": "/uploads/dummy/b47fedc2eb9a87d1.jpg",
+          "thumbnailUrl": "/uploads/dummy/83d00de4f3aa4ff5.jpg",
+          "altText": null,
+          "photoGroupId": 5
+        },
+        {
+          "id": 68,
+          "imageUrl": "/uploads/dummy/621d6b91f2813d1a.jpg",
+          "thumbnailUrl": "/uploads/dummy/8809ad517b79fc36.jpg",
+          "altText": null,
+          "photoGroupId": 5
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "title": "02.08.2025 in Flensburg by Flensburger Hofkultur",
+      "displayOrder": 50,
+      "photos": [
+        {
+          "id": 53,
+          "imageUrl": "/uploads/dummy/3c60a140bb3c8781.jpg",
+          "thumbnailUrl": "/uploads/dummy/216bff499682f3cf.jpg",
+          "altText": null,
+          "photoGroupId": 1
+        },
+        {
+          "id": 54,
+          "imageUrl": "/uploads/dummy/14e4b6a8598012fa.jpg",
+          "thumbnailUrl": "/uploads/dummy/7735bca7ad642fbc.jpg",
+          "altText": null,
+          "photoGroupId": 1
+        },
+        {
+          "id": 55,
+          "imageUrl": "/uploads/dummy/8a30e5e281cfc815.jpg",
+          "thumbnailUrl": "/uploads/dummy/932935a95d59c963.jpg",
+          "altText": null,
+          "photoGroupId": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "19.07.2025 in Salzburg by Jiwoo Nam",
+      "displayOrder": 51,
+      "photos": [
+        {
+          "id": 48,
+          "imageUrl": "/uploads/dummy/c299aae6887adcf1.jpg",
+          "thumbnailUrl": "/uploads/dummy/cea3f1a77cfbc7c3.jpg",
+          "altText": null,
+          "photoGroupId": 2
+        },
+        {
+          "id": 49,
+          "imageUrl": "/uploads/dummy/7bd7ad2bf0d61d48.jpg",
+          "thumbnailUrl": "/uploads/dummy/8584dc0f31428746.jpg",
+          "altText": null,
+          "photoGroupId": 2
+        },
+        {
+          "id": 50,
+          "imageUrl": "/uploads/dummy/a3a1a03f5881c7e7.jpg",
+          "thumbnailUrl": "/uploads/dummy/a76692bf26858952.jpg",
+          "altText": null,
+          "photoGroupId": 2
+        },
+        {
+          "id": 51,
+          "imageUrl": "/uploads/dummy/f4368541ee6e63b2.jpg",
+          "thumbnailUrl": "/uploads/dummy/cc49c01e567c4071.jpg",
+          "altText": null,
+          "photoGroupId": 2
+        },
+        {
+          "id": 52,
+          "imageUrl": "/uploads/dummy/4b6945eeffdc8268.jpg",
+          "thumbnailUrl": "/uploads/dummy/1476c9837ea535a0.jpg",
+          "altText": null,
+          "photoGroupId": 2
+        }
+      ]
+    }
+  ],
+  "media/equipment": [],
+  "media/contacts": [
+    {
+      "id": 2,
+      "name": "TWIIIINS",
+      "role": "Official ",
+      "email": "stickypeanutbutter@proton.me",
+      "displayOrder": 1
+    },
+    {
+      "id": 1,
+      "name": "Dowon Kim",
+      "role": "Violin",
+      "email": "dowonkimmusic@gmail.com",
+      "displayOrder": 2
+    },
+    {
+      "id": 4,
+      "name": "Linus Shastri",
+      "role": "Baritone Violin",
+      "email": "linusshastri@protonmail.com",
+      "displayOrder": 3
+    },
+    {
+      "id": 5,
+      "name": "Minzy Lee",
+      "role": "Website Designer",
+      "email": "minzyleea@gmail.com",
+      "displayOrder": 4
+    },
+    {
+      "id": 3,
+      "name": "Chanwoo",
+      "role": "Website Operator",
+      "email": "jonadan3495@gmail.com",
+      "displayOrder": 5
+    }
+  ],
+  "media/download-files": [
+    {
+      "id": 18,
+      "name": "About TWIIIINS [Deutsch]",
+      "fileUrl": "/uploads/dummy/612c9e91-d34e-4058-8f98-7ae9f3a670bd.pdf",
+      "displayOrder": 0
+    },
+    {
+      "id": 19,
+      "name": "About TWIIIINS [English]",
+      "fileUrl": "/uploads/dummy/e19dbeba-a715-4f79-ba17-daf5edba5da6.pdf",
+      "displayOrder": 0
+    }
+  ]
+}

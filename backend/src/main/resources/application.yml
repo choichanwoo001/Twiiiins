@@ -1,4 +1,17 @@
 spring:
+  mail:
+    host: ${SMTP_HOST:}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${SMTP_AUTH:true}
+      mail.smtp.starttls.enable: ${SMTP_STARTTLS:true}
+      mail.smtp.starttls.required: ${SMTP_STARTTLS:true}
+      mail.smtp.ssl.enable: ${SMTP_SSL:false}
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 15000
+      mail.smtp.writetimeout: 15000
   application:
     name: twiiiins-backend
   
@@ -37,6 +50,7 @@ spring:
       resolve-lazily: false  # 필요시 true로 변경 가능 (Spring Boot 2.1+)
 
 server:
+  forward-headers-strategy: native
   port: ${PORT:8080}
   servlet:
     context-path: ${SERVER_CONTEXT_PATH:}
@@ -68,6 +82,17 @@ logging:
     file: UTF-8
 
 app:
+  newsletter:
+    enabled: ${NEWSLETTER_ENABLED:false}
+    token-key: ${NEWSLETTER_TOKEN_KEY:}
+    public-url: ${NEWSLETTER_PUBLIC_URL:https://twiiiins.com}
+    from: ${NEWSLETTER_FROM:}
+    reply-to: ${NEWSLETTER_REPLY_TO:}
+    operator: ${NEWSLETTER_OPERATOR:}
+    test-recipients: ${NEWSLETTER_TEST_RECIPIENTS:}
+    local-mailbox-url: ${NEWSLETTER_LOCAL_MAILBOX_URL:}
+    per-minute: ${NEWSLETTER_PER_MINUTE:10}
+    daily-limit: ${NEWSLETTER_DAILY_LIMIT:300}
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
@@ -90,6 +115,9 @@ app:
 #   allow-credentials: ${CORS_CREDENTIALS:true}
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:

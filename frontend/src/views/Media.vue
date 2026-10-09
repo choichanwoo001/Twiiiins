@@ -148,7 +148,7 @@
             <div class="news-preview" @click="toggleNews(news.id)">
               <div class="news-date">{{ news.date }}</div>
               <div class="news-content">
-                <div class="news-title">{{ news.title }}</div>
+                <div class="news-title">{{ websiteLanguage === 'de' && news.titleDe ? news.titleDe : news.title }}</div>
               </div>
               <div class="news-expand" :class="{ 'expanded': news.expanded }">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -159,7 +159,9 @@
             
             <!-- 상세 정보 -->
             <div class="news-details" v-if="news.expanded">
-              <div class="news-description">{{ news.description }}</div>
+              <div v-if="news.bodyEn || news.bodyDe" class="news-description news-rich" v-html="websiteLanguage === 'de' && news.bodyDe ? news.bodyDe : news.bodyEn"></div>
+              <div v-else class="news-description">{{ news.description }}</div>
+              <p v-for="(url, index) in news.videoUrls || []" :key="url"><a :href="url" target="_blank" rel="noopener noreferrer">{{ websiteLanguage === 'de' ? 'Video ansehen' : 'Watch video' }} {{ index + 1 }} ↗</a></p>
               
               <!-- 사진 섹션 -->
               <div class="news-images" v-if="news.imageUrls && news.imageUrls.length > 0">
@@ -219,6 +221,10 @@ import { mediaAllowed, websiteLanguage, cookieSettingsOpen } from '../composable
 import fallbackEquipmentImage from '../imgs/exphoto1.png'
 
 const route = useRoute()
+if (['en', 'de'].includes(route.query.lang)) websiteLanguage.value = route.query.lang
+watch(() => route.query.newsId, id => {
+  newsList.value.forEach(news => { news.expanded = String(news.id) === String(id) })
+})
 
 // 모바일 감지
 // 모바일 감지
@@ -407,12 +413,13 @@ const loadNews = async () => {
   try {
     const newsData = await newsService.getAllNews()
     newsList.value = newsData.map(news => ({
+      ...news,
       id: news.id,
       date: formatDate(news.date, 'news'),
       title: news.title,
       description: news.description,
       imageUrls: news.imageUrls ? news.imageUrls.map(url => toAbsoluteUrl(url)) : [],
-      expanded: false
+      expanded: String(news.id) === String(route.query.newsId)
     }))
   } catch (error) {
     logError(error, '뉴스 데이터 로드')
@@ -430,6 +437,10 @@ const toggleNews = (newsId) => {
 </script>
 
 <style scoped>
+.news-rich :deep(p) { margin: .7rem 0; }
+.news-rich :deep(a) { color: #815d47; text-decoration: underline; }
+.news-rich :deep(ul), .news-rich :deep(ol) { padding-left: 1.5rem; }
+
 .media-consent-placeholder { min-height: 15rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; padding: 2rem; background: #f5f1ec; }
 .video-embed:has(.media-consent-placeholder) { aspect-ratio: auto; }
 

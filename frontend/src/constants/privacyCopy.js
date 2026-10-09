@@ -3,7 +3,7 @@ export const privacyCopy = {
     "title": "Privacy, Cookie and Website Terms",
     "draft": "Draft for review — company name, registered address, contact addresses, retention periods, service providers and publication date must be confirmed before publication.",
     "date": "Last updated: not yet confirmed",
-    "intro": "This draft explains the planned handling of personal data, necessary storage, external media and downloadable materials on the TWIIIINS website. Newsletter subscriptions are not currently available and no newsletter email addresses are collected.",
+    "intro": "This draft explains personal data handling, necessary storage, external media, downloads and the planned newsletter service on the TWIIIINS website. Newsletter subscriptions are enabled only after the mail service and operator details are configured.",
     "sections": [
       [
         "controller",
@@ -36,7 +36,7 @@ export const privacyCopy = {
         "4. Retention",
         [
           "Enquiry information is retained only as long as necessary to manage requests, maintain appropriate business records, resolve disputes and comply with legal obligations. Hosting and security logs are retained for a limited period under the applicable provider policies. The concrete retention periods remain to be confirmed.",
-          "No newsletter subscriber data is collected at present. Subscriber retention and removal periods will be defined before a subscription service is activated; the source draft’s [30 days] value has not been confirmed."
+          "Newsletter retention: legacy unconfirmed applications 7 days, unsubscribed or excluded subscription records 30 days, recipient-level delivery records 90 days. Active subscription data is retained while subscribed."
         ]
       ],
       [
@@ -58,10 +58,11 @@ export const privacyCopy = {
       ],
       [
         "newsletter",
-        "7. Newsletter — coming soon",
+        "7. Newsletter",
         [
-          "The Subscribe button currently opens an availability notice only. It does not collect an email address, create a subscription or send an email.",
-          "Before launch, this policy and the separate consent notice will be updated to identify the provider and describe email use solely for TWIIIINS music, performances, events, releases and related news, subscription management, confirmation and unsubscribe procedures. No unrelated marketing or sale of subscriber addresses is planned."
+          "We use your email address, chosen language and consent record to provide TWIIIINS music, performance, event and release news. Submitting your email address, language and consent activates your subscription immediately and queues a welcome email. No email confirmation is required. Each newsletter includes an unsubscribe link; unsubscribing stops future queued messages.",
+          "Subscription data is managed in our own website database. Our configured email account provider processes email delivery. The actual mail provider, hosting location, operator identity and contact details must be specified before activation. We do not use newsletter open or click tracking.",
+          "Legacy unconfirmed applications are deleted after 7 days. Unsubscribed and manually excluded subscription records are deleted after 30 days. Recipient-level delivery records are deleted after 90 days; aggregate mailing counts are retained. Active subscription data is retained while subscribed. Legacy confirmation links expire after 24 hours."
         ]
       ],
       [
@@ -96,7 +97,7 @@ export const privacyCopy = {
     "title": "Datenschutz, Cookies und Nutzungsbedingungen",
     "draft": "Entwurf zur Prüfung — Firmenname, Geschäftsanschrift, Kontaktadressen, Speicherfristen, Dienstleister und Veröffentlichungsdatum müssen vor der Veröffentlichung bestätigt werden.",
     "date": "Zuletzt aktualisiert: noch nicht bestätigt",
-    "intro": "Dieser Entwurf beschreibt die vorgesehene Verarbeitung personenbezogener Daten, notwendige Speicherung, externe Medien und Download-Materialien auf der TWIIIINS-Website. Newsletter-Abonnements sind derzeit nicht verfügbar; es werden keine Newsletter-E-Mail-Adressen erhoben.",
+    "intro": "Dieser Entwurf beschreibt die Verarbeitung personenbezogener Daten, notwendige Speicherung, externe Medien, Downloads und den geplanten Newsletter der TWIIIINS-Website. Abonnements werden erst nach Einrichtung des E-Mail-Dienstes und der Betreiberangaben aktiviert.",
     "sections": [
       [
         "controller",
@@ -129,7 +130,7 @@ export const privacyCopy = {
         "4. Speicherdauer",
         [
           "Anfragedaten werden nur so lange gespeichert, wie zur Bearbeitung, angemessenen Geschäfts­dokumentation, Streitbeilegung und Erfüllung gesetzlicher Pflichten notwendig. Hosting- und Sicherheitsprotokolle werden nach den jeweiligen Anbietervorgaben begrenzt gespeichert. Konkrete Fristen sind noch zu bestätigen.",
-          "Derzeit werden keine Newsletter-Abonnentendaten erhoben. Speicher- und Löschfristen werden vor Aktivierung festgelegt; der Wert [30 Tage] im Ausgangsentwurf ist nicht bestätigt."
+          "Newsletter-Speicherfristen: frühere unbestätigte Anmeldungen 7 Tage, abgemeldete oder ausgeschlossene Abonnements 30 Tage, empfängerbezogene Versandprotokolle 90 Tage. Aktive Abonnements bleiben während des Abonnements gespeichert."
         ]
       ],
       [
@@ -151,10 +152,11 @@ export const privacyCopy = {
       ],
       [
         "newsletter",
-        "7. Newsletter — demnächst verfügbar",
+        "7. Newsletter",
         [
-          "Die Schaltfläche zum Abonnieren öffnet derzeit nur einen Verfügbarkeitshinweis. Sie erhebt keine E-Mail-Adresse, legt kein Abonnement an und versendet keine E-Mail.",
-          "Vor dem Start werden diese Hinweise und die gesonderte Einwilligung aktualisiert. Sie benennen den Anbieter und erläutern die ausschließliche E-Mail-Nutzung für TWIIIINS-Musik, Auftritte, Veranstaltungen, Veröffentlichungen und verwandte Neuigkeiten sowie Abonnementverwaltung, Bestätigung und Abmeldung. Unabhängige Werbung oder der Verkauf von Abonnentenadressen sind nicht vorgesehen."
+          "Wir verwenden Ihre E-Mail-Adresse, gewählte Sprache und Einwilligungsnachweise für Neuigkeiten zu TWIIIINS-Musik, Auftritten, Veranstaltungen und Veröffentlichungen. Mit Ihrer E-Mail-Adresse, Sprache und Einwilligung wird das Abonnement sofort aktiviert und eine Willkommens-E-Mail versendet. Eine E-Mail-Bestätigung ist nicht erforderlich. Jeder Newsletter enthält einen Abmeldelink; nach der Abmeldung werden ausstehende Newsletter nicht mehr versendet.",
+          "Abonnements werden in unserer eigenen Website-Datenbank verwaltet. Der Anbieter unseres eingerichteten E-Mail-Kontos verarbeitet den Versand. Der tatsächliche E-Mail-Anbieter, Hosting-Standort, Betreiber und Kontakt müssen vor Aktivierung benannt werden. Es findet kein Öffnungs- oder Klicktracking statt.",
+          "Frühere unbestätigte Anmeldungen werden nach 7 Tagen gelöscht. Abgemeldete und manuell ausgeschlossene Abonnements werden nach 30 Tagen gelöscht. Empfängerbezogene Versandprotokolle werden nach 90 Tagen gelöscht; zusammengefasste Versandzahlen bleiben erhalten. Aktive Abonnements bleiben während des Abonnements gespeichert. Frühere Bestätigungslinks sind 24 Stunden gültig."
         ]
       ],
       [

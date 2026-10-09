@@ -1,0 +1,1682 @@
+{
+  "origin": "https://twiiiins.com",
+  "capturedAt": "2026-10-07T03:09:20.401582+00:00",
+  "data": {
+    "concerts": [
+      {
+        "id": 34,
+        "date": "2026-12-19",
+        "location": "Märchenbazar München [DE]",
+        "name": "TWIIIINS Concert",
+        "startTime": null,
+        "ticketInfo": null,
+        "fullLocation": null,
+        "googleMapUrl": null,
+        "collaborationInfo": null,
+        "isPast": false
+      },
+      {
+        "id": 37,
+        "date": "2026-11-14",
+        "location": "Hüttengaudi Kirchheim [DE]",
+        "name": "TWIIIINS Concert",
+        "startTime": "20:00",
+        "ticketInfo": "https://huettengaudi-kirchheim.de/Startseite/",
+        "fullLocation": "Roßmarkt, 73230 Kirchheim unter Teck, Deutschland",
+        "googleMapUrl": "https://maps.app.goo.gl/D6xzv3hH5M3NM2Gn8",
+        "collaborationInfo": null,
+        "isPast": false
+      },
+      {
+        "id": 26,
+        "date": "2026-11-13",
+        "location": "Fulda U1 [DE]",
+        "name": "TWIIIINS concert",
+        "startTime": "20:00",
+        "ticketInfo": "https://www.reservix.de/p/reservix/group/549501",
+        "fullLocation": "Lindenstraße 14 36037 Fulda",
+        "googleMapUrl": "https://maps.app.goo.gl/CCzrQqLYaWff8P6e6",
+        "collaborationInfo": null,
+        "isPast": false
+      },
+      {
+        "id": 36,
+        "date": "2026-11-07",
+        "location": "Lost Weekend, Munich [DE]",
+        "name": "Band Battle Final",
+        "startTime": null,
+        "ticketInfo": null,
+        "fullLocation": null,
+        "googleMapUrl": null,
+        "collaborationInfo": null,
+        "isPast": false
+      },
+      {
+        "id": 33,
+        "date": "2026-10-17",
+        "location": "Doppio, Kneipenfestival in Aichach [DE]",
+        "name": "TWIIIINS Concert",
+        "startTime": "22:00",
+        "ticketInfo": "https://paarrauschen.de/kneipenfestival/",
+        "fullLocation": null,
+        "googleMapUrl": "https://maps.app.goo.gl/jTyTDRBm5U9nBay57?g_st=ic",
+        "collaborationInfo": null,
+        "isPast": false
+      },
+      {
+        "id": 35,
+        "date": "2026-09-18",
+        "location": "Lost Weekend, Munich [DE]",
+        "name": "Band Battle Round 01",
+        "startTime": "20:00",
+        "ticketInfo": "https://lostweekend.de/events/",
+        "fullLocation": null,
+        "googleMapUrl": null,
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 31,
+        "date": "2026-09-04",
+        "location": "Tübingen [DE]",
+        "name": "Tübingen Juggling Convention Gala Show",
+        "startTime": "20:00",
+        "ticketInfo": "https://jonglaria.org/gala/",
+        "fullLocation": "Geschwister-Scholl-Schule Berliner Ring 33 72076 Tübingen",
+        "googleMapUrl": "https://maps.app.goo.gl/j7X1gvD2qxKq9TQs6",
+        "collaborationInfo": "we are gonna be part of Gala show!",
+        "isPast": true
+      },
+      {
+        "id": 15,
+        "date": "2026-08-29",
+        "location": "Mc Daids Irish Pub [DE]",
+        "name": "TWIIIINS concert",
+        "startTime": null,
+        "ticketInfo": "[https://www.instagram.com/mcdaids.irish.pub?igsh=MTVnNjZmb2VsdndobA==](https://www.instagram.com/mcdaids.irish.pub?igsh=MTVnNjZmb2VsdndobA==)",
+        "fullLocation": "Waldstraße 34, 63594 Hasselroth, Germany",
+        "googleMapUrl": "https://maps.app.goo.gl/qwaJijkoRYWpaJAk9",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 32,
+        "date": "2026-08-27",
+        "location": "Hamburg [DE]",
+        "name": "Sofar",
+        "startTime": "20:00",
+        "ticketInfo": "https://www.sofarsounds.com/events/66304?utm_medium=email&utm_source=transactional&utm_campaign=ArtistReminder&ticket_type_63090=1",
+        "fullLocation": "Sternaschanze | Messe",
+        "googleMapUrl": "https://maps.app.goo.gl/QrhSYKCqEpmZAQtp9",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 11,
+        "date": "2026-07-31",
+        "location": "Herzberg Festival [DE]",
+        "name": "TWIIIINS Concert",
+        "startTime": "18:30",
+        "ticketInfo": "https://herzberg-festival.com/",
+        "fullLocation": "Hofhuhnstadt, 36287 Breitenbach am Herzberg, Germany",
+        "googleMapUrl": "https://maps.app.goo.gl/hW5iV3QHHnXxhU2d6",
+        "collaborationInfo": "",
+        "isPast": true
+      },
+      {
+        "id": 30,
+        "date": "2026-07-25",
+        "location": "의왕 롯데 타임빌라스 (Lotte Timevillas) [ROK]",
+        "name": "TWIIIINS Concert",
+        "startTime": "13:00",
+        "ticketInfo": null,
+        "fullLocation": "1 Barasan-ro, Uiwang-si, Gyeonggi-do",
+        "googleMapUrl": null,
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 29,
+        "date": "2026-07-19",
+        "location": "플로팅하우스 (Philroasting House) [ROK]",
+        "name": "TWIIIINS concert",
+        "startTime": "16:00",
+        "ticketInfo": null,
+        "fullLocation": "광주광역시 북구 임동 419번지 4층",
+        "googleMapUrl": null,
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 28,
+        "date": "2026-07-18",
+        "location": "밝맑도서관_홍동 [ROK]",
+        "name": "TWIIIINS concert",
+        "startTime": "19:00",
+        "ticketInfo": null,
+        "fullLocation": "368-21 Unwol-ri, Hongdong-myeon, Hongseong-gun, Chungcheongnam-do",
+        "googleMapUrl": null,
+        "collaborationInfo": "Opening concert - 이수연",
+        "isPast": true
+      },
+      {
+        "id": 27,
+        "date": "2026-07-17",
+        "location": "비욘더힐 카페 (cafe beyond the hill) [ROK]",
+        "name": "TWIIIINS concert",
+        "startTime": "17:00",
+        "ticketInfo": null,
+        "fullLocation": "South Korea, Gyeonggi-do, Uiwang-si, Cheonggye-dong, Haogae-ro, 29 비욘더힐",
+        "googleMapUrl": null,
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 25,
+        "date": "2026-07-16",
+        "location": "성수아트홀 (Seoungsu Art Hall) [ROK]",
+        "name": "TWIIIINS concert",
+        "startTime": "19:00",
+        "ticketInfo": "https://ticket.yes24.com/Perf/58944",
+        "fullLocation": "43 Ttukseom-ro 1-gil, Seongdong-gu, Seoul, South Korea",
+        "googleMapUrl": "https://maps.app.goo.gl/V2texYLYpTatfLpMA",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 24,
+        "date": "2026-06-12",
+        "location": "Quax [DE]",
+        "name": "TWIIIINS concert",
+        "startTime": "19:00",
+        "ticketInfo": "https://echoev.de/einrichtungen-und-projekte/quax/",
+        "fullLocation": "Helsinkistraße 100 81829 München",
+        "googleMapUrl": "https://maps.app.goo.gl/esqQjgQeD9dNye6S9",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 18,
+        "date": "2026-05-30",
+        "location": "Kirchheim Musiknacht [DE]",
+        "name": "TWIIIINS Concert",
+        "startTime": null,
+        "ticketInfo": "https://musiknacht-kirchheim.de/tickets-buttons/",
+        "fullLocation": "73230 Kirchheim unter Teck, Germany",
+        "googleMapUrl": "https://maps.app.goo.gl/ebc7yK3H9QzkQkKC7",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 23,
+        "date": "2026-05-17",
+        "location": "Das Varieté am Kopfbau [DE]",
+        "name": "Das Varieté",
+        "startTime": "16:00",
+        "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+        "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+        "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 22,
+        "date": "2026-05-16",
+        "location": "Das Varieté am Kopfbau [DE]",
+        "name": "Das Varieté",
+        "startTime": "19:00",
+        "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+        "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+        "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 21,
+        "date": "2026-05-15",
+        "location": "Das Varieté am Kopfbau [DE]",
+        "name": "Das Varieté",
+        "startTime": "19:00",
+        "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+        "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+        "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 20,
+        "date": "2026-05-14",
+        "location": "Das Varieté am Kopfbau [DE]",
+        "name": "Das Varieté",
+        "startTime": "16:00",
+        "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+        "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+        "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 19,
+        "date": "2026-05-13",
+        "location": "Das Varieté am Kopfbau [DE]",
+        "name": "Das Varieté",
+        "startTime": "19:00",
+        "ticketInfo": "https://www.eventim-light.com/de/a/61125f9b18d3ad6d1ffcee97/",
+        "fullLocation": "Das Varieté am Kopfbau, Werner-Eckert-Straße 1, 81829 München",
+        "googleMapUrl": "https://maps.app.goo.gl/Pox13AQ47BAUiPtX7",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 17,
+        "date": "2026-04-26",
+        "location": "Somewhere in Munich",
+        "name": "TWIIIINS Concert",
+        "startTime": null,
+        "ticketInfo": null,
+        "fullLocation": "Spcecial Concert",
+        "googleMapUrl": null,
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 13,
+        "date": "2026-04-06",
+        "location": "Initiative Forum, Järna [SE]",
+        "name": "TWIIIINS Concert",
+        "startTime": "19:30",
+        "ticketInfo": "https://initiativeforum.yip.se/program/",
+        "fullLocation": "Kulturhuset i Ytterjärna, Kulturcentrum 14, 153 91 Järna, Sweden",
+        "googleMapUrl": "https://maps.app.goo.gl/1D4LWgB938TXR42UA",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 12,
+        "date": "2026-03-03",
+        "location": "Bar-Café Hildegard, Kirchdorf [AT]",
+        "name": "TWIIIINS concert (Jam session opener)",
+        "startTime": "19:30",
+        "ticketInfo": "http://www.hildegard.bar/",
+        "fullLocation": "Simon-Redtenbacher-Platz 3, 4560 Kirchdorf an der Krems",
+        "googleMapUrl": "https://maps.app.goo.gl/5zvJibrCQFhCM4RC9",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 10,
+        "date": "2025-12-18",
+        "location": "Koreanisches Kulturzentrum, Vienna [AT]",
+        "name": "TWIIIINS Concert",
+        "startTime": "18:00",
+        "ticketInfo": "https://vienna.korean-culture.org/ad/1463/board/1139/read/140963",
+        "fullLocation": "Kärntner Straße 43, 1010 Wien, Österreich",
+        "googleMapUrl": "https://maps.app.goo.gl/oupu1vYxPmjBmSU78",
+        "collaborationInfo": null,
+        "isPast": true
+      },
+      {
+        "id": 9,
+        "date": "2025-12-13",
+        "location": "Kopfbau, Munich [DE]",
+        "name": "TWIIIINS Concert ",
+        "startTime": "19:30",
+        "ticketInfo": "",
+        "fullLocation": "Kopfbau (Kulturzentrum) Werner-Eckert-Straße 1, 81829 München, Germany",
+        "googleMapUrl": "https://maps.app.goo.gl/ZsM7LFrULi2RHzEF7",
+        "collaborationInfo": "",
+        "isPast": true
+      },
+      {
+        "id": 8,
+        "date": "2025-12-06",
+        "location": "Kopfbau, Munich [DE]",
+        "name": "TWIIIINS Concert",
+        "startTime": "19:30",
+        "ticketInfo": "https://experimentkopfbau.de/veranstaltungen/schraeger-die-glocken-nie-klingen-der-etwas-andere-weihnachtsmarkt-im-kopfbau-3/",
+        "fullLocation": "Kopfbau (Kulturzentrum) Werner-Eckert-Straße 1, 81829 München, Germany",
+        "googleMapUrl": "https://maps.app.goo.gl/ZsM7LFrULi2RHzEF7",
+        "collaborationInfo": "",
+        "isPast": true
+      },
+      {
+        "id": 7,
+        "date": "2025-11-29",
+        "location": "Märchenbazar, Munich [DE]",
+        "name": "TWIIIINS Concert",
+        "startTime": "16:30",
+        "ticketInfo": "https://maerchenbazar.de/",
+        "fullLocation": "Olympiapark München Spiridon-Louis-Ring 21, 80809 München, Germany",
+        "googleMapUrl": "https://maps.app.goo.gl/1Qk3S7JeBzhiDtNH7",
+        "collaborationInfo": "",
+        "isPast": true
+      },
+      {
+        "id": 1,
+        "date": "2025-10-25",
+        "location": "Schloss Salon, Linz [AT]",
+        "name": "TWIIIINS Concert",
+        "startTime": " 20:30",
+        "ticketInfo": " https://aeskil.at/",
+        "fullLocation": "Schloss Eschelberg  Eschelberg 1, 4112 St. Gotthard im Mühlkreis",
+        "googleMapUrl": "https://maps.app.goo.gl/qSDyev6zUo7BP1YEA",
+        "collaborationInfo": "",
+        "isPast": true
+      }
+    ],
+    "projects": [
+      {
+        "id": 9,
+        "title": "THE RESISTIBLE RISE OF ARTURO UI",
+        "subtitle": "Collaboration with Salzburger Landestheater",
+        "premiereDate": "2025-02-22",
+        "location": "Salzburg State Theatre",
+        "descriptions": [
+          "We joined the production of Bertolt Brecht’s The Resistible Rise of Arturo Ui as composers and performers, creating all of the music for the show using the sound of the violin as the central element.\n\nThroughout 13 performances, we appeared on stage in a minor role while performing live alongside the actors and dancers. Sharing the stage with such a talented ensemble made this collaboration a particularly meaningful experience for us.\n\nImprovisation was an important part of our contribution. Playing close to the actors allowed us to respond to their performances in real time, adding another layer of energy to the scenes.\n\nWe would like to thank Alexandra Liedtke and Paul Blackman for their trust and collaboration."
+        ],
+        "coverImageUrl": "/uploads/image/5d0b11c7-9286-4696-ad19-6e33daaa78a2.jpg",
+        "moreInfoUrl": "https://www.salzburger-landestheater.at/en/produktionen/der-aufhaltsame-aufstieg-des-arturo-ui.html?m=537",
+        "director": "Alexandra Liedtke",
+        "thankYouText": null,
+        "urlSlug": "the-resistible-rise-of-arturo-ui",
+        "displayOrder": null,
+        "imageUrls": [
+          "/uploads/image/91873b8c-054d-4780-9686-b3d5f2dd1682.jpg"
+        ],
+        "reviews": [
+          {
+            "text": "„Eine gelungene expressiv körperbetonte Interpretation – die von der anfänglichen Lächerlichkeit des Unbeholfenen, zur erschreckend blutrünstigen Unmenschlichkeit entartet. Eine fantastische Umsetzung eines erschreckend aktuellen Stoffs.“",
+            "source": "Reichenhaller Tagblatt"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Loopstation",
+        "subtitle": "Using the RC-600 as an Audio Interface and Loopstation at the Same Time",
+        "premiereDate": "2026-05-30",
+        "location": "Munich",
+        "descriptions": [
+          "We figured out how RC-600 loopstation routing works. It could be useful information for anyone who wants to use it with a DAW. This way of routing our violin and microphone opened up our compact setup on stage and created many possibilities to design the sound of our music!"
+        ],
+        "coverImageUrl": "/uploads/image/0e61d5b1-c1d3-4d8b-b84e-0e287b5a6409.jpg",
+        "moreInfoUrl": null,
+        "director": null,
+        "thankYouText": null,
+        "urlSlug": "loopstation",
+        "displayOrder": null,
+        "imageUrls": [
+          "/uploads/image/21c905fe-ef99-48e4-b8a2-2eefc05f6dc2.jpg"
+        ],
+        "reviews": []
+      }
+    ],
+    "media/music": [
+      {
+        "id": 4,
+        "title": "Common Room",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/3162e3d0-2ae4-4422-b9c7-d78fb5666fd6.png",
+        "linkUrl": "https://open.spotify.com/track/1Io8OY15mHCEbuvSEBLcGJ?si=4f6c4294b1f44729",
+        "displayOrder": 1
+      },
+      {
+        "id": 8,
+        "title": "Dad's Car",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/c037cbcf-59b7-47c4-aeb4-e279ff6775e4.jpg",
+        "linkUrl": "https://open.spotify.com/track/2OFWn3VyyfexQC4Bt80ODB?si=21e2dca241ed4d48",
+        "displayOrder": 2
+      },
+      {
+        "id": 9,
+        "title": "Mira",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/d535cf7f-b820-4ef4-8fb4-f679479393dc.jpg",
+        "linkUrl": "https://open.spotify.com/track/2QVPLY7dlQs0GgVaobOVYm?si=3df6133273d347cf",
+        "displayOrder": 3
+      },
+      {
+        "id": 10,
+        "title": "The Doc Lost His Shoes",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/ae6d5b7e-a33f-4715-94a3-d6d08967e406.jpg",
+        "linkUrl": "https://open.spotify.com/track/41BZiM6UMot2t7Zo7KqKvK?si=f5b6b24408514505",
+        "displayOrder": 4
+      },
+      {
+        "id": 11,
+        "title": "Deep Into Cold Water",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/952f1461-24ce-4321-a045-1bcb26ffe5f4.jpg",
+        "linkUrl": "https://open.spotify.com/track/0GbQABev2JRPMVtkD2sPte?si=dda50003b1a84b77",
+        "displayOrder": 5
+      },
+      {
+        "id": 12,
+        "title": "Grit",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/f23972c9-7c0f-4671-bc15-607a1c5d2e06.jpg",
+        "linkUrl": "https://open.spotify.com/track/3GCnzb1DsCE7tqlev3QAdb?si=da18241fcebc437e",
+        "displayOrder": 6
+      },
+      {
+        "id": 13,
+        "title": "Time",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/9eea721e-74be-4c2f-a58a-dbc3b7691542.jpg",
+        "linkUrl": "https://open.spotify.com/track/6VksycBPMxNMyWYP0ZK0Hu?si=429d61c387ff4ce6",
+        "displayOrder": 7
+      },
+      {
+        "id": 14,
+        "title": "Before Going To Sleep",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/9480b919-25d7-4b96-a955-db5c37a53caa.jpg",
+        "linkUrl": "https://open.spotify.com/track/0PhJhOL7FNPW3BojtiXEhH?si=023d7d2877034d54",
+        "displayOrder": 8
+      },
+      {
+        "id": 7,
+        "title": "Common Room",
+        "artist": "TWIIIINS",
+        "coverUrl": "/uploads/image/b23b72cd-5c4f-4209-8df5-9711730d76ce.jpg",
+        "linkUrl": "https://open.spotify.com/track/42Rbpf4FAXpFOdKWCe4wyh?si=bfc687a66a87437f",
+        "displayOrder": 9
+      }
+    ],
+    "media/videos": [
+      {
+        "id": 8,
+        "title": "About TWIIIINS",
+        "embedUrl": "https://www.youtube.com/embed/7D3tv-8Fmlw",
+        "displayOrder": 1
+      },
+      {
+        "id": 7,
+        "title": "Common Room - TWIIIINS",
+        "embedUrl": "https://www.youtube.com/embed/anb6UtTP-wE",
+        "displayOrder": 2
+      },
+      {
+        "id": 9,
+        "title": "Time - TWIIIINS",
+        "embedUrl": "https://www.youtube.com/embed/qj-EO0di6S4",
+        "displayOrder": 3
+      },
+      {
+        "id": 6,
+        "title": "Come Together (Beatles) Cover by TWIIIINS",
+        "embedUrl": "https://www.youtube.com/embed/QSG4jJmb5mA",
+        "displayOrder": 4
+      },
+      {
+        "id": 10,
+        "title": "Little Blue (Jacob Collier) Cover by TWIIIINS",
+        "embedUrl": "https://www.youtube.com/embed/VvWbhaPbXPA",
+        "displayOrder": 5
+      }
+    ],
+    "media/news": [
+      {
+        "id": 1,
+        "date": "2023-12-01",
+        "title": "Introducing Our Debut Single: Common Room",
+        "description": "Hello Everybody:)\nWe are excited to announce to you,  that our very first single “Common Room” will\nbe coming out on 1st December 2023 on all\nstreaming platforms!\nOnce we will get closer to the Release date,\nwe will let you know more about the\nCreation of the song.\nWe are looking forward to your reactions\nand hope you enjoy our music:)",
+        "displayOrder": 50,
+        "imageUrls": [
+          "/uploads/image/3afb815e-29bd-4246-ac9d-f078820d4b6f.jpg",
+          "/uploads/image/5d437893-342c-4f5d-9d94-8e9e0540cbbc.jpg",
+          "/uploads/image/2bfef91e-2274-4902-896f-362b3eafa216.jpg"
+        ]
+      }
+    ],
+    "media/photos/groups": [
+      {
+        "id": 21,
+        "title": "27.08.2026 in Hamburg by Peter Jacob",
+        "displayOrder": 37,
+        "photos": [
+          {
+            "id": 107,
+            "imageUrl": "/uploads/image/9463eac1-b139-41d9-a78e-f9bbcdb1ba15.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/9463eac1-b139-41d9-a78e-f9bbcdb1ba15.jpeg",
+            "altText": null,
+            "photoGroupId": 21
+          },
+          {
+            "id": 108,
+            "imageUrl": "/uploads/image/ea768f2b-c269-49fb-90b2-b591ea945eec.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/ea768f2b-c269-49fb-90b2-b591ea945eec.jpeg",
+            "altText": null,
+            "photoGroupId": 21
+          },
+          {
+            "id": 109,
+            "imageUrl": "/uploads/image/14269c26-41ac-4a2c-a602-ddf708c937b9.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/14269c26-41ac-4a2c-a602-ddf708c937b9.jpeg",
+            "altText": null,
+            "photoGroupId": 21
+          },
+          {
+            "id": 110,
+            "imageUrl": "/uploads/image/19f5588d-b7e0-4c58-8b46-1465a258e345.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/19f5588d-b7e0-4c58-8b46-1465a258e345.jpeg",
+            "altText": null,
+            "photoGroupId": 21
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "title": "24.07.2026 in Seoul by Park Hangyeol",
+        "displayOrder": 38,
+        "photos": [
+          {
+            "id": 103,
+            "imageUrl": "/uploads/image/1e9a3185-d616-4e6d-8b3b-315ebead5e28.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/1e9a3185-d616-4e6d-8b3b-315ebead5e28.jpeg",
+            "altText": null,
+            "photoGroupId": 20
+          },
+          {
+            "id": 104,
+            "imageUrl": "/uploads/image/6063638b-5d3f-467c-aa48-07ef443f0aa8.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/6063638b-5d3f-467c-aa48-07ef443f0aa8.jpeg",
+            "altText": null,
+            "photoGroupId": 20
+          },
+          {
+            "id": 105,
+            "imageUrl": "/uploads/image/1c508480-d7d3-4368-a80c-c638a54a75ea.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/1c508480-d7d3-4368-a80c-c638a54a75ea.jpeg",
+            "altText": null,
+            "photoGroupId": 20
+          },
+          {
+            "id": 106,
+            "imageUrl": "/uploads/image/77189439-675e-4833-bdf2-43e72f6e0739.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/77189439-675e-4833-bdf2-43e72f6e0739.jpeg",
+            "altText": null,
+            "photoGroupId": 20
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "25.07.2026 in Uiwang by Duwon Kim",
+        "displayOrder": 39,
+        "photos": [
+          {
+            "id": 100,
+            "imageUrl": "/uploads/image/a36fb2ab-b08f-460d-9331-d07be9a9f910.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/a36fb2ab-b08f-460d-9331-d07be9a9f910.jpeg",
+            "altText": null,
+            "photoGroupId": 19
+          },
+          {
+            "id": 101,
+            "imageUrl": "/uploads/image/0278647d-6e78-4dc3-8d6e-f84edd02ff5a.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/0278647d-6e78-4dc3-8d6e-f84edd02ff5a.jpeg",
+            "altText": null,
+            "photoGroupId": 19
+          },
+          {
+            "id": 102,
+            "imageUrl": "/uploads/image/987b9fc1-60c9-4f0f-be15-af1c84ccae87.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/987b9fc1-60c9-4f0f-be15-af1c84ccae87.jpeg",
+            "altText": null,
+            "photoGroupId": 19
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "title": "19.07.2026 in Kuwangju by Duwon Kim",
+        "displayOrder": 40,
+        "photos": [
+          {
+            "id": 97,
+            "imageUrl": "/uploads/image/0f8d4c22-1ea0-42e6-a50a-732e0375ac66.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/0f8d4c22-1ea0-42e6-a50a-732e0375ac66.jpeg",
+            "altText": null,
+            "photoGroupId": 18
+          },
+          {
+            "id": 98,
+            "imageUrl": "/uploads/image/1f4caad5-6348-45fb-b185-4c8525925656.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/1f4caad5-6348-45fb-b185-4c8525925656.jpeg",
+            "altText": null,
+            "photoGroupId": 18
+          },
+          {
+            "id": 99,
+            "imageUrl": "/uploads/image/59ddf87c-77d9-4bf3-9396-72181d651ef0.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/59ddf87c-77d9-4bf3-9396-72181d651ef0.jpeg",
+            "altText": null,
+            "photoGroupId": 18
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "18.07.2026 in Hongdong by Duwon Kim",
+        "displayOrder": 41,
+        "photos": [
+          {
+            "id": 94,
+            "imageUrl": "/uploads/image/d9d5a429-e770-4542-9d40-956f884855e1.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/d9d5a429-e770-4542-9d40-956f884855e1.jpeg",
+            "altText": null,
+            "photoGroupId": 17
+          },
+          {
+            "id": 95,
+            "imageUrl": "/uploads/image/81520d40-9e6d-4529-8737-6052e289e10e.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/81520d40-9e6d-4529-8737-6052e289e10e.jpeg",
+            "altText": null,
+            "photoGroupId": 17
+          },
+          {
+            "id": 96,
+            "imageUrl": "/uploads/image/b04e7274-2f37-4f8b-b87b-5cd46f9d68eb.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/b04e7274-2f37-4f8b-b87b-5cd46f9d68eb.jpeg",
+            "altText": null,
+            "photoGroupId": 17
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "17.07.2026 in Uiwang by Duwon Kim",
+        "displayOrder": 42,
+        "photos": [
+          {
+            "id": 90,
+            "imageUrl": "/uploads/image/ad404249-81de-4e2a-992b-59ea04d9236b.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/ad404249-81de-4e2a-992b-59ea04d9236b.jpeg",
+            "altText": null,
+            "photoGroupId": 16
+          },
+          {
+            "id": 91,
+            "imageUrl": "/uploads/image/508ee50d-706c-47da-988b-c681b65953be.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/508ee50d-706c-47da-988b-c681b65953be.jpeg",
+            "altText": null,
+            "photoGroupId": 16
+          },
+          {
+            "id": 92,
+            "imageUrl": "/uploads/image/1492099a-e67e-46d3-8dce-92e1aecf714b.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/1492099a-e67e-46d3-8dce-92e1aecf714b.jpeg",
+            "altText": null,
+            "photoGroupId": 16
+          },
+          {
+            "id": 93,
+            "imageUrl": "/uploads/image/70f7762a-767a-4558-bc2d-5c44cb6eb494.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/70f7762a-767a-4558-bc2d-5c44cb6eb494.jpeg",
+            "altText": null,
+            "photoGroupId": 16
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "16.07.2026 in Seoul by Duwon Kim",
+        "displayOrder": 43,
+        "photos": [
+          {
+            "id": 86,
+            "imageUrl": "/uploads/image/dbe8cca6-204d-49e1-ad2b-b14f329df47a.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/dbe8cca6-204d-49e1-ad2b-b14f329df47a.jpeg",
+            "altText": null,
+            "photoGroupId": 15
+          },
+          {
+            "id": 87,
+            "imageUrl": "/uploads/image/16bfd2a7-16e8-4a91-ab01-f0e30b5debc1.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/16bfd2a7-16e8-4a91-ab01-f0e30b5debc1.jpeg",
+            "altText": null,
+            "photoGroupId": 15
+          },
+          {
+            "id": 88,
+            "imageUrl": "/uploads/image/08671330-882a-4c6a-b805-c9861ca713b0.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/08671330-882a-4c6a-b805-c9861ca713b0.jpeg",
+            "altText": null,
+            "photoGroupId": 15
+          },
+          {
+            "id": 89,
+            "imageUrl": "/uploads/image/9179ea3e-5b07-4f40-a5ce-92ec44306571.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/9179ea3e-5b07-4f40-a5ce-92ec44306571.jpeg",
+            "altText": null,
+            "photoGroupId": 15
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "20.06.2026 in Linz by Ilja Hitsch",
+        "displayOrder": 44,
+        "photos": [
+          {
+            "id": 82,
+            "imageUrl": "/uploads/image/966d38a1-2e25-4164-a21a-004948e69ce2.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/966d38a1-2e25-4164-a21a-004948e69ce2.jpeg",
+            "altText": null,
+            "photoGroupId": 14
+          },
+          {
+            "id": 83,
+            "imageUrl": "/uploads/image/e8dc57c1-1b46-485f-bf90-c7f5cddebda0.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/e8dc57c1-1b46-485f-bf90-c7f5cddebda0.jpeg",
+            "altText": null,
+            "photoGroupId": 14
+          },
+          {
+            "id": 84,
+            "imageUrl": "/uploads/image/63c7da72-2a43-434d-9e93-62b11c295bcf.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/63c7da72-2a43-434d-9e93-62b11c295bcf.jpeg",
+            "altText": null,
+            "photoGroupId": 14
+          },
+          {
+            "id": 85,
+            "imageUrl": "/uploads/image/197a6ee2-b8b6-449a-87d0-c7278bbe7c01.jpeg",
+            "thumbnailUrl": "/uploads/image/thumbnails/197a6ee2-b8b6-449a-87d0-c7278bbe7c01.jpeg",
+            "altText": null,
+            "photoGroupId": 14
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "03.05.2026 in Kirchhiem Musiknacht by Thomas Kaltenecker",
+        "displayOrder": 45,
+        "photos": [
+          {
+            "id": 74,
+            "imageUrl": "/uploads/image/bc28a80e-a195-496f-9611-7124d7e708a1.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/bc28a80e-a195-496f-9611-7124d7e708a1.JPG",
+            "altText": null,
+            "photoGroupId": 12
+          },
+          {
+            "id": 75,
+            "imageUrl": "/uploads/image/48c90eb6-52c6-436e-9abd-45d53768dd2e.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/48c90eb6-52c6-436e-9abd-45d53768dd2e.JPG",
+            "altText": null,
+            "photoGroupId": 12
+          },
+          {
+            "id": 76,
+            "imageUrl": "/uploads/image/acda53a0-4bad-4fcc-9e1a-0842f8faa280.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/acda53a0-4bad-4fcc-9e1a-0842f8faa280.JPG",
+            "altText": null,
+            "photoGroupId": 12
+          },
+          {
+            "id": 77,
+            "imageUrl": "/uploads/image/d5348933-f342-44c4-ac94-daa21091aa77.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/d5348933-f342-44c4-ac94-daa21091aa77.JPG",
+            "altText": null,
+            "photoGroupId": 12
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "26.04.2026 in Munich by Sofar",
+        "displayOrder": 45,
+        "photos": [
+          {
+            "id": 78,
+            "imageUrl": "/uploads/image/b5144576-bf22-4096-9180-1deb5ff4a557.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/b5144576-bf22-4096-9180-1deb5ff4a557.JPG",
+            "altText": null,
+            "photoGroupId": 13
+          },
+          {
+            "id": 79,
+            "imageUrl": "/uploads/image/bbe65019-3b10-4d97-b224-ebc9ea428409.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/bbe65019-3b10-4d97-b224-ebc9ea428409.JPG",
+            "altText": null,
+            "photoGroupId": 13
+          },
+          {
+            "id": 80,
+            "imageUrl": "/uploads/image/5532835a-b47d-4eee-a81e-895c8f647b38.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/5532835a-b47d-4eee-a81e-895c8f647b38.JPG",
+            "altText": null,
+            "photoGroupId": 13
+          },
+          {
+            "id": 81,
+            "imageUrl": "/uploads/image/753c8afb-35ff-4a17-a70f-7ce43af0c502.JPG",
+            "thumbnailUrl": "/uploads/image/thumbnails/753c8afb-35ff-4a17-a70f-7ce43af0c502.JPG",
+            "altText": null,
+            "photoGroupId": 13
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "06.04.2026 in Järna by Bella",
+        "displayOrder": 46,
+        "photos": [
+          {
+            "id": 69,
+            "imageUrl": "/uploads/image/68b49788-2ead-4320-b92e-53c52b7d67f4.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/68b49788-2ead-4320-b92e-53c52b7d67f4.jpg",
+            "altText": null,
+            "photoGroupId": 11
+          },
+          {
+            "id": 70,
+            "imageUrl": "/uploads/image/0111d9a4-5606-4f94-926d-42227aa8d7c6.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/0111d9a4-5606-4f94-926d-42227aa8d7c6.jpg",
+            "altText": null,
+            "photoGroupId": 11
+          },
+          {
+            "id": 71,
+            "imageUrl": "/uploads/image/0a619304-4613-45eb-b571-041327ab4235.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/0a619304-4613-45eb-b571-041327ab4235.jpg",
+            "altText": null,
+            "photoGroupId": 11
+          },
+          {
+            "id": 72,
+            "imageUrl": "/uploads/image/bdbe41fd-0337-4582-b200-68da33af5cf4.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/bdbe41fd-0337-4582-b200-68da33af5cf4.jpg",
+            "altText": null,
+            "photoGroupId": 11
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "18.12.2025 in Vienna by Korea Culturecenter",
+        "displayOrder": 47,
+        "photos": [
+          {
+            "id": 56,
+            "imageUrl": "/uploads/image/ce31277b-33e9-40ce-bffe-e236a35a2205.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/ce31277b-33e9-40ce-bffe-e236a35a2205.jpg",
+            "altText": null,
+            "photoGroupId": 10
+          },
+          {
+            "id": 57,
+            "imageUrl": "/uploads/image/f8069c00-850a-40cc-be15-9b515247ac07.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/f8069c00-850a-40cc-be15-9b515247ac07.jpg",
+            "altText": null,
+            "photoGroupId": 10
+          },
+          {
+            "id": 58,
+            "imageUrl": "/uploads/image/e621b1b0-60b4-41d5-85fc-bb90481e3702.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/e621b1b0-60b4-41d5-85fc-bb90481e3702.jpg",
+            "altText": null,
+            "photoGroupId": 10
+          },
+          {
+            "id": 59,
+            "imageUrl": "/uploads/image/283821a0-d5e5-41bb-9caa-dcccae6da980.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/283821a0-d5e5-41bb-9caa-dcccae6da980.jpg",
+            "altText": null,
+            "photoGroupId": 10
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "29.11.2025 in Munich by Noam Hitsch",
+        "displayOrder": 48,
+        "photos": [
+          {
+            "id": 60,
+            "imageUrl": "/uploads/image/e779b7b1-d6ce-438a-a439-dd16f5960b5b.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/e779b7b1-d6ce-438a-a439-dd16f5960b5b.jpg",
+            "altText": null,
+            "photoGroupId": 9
+          },
+          {
+            "id": 61,
+            "imageUrl": "/uploads/image/368b0780-8e70-4de8-8cfe-850ae7c832da.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/368b0780-8e70-4de8-8cfe-850ae7c832da.jpg",
+            "altText": null,
+            "photoGroupId": 9
+          },
+          {
+            "id": 62,
+            "imageUrl": "/uploads/image/3de891e7-0705-4cfb-bccf-ddd438771686.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/3de891e7-0705-4cfb-bccf-ddd438771686.jpg",
+            "altText": null,
+            "photoGroupId": 9
+          },
+          {
+            "id": 64,
+            "imageUrl": "/uploads/image/cb27fb02-399b-4fc1-9a8f-a8b9083a00d8.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/cb27fb02-399b-4fc1-9a8f-a8b9083a00d8.jpg",
+            "altText": null,
+            "photoGroupId": 9
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "25.10.2025 in Linz Aeskil by Clemens Schmiedbauer",
+        "displayOrder": 49,
+        "photos": [
+          {
+            "id": 65,
+            "imageUrl": "/uploads/image/311aa474-d1fa-492e-8587-63d15d6da9cc.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/311aa474-d1fa-492e-8587-63d15d6da9cc.jpg",
+            "altText": null,
+            "photoGroupId": 5
+          },
+          {
+            "id": 66,
+            "imageUrl": "/uploads/image/4163af1a-9765-42d3-8131-0eae2659c57e.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/4163af1a-9765-42d3-8131-0eae2659c57e.jpg",
+            "altText": null,
+            "photoGroupId": 5
+          },
+          {
+            "id": 67,
+            "imageUrl": "/uploads/image/10561bee-e8fc-4c87-af0a-a37a4b98cdd7.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/10561bee-e8fc-4c87-af0a-a37a4b98cdd7.jpg",
+            "altText": null,
+            "photoGroupId": 5
+          },
+          {
+            "id": 68,
+            "imageUrl": "/uploads/image/3d901f23-36ec-4bc0-a2a9-412917cabce1.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/3d901f23-36ec-4bc0-a2a9-412917cabce1.jpg",
+            "altText": null,
+            "photoGroupId": 5
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "title": "02.08.2025 in Flensburg by Flensburger Hofkultur",
+        "displayOrder": 50,
+        "photos": [
+          {
+            "id": 53,
+            "imageUrl": "/uploads/image/a7c16f9a-94f7-4476-b751-6f8808e60586.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/a7c16f9a-94f7-4476-b751-6f8808e60586.jpg",
+            "altText": null,
+            "photoGroupId": 1
+          },
+          {
+            "id": 54,
+            "imageUrl": "/uploads/image/5a584ba4-4b87-4c63-b6a0-0ebcaffb21bc.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/5a584ba4-4b87-4c63-b6a0-0ebcaffb21bc.jpg",
+            "altText": null,
+            "photoGroupId": 1
+          },
+          {
+            "id": 55,
+            "imageUrl": "/uploads/image/089060e6-a511-493b-aefd-b5465494767c.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/089060e6-a511-493b-aefd-b5465494767c.jpg",
+            "altText": null,
+            "photoGroupId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "19.07.2025 in Salzburg by Jiwoo Nam",
+        "displayOrder": 51,
+        "photos": [
+          {
+            "id": 48,
+            "imageUrl": "/uploads/image/86fff61c-b63b-4f96-8765-c92a723c8ba3.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/86fff61c-b63b-4f96-8765-c92a723c8ba3.jpg",
+            "altText": null,
+            "photoGroupId": 2
+          },
+          {
+            "id": 49,
+            "imageUrl": "/uploads/image/7e5845f7-0b13-4eb4-8c94-7b67497ebd0f.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/7e5845f7-0b13-4eb4-8c94-7b67497ebd0f.jpg",
+            "altText": null,
+            "photoGroupId": 2
+          },
+          {
+            "id": 50,
+            "imageUrl": "/uploads/image/3649014c-7153-4077-b68f-48e64bfe1849.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/3649014c-7153-4077-b68f-48e64bfe1849.jpg",
+            "altText": null,
+            "photoGroupId": 2
+          },
+          {
+            "id": 51,
+            "imageUrl": "/uploads/image/efb4bdcc-e7fd-41d8-8803-c744bc9ae9f7.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/efb4bdcc-e7fd-41d8-8803-c744bc9ae9f7.jpg",
+            "altText": null,
+            "photoGroupId": 2
+          },
+          {
+            "id": 52,
+            "imageUrl": "/uploads/image/c3657313-5594-4eb9-a394-e12eba821e3f.jpg",
+            "thumbnailUrl": "/uploads/image/thumbnails/c3657313-5594-4eb9-a394-e12eba821e3f.jpg",
+            "altText": null,
+            "photoGroupId": 2
+          }
+        ]
+      }
+    ],
+    "media/equipment": [],
+    "media/contacts": [
+      {
+        "id": 2,
+        "name": "TWIIIINS",
+        "role": "Official ",
+        "email": "stickypeanutbutter@proton.me",
+        "displayOrder": 1
+      },
+      {
+        "id": 1,
+        "name": "Dowon Kim",
+        "role": "Violin",
+        "email": "dowonkimmusic@gmail.com",
+        "displayOrder": 2
+      },
+      {
+        "id": 4,
+        "name": "Linus Shastri",
+        "role": "Baritone Violin",
+        "email": "linusshastri@protonmail.com",
+        "displayOrder": 3
+      },
+      {
+        "id": 5,
+        "name": "Minzy Lee",
+        "role": "Website Designer",
+        "email": "minzyleea@gmail.com",
+        "displayOrder": 4
+      },
+      {
+        "id": 3,
+        "name": "Chanwoo",
+        "role": "Website Operator",
+        "email": "jonadan3495@gmail.com",
+        "displayOrder": 5
+      }
+    ],
+    "media/download-files": [
+      {
+        "id": 18,
+        "name": "About TWIIIINS [Deutsch]",
+        "fileUrl": "/uploads/file/612c9e91-d34e-4058-8f98-7ae9f3a670bd.pdf",
+        "displayOrder": 0
+      },
+      {
+        "id": 19,
+        "name": "About TWIIIINS [English]",
+        "fileUrl": "/uploads/file/e19dbeba-a715-4f79-ba17-daf5edba5da6.pdf",
+        "displayOrder": 0
+      }
+    ]
+  },
+  "imageSizes": {
+    "/uploads/image/0111d9a4-5606-4f94-926d-42227aa8d7c6.jpg": [
+      1920,
+      1280
+    ],
+    "/uploads/image/0278647d-6e78-4dc3-8d6e-f84edd02ff5a.jpeg": [
+      854,
+      1280
+    ],
+    "/uploads/image/08671330-882a-4c6a-b805-c9861ca713b0.jpeg": [
+      842,
+      1280
+    ],
+    "/uploads/image/089060e6-a511-493b-aefd-b5465494767c.jpg": [
+      1400,
+      941
+    ],
+    "/uploads/image/0a619304-4613-45eb-b571-041327ab4235.jpg": [
+      1920,
+      1280
+    ],
+    "/uploads/image/0e61d5b1-c1d3-4d8b-b84e-0e287b5a6409.jpg": [
+      1920,
+      1080
+    ],
+    "/uploads/image/0f8d4c22-1ea0-42e6-a50a-732e0375ac66.jpeg": [
+      943,
+      1280
+    ],
+    "/uploads/image/10561bee-e8fc-4c87-af0a-a37a4b98cdd7.jpg": [
+      1281,
+      1920
+    ],
+    "/uploads/image/14269c26-41ac-4a2c-a602-ddf708c937b9.jpeg": [
+      1280,
+      961
+    ],
+    "/uploads/image/1492099a-e67e-46d3-8dce-92e1aecf714b.jpeg": [
+      1260,
+      1280
+    ],
+    "/uploads/image/16bfd2a7-16e8-4a91-ab01-f0e30b5debc1.jpeg": [
+      1280,
+      919
+    ],
+    "/uploads/image/197a6ee2-b8b6-449a-87d0-c7278bbe7c01.jpeg": [
+      985,
+      1280
+    ],
+    "/uploads/image/19f5588d-b7e0-4c58-8b46-1465a258e345.jpeg": [
+      1280,
+      961
+    ],
+    "/uploads/image/1c508480-d7d3-4368-a80c-c638a54a75ea.jpeg": [
+      1281,
+      1920
+    ],
+    "/uploads/image/1e9a3185-d616-4e6d-8b3b-315ebead5e28.jpeg": [
+      1281,
+      1920
+    ],
+    "/uploads/image/1f4caad5-6348-45fb-b185-4c8525925656.jpeg": [
+      942,
+      1280
+    ],
+    "/uploads/image/21c905fe-ef99-48e4-b8a2-2eefc05f6dc2.jpg": [
+      1920,
+      1080
+    ],
+    "/uploads/image/283821a0-d5e5-41bb-9caa-dcccae6da980.jpg": [
+      1920,
+      1283
+    ],
+    "/uploads/image/2bfef91e-2274-4902-896f-362b3eafa216.jpg": [
+      1919,
+      1321
+    ],
+    "/uploads/image/311aa474-d1fa-492e-8587-63d15d6da9cc.jpg": [
+      1920,
+      1281
+    ],
+    "/uploads/image/3162e3d0-2ae4-4422-b9c7-d78fb5666fd6.png": [
+      208,
+      208
+    ],
+    "/uploads/image/3649014c-7153-4077-b68f-48e64bfe1849.jpg": [
+      1920,
+      1442
+    ],
+    "/uploads/image/368b0780-8e70-4de8-8cfe-850ae7c832da.jpg": [
+      1919,
+      1663
+    ],
+    "/uploads/image/3afb815e-29bd-4246-ac9d-f078820d4b6f.jpg": [
+      1920,
+      1642
+    ],
+    "/uploads/image/3d901f23-36ec-4bc0-a2a9-412917cabce1.jpg": [
+      1920,
+      1281
+    ],
+    "/uploads/image/3de891e7-0705-4cfb-bccf-ddd438771686.jpg": [
+      1920,
+      1442
+    ],
+    "/uploads/image/4163af1a-9765-42d3-8131-0eae2659c57e.jpg": [
+      1920,
+      1281
+    ],
+    "/uploads/image/48c90eb6-52c6-436e-9abd-45d53768dd2e.JPG": [
+      1800,
+      1200
+    ],
+    "/uploads/image/508ee50d-706c-47da-988b-c681b65953be.jpeg": [
+      854,
+      1280
+    ],
+    "/uploads/image/5532835a-b47d-4eee-a81e-895c8f647b38.JPG": [
+      1920,
+      1280
+    ],
+    "/uploads/image/59ddf87c-77d9-4bf3-9396-72181d651ef0.jpeg": [
+      710,
+      1280
+    ],
+    "/uploads/image/5a584ba4-4b87-4c63-b6a0-0ebcaffb21bc.jpg": [
+      1400,
+      941
+    ],
+    "/uploads/image/5d0b11c7-9286-4696-ad19-6e33daaa78a2.jpg": [
+      1920,
+      1277
+    ],
+    "/uploads/image/5d437893-342c-4f5d-9d94-8e9e0540cbbc.jpg": [
+      1300,
+      1919
+    ],
+    "/uploads/image/6063638b-5d3f-467c-aa48-07ef443f0aa8.jpeg": [
+      1281,
+      1920
+    ],
+    "/uploads/image/63c7da72-2a43-434d-9e93-62b11c295bcf.jpeg": [
+      768,
+      1280
+    ],
+    "/uploads/image/68b49788-2ead-4320-b92e-53c52b7d67f4.jpg": [
+      1920,
+      1280
+    ],
+    "/uploads/image/70f7762a-767a-4558-bc2d-5c44cb6eb494.jpeg": [
+      1280,
+      865
+    ],
+    "/uploads/image/753c8afb-35ff-4a17-a70f-7ce43af0c502.JPG": [
+      1920,
+      1280
+    ],
+    "/uploads/image/77189439-675e-4833-bdf2-43e72f6e0739.jpeg": [
+      938,
+      952
+    ],
+    "/uploads/image/7e5845f7-0b13-4eb4-8c94-7b67497ebd0f.jpg": [
+      1920,
+      1415
+    ],
+    "/uploads/image/81520d40-9e6d-4529-8737-6052e289e10e.jpeg": [
+      854,
+      1280
+    ],
+    "/uploads/image/86fff61c-b63b-4f96-8765-c92a723c8ba3.jpg": [
+      1919,
+      1273
+    ],
+    "/uploads/image/9179ea3e-5b07-4f40-a5ce-92ec44306571.jpeg": [
+      730,
+      1280
+    ],
+    "/uploads/image/91873b8c-054d-4780-9686-b3d5f2dd1682.jpg": [
+      1920,
+      1277
+    ],
+    "/uploads/image/9463eac1-b139-41d9-a78e-f9bbcdb1ba15.jpeg": [
+      1280,
+      961
+    ],
+    "/uploads/image/9480b919-25d7-4b96-a955-db5c37a53caa.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/952f1461-24ce-4321-a045-1bcb26ffe5f4.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/966d38a1-2e25-4164-a21a-004948e69ce2.jpeg": [
+      853,
+      1280
+    ],
+    "/uploads/image/987b9fc1-60c9-4f0f-be15-af1c84ccae87.jpeg": [
+      1280,
+      854
+    ],
+    "/uploads/image/9eea721e-74be-4c2f-a58a-dbc3b7691542.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/a36fb2ab-b08f-460d-9331-d07be9a9f910.jpeg": [
+      1280,
+      854
+    ],
+    "/uploads/image/a7c16f9a-94f7-4476-b751-6f8808e60586.jpg": [
+      1400,
+      941
+    ],
+    "/uploads/image/acda53a0-4bad-4fcc-9e1a-0842f8faa280.JPG": [
+      1800,
+      1200
+    ],
+    "/uploads/image/ad404249-81de-4e2a-992b-59ea04d9236b.jpeg": [
+      1280,
+      818
+    ],
+    "/uploads/image/ae6d5b7e-a33f-4715-94a3-d6d08967e406.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/b04e7274-2f37-4f8b-b87b-5cd46f9d68eb.jpeg": [
+      854,
+      1280
+    ],
+    "/uploads/image/b23b72cd-5c4f-4209-8df5-9711730d76ce.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/b5144576-bf22-4096-9180-1deb5ff4a557.JPG": [
+      1920,
+      1280
+    ],
+    "/uploads/image/bbe65019-3b10-4d97-b224-ebc9ea428409.JPG": [
+      1920,
+      1280
+    ],
+    "/uploads/image/bc28a80e-a195-496f-9611-7124d7e708a1.JPG": [
+      1800,
+      1200
+    ],
+    "/uploads/image/bdbe41fd-0337-4582-b200-68da33af5cf4.jpg": [
+      1280,
+      1920
+    ],
+    "/uploads/image/c037cbcf-59b7-47c4-aeb4-e279ff6775e4.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/c3657313-5594-4eb9-a394-e12eba821e3f.jpg": [
+      1920,
+      1442
+    ],
+    "/uploads/image/cb27fb02-399b-4fc1-9a8f-a8b9083a00d8.jpg": [
+      1442,
+      1920
+    ],
+    "/uploads/image/ce31277b-33e9-40ce-bffe-e236a35a2205.jpg": [
+      1920,
+      1081
+    ],
+    "/uploads/image/d5348933-f342-44c4-ac94-daa21091aa77.JPG": [
+      1800,
+      1200
+    ],
+    "/uploads/image/d535cf7f-b820-4ef4-8fb4-f679479393dc.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/d9d5a429-e770-4542-9d40-956f884855e1.jpeg": [
+      1280,
+      854
+    ],
+    "/uploads/image/dbe8cca6-204d-49e1-ad2b-b14f329df47a.jpeg": [
+      1162,
+      1280
+    ],
+    "/uploads/image/e621b1b0-60b4-41d5-85fc-bb90481e3702.jpg": [
+      1920,
+      1081
+    ],
+    "/uploads/image/e779b7b1-d6ce-438a-a439-dd16f5960b5b.jpg": [
+      1919,
+      1441
+    ],
+    "/uploads/image/e8dc57c1-1b46-485f-bf90-c7f5cddebda0.jpeg": [
+      853,
+      1280
+    ],
+    "/uploads/image/ea768f2b-c269-49fb-90b2-b591ea945eec.jpeg": [
+      1280,
+      961
+    ],
+    "/uploads/image/efb4bdcc-e7fd-41d8-8803-c744bc9ae9f7.jpg": [
+      1919,
+      1146
+    ],
+    "/uploads/image/f23972c9-7c0f-4671-bc15-607a1c5d2e06.jpg": [
+      1920,
+      1920
+    ],
+    "/uploads/image/f8069c00-850a-40cc-be15-9b515247ac07.jpg": [
+      1920,
+      1081
+    ],
+    "/uploads/image/thumbnails/0111d9a4-5606-4f94-926d-42227aa8d7c6.jpg": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/0278647d-6e78-4dc3-8d6e-f84edd02ff5a.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/08671330-882a-4c6a-b805-c9861ca713b0.jpeg": [
+      263,
+      400
+    ],
+    "/uploads/image/thumbnails/089060e6-a511-493b-aefd-b5465494767c.jpg": [
+      600,
+      403
+    ],
+    "/uploads/image/thumbnails/0a619304-4613-45eb-b571-041327ab4235.jpg": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/0f8d4c22-1ea0-42e6-a50a-732e0375ac66.jpeg": [
+      295,
+      400
+    ],
+    "/uploads/image/thumbnails/10561bee-e8fc-4c87-af0a-a37a4b98cdd7.jpg": [
+      400,
+      600
+    ],
+    "/uploads/image/thumbnails/14269c26-41ac-4a2c-a602-ddf708c937b9.jpeg": [
+      400,
+      300
+    ],
+    "/uploads/image/thumbnails/1492099a-e67e-46d3-8dce-92e1aecf714b.jpeg": [
+      394,
+      400
+    ],
+    "/uploads/image/thumbnails/16bfd2a7-16e8-4a91-ab01-f0e30b5debc1.jpeg": [
+      400,
+      287
+    ],
+    "/uploads/image/thumbnails/197a6ee2-b8b6-449a-87d0-c7278bbe7c01.jpeg": [
+      308,
+      400
+    ],
+    "/uploads/image/thumbnails/19f5588d-b7e0-4c58-8b46-1465a258e345.jpeg": [
+      400,
+      300
+    ],
+    "/uploads/image/thumbnails/1c508480-d7d3-4368-a80c-c638a54a75ea.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/1e9a3185-d616-4e6d-8b3b-315ebead5e28.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/1f4caad5-6348-45fb-b185-4c8525925656.jpeg": [
+      294,
+      400
+    ],
+    "/uploads/image/thumbnails/283821a0-d5e5-41bb-9caa-dcccae6da980.jpg": [
+      600,
+      401
+    ],
+    "/uploads/image/thumbnails/311aa474-d1fa-492e-8587-63d15d6da9cc.jpg": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/3649014c-7153-4077-b68f-48e64bfe1849.jpg": [
+      600,
+      451
+    ],
+    "/uploads/image/thumbnails/368b0780-8e70-4de8-8cfe-850ae7c832da.jpg": [
+      600,
+      520
+    ],
+    "/uploads/image/thumbnails/3d901f23-36ec-4bc0-a2a9-412917cabce1.jpg": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/3de891e7-0705-4cfb-bccf-ddd438771686.jpg": [
+      600,
+      451
+    ],
+    "/uploads/image/thumbnails/4163af1a-9765-42d3-8131-0eae2659c57e.jpg": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/48c90eb6-52c6-436e-9abd-45d53768dd2e.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/508ee50d-706c-47da-988b-c681b65953be.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/5532835a-b47d-4eee-a81e-895c8f647b38.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/59ddf87c-77d9-4bf3-9396-72181d651ef0.jpeg": [
+      222,
+      400
+    ],
+    "/uploads/image/thumbnails/5a584ba4-4b87-4c63-b6a0-0ebcaffb21bc.jpg": [
+      600,
+      403
+    ],
+    "/uploads/image/thumbnails/6063638b-5d3f-467c-aa48-07ef443f0aa8.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/63c7da72-2a43-434d-9e93-62b11c295bcf.jpeg": [
+      240,
+      400
+    ],
+    "/uploads/image/thumbnails/68b49788-2ead-4320-b92e-53c52b7d67f4.jpg": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/70f7762a-767a-4558-bc2d-5c44cb6eb494.jpeg": [
+      400,
+      270
+    ],
+    "/uploads/image/thumbnails/753c8afb-35ff-4a17-a70f-7ce43af0c502.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/77189439-675e-4833-bdf2-43e72f6e0739.jpeg": [
+      394,
+      400
+    ],
+    "/uploads/image/thumbnails/7e5845f7-0b13-4eb4-8c94-7b67497ebd0f.jpg": [
+      600,
+      442
+    ],
+    "/uploads/image/thumbnails/81520d40-9e6d-4529-8737-6052e289e10e.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/86fff61c-b63b-4f96-8765-c92a723c8ba3.jpg": [
+      600,
+      398
+    ],
+    "/uploads/image/thumbnails/9179ea3e-5b07-4f40-a5ce-92ec44306571.jpeg": [
+      228,
+      400
+    ],
+    "/uploads/image/thumbnails/9463eac1-b139-41d9-a78e-f9bbcdb1ba15.jpeg": [
+      400,
+      300
+    ],
+    "/uploads/image/thumbnails/966d38a1-2e25-4164-a21a-004948e69ce2.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/987b9fc1-60c9-4f0f-be15-af1c84ccae87.jpeg": [
+      400,
+      267
+    ],
+    "/uploads/image/thumbnails/a36fb2ab-b08f-460d-9331-d07be9a9f910.jpeg": [
+      400,
+      267
+    ],
+    "/uploads/image/thumbnails/a7c16f9a-94f7-4476-b751-6f8808e60586.jpg": [
+      600,
+      403
+    ],
+    "/uploads/image/thumbnails/acda53a0-4bad-4fcc-9e1a-0842f8faa280.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/ad404249-81de-4e2a-992b-59ea04d9236b.jpeg": [
+      400,
+      256
+    ],
+    "/uploads/image/thumbnails/b04e7274-2f37-4f8b-b87b-5cd46f9d68eb.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/b5144576-bf22-4096-9180-1deb5ff4a557.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/bbe65019-3b10-4d97-b224-ebc9ea428409.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/bc28a80e-a195-496f-9611-7124d7e708a1.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/bdbe41fd-0337-4582-b200-68da33af5cf4.jpg": [
+      400,
+      600
+    ],
+    "/uploads/image/thumbnails/c3657313-5594-4eb9-a394-e12eba821e3f.jpg": [
+      600,
+      451
+    ],
+    "/uploads/image/thumbnails/cb27fb02-399b-4fc1-9a8f-a8b9083a00d8.jpg": [
+      451,
+      600
+    ],
+    "/uploads/image/thumbnails/ce31277b-33e9-40ce-bffe-e236a35a2205.jpg": [
+      600,
+      338
+    ],
+    "/uploads/image/thumbnails/d5348933-f342-44c4-ac94-daa21091aa77.JPG": [
+      600,
+      400
+    ],
+    "/uploads/image/thumbnails/d9d5a429-e770-4542-9d40-956f884855e1.jpeg": [
+      400,
+      267
+    ],
+    "/uploads/image/thumbnails/dbe8cca6-204d-49e1-ad2b-b14f329df47a.jpeg": [
+      363,
+      400
+    ],
+    "/uploads/image/thumbnails/e621b1b0-60b4-41d5-85fc-bb90481e3702.jpg": [
+      600,
+      338
+    ],
+    "/uploads/image/thumbnails/e779b7b1-d6ce-438a-a439-dd16f5960b5b.jpg": [
+      600,
+      450
+    ],
+    "/uploads/image/thumbnails/e8dc57c1-1b46-485f-bf90-c7f5cddebda0.jpeg": [
+      267,
+      400
+    ],
+    "/uploads/image/thumbnails/ea768f2b-c269-49fb-90b2-b591ea945eec.jpeg": [
+      400,
+      300
+    ],
+    "/uploads/image/thumbnails/efb4bdcc-e7fd-41d8-8803-c744bc9ae9f7.jpg": [
+      600,
+      358
+    ],
+    "/uploads/image/thumbnails/f8069c00-850a-40cc-be15-9b515247ac07.jpg": [
+      600,
+      338
+    ]
+  }
+}

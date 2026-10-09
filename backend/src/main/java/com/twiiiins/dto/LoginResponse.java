@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 public class LoginResponse {
     private String username;
     private String message;
+    private String token;
+    private java.time.Instant expiresAt;
 }
 

@@ -1,6 +1,5 @@
 <template>
   <WebsiteDialog :open="cookieSettingsOpen || (!hasCookieChoice && !dismissed)" :title="copy.title" title-id="cookie-settings-title" @close="closeSettings">
-    <LanguageSwitch />
     <p>{{ copy.description }}</p>
     <div class="cookie-category">
       <div class="cookie-option"><strong>{{ copy.essential }}</strong><span class="cookie-status">{{ copy.always }}</span></div>
@@ -20,7 +19,6 @@
 </template>
 <script setup>
 import { ref, watch } from 'vue'
-import LanguageSwitch from './LanguageSwitch.vue'
 import WebsiteDialog from './WebsiteDialog.vue'
 import { websiteLanguage, useWebsiteCopy, hasCookieChoice, mediaAllowed, cookieSettingsOpen, saveCookiePreferences } from '../../composables/useWebsitePreferences'
 const selectedMedia = ref(false)

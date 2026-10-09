@@ -28,7 +28,7 @@ services:
     container_name: twiiiins-backend
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       # OCI 내부 DB 접속 정보 (서비스명 'db' 사용)
       - DB_URL=jdbc:mysql://db:3306/twiiiins?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
@@ -37,6 +37,24 @@ services:
       # 기존 환경변수 유지
       - CORS_ORIGINS=${CORS_ORIGINS}
       - PORT=8080
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_AUTH=${SMTP_AUTH:-true}
+      - SMTP_STARTTLS=${SMTP_STARTTLS:-true}
+      - SMTP_SSL=${SMTP_SSL:-false}
+      - NEWSLETTER_ENABLED=${NEWSLETTER_ENABLED:-false}
+      - NEWSLETTER_TOKEN_KEY=${NEWSLETTER_TOKEN_KEY:-}
+      - NEWSLETTER_PUBLIC_URL=${NEWSLETTER_PUBLIC_URL:-https://twiiiins.com}
+      - NEWSLETTER_FROM=${NEWSLETTER_FROM:-}
+      - NEWSLETTER_REPLY_TO=${NEWSLETTER_REPLY_TO:-}
+      - NEWSLETTER_OPERATOR=${NEWSLETTER_OPERATOR:-}
+      - NEWSLETTER_TEST_RECIPIENTS=${NEWSLETTER_TEST_RECIPIENTS:-}
+      - NEWSLETTER_PER_MINUTE=${NEWSLETTER_PER_MINUTE:-10}
+      - NEWSLETTER_DAILY_LIMIT=${NEWSLETTER_DAILY_LIMIT:-300}
+      - DEFAULT_ADMIN_USERNAME=${DEFAULT_ADMIN_USERNAME:-}
+      - DEFAULT_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD:-}
       - FILE_UPLOAD_DIR=${FILE_UPLOAD_DIR}
       - FILE_BASE_URL=${FILE_BASE_URL:-/uploads}
       - UPLOAD_MAX_SIZE=${UPLOAD_MAX_SIZE}

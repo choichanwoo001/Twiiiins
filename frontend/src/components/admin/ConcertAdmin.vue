@@ -172,7 +172,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useConcertStore } from '../../stores'
+import { useConcertStore } from '../../stores/useConcertStore'
 import { BaseButton, ConfirmDialog, AlertDialog } from '../common'
 import { formatDate } from '../../utils/commonHelpers'
 import { logError, getErrorMessage } from '../../utils/errorHandler'

@@ -14,10 +14,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.twiiiins.security.AdminTokenFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Bean
+    public org.springframework.boot.web.servlet.FilterRegistrationBean<AdminTokenFilter> tokenFilterRegistration(AdminTokenFilter filter) {
+        var registration = new org.springframework.boot.web.servlet.FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
     
     @Value("${CORS_ORIGINS:http://localhost:5173,https://twiiiins.com,https://www.twiiiins.com}")
     private String corsOrigins;
@@ -58,12 +68,20 @@ public class SecurityConfig {
     }
     
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AdminTokenFilter tokenFilter) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> res.sendError(401))
+                .accessDeniedHandler((req, res, ex) -> res.sendError(403)))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/newsletter/**").permitAll()
+                .requestMatchers("/api/admin/**", "/api/auth/me", "/api/auth/logout").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                .requestMatchers("/api/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
             );
         

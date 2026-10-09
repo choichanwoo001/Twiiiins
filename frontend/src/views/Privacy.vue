@@ -1,6 +1,6 @@
 <template>
   <article class="privacy-page" :lang="websiteLanguage">
-    <header class="privacy-header"><h1>{{ websiteLanguage === 'de' ? 'Datenschutz' : 'Privacy' }}</h1><LanguageSwitch /></header>
+    <header class="privacy-header"><h1>{{ websiteLanguage === 'de' ? 'Datenschutz' : 'Privacy' }}</h1></header>
     <h2 class="privacy-subtitle">{{ copy.title }}</h2>
     <p class="privacy-draft">{{ copy.draft }}</p><p class="privacy-date">{{ copy.date }}</p><p>{{ copy.intro }}</p>
     <div class="privacy-settings"><span>{{ websiteLanguage === 'de' ? 'Einstellungen für diese Website' : 'Settings for this website' }}</span><button class="website-button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button></div>
@@ -15,7 +15,6 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import LanguageSwitch from '../components/common/LanguageSwitch.vue'
 import { websiteLanguage, cookieSettingsOpen } from '../composables/useWebsitePreferences'
 import { privacyCopy } from '../constants/privacyCopy'
 const copy = computed(() => privacyCopy[websiteLanguage.value])

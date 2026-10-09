@@ -2,7 +2,9 @@ import axios from 'axios'
 import { useAppStore } from '../stores'
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.DEV && import.meta.env.VITE_DUMMY_DATA === 'true'
+    ? '/api'
+    : import.meta.env.VITE_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json'
   },
@@ -66,6 +68,11 @@ apiClient.interceptors.response.use(
     if (error.config && error.config.data instanceof FormData) {
       appStore.setUploading(false)
       appStore.setUploadProgress(0)
+    }
+
+    // Callers with an inline error state handle their own notification.
+    if (error.config?.handleErrorLocally) {
+      return Promise.reject(error)
     }
     
     // 네트워크 오류 처리

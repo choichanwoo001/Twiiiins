@@ -42,6 +42,7 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<List<NewsDto>>> getAllNews(
+            @RequestParam(defaultValue = "en") @jakarta.validation.constraints.Pattern(regexp = "en|de") String lang,
             @RequestParam(required = false) @Size(max = 255) String title,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -51,7 +52,7 @@ public class NewsController {
         } else {
             newsList = newsService.getAllNews();
         }
-        return ResponseUtil.listSuccess(newsList);
+        return ResponseUtil.listSuccess(newsList.stream().map(dto -> newsService.localize(dto, lang)).toList());
     }
     
     @GetMapping("/{id}")
@@ -61,8 +62,9 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "뉴스를 찾을 수 없음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<NewsDto>> getNewsById(@PathVariable @NonNull Long id) {
-        return ResponseUtil.success(newsService.getNewsById(id));
+    public ResponseEntity<ApiResponse<NewsDto>> getNewsById(@PathVariable @NonNull Long id,
+            @RequestParam(defaultValue = "en") @jakarta.validation.constraints.Pattern(regexp = "en|de") String lang) {
+        return ResponseUtil.success(newsService.localize(newsService.getNewsById(id), lang));
     }
     
     @PostMapping
@@ -73,7 +75,7 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<NewsDto>> createNews(@Valid @RequestBody @NonNull NewsCreateRequest request) {
-        return ResponseUtil.created(newsService.createNews(request), "뉴스가 성공적으로 생성되었습니다.");
+        return ResponseUtil.created(newsService.createManualNews(request), "뉴스가 성공적으로 생성되었습니다.");
     }
     
     @PutMapping("/{id}")
@@ -87,7 +89,7 @@ public class NewsController {
     public ResponseEntity<ApiResponse<NewsDto>> updateNews(
             @PathVariable @NonNull Long id,
             @Valid @RequestBody @NonNull NewsUpdateRequest request) {
-        return ResponseUtil.success(newsService.updateNews(id, request), "뉴스가 성공적으로 수정되었습니다.");
+        return ResponseUtil.success(newsService.updateManualNews(id, request), "뉴스가 성공적으로 수정되었습니다.");
     }
     
     @DeleteMapping("/{id}")
@@ -98,7 +100,7 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     public ResponseEntity<ApiResponse<Void>> deleteNews(@PathVariable @NonNull Long id) {
-        newsService.deleteNews(id);
+        newsService.deleteManualNews(id);
         return ResponseUtil.deleted("뉴스가 성공적으로 삭제되었습니다.");
     }
     
@@ -114,7 +116,7 @@ public class NewsController {
             @PathVariable @NonNull Long id,
             @RequestParam("files") List<MultipartFile> files) {
         
-        NewsDto news = newsService.getNewsById(id);
+        NewsDto news = newsService.manualGet(id);
         List<String> imageUrls = news.getImageUrls() != null ? new ArrayList<>(news.getImageUrls()) : new ArrayList<>();
         
         if (files != null) {
@@ -128,8 +130,9 @@ public class NewsController {
         }
         
         NewsUpdateRequest request = new NewsUpdateRequest();
+        request.setVersion(news.getVersion());
         request.setImageUrls(imageUrls);
-        NewsDto updatedNews = newsService.updateNews(id, request);
+        NewsDto updatedNews = newsService.updateManualNews(id, request);
         
         return ResponseUtil.success(updatedNews, "사진이 성공적으로 업로드되었습니다.");
     }

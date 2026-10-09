@@ -18,7 +18,7 @@
     <!-- 사이드바 컴포넌트 -->
     <AdminSidebar 
       :active-section="activeSection"
-      @update:active-section="activeSection = $event"
+      @update:active-section="setSection"
     />
 
     <!-- 메인 콘텐츠 영역 -->
@@ -41,7 +41,12 @@
       />
 
       <!-- Media 관리 -->
-      <MediaAdmin v-if="activeSection === 'media'" />
+      <MediaAdmin v-if="activeSection === 'media'" @edit-newsletter="openNewsletter" />
+
+      <section v-if="activeSection === 'newsletter'" class="content-section">
+        <h1 class="section-title">Newsletter 관리</h1>
+        <NewsletterAdmin :initial-news-id="selectedNewsletterId" />
+      </section>
 
       <!-- Projects 관리 -->
       <ProjectAdmin v-if="activeSection === 'projects'" />
@@ -61,11 +66,14 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useConcertStore, useMediaStore, useAppStore } from '../stores'
+import { useConcertStore } from '../stores/useConcertStore'
+import { useMediaStore } from '../stores/useMediaStore'
+import { useAppStore } from '../stores/useAppStore'
 import AdminSidebar from '../components/admin/AdminSidebar.vue'
 import DashboardSection from '../components/admin/DashboardSection.vue'
 import ConcertAdmin from '../components/admin/ConcertAdmin.vue'
 import MediaAdmin from '../components/admin/MediaAdmin.vue'
+import NewsletterAdmin from '../components/admin/NewsletterAdmin.vue'
 import ProjectAdmin from '../components/admin/ProjectAdmin.vue'
 import ContactAdmin from '../components/admin/ContactAdmin.vue'
 import DownloadFilesAdmin from '../components/admin/DownloadFilesAdmin.vue'
@@ -77,6 +85,9 @@ const appStore = useAppStore()
 
 // Reactive data
 const activeSection = ref('dashboard')
+const selectedNewsletterId = ref(null)
+function setSection(section) { selectedNewsletterId.value = null; activeSection.value = section }
+function openNewsletter(id) { selectedNewsletterId.value = id; activeSection.value = 'newsletter' }
 
 // Dashboard data (스토어에서 가져온 데이터)
 const concerts = computed(() => concertStore.concerts)
@@ -118,6 +129,7 @@ onMounted(() => {
 }
 
 .admin-content {
+  min-width: 0;
   flex: 1;
   margin-left: 15rem;
   padding: 0;
@@ -173,5 +185,9 @@ onMounted(() => {
   font-size: 0.875rem;
   color: #666;
   font-weight: 500;
+}
+@media (max-width: 768px) {
+  .admin { display: block; }
+  .admin-content { margin-left: 0; min-width: 0; width: 100%; }
 }
 </style>

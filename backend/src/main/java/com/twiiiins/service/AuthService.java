@@ -18,10 +18,12 @@ public class AuthService {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.twiiiins.security.AdminSessionRepository sessions;
     
     /**
      * 로그인 처리
      */
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         log.debug("로그인 시도: username = {}", request.getUsername());
         
@@ -38,7 +40,13 @@ public class AuthService {
         }
         
         log.info("로그인 성공: {}", request.getUsername());
-        return new LoginResponse(user.getUsername(), "로그인에 성공했습니다.");
+        String token = com.twiiiins.security.Tokens.random();
+        var session = new com.twiiiins.security.AdminSession();
+        session.setTokenHash(com.twiiiins.security.Tokens.hash(token));
+        session.setUsername(user.getUsername());
+        session.setExpiresAt(java.time.Instant.now().plusSeconds(8 * 3600));
+        sessions.save(session);
+        return new LoginResponse(user.getUsername(), "로그인에 성공했습니다.", token, session.getExpiresAt());
     }
 }
 

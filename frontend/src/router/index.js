@@ -9,10 +9,16 @@ import Media from '../views/Media.vue'
 import Shop from '../views/Shop.vue'
 import Contact from '../views/Contact.vue'
 import Privacy from '../views/Privacy.vue'
-import Admin from '../views/Admin.vue'
+const Admin = () => import('../views/Admin.vue')
 import Login from '../views/Login.vue'
+import NewsletterAction from '../views/NewsletterAction.vue'
+import apiClient from '../api/axios'
 
 const routes = [
+  ...(import.meta.env.DEV && import.meta.env.VITE_DUMMY_DATA === 'true'
+    ? [{ path: '/dev/newsletter', name: 'NewsletterDemo', meta: { hideSiteChrome: true }, component: () => import('../views/NewsletterDemo.vue') }] : []),
+  { path: '/newsletter/confirm', name: 'NewsletterConfirm', component: NewsletterAction },
+  { path: '/newsletter/unsubscribe', name: 'NewsletterUnsubscribe', component: NewsletterAction },
   { path: '/privacy', name: 'Privacy', component: Privacy },
   {
     path: '/',
@@ -77,34 +83,19 @@ const router = createRouter({
 })
 
 // 인증 가드
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to) => {
   const appStore = useAppStore()
-  
-  // 저장된 사용자 정보 복원
-  const savedUser = localStorage.getItem('user')
-  if (savedUser) {
+  if (!to.meta.requiresAuth && to.name !== 'Login') return true
+  if (localStorage.getItem('token')) {
     try {
-      appStore.setUser(JSON.parse(savedUser))
-    } catch (e) {
-      localStorage.removeItem('user')
-    }
+      const response = await apiClient.get('/auth/me')
+      appStore.setUser(response.data.data)
+      if (to.name === 'Login') return { name: 'Admin' }
+      return true
+    } catch { appStore.logout(); localStorage.removeItem('user') }
   }
-  
-  // 인증이 필요한 페이지인지 확인
-  if (to.meta.requiresAuth) {
-    if (!appStore.isAuthenticated) {
-      next({ name: 'Login', query: { redirect: to.fullPath } })
-    } else {
-      next()
-    }
-  } else {
-    // 로그인 페이지에서 이미 로그인된 경우 admin으로 리다이렉트
-    if (to.name === 'Login' && appStore.isAuthenticated) {
-      next({ name: 'Admin' })
-    } else {
-      next()
-    }
-  }
+  if (to.meta.requiresAuth) return { name: 'Login', query: { redirect: to.fullPath } }
+  return true
 })
 
 export default router

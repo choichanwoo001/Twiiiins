@@ -27,6 +27,19 @@ public class NewsUpdateRequest {
 
     @PositiveOrZero
     private Integer displayOrder;
+    @Size(max = 255) private String eventWhenEn;
+    @Size(max = 255) private String eventWhenDe;
+    @Size(max = 255) private String eventLocationEn;
+    @Size(max = 255) private String eventLocationDe;
+    @Size(max = 255) private String ctaLabelEn;
+    @Size(max = 255) private String ctaLabelDe;
+    @Size(max = 2048) private String ctaUrl;
+    @Size(max = 255) private String titleDe;
+    @Size(max = 100000) private String bodyEn;
+    @Size(max = 100000) private String bodyDe;
+    private Long version;
+    @Size(max = 20) private java.util.List<@NotBlank @Size(max = 2048) String> videoUrls;
+
 
     @Size(max = 50)
     private List<@NotBlank @Size(max = 2048) @ValidMediaUrl String> imageUrls;

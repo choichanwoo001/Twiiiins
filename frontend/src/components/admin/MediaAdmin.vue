@@ -36,7 +36,7 @@
       <MusicTab v-if="activeTab === 'music'" />
       <VideoTab v-if="activeTab === 'videos'" />
       <PhotoTab v-if="activeTab === 'photos'" />
-      <NewsTab v-if="activeTab === 'news'" />
+      <NewsTab v-if="activeTab === 'news'" @edit-newsletter="emit('edit-newsletter', $event)" />
       <EquipmentTab v-if="activeTab === 'equipment'" />
     </div>
   </div>
@@ -51,6 +51,7 @@ import NewsTab from './tabs/NewsTab.vue'
 import EquipmentTab from './tabs/EquipmentTab.vue'
 
 const activeTab = ref('music')
+const emit = defineEmits(['edit-newsletter'])
 </script>
 
 <style scoped>
@@ -94,5 +95,10 @@ const activeTab = ref('music')
 
 .tab-content {
   min-height: 20rem;
+}
+@media (max-width: 768px) {
+  .content-section { padding: 1rem; }
+  .tabs { overflow-x: auto; }
+  .tab { flex-shrink: 0; padding: .8rem 1rem; }
 }
 </style>

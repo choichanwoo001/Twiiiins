@@ -378,6 +378,7 @@ export const buildNewsCreatePayload = (data) => {
 
 export const buildNewsUpdatePayload = (data) => {
   const payload = buildBaseNewsPayload(data);
+  if (data.version != null) payload.version = data.version;
   const date = sanitizeDate(data.date);
   const title = sanitizeString(data.title);
   if (date !== undefined) {

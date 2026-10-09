@@ -95,12 +95,16 @@ const getRelativeTime = (date) => {
  */
 export const toAbsoluteUrl = (url) => {
   if (!url) return ''
+  if (import.meta.env.DEV && import.meta.env.VITE_DUMMY_DATA === 'true' && url.startsWith('/uploads/dummy/')) {
+    return url
+  }
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
     return url
   }
   if (import.meta.env.DEV) {
-    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '')
-    return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+    const origin = /^https?:\/\//.test(API_BASE) ? new URL(API_BASE).origin : ''
+    return `${origin}${url.startsWith('/') ? '' : '/'}${url}`
   }
   return url.startsWith('/') ? url : `/${url}`
 }

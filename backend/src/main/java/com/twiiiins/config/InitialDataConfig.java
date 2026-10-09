@@ -20,17 +20,12 @@ public class InitialDataConfig {
     @Bean
     public CommandLineRunner initializeDefaultUser() {
         return args -> {
-            // 환경 변수에서 초기 사용자 정보 가져오기 (기본값은 개발용)
             String defaultUsername = System.getenv("DEFAULT_ADMIN_USERNAME");
-            if (defaultUsername == null || defaultUsername.isEmpty()) {
-                defaultUsername = "dowon"; // 개발 환경 기본값
-            }
-            
             String defaultPassword = System.getenv("DEFAULT_ADMIN_PASSWORD");
-            if (defaultPassword == null || defaultPassword.isEmpty()) {
-                defaultPassword = "1234"; // 개발 환경 기본값 (프로덕션에서는 환경 변수 필수!)
+            if (defaultUsername == null || defaultUsername.isBlank() || defaultPassword == null || defaultPassword.isBlank()) {
+                log.info("Administrator bootstrap skipped: explicit credentials are required for new accounts.");
+                return;
             }
-            
             // 기존 사용자가 있는지 확인
             if (userRepository.findByUsername(defaultUsername).isEmpty()) {
                 // 비밀번호를 BCrypt로 해시화

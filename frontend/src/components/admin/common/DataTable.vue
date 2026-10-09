@@ -24,6 +24,7 @@
               </slot>
             </td>
             <td v-if="actions.length > 0" style="white-space: nowrap;">
+              <slot name="actions" :item="item">
               <button
                 v-for="action in actions"
                 :key="action.key"
@@ -33,6 +34,7 @@
               >
                 {{ action.label }}
               </button>
+              </slot>
             </td>
           </tr>
         </tbody>
@@ -131,7 +133,7 @@ const handleAction = (actionKey, item) => {
 }
 
 /* 액션 버튼 스타일 */
-button {
+button, :slotted(button) {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.25rem;

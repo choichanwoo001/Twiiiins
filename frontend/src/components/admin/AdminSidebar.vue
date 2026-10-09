@@ -56,6 +56,11 @@ const menuItems = computed(() => [
     ariaLabel: '미디어 관리 메뉴'
   },
   {
+    key: 'newsletter',
+    label: 'Newsletter',
+    ariaLabel: '뉴스레터 관리 메뉴'
+  },
+  {
     key: 'projects',
     label: 'Projects',
     ariaLabel: '프로젝트 관리 메뉴'
@@ -92,6 +97,7 @@ const handleLogout = () => {
   color: white;
   padding: 2rem 0;
   position: fixed;
+  top: 0;
   height: 100vh;
   overflow-y: auto;
 }
@@ -153,5 +159,13 @@ const handleLogout = () => {
 
 .logout-button:hover {
   background: #c0392b;
+}
+@media (max-width: 768px) {
+  .admin-sidebar { position: relative; width: 100%; height: auto; padding: 1rem 0; box-sizing: border-box; }
+  .sidebar-title { margin-bottom: 1rem; }
+  .sidebar-nav { flex-direction: row; overflow-x: auto; }
+  .nav-item { flex-shrink: 0; padding: .8rem 1rem; }
+  .sidebar-footer { position: static; padding: .8rem 1rem 0; }
+  .logout-button { width: auto; }
 }
 </style>

@@ -19,6 +19,15 @@
       <template #cell-no="{ index }">
         {{ index + 1 }}
       </template>
+      <template #cell-source="{ item }">
+        {{ item.source === 'NEWSLETTER' ? 'Newsletter' : 'News' }}
+      </template>
+      <template #actions="{ item }">
+        <button v-if="item.source === 'NEWSLETTER'" class="btn-edit" @click="emit('edit-newsletter', item.id)">Newsletter에서 수정</button>
+        <template v-else>
+          <button v-for="action in tableActions" :key="action.key" :class="action.class" :aria-label="`${item.title} ${action.label}`" @click="handleTableAction(action.key, item)">{{ action.label }}</button>
+        </template>
+      </template>
     </DataTable>
 
     <!-- 뉴스 등록/수정 폼 -->
@@ -87,7 +96,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useMediaStore } from '../../../stores'
+import { useMediaStore } from '../../../stores/useMediaStore'
 import { newsService } from '../../../services'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
@@ -98,6 +107,7 @@ import Modal from '../common/Modal.vue'
 
 // 스토어 사용
 const mediaStore = useMediaStore()
+const emit = defineEmits(['edit-newsletter'])
 
 // 검색 필터
 const searchFilters = ref({ title: '', startDate: '', endDate: '' })
@@ -123,6 +133,7 @@ const tableColumns = [
   { key: 'no', label: 'No', width: '60px' },
   { key: 'date', label: '날짜', width: '120px' },
   { key: 'title', label: '제목', width: '200px' },
+  { key: 'source', label: '구분', width: '110px' },
   { key: 'description', label: '설명', width: '300px' }
 ]
 
@@ -258,6 +269,7 @@ const resetFilters = () => {
 }
 
 const handleTableAction = (action, item) => {
+  if (item.source === 'NEWSLETTER') { emit('edit-newsletter', item.id); return }
   switch (action) {
     case 'manage':
       managePhotos(item)
@@ -277,6 +289,7 @@ const editNews = (news) => {
     date: news.date || '',
     title: news.title || '',
     description: news.description || '',
+    version: news.version,
     displayOrder: news.displayOrder || 0
   }
 }

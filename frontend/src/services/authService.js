@@ -19,6 +19,7 @@ export const login = async (username, password) => {
       const appStore = useAppStore()
       
       // 사용자 정보 저장
+      localStorage.setItem('token', userData.token)
       appStore.setUser(userData)
       localStorage.setItem('user', JSON.stringify(userData))
       
@@ -36,6 +37,8 @@ export const login = async (username, password) => {
  */
 export const logout = () => {
   const appStore = useAppStore()
+  const token = localStorage.getItem('token')
+  if (token) apiClient.post('/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
   appStore.logout()
   localStorage.removeItem('user')
 }

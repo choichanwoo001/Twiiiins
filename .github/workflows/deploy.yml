@@ -118,6 +118,24 @@ jobs:
           FILE_UPLOAD_DIR: ${{ secrets.FILE_UPLOAD_DIR }}
           FILE_BASE_URL: ${{ secrets.FILE_BASE_URL }}
           UPLOAD_MAX_SIZE: ${{ secrets.UPLOAD_MAX_SIZE }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_AUTH: ${{ secrets.SMTP_AUTH }}
+          SMTP_STARTTLS: ${{ secrets.SMTP_STARTTLS }}
+          SMTP_SSL: ${{ secrets.SMTP_SSL }}
+          NEWSLETTER_ENABLED: ${{ secrets.NEWSLETTER_ENABLED }}
+          NEWSLETTER_TOKEN_KEY: ${{ secrets.NEWSLETTER_TOKEN_KEY }}
+          NEWSLETTER_PUBLIC_URL: ${{ secrets.NEWSLETTER_PUBLIC_URL }}
+          NEWSLETTER_FROM: ${{ secrets.NEWSLETTER_FROM }}
+          NEWSLETTER_REPLY_TO: ${{ secrets.NEWSLETTER_REPLY_TO }}
+          NEWSLETTER_OPERATOR: ${{ secrets.NEWSLETTER_OPERATOR }}
+          NEWSLETTER_TEST_RECIPIENTS: ${{ secrets.NEWSLETTER_TEST_RECIPIENTS }}
+          NEWSLETTER_PER_MINUTE: ${{ secrets.NEWSLETTER_PER_MINUTE }}
+          NEWSLETTER_DAILY_LIMIT: ${{ secrets.NEWSLETTER_DAILY_LIMIT }}
+          DEFAULT_ADMIN_USERNAME: ${{ secrets.DEFAULT_ADMIN_USERNAME }}
+          DEFAULT_ADMIN_PASSWORD: ${{ secrets.DEFAULT_ADMIN_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -143,16 +161,27 @@ jobs:
           test -s frontend/dist/index.html
           tar -C frontend/dist -czf frontend-dist.tar.gz .
 
-          cat > .env <<EOF
-          DB_URL=$DB_URL
-          DB_USERNAME=$DB_USERNAME
-          DB_PASSWORD=$DB_PASSWORD
-          CORS_ORIGINS=${CORS_ORIGINS:-https://twiiiins.com,https://www.twiiiins.com}
-          FILE_UPLOAD_DIR=${FILE_UPLOAD_DIR:-uploads}
-          FILE_BASE_URL=${FILE_BASE_URL:-/uploads}
-          UPLOAD_MAX_SIZE=${UPLOAD_MAX_SIZE:-104857600}
-          GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
-          EOF
+          python3 - <<'PYENV'
+          import json
+          import os
+          from pathlib import Path
+          defaults = {
+              "DB_URL": "", "DB_USERNAME": "", "DB_PASSWORD": "",
+              "CORS_ORIGINS": "https://twiiiins.com,https://www.twiiiins.com",
+              "FILE_UPLOAD_DIR": "uploads", "FILE_BASE_URL": "/uploads", "UPLOAD_MAX_SIZE": "104857600",
+              "GITHUB_REPOSITORY_OWNER": "",
+          }
+          optional = "SMTP_HOST SMTP_PORT SMTP_USERNAME SMTP_PASSWORD SMTP_AUTH SMTP_STARTTLS SMTP_SSL NEWSLETTER_ENABLED NEWSLETTER_TOKEN_KEY NEWSLETTER_PUBLIC_URL NEWSLETTER_FROM NEWSLETTER_REPLY_TO NEWSLETTER_OPERATOR NEWSLETTER_TEST_RECIPIENTS NEWSLETTER_PER_MINUTE NEWSLETTER_DAILY_LIMIT DEFAULT_ADMIN_USERNAME DEFAULT_ADMIN_PASSWORD".split()
+          defaults.update({key: "" for key in optional})
+          lines = []
+          for key, fallback in defaults.items():
+              value = os.environ.get(key) or fallback
+              quoted = json.dumps(value, ensure_ascii=False).replace("$", "$$")
+              lines.append(f"{key}={quoted}")
+          target = Path(".env")
+          target.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          target.chmod(0o600)
+          PYENV
 
           echo "=== Prepare remote deployment directory ==="
           ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" << 'ENDSSH'
@@ -181,6 +210,7 @@ jobs:
           scp -i ~/.ssh/deploy_key aws/nginx/nginx.conf "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/nginx/nginx.conf"
           scp -i ~/.ssh/deploy_key aws/init-letsencrypt.sh "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/aws/init-letsencrypt.sh"
           scp -r -i ~/.ssh/deploy_key scripts "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/" || true
+          scp -i ~/.ssh/deploy_key scripts/migrate-newsletter.sql "$EC2_USER@$EC2_HOST:~/twiiiins/Twiiiins/scripts/"
 
           echo "=== Install frontend artifact on remote host ==="
           ssh -i ~/.ssh/deploy_key "$EC2_USER@$EC2_HOST" << 'ENDSSH'
@@ -204,6 +234,11 @@ jobs:
 
             docker compose config >/dev/null
             docker compose pull backend
+            docker compose stop backend
+            umask 077
+            mkdir -p backups
+            docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysqldump -u root --single-transaction --no-tablespaces "$MYSQL_DATABASE"' > "backups/pre-newsletter-$(date -u +%Y%m%dT%H%M%SZ).sql"
+            docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root "$MYSQL_DATABASE"' < scripts/migrate-newsletter.sql
             docker compose up -d backend
             docker compose up -d --force-recreate nginx
             docker run --rm \

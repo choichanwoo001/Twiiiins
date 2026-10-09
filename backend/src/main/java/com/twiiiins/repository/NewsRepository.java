@@ -12,6 +12,9 @@ import java.util.List;
 
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select n from News n where n.id = :id")
+    java.util.Optional<News> lockById(@Param("id") Long id);
     @EntityGraph(attributePaths = "imageUrls")
     List<News> findAllByOrderByDisplayOrderAsc();
     

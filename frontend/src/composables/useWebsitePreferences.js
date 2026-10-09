@@ -1,6 +1,13 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
-export const websiteLanguage = ref('en')
+const LANGUAGE_KEY = 'twiiiins-website-language'
+function readLanguage() {
+  try { return localStorage.getItem(LANGUAGE_KEY) === 'de' ? 'de' : 'en' } catch { return 'en' }
+}
+export const websiteLanguage = ref(readLanguage())
+watch(websiteLanguage, (language) => {
+  try { localStorage.setItem(LANGUAGE_KEY, language) } catch { /* Keep the choice for this visit. */ }
+})
 const VERSION = 1
 const KEY = 'twiiiins-cookie-preferences'
 function readConsent() {
