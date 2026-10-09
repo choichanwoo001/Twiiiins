@@ -237,8 +237,13 @@ jobs:
             docker compose stop backend
             umask 077
             mkdir -p backups
-            docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysqldump -u root --single-transaction --no-tablespaces "$MYSQL_DATABASE"' > "backups/pre-newsletter-$(date -u +%Y%m%dT%H%M%SZ).sql"
+            echo "=== Back up database ==="
+            backup_file="backups/pre-newsletter-$(date -u +%Y%m%dT%H%M%SZ).sql"
+            docker compose exec -T --interactive=false db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysqldump -u root --single-transaction --no-tablespaces "$MYSQL_DATABASE"' > "$backup_file"
+            test -s "$backup_file"
+            echo "=== Migrate newsletter schema ==="
             docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root "$MYSQL_DATABASE"' < scripts/migrate-newsletter.sql
+            echo "=== Restart services ==="
             docker compose up -d backend
             docker compose up -d --force-recreate nginx
             docker run --rm \
@@ -250,7 +255,7 @@ jobs:
 
             certificate_ready=0
             for attempt in $(seq 1 12); do
-              if docker compose exec -T certbot \
+              if docker compose exec -T --interactive=false certbot \
                 test -e /tmp/certbot-renew-ok; then
                 certificate_ready=1
                 break
@@ -263,12 +268,12 @@ jobs:
               exit 1
             fi
 
-            docker compose exec -T nginx nginx -t
-            docker compose exec -T nginx nginx -s reload
-            docker compose exec -T nginx test -s /usr/share/nginx/html/index.html
-            docker compose exec -T nginx ls -la /usr/share/nginx/html | head
-            docker compose exec -T nginx sh -c "nginx -T 2>/dev/null | grep -q 'location = /'"
-            docker compose exec -T nginx sh -c "grep -q '<div id=\"app\"></div>' /usr/share/nginx/html/index.html"
+            docker compose exec -T --interactive=false nginx nginx -t
+            docker compose exec -T --interactive=false nginx nginx -s reload
+            docker compose exec -T --interactive=false nginx test -s /usr/share/nginx/html/index.html
+            docker compose exec -T --interactive=false nginx ls -la /usr/share/nginx/html | head
+            docker compose exec -T --interactive=false nginx sh -c "nginx -T 2>/dev/null | grep -q 'location = /'"
+            docker compose exec -T --interactive=false nginx sh -c "grep -q '<div id=\"app\"></div>' /usr/share/nginx/html/index.html"
 
             echo "=== Backend Container Logs ==="
             sleep 5
