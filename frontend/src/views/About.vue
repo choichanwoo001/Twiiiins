@@ -2,7 +2,7 @@
   <div class="about">
     <!-- 왼쪽: 타이틀 영역 -->
     <div class="about-title-section">
-      <h1>ABOUT</h1>
+      <h1>{{ t('ABOUT') }}</h1>
     </div>
 
     <!-- 오른쪽: 콘텐츠 영역 -->
@@ -18,7 +18,7 @@
       <div class="about-images">
         <div class="image-grid">
           <figure v-for="photo in photos" :key="photo.src" class="image-item" :class="photo.layout">
-            <img :src="photo.src" :alt="photo.alt" :width="photo.width" :height="photo.height"
+            <img :src="photo.src" :alt="t(photo.alt)" :width="photo.width" :height="photo.height"
               loading="lazy" decoding="async">
           </figure>
         </div>
@@ -28,6 +28,7 @@
 </template>
 
 <script setup>
+import { t } from '../composables/useWebsiteTranslation'
 import { computed } from 'vue'
 import { websiteLanguage as language } from '../composables/useWebsitePreferences'
 import studioViolins from '../imgs/About/updated/studio-violins.webp'
@@ -65,7 +66,7 @@ const content = computed(() => translations[language.value])
   color: #1E1D1D;
   font-family: 'Jost', sans-serif;
   /* Keep the internal desktop scroll area above the fixed social links. */
-  height: calc(100dvh - var(--navbar-height) - 4rem);
+  height: calc(100dvh - var(--navbar-height) - var(--website-footer-space));
   overflow-y: auto;
   overflow-x: hidden;
   padding-top: 3rem;
@@ -173,7 +174,7 @@ const content = computed(() => translations[language.value])
     padding-right: 1.5rem;
     height: auto; /* 모바일에서는 자연스러운 스크롤 허용 */
     overflow-y: visible;
-    padding-bottom: 4rem; /* 하단 여백 추가 */
+    padding-bottom: var(--website-footer-space); /* Space for the wrapped social links and legal footer. */
   }
 
   .about-title-section {

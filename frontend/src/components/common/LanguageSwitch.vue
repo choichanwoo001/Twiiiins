@@ -39,7 +39,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onOutsideClick
 summary { list-style: none; cursor: pointer; padding: 0; color: #555; white-space: nowrap; font-size: 0.75rem; line-height: 1.5rem; }
 summary::-webkit-details-marker { display: none; }
 summary:focus-visible { outline: 2px solid #815d47; outline-offset: 3px; }
-.language-options { position: absolute; left: 0; top: calc(100% + 0.6rem); z-index: 1; min-width: 8rem; padding: 0.3rem; background: #fff; border: 1px solid #ded8d1; box-shadow: 0 4px 16px #00000014; }
+.language-options { position: absolute; right: 0; bottom: calc(100% + 0.6rem); z-index: 1; min-width: 8rem; padding: 0.3rem; background: #fff; border: 1px solid #ded8d1; box-shadow: 0 4px 16px #00000014; }
 .language-options button { display: flex; justify-content: space-between; gap: 1rem; width: 100%; padding: 0.65rem 0.75rem; min-height: 2.75rem; color: #555; text-align: left; font: inherit; font-size: 0.85rem; border: 0; background: none; cursor: pointer; }
 .language-options button:hover, .language-options button[aria-pressed='true'] { background: #f5f1ec; color: #815d47; }
 .language-options button:focus-visible { outline: 2px solid #815d47; outline-offset: -2px; }

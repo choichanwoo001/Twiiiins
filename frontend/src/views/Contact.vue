@@ -2,49 +2,55 @@
   <div class="contact">
     <!-- 좌측 고정 타이틀 -->
     <aside class="contact-title">
-      <h1>CONTACT</h1>
+      <h1>{{ t('CONTACT') }}</h1>
     </aside>
 
     <!-- 우측 콘텐츠 -->
     <div class="contact-content" :lang="websiteLanguage">
+      <section class="booking-agency contact-section" aria-labelledby="booking-heading">
+        <h2 id="booking-heading">{{ copy.bookingHeading }}</h2>
+        <p class="section-intro">{{ copy.bookingIntro }}</p>
+        <div class="contact-item">
+          <div class="contact-name">Shaggy Schwarz</div>
+          <div class="contact-role">{{ copy.bookingRole }}</div>
+          <a class="contact-email" href="mailto:mail@shaggyschwarz.de">mail@shaggyschwarz.de</a>
+        </div>
+      </section>
+
       <NewsletterSignup />
-      <p v-if="previewMode" class="preview-notice">Preview · sample contacts and downloads. Download links are inactive.</p>
-      <!-- 안내 문구 -->
-      <div class="contact-info">
-        <p class="intro-text">
-          FOR COLLABORATIONS, PERFORMANCE INQUIRIES, OR PORTFOLIO REQUESTS,<br>
-          PLEASE CONTACT US HERE. WE LOOK FORWARD TO CONNECTING WITH YOU!
-        </p>
-      </div>
 
-      <!-- 연락처 + 다운로드 병렬 섹션 -->
-      <div class="contact-body">
-        <!-- 연락처 정보 -->
-        <div class="contact-details">
-          <div v-for="contact in contacts" :key="contact.id" class="contact-item">
-            <div class="contact-name">{{ contact.name }}</div>
-            <div v-if="contact.role" class="contact-role">{{ contact.role }}</div>
-            <div class="contact-email">{{ contact.email }}</div>
+      <section class="general-contact contact-section" aria-labelledby="general-contact-heading">
+        <h2 id="general-contact-heading">{{ copy.generalHeading }}</h2>
+        <p class="section-intro">{{ copy.generalIntro }}</p>
+        <a class="contact-email" href="mailto:contact@twiiiins.com">contact@twiiiins.com</a>
+        <hr class="contact-divider">
+
+        <div class="contact-body">
+          <div class="contact-details">
+            <div v-for="contact in individualContacts" :key="contact.id" class="contact-item">
+              <div class="contact-name">{{ contact.name }}</div>
+              <div v-if="contact.role" class="contact-role">{{ translateContent('contacts', 'role', contact.role) }}</div>
+              <a class="contact-email" :href="`mailto:${contact.email}`">{{ contact.email }}</a>
+            </div>
+          </div>
+          <div class="download-section">
+            <h3>{{ t('Download') }}</h3>
+            <p v-if="previewMode" class="preview-notice">{{ copy.previewDownloads }}</p>
+            <div class="download-list">
+              <a v-for="file in downloadFiles" :key="file.id" class="download-item"
+                :href="toAbsoluteUrl(file.fileUrl)" :download="isDropboxUrl(file.fileUrl) ? undefined : file.name"
+                @click="previewMode && $event.preventDefault()"
+                target="_blank" rel="noopener noreferrer">
+                <span>{{ translateContent('downloads', 'name', file.name) }}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+            <p class="download-terms">{{ copy.downloadNotice }} <router-link to="/privacy#press-kit">{{ copy.terms }}</router-link>.</p>
           </div>
         </div>
-
-        <!-- 다운로드 섹션 -->
-        <div class="download-section">
-          <h2>Download</h2>
-          <div class="download-list">
-            <a v-for="file in downloadFiles" :key="file.id" class="download-item"
-              :href="toAbsoluteUrl(file.fileUrl)" :download="isDropboxUrl(file.fileUrl) ? undefined : file.name"
-              @click="previewMode && $event.preventDefault()"
-              target="_blank" rel="noopener noreferrer">
-              <span>{{ file.name }}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-          </div>
-          <p class="download-terms">{{ copy.downloadNotice }} <router-link to="/privacy#press-kit">{{ copy.terms }}</router-link>.</p>
-        </div>
-      </div>
+      </section>
 
     </div>
 
@@ -52,7 +58,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { t, translateContent } from '../composables/useWebsiteTranslation'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '../api/axios'
 import { toAbsoluteUrl } from '../utils/commonHelpers'
@@ -63,23 +70,36 @@ import NewsletterSignup from '../components/common/NewsletterSignup.vue'
 const route = useRoute()
 const previewMode = import.meta.env.DEV && route.query.preview === 'contact'
 const copy = useWebsiteCopy({
+ bookingHeading: 'BOOKING AGENCY',
+ bookingIntro: 'For all concert bookings and performance inquiries, please contact our booking agency directly.',
+ bookingRole: 'Concert Booking',
+ generalHeading: 'GET IN TOUCH',
+ generalIntro: 'For collaborations, creative projects, media inquiries, or any other questions about TWIIIINS, please contact us directly.',
+ previewDownloads: 'Preview · sample downloads. Download links are inactive.',
  downloadNotice: 'By downloading these materials, you agree to our', terms: 'Press Kit and Download Terms'
 }, {
+ bookingHeading: 'BOOKING-AGENTUR',
+ bookingIntro: 'Für alle Konzertbuchungen und Auftrittsanfragen wenden Sie sich bitte direkt an unsere Booking-Agentur.',
+ bookingRole: 'Konzertbuchung',
+ generalHeading: 'KONTAKT AUFNEHMEN',
+ generalIntro: 'Für Kooperationen, kreative Projekte, Medienanfragen oder andere Fragen zu TWIIIINS kontaktieren Sie uns bitte direkt.',
+ previewDownloads: 'Vorschau · Beispiel-Downloads. Download-Links sind deaktiviert.',
  downloadNotice: 'Mit dem Download dieser Materialien stimmen Sie unseren', terms: 'Pressekit- und Download-Bedingungen zu'
 })
 
 // 데이터
 const contacts = ref([])
+const individualContacts = computed(() => contacts.value.filter(contact =>
+  !['shaggy schwarz', 'twiiiins'].includes(contact.name?.trim().toLowerCase())
+))
 const downloadFiles = ref([])
 
-// 연락처 데이터 로드
 const loadContacts = async () => {
   try {
     const response = await axios.get('/media/contacts')
-    contacts.value = response.data.data || response.data
-  } catch (error) {
-    // 연락처 로드 실패
-  }
+    const items = response.data.data || response.data
+    contacts.value = [...items].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+  } catch { /* Keep the primary booking and general contact links available. */ }
 }
 
 // 다운로드 파일 데이터 로드
@@ -118,6 +138,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.contact-section { flex-shrink: 0; min-width: 0; }
+.contact-section > h2 { margin: 0 0 .75rem; font-size: 1.3rem; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; }
+.section-intro { margin: 0 0 1.5rem; color: #666; line-height: 1.6; }
+.general-contact > .section-intro { margin-bottom: .35rem; }
+.contact-divider { margin: 1.8rem 0 0; border: 0; border-top: 1px solid #e8e3dd; }
+.booking-agency { padding-bottom: 1.8rem; border-bottom: 1px solid #e8e3dd; }
+.contact-email { display: inline-block; overflow-wrap: anywhere; text-underline-offset: .2em; }
+.contact-email:focus-visible { outline: 2px solid #815d47; outline-offset: 3px; }
+
 .preview-notice { color: #815d47; font-size: 0.75rem; line-height: 1.5; }
 .download-terms { margin-top: 1.5rem; font-size: 0.8rem; line-height: 1.6; color: #666; }
 .download-terms a { color: #815d47; text-underline-offset: 0.15em; }
@@ -136,7 +165,7 @@ onMounted(() => {
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
-  height: calc(100dvh - var(--navbar-height) - 4rem);
+  height: calc(100dvh - var(--navbar-height) - var(--website-footer-space));
   overflow: hidden;
 }
 
@@ -198,8 +227,9 @@ onMounted(() => {
 
 /* 연락처 + 다운로드 병렬 컨테이너 */
 .contact-body {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 2rem;
   align-items: flex-start;
   justify-content: flex-start;
   gap: 2rem;
@@ -223,7 +253,8 @@ onMounted(() => {
   flex-direction: column;
   gap: 2rem;
   flex: 1;
-  max-width: 25rem;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .contact-item {
@@ -268,8 +299,8 @@ onMounted(() => {
 /* 다운로드 섹션 */
 .download-section {
   margin-top: 0;
-  min-width: 15rem;
-  max-width: 18.75rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .form-group label {
@@ -302,7 +333,7 @@ onMounted(() => {
   border-bottom-color: var(--color-text); /* #1E1D1D */
 }
 
-.download-section h2 {
+.download-section h3 {
   font-size: 1.1rem;
   font-weight: bold;
   color: #1E1D1D;
@@ -367,7 +398,7 @@ onMounted(() => {
   .contact-content {
     margin-right: 0;
     padding-top: 0;
-    padding-bottom: 2rem;
+    padding-bottom: var(--website-footer-space);
     width: 100%;
     max-width: none;
     height: auto;
@@ -385,7 +416,7 @@ onMounted(() => {
 
   /* 연락처 + 다운로드 섹션 스택킹 */
   .contact-body {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
     gap: 3rem;
   }
 
@@ -414,7 +445,7 @@ onMounted(() => {
     margin-top: 1rem;
   }
   
-  .download-section h2 {
+  .download-section h3 {
     font-size: 1rem;
     padding-bottom: 0.5rem;
   }

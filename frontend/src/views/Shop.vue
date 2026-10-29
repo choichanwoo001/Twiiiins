@@ -1,10 +1,10 @@
 <template>
   <div class="shop">
-    <aside class="shop-title"><h1>SHOP</h1></aside>
+    <aside class="shop-title"><h1>{{ t('SHOP') }}</h1></aside>
     <main class="shop-content" :lang="websiteLanguage">
       <article class="album-product" aria-labelledby="album-title">
         <figure class="album-artwork">
-          <img :src="albumCover" alt="TWIIIINS – Only The Beginning album cover, with flowing orange, black and cream patterns"
+          <img :src="albumCover" :alt="t('TWIIIINS – Only The Beginning album cover, with flowing orange, black and cream patterns')"
             width="1600" height="1600" decoding="async">
         </figure>
         <div class="album-details">
@@ -16,7 +16,7 @@
           <div class="album-order">
             <p>{{ copy.order }}</p>
             <a class="order-button" :href="orderEmail">{{ copy.orderButton }} <span aria-hidden="true">↗</span></a>
-            <a class="order-email" href="mailto:stickypeanutbutter@proton.me">stickypeanutbutter@proton.me</a>
+            <a class="order-email" href="mailto:contact@twiiiins.com">contact@twiiiins.com</a>
           </div>
         </div>
       </article>
@@ -25,10 +25,11 @@
 </template>
 
 <script setup>
+import { t } from '../composables/useWebsiteTranslation'
 import albumCover from '../imgs/shop/only-the-beginning.webp'
 import { websiteLanguage, useWebsiteCopy } from '../composables/useWebsitePreferences'
 
-const orderEmail = `mailto:stickypeanutbutter@proton.me?subject=${encodeURIComponent('TWIIIINS – Only The Beginning CD order')}`
+const orderEmail = `mailto:contact@twiiiins.com?subject=${encodeURIComponent('TWIIIINS – Only The Beginning CD order')}`
 const copy = useWebsiteCopy({
   description: 'Get your physical copy of TWIIIINS – Only The Beginning.',
   shipping: 'Shipping is not included in the price and is calculated separately depending on the destination.',
@@ -51,7 +52,7 @@ const copy = useWebsiteCopy({
   grid-template-columns: 1fr 2.2fr;
   align-items: start;
   gap: 4rem;
-  height: calc(100dvh - var(--navbar-height) - 4rem);
+  height: calc(100dvh - var(--navbar-height) - var(--website-footer-space));
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -118,7 +119,7 @@ const copy = useWebsiteCopy({
   .shop {
     display: flex;
     flex-direction: column;
-    padding: 4rem 1.5rem 6rem;
+    padding: 4rem 1.5rem var(--website-footer-space);
     gap: 1.5rem;
     height: auto;
     min-height: calc(100dvh - var(--navbar-height));

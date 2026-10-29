@@ -25,6 +25,7 @@
         News
       </button>
       <button 
+        v-if="EQUIPMENT_ENABLED"
         :class="['tab', { active: activeTab === 'equipment' }]"
         @click="activeTab = 'equipment'">
         Equipment
@@ -37,13 +38,14 @@
       <VideoTab v-if="activeTab === 'videos'" />
       <PhotoTab v-if="activeTab === 'photos'" />
       <NewsTab v-if="activeTab === 'news'" @edit-newsletter="emit('edit-newsletter', $event)" />
-      <EquipmentTab v-if="activeTab === 'equipment'" />
+      <EquipmentTab v-if="EQUIPMENT_ENABLED && activeTab === 'equipment'" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { EQUIPMENT_ENABLED } from '../../constants'
 import MusicTab from './tabs/MusicTab.vue'
 import VideoTab from './tabs/VideoTab.vue'
 import PhotoTab from './tabs/PhotoTab.vue'

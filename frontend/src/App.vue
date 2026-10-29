@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :lang="websiteLanguage">
     <!-- 관리자 페이지가 아닐 때만 네비게이션 표시 -->
     <nav v-if="!isEditorPage" class="navbar">
       <div class="container">
@@ -7,17 +7,16 @@
         
         <!-- 데스크탑 메뉴 -->
         <div class="nav-links desktop-nav">
-          <LanguageSwitch v-if="!isHomePage && !isMobile" />
-          <router-link to="/about">ABOUT</router-link>
-          <router-link to="/projects">PROJECTS</router-link>
-          <router-link to="/concerts">CONCERTS</router-link>
-          <router-link to="/media">MEDIA</router-link>
-          <router-link to="/shop">SHOP</router-link>
-          <router-link to="/contact">CONTACT</router-link>
+          <router-link to="/about">{{ t('ABOUT') }}</router-link>
+          <router-link to="/projects">{{ t('PROJECTS') }}</router-link>
+          <router-link to="/concerts">{{ t('CONCERTS') }}</router-link>
+          <router-link to="/media">{{ t('MEDIA') }}</router-link>
+          <router-link to="/shop">{{ t('SHOP') }}</router-link>
+          <router-link to="/contact">{{ t('CONTACT') }}</router-link>
         </div>
 
         <!-- 햄버거 버튼 (모바일) -->
-        <button class="hamburger-button" @click="toggleMobileMenu" :class="{ 'is-open': isMobileMenuOpen }" :aria-expanded="isMobileMenuOpen" :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'" aria-controls="mobile-navigation">
+        <button class="hamburger-button" @click="toggleMobileMenu" :class="{ 'is-open': isMobileMenuOpen }" :aria-expanded="isMobileMenuOpen" :aria-label="t(isMobileMenuOpen ? 'Close menu' : 'Open menu')" aria-controls="mobile-navigation">
           <span></span>
           <span></span>
           <span></span>
@@ -28,28 +27,27 @@
       <div id="mobile-navigation" class="mobile-menu-overlay" :class="{ 'is-open': isMobileMenuOpen }" :inert="!isMobileMenuOpen">
         <div class="mobile-nav-links">
           <div class="mobile-about-links">
-            <LanguageSwitch v-if="!isHomePage && isMobile" />
-            <router-link to="/about" @click="closeMobileMenu">ABOUT</router-link>
+            <router-link to="/about" @click="closeMobileMenu">{{ t('ABOUT') }}</router-link>
           </div>
-          <router-link to="/projects" @click="closeMobileMenu">PROJECTS</router-link>
-          <router-link to="/concerts" @click="closeMobileMenu">CONCERTS</router-link>
+          <router-link to="/projects" @click="closeMobileMenu">{{ t('PROJECTS') }}</router-link>
+          <router-link to="/concerts" @click="closeMobileMenu">{{ t('CONCERTS') }}</router-link>
           
           <!-- MEDIA (Accordion) -->
-          <div class="mobile-menu-item" :class="{ active: isMediaMenuOpen }" @click="toggleMediaMenu">MEDIA</div>
+          <div class="mobile-menu-item" :class="{ active: isMediaMenuOpen }" @click="toggleMediaMenu">{{ t('MEDIA') }}</div>
           <div v-show="isMediaMenuOpen" class="mobile-sub-menu">
-            <router-link to="/media?section=music" class="mobile-sub-link" @click.stop="closeMobileMenu">MUSIC</router-link>
-            <router-link to="/media?section=videos" class="mobile-sub-link" @click.stop="closeMobileMenu">VIDEOS</router-link>
-            <router-link to="/media?section=photos" class="mobile-sub-link" @click.stop="closeMobileMenu">PHOTOS</router-link>
-            <router-link to="/media?section=news" class="mobile-sub-link" @click.stop="closeMobileMenu">NEWS</router-link>
-            <router-link to="/media?section=equipment" class="mobile-sub-link" @click.stop="closeMobileMenu">EQUIPMENT</router-link>
+            <router-link to="/media?section=music" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('MUSIC') }}</router-link>
+            <router-link to="/media?section=videos" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('VIDEOS') }}</router-link>
+            <router-link to="/media?section=photos" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('PHOTOS') }}</router-link>
+            <router-link to="/media?section=news" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('NEWS') }}</router-link>
+            <router-link v-if="EQUIPMENT_ENABLED" to="/media?section=equipment" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('EQUIPMENT') }}</router-link>
           </div>
-          <router-link to="/shop" @click="closeMobileMenu">SHOP</router-link>
-          <router-link to="/contact" @click="closeMobileMenu">CONTACT</router-link>
+          <router-link to="/shop" @click="closeMobileMenu">{{ t('SHOP') }}</router-link>
+          <router-link to="/contact" @click="closeMobileMenu">{{ t('CONTACT') }}</router-link>
         </div>
       </div>
     </nav>
     
-    <main :class="{ 'editor-shell': isEditorPage }">
+    <main :class="{ 'editor-shell': isEditorPage, 'public-page-shell': !isEditorPage && !isHomePage }">
       <router-view />
     </main>
     
@@ -63,8 +61,10 @@
          class="sns-link">
         {{ sns.name }}
       </a>
+      <LanguageSwitch />
     </div>
 
+    <div v-if="!isEditorPage && !shouldShowSnsLinks" class="standalone-language"><LanguageSwitch /></div>
     <footer v-if="!isEditorPage && !isHomePage" class="legal-footer">
       <router-link to="/privacy">{{ websiteLanguage === 'de' ? 'Datenschutz & Bedingungen' : 'Privacy & Terms' }}</router-link>
       <button type="button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button>
@@ -72,19 +72,20 @@
     <CookieControls v-if="!isEditorPage" />
 
     <!-- 스크롤 업 버튼 (오른쪽 하단) - 관리자 페이지가 아닐 때만 표시 -->
-    <button v-if="!isEditorPage && showScrollUp" class="scroll-up-button" @click="scrollToTop" aria-label="Scroll to top">
+    <button v-if="!isEditorPage && showScrollUp" class="scroll-up-button" @click="scrollToTop" :aria-label="t('Scroll to top')">
       ↑
     </button>
   </div>
 </template>
 
 <script setup>
+import { t } from './composables/useWebsiteTranslation'
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from './stores'
 import { useAppScroll } from './composables/useAppScroll'
 import { useMobile } from './composables/useMobile'
-import { SNS_LINKS, PATHS_WITH_SNS_LINKS } from './constants'
+import { SNS_LINKS, PATHS_WITH_SNS_LINKS, EQUIPMENT_ENABLED } from './constants'
 import CookieControls from './components/common/CookieControls.vue'
 import LanguageSwitch from './components/common/LanguageSwitch.vue'
 import { websiteLanguage, cookieSettingsOpen } from './composables/useWebsitePreferences'

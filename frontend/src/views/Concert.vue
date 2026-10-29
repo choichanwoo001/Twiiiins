@@ -2,21 +2,21 @@
   <div class="concert">
     <!-- 좌측 고정 타이틀 -->
     <aside class="concert-title">
-      <h1>CONCERT</h1>
+      <h1>{{ t('CONCERT') }}</h1>
     </aside>
 
     <!-- 통합된 이벤트 섹션 -->
     <main class="events-container">
       <!-- Upcoming Events -->
       <ConcertSection 
-        title="Upcoming Events" 
+        :title="t('Upcoming Events')"
         :events="upcomingEvents" 
         @toggle="toggleEvent" 
       />
 
       <!-- Past Events -->
       <ConcertSection 
-        title="Past Events" 
+        :title="t('Past Events')"
         :events="pastEvents" 
         :is-past="true"
         @toggle="togglePastEvent" 
@@ -26,82 +26,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { t, websiteLocale, translateContent } from '../composables/useWebsiteTranslation'
+import { ref, computed, onMounted } from 'vue'
 import { concertService } from '../services'
 import ConcertSection from '../components/ConcertSection.vue'
-import { formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
-// 이벤트 데이터
-const upcomingEvents = ref([])
-const pastEvents = ref([])
-
-// 콘서트 데이터 로드
-const loadConcerts = async () => {
-  try {
-    const allConcerts = await concertService.getAllConcerts()
-    // concertService에서 이미 표준 응답의 data를 반환하므로 바로 사용 가능 (단, map을 돌려야 함)
-    
-    // 만약 service가 raw data를 반환한다면 그대로 map
-    // concertService.getAllConcerts() -> returns response.data.data
-    
-    const formattedConcerts = allConcerts.map(concert => {
-      const formattedDate = formatDate(concert.date, 'date', 'en-US')
-      // 날짜 분리 (예: "July 30, 2026" -> ["July 30,", "2026"])
-      const [dateMain, dateYear] = formattedDate.split(/(?=\s\d{4})/).map(s => s.trim())
-      
-      return {
-        id: concert.id,
-        date: formattedDate,
-        dateMain: dateMain || formattedDate,
-        dateYear: dateYear || '',
-        location: concert.location,
-        name: concert.name,
-        expanded: false,
-        startTime: concert.startTime || '',
-        ticketInfo: concert.ticketInfo || '',
-        fullLocation: concert.fullLocation || '',
-        googleMap: concert.googleMapUrl || '',
-        collaborationInfo: concert.collaborationInfo || '',
-        isPast: concert.isPast
-      }
-    })
-    
-    // 다가오는 이벤트와 과거 이벤트로 분리하고 날짜순으로 정렬
-    upcomingEvents.value = formattedConcerts
-      .filter(concert => !concert.isPast)
-      .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
-    
-    pastEvents.value = formattedConcerts
-      .filter(concert => concert.isPast)
-      .sort((a, b) => new Date(a.date) - new Date(b.date)) // 오름차순 정렬 (가장 이른 날짜가 위로)
-  } catch (error) {
-    logError(error, '콘서트 데이터 로드')
-    // 에러 시 빈 배열로 초기화
-    upcomingEvents.value = []
-    pastEvents.value = []
+const concerts = ref([])
+const expandedIds = ref(new Set())
+const localizedConcerts = computed(() => concerts.value.map(concert => {
+  const date = new Date(`${concert.date}T12:00:00`)
+  return {
+    ...concert,
+    dateMain: new Intl.DateTimeFormat(websiteLocale.value, { month: 'long', day: 'numeric' }).format(date),
+    dateYear: String(date.getFullYear()),
+    location: translateContent('concerts', 'location', concert.location),
+    name: translateContent('concerts', 'name', concert.name),
+    fullLocation: translateContent('concerts', 'fullLocation', concert.fullLocation),
+    collaborationInfo: translateContent('concerts', 'collaborationInfo', concert.collaborationInfo),
+    googleMap: concert.googleMapUrl,
+    expanded: expandedIds.value.has(concert.id)
   }
+}).sort((a, b) => a.date.localeCompare(b.date)))
+const upcomingEvents = computed(() => localizedConcerts.value.filter(concert => !concert.isPast))
+const pastEvents = computed(() => localizedConcerts.value.filter(concert => concert.isPast))
+function toggleEvent(id) {
+  if (expandedIds.value.has(id)) expandedIds.value.delete(id)
+  else expandedIds.value.add(id)
 }
-
-// 토글 함수
-const toggleEvent = (eventId) => {
-  const event = upcomingEvents.value.find(e => e.id === eventId)
-  if (event) {
-    event.expanded = !event.expanded
-  }
-}
-
-// 과거 이벤트 토글 함수
-const togglePastEvent = (eventId) => {
-  const event = pastEvents.value.find(e => e.id === eventId)
-  if (event) {
-    event.expanded = !event.expanded
-  }
-}
-
-// 페이지 로드 시 데이터 가져오기
-onMounted(() => {
-  loadConcerts()
+const togglePastEvent = toggleEvent
+onMounted(async () => {
+  try { concerts.value = await concertService.getAllConcerts() }
+  catch (error) { logError(error, '공연 정보 로드') }
 })
 </script>
 
@@ -111,7 +67,7 @@ onMounted(() => {
   background: var(--color-background);
   color: var(--color-text);
   padding-top: 3rem;
-  height: calc(100vh - var(--navbar-height));
+  height: calc(100dvh - var(--navbar-height) - var(--website-footer-space));
   box-sizing: border-box;
   overflow: hidden;
   display: grid;
@@ -166,7 +122,7 @@ onMounted(() => {
 @media (max-width: 48rem) {
   .concert {
     display: block; /* 그리드 해제 */
-    padding: 4rem 1.5rem 2rem 1.5rem; /* 좌우 여백 축소 */
+    padding: 4rem 1.5rem var(--website-footer-space); /* 좌우 여백 축소 */
     height: auto; /* 전체 스크롤 허용 */
     overflow: visible;
     gap: 0;

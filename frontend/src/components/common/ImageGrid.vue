@@ -6,7 +6,7 @@
           :src="imageUrl"
           :srcset="getImageSrcset(imageUrl)"
           :sizes="sizes"
-          :alt="`${altTextPrefix} ${index + 1}`"
+          :alt="`${altTextPrefix || t('Image')} ${index + 1}`"
           loading="lazy"
           decoding="async"
           @error="handleResponsiveImageError($event, imageUrl)"
@@ -17,6 +17,7 @@
 </template>
 
 <script setup>
+import { t } from '../../composables/useWebsiteTranslation'
 import { getImageSrcset, handleResponsiveImageError } from '../../utils/responsiveImages'
 
 defineProps({
@@ -27,7 +28,7 @@ defineProps({
   },
   altTextPrefix: {
     type: String,
-    default: 'Image'
+    default: ''
   },
   mobileAspectRatio: {
     type: String,

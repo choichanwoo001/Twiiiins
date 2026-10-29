@@ -1,3 +1,6 @@
+// Deprecated UI: keep Equipment code/data available for a future reactivation.
+export const EQUIPMENT_ENABLED = false
+
 export const SNS_LINKS = [
     {
         name: 'INSTAGRAM',

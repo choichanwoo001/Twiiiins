@@ -18,9 +18,6 @@ function fillExample() {
   form.value = { ...empty(), title: 'SOUND IN MOTION', titleDe: 'KLANG IN BEWEGUNG',
     bodyEn: '<h2>A new conversation between sound and movement.</h2><p>Join TWIIIINS for an evening of contemporary music and performance. Discover new textures, shared rhythms and unexpected connections.</p><p>This is example content for the newsletter preview.</p>',
     bodyDe: '<h2>Ein neuer Dialog zwischen Klang und Bewegung.</h2><p>Erleben Sie mit TWIIIINS einen Abend voller zeitgenössischer Musik und Performance. Entdecken Sie neue Klangfarben, gemeinsame Rhythmen und überraschende Verbindungen.</p><p>Dies ist ein Beispiel für die Newsletter-Vorschau.</p>',
-    eventWhenEn: 'Saturday, October 24 · 7:30 pm (example)', eventWhenDe: 'Samstag, 24. Oktober · 19:30 Uhr (Beispiel)',
-    eventLocationEn: 'Performance Hall · Berlin (example)', eventLocationDe: 'Performance Hall · Berlin (Beispiel)',
-    ctaLabelEn: 'Explore the performance', ctaLabelDe: 'Performance entdecken', ctaUrl: 'https://twiiiins.com/concerts',
     imageUrls: [examplePhoto] }
 }
 import examplePhoto from '../imgs/About/updated/seongsu-live.webp'

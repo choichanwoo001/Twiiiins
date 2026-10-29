@@ -8,20 +8,20 @@
             :src="homeImg1920"
             :srcset="homeSrcset"
             sizes="(max-width: 48rem) 178vw, 100vw"
-            alt="Dowon Kim and Linus Shastri holding their violins in a lively pose"
+            :alt="t('Dowon Kim and Linus Shastri holding their violins in a lively pose')"
             fetchpriority="high"
             loading="eager"
             decoding="async"
           >
         </picture>
-        <p class="hero-description">TWIIIINS are a modern, dynamic violin duo with influences spanning folk, pop, classical, funk, jazz, rock, and cinematic elements.</p>
+        <p class="hero-description">{{ t('TWIIIINS are a modern, dynamic violin duo with influences spanning folk, pop, classical, funk, jazz, rock, and cinematic elements.') }}</p>
       </div>
     </section>
 
     <!-- 이벤트 섹션 (붉은색 배경) -->
     <section class="events-section">
       <div class="events-container">
-        <h2 class="events-title">UPCOMING EVENTS</h2>
+        <h2 class="events-title">{{ t('UPCOMING EVENTS') }}</h2>
         <div class="events-list" v-if="events && events.length > 0">
           <div class="event-item" v-for="event in events" :key="event.id">
             <div class="event-date">
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div v-else class="no-events">
-          <p>No upcoming events.</p>
+          <p>{{ t('No upcoming events.') }}</p>
         </div>
       </div>
     </section>
@@ -55,6 +55,7 @@
 </template>
 
 <script setup>
+import { t, websiteLocale, translateContent } from '../composables/useWebsiteTranslation'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useConcertStore } from '../stores'
 import { useRouter } from 'vue-router'
@@ -78,18 +79,18 @@ const events = computed(() => {
       // 날짜 포맷팅: "July 30, 2026"
       const dateObj = new Date(concert.date);
       // 날짜 부분: "July 30,"
-      const monthDay = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(dateObj) + ',';
+      const monthDay = new Intl.DateTimeFormat(websiteLocale.value, { month: 'long', day: 'numeric' }).format(dateObj) + (websiteLocale.value === 'en-US' ? ',' : '');
       // 연도 부분: "2026"
       const year = dateObj.getFullYear();
       
       return {
         id: concert.id,
-        date: formatDate(concert.date, 'date', 'en-US'),
+        date: formatDate(concert.date, 'date', websiteLocale.value),
         dateMonthDay: monthDay,
         dateYear: year,
         dateValue: dateObj, 
-        location: concert.location,
-        name: concert.name
+        location: translateContent('concerts', 'location', concert.location),
+        name: translateContent('concerts', 'name', concert.name)
       }
     })
     .sort((a, b) => a.dateValue - b.dateValue) // 오름차순 정렬 (가장 이른 날짜가 위로)

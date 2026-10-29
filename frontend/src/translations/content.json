@@ -1,0 +1,221 @@
+{
+  "projects": {
+    "subtitle": {
+      "Collaboration with Salzburger Landestheater": {
+        "de": "Zusammenarbeit mit Salzburger Landestheater"
+      },
+      "Using the RC-600 as an Audio Interface and Loopstation at the Same Time": {
+        "de": "Den RC-600 gleichzeitig als Audio-Interface und Loopstation nutzen"
+      }
+    },
+    "descriptions": {
+      "We joined the production of Bertolt Brecht’s The Resistible Rise of Arturo Ui as composers and performers, creating all of the music for the show using the sound of the violin as the central element.\n\nThroughout 13 performances, we appeared on stage in a minor role while performing live alongside the actors and dancers. Sharing the stage with such a talented ensemble made this collaboration a particularly meaningful experience for us.\n\nImprovisation was an important part of our contribution. Playing close to the actors allowed us to respond to their performances in real time, adding another layer of energy to the scenes.\n\nWe would like to thank Alexandra Liedtke and Paul Blackman for their trust and collaboration.": {
+        "de": "Wir wirkten als Komponisten und Musiker an der Inszenierung von Bertolt Brechts The Resistible Rise of Arturo Ui mit und schufen die gesamte Musik der Aufführung, wobei der Klang der Geige im Mittelpunkt stand.\n\nIn insgesamt 13 Vorstellungen standen wir in einer kleinen Rolle selbst auf der Bühne und musizierten live zusammen mit den Schauspielern und Tänzern. Die Bühne mit einem so talentierten Ensemble zu teilen, machte diese Zusammenarbeit für uns zu einer besonders bedeutungsvollen Erfahrung.\n\nImprovisation war ein wichtiger Bestandteil unseres Beitrags. Durch das Spiel in unmittelbarer Nähe zu den Schauspielern konnten wir in Echtzeit auf ihre Darbietungen reagieren und den Szenen zusätzliche Energie verleihen.\n\nWir danken Alexandra Liedtke und Paul Blackman für ihr Vertrauen und die Zusammenarbeit."
+      },
+      "We figured out how RC-600 loopstation routing works. It could be useful information for anyone who wants to use it with a DAW. This way of routing our violin and microphone opened up our compact setup on stage and created many possibilities to design the sound of our music!": {
+        "de": "Wir haben herausgefunden, wie das Routing der RC-600-Loopstation funktioniert. Diese Informationen könnten für alle nützlich sein, die sie mit einer DAW verwenden möchten. Diese Art, unsere Geige und unser Mikrofon zu routen, hat unser kompaktes Bühnen-Setup erweitert und viele Möglichkeiten eröffnet, den Klang unserer Musik zu gestalten!"
+      }
+    },
+    "reviews.text": {
+      "„Eine gelungene expressiv körperbetonte Interpretation – die von der anfänglichen Lächerlichkeit des Unbeholfenen, zur erschreckend blutrünstigen Unmenschlichkeit entartet. Eine fantastische Umsetzung eines erschreckend aktuellen Stoffs.“": {
+        "en": "“A successful, expressive and intensely physical interpretation that develops from the initial absurdity of awkwardness into a frighteningly bloodthirsty inhumanity. A fantastic staging of a disturbingly topical work.”"
+      }
+    }
+  },
+  "concerts": {
+    "name": {
+      "TWIIIINS Concert": {
+        "de": "TWIIIINS Konzert"
+      },
+      "TWIIIINS concert": {
+        "de": "TWIIIINS Konzert"
+      },
+      "Band Battle Final": {
+        "de": "Band-Battle-Finale"
+      },
+      "Band Battle Round 01": {
+        "de": "Band-Battle-Runde 01"
+      },
+      "TWIIIINS concert (Jam session opener)": {
+        "de": "TWIIIINS Konzert (Eröffnung der Jam-Session)"
+      },
+      "TWIIIINS Concert ": {
+        "de": "TWIIIINS Konzert"
+      }
+    },
+    "collaborationInfo": {
+      "we are gonna be part of Gala show!": {
+        "de": "Wir sind bei der Galashow dabei!"
+      },
+      "Opening concert - 이수연": {
+        "de": "Eröffnungskonzert - 이수연"
+      }
+    },
+    "fullLocation": {
+      "Spcecial Concert": {
+        "de": "Sonderkonzert"
+      }
+    },
+    "location": {
+      "Somewhere in Munich": {
+        "de": "Irgendwo in Munich"
+      }
+    }
+  },
+  "news": {
+    "title": {
+      "Introducing Our Debut Single: Common Room": {
+        "de": "Unsere Debütsingle: Common Room"
+      }
+    },
+    "description": {
+      "Hello Everybody:)\nWe are excited to announce to you,  that our very first single “Common Room” will\nbe coming out on 1st December 2023 on all\nstreaming platforms!\nOnce we will get closer to the Release date,\nwe will let you know more about the\nCreation of the song.\nWe are looking forward to your reactions\nand hope you enjoy our music:)": {
+        "de": "Hallo zusammen :)\nWir freuen uns, euch mitteilen zu können, dass unsere allererste Single „Common Room“ am 1. Dezember 2023 auf allen Streaming-Plattformen erscheint!\nWenn der Veröffentlichungstermin näher rückt, erzählen wir euch mehr über die Entstehung des Songs.\nWir freuen uns auf eure Reaktionen und hoffen, dass euch unsere Musik gefällt :)"
+      }
+    },
+    "body": {
+      "<p>Hello Everybody:)<br>We are excited to announce to you,  that our very first single “Common Room” will<br>be coming out on 1st December 2023 on all<br>streaming platforms!<br>Once we will get closer to the Release date,<br>we will let you know more about the<br>Creation of the song.<br>We are looking forward to your reactions<br>and hope you enjoy our music:)</p>": {
+        "de": "<p>Hallo zusammen :)<br>Wir freuen uns, euch mitteilen zu können, dass unsere allererste Single „Common Room“ am 1. Dezember 2023 auf allen Streaming-Plattformen erscheint!<br>Wenn der Veröffentlichungstermin näher rückt, erzählen wir euch mehr über die Entstehung des Songs.<br>Wir freuen uns auf eure Reaktionen und hoffen, dass euch unsere Musik gefällt :)</p>"
+      }
+    }
+  },
+  "contacts": {
+    "role": {
+      "Official": {
+        "de": "Offizieller Kontakt"
+      },
+      "Official ": {
+        "de": "Offizieller Kontakt"
+      },
+      "Violin": {
+        "de": "Geige"
+      },
+      "Baritone Violin": {
+        "de": "Baritongeige"
+      },
+      "Website Designer": {
+        "de": "Webdesign"
+      },
+      "Website Operator": {
+        "de": "Website-Betreiber"
+      },
+      "Concert Booking": {
+        "de": "Konzertbuchung"
+      },
+      "Official · sample": {
+        "de": "Offizieller Kontakt · Beispiel"
+      },
+      "Violin · sample": {
+        "de": "Geige · Beispiel"
+      },
+      "Baritone Violin · sample": {
+        "de": "Baritongeige · Beispiel"
+      },
+      "Website Designer · sample": {
+        "de": "Webdesign · Beispiel"
+      },
+      "Website Operator · sample": {
+        "de": "Website-Betreiber · Beispiel"
+      },
+      "Concert Booking · sample": {
+        "de": "Konzertbuchung · Beispiel"
+      }
+    }
+  },
+  "downloads": {
+    "name": {
+      "About TWIIIINS [Deutsch]": {
+        "de": "Über TWIIIINS [Deutsch]"
+      },
+      "About TWIIIINS [English]": {
+        "de": "Über TWIIIINS [Englisch]"
+      },
+      "CV, Tech Rider, Posters and Pictures": {
+        "de": "Lebenslauf, Technical Rider, Plakate und Bilder"
+      },
+      "Press Photos": {
+        "de": "Pressefotos"
+      },
+      "Press Kit": {
+        "de": "Pressekit"
+      },
+      "About TWIIIINS [Deutsch] · sample": {
+        "de": "Über TWIIIINS [Deutsch] · Beispiel"
+      },
+      "About TWIIIINS [English] · sample": {
+        "de": "Über TWIIIINS [Englisch] · Beispiel"
+      },
+      "Press Photos · sample": {
+        "de": "Pressefotos · Beispiel"
+      },
+      "Press Kit · sample": {
+        "de": "Pressekit · Beispiel"
+      }
+    }
+  },
+  "photos": {
+    "title": {
+      "27.08.2026 in Hamburg by Peter Jacob": {
+        "de": "27.08.2026 in Hamburg von Peter Jacob"
+      },
+      "24.07.2026 in Seoul by Park Hangyeol": {
+        "de": "24.07.2026 in Seoul von Park Hangyeol"
+      },
+      "25.07.2026 in Uiwang by Duwon Kim": {
+        "de": "25.07.2026 in Uiwang von Duwon Kim"
+      },
+      "19.07.2026 in Kuwangju by Duwon Kim": {
+        "de": "19.07.2026 in Kuwangju von Duwon Kim"
+      },
+      "18.07.2026 in Hongdong by Duwon Kim": {
+        "de": "18.07.2026 in Hongdong von Duwon Kim"
+      },
+      "17.07.2026 in Uiwang by Duwon Kim": {
+        "de": "17.07.2026 in Uiwang von Duwon Kim"
+      },
+      "16.07.2026 in Seoul by Duwon Kim": {
+        "de": "16.07.2026 in Seoul von Duwon Kim"
+      },
+      "20.06.2026 in Linz by Ilja Hitsch": {
+        "de": "20.06.2026 in Linz von Ilja Hitsch"
+      },
+      "03.05.2026 in Kirchhiem Musiknacht by Thomas Kaltenecker": {
+        "de": "03.05.2026 in Kirchhiem Musiknacht von Thomas Kaltenecker"
+      },
+      "26.04.2026 in Munich by Sofar": {
+        "de": "26.04.2026 in Munich von Sofar"
+      },
+      "06.04.2026 in Järna by Bella": {
+        "de": "06.04.2026 in Järna von Bella"
+      },
+      "18.12.2025 in Vienna by Korea Culturecenter": {
+        "de": "18.12.2025 in Vienna von Korea Culturecenter"
+      },
+      "29.11.2025 in Munich by Noam Hitsch": {
+        "de": "29.11.2025 in Munich von Noam Hitsch"
+      },
+      "25.10.2025 in Linz Aeskil by Clemens Schmiedbauer": {
+        "de": "25.10.2025 in Linz Aeskil von Clemens Schmiedbauer"
+      },
+      "02.08.2025 in Flensburg by Flensburger Hofkultur": {
+        "de": "02.08.2025 in Flensburg von Flensburger Hofkultur"
+      },
+      "19.07.2025 in Salzburg by Jiwoo Nam": {
+        "de": "19.07.2025 in Salzburg von Jiwoo Nam"
+      }
+    }
+  },
+  "videos": {
+    "title": {
+      "About TWIIIINS": {
+        "de": "Über TWIIIINS"
+      },
+      "Come Together (Beatles) Cover by TWIIIINS": {
+        "de": "Come Together (Beatles) Coverversion von TWIIIINS"
+      },
+      "Little Blue (Jacob Collier) Cover by TWIIIINS": {
+        "de": "Little Blue (Jacob Collier) Coverversion von TWIIIINS"
+      }
+    }
+  }
+}

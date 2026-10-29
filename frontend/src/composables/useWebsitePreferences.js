@@ -5,7 +5,9 @@ function readLanguage() {
   try { return localStorage.getItem(LANGUAGE_KEY) === 'de' ? 'de' : 'en' } catch { return 'en' }
 }
 export const websiteLanguage = ref(readLanguage())
+if (typeof document !== 'undefined') document.documentElement.lang = websiteLanguage.value
 watch(websiteLanguage, (language) => {
+  if (typeof document !== 'undefined') document.documentElement.lang = language
   try { localStorage.setItem(LANGUAGE_KEY, language) } catch { /* Keep the choice for this visit. */ }
 })
 const VERSION = 1

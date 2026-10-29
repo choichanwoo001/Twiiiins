@@ -20,7 +20,7 @@ import { privacyCopy } from '../constants/privacyCopy'
 const copy = computed(() => privacyCopy[websiteLanguage.value])
 </script>
 <style scoped>
-.privacy-page { max-width: 64rem; margin: 0 auto; padding: 3rem 2rem 8rem; overflow-wrap: anywhere; }
+.privacy-page { max-width: 64rem; margin: 0 auto; padding: 3rem 2rem var(--website-footer-space); overflow-wrap: anywhere; }
 .privacy-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e8e3dd; margin-bottom: 2.5rem; }
 .privacy-header h1 { text-transform: uppercase; letter-spacing: 0.08em; font-size: clamp(2.2rem, 6vw, 4.5rem); }
 .privacy-subtitle { margin-top: 0; font-size: clamp(1.3rem, 3vw, 1.8rem); }
@@ -36,5 +36,5 @@ p { color: #555; line-height: 1.8; margin-bottom: 1rem; }
 .privacy-index { display: flex; flex-direction: column; gap: 0.3rem; margin: 2rem 0; }
 a { color: #815d47; font-size: 0.9rem; }
 section { scroll-margin-top: calc(var(--navbar-height) + 1rem); }
-@media (max-width: 48rem) { .privacy-page { padding: 2rem 1.5rem 9rem; } }
+@media (max-width: 48rem) { .privacy-page { padding: 2rem 1.5rem var(--website-footer-space); } }
 </style>

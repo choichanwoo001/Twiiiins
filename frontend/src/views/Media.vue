@@ -5,27 +5,27 @@
       <div class="nav-item main-title"
            :class="{ active: activeSection === 'music' || activeSection === '' }"
            @click="setActiveSection('music')">
-        <h1>MUSIC</h1>
+        <h1>{{ t('MUSIC') }}</h1>
       </div>
       <div class="nav-item" 
            :class="{ active: activeSection === 'videos' }"
            @click="setActiveSection('videos')">
-        <h2>VIDEOS</h2>
+        <h2>{{ t('VIDEOS') }}</h2>
       </div>
       <div class="nav-item" 
            :class="{ active: activeSection === 'photos' }"
            @click="setActiveSection('photos')">
-        <h2>PHOTOS</h2>
+        <h2>{{ t('PHOTOS') }}</h2>
       </div>
       <div class="nav-item" 
            :class="{ active: activeSection === 'news' }"
            @click="setActiveSection('news')">
-        <h2>NEWS</h2>
+        <h2>{{ t('NEWS') }}</h2>
       </div>
-      <div class="nav-item" 
+      <div v-if="EQUIPMENT_ENABLED" class="nav-item"
            :class="{ active: activeSection === 'equipment' }"
            @click="setActiveSection('equipment')">
-        <h2>EQUIPMENT</h2>
+        <h2>{{ t('EQUIPMENT') }}</h2>
       </div>
     </div>
 
@@ -34,27 +34,27 @@
       <div class="mobile-nav-item"
            :class="{ active: activeSection === 'music' || activeSection === '' }"
            @click="setActiveSection('music')">
-        MUSIC
+        {{ t('MUSIC') }}
       </div>
       <div class="mobile-nav-item" 
            :class="{ active: activeSection === 'videos' }"
            @click="setActiveSection('videos')">
-        VIDEOS
+        {{ t('VIDEOS') }}
       </div>
       <div class="mobile-nav-item" 
            :class="{ active: activeSection === 'photos' }"
            @click="setActiveSection('photos')">
-        PHOTOS
+        {{ t('PHOTOS') }}
       </div>
       <div class="mobile-nav-item" 
            :class="{ active: activeSection === 'news' }"
            @click="setActiveSection('news')">
-        NEWS
+        {{ t('NEWS') }}
       </div>
-      <div class="mobile-nav-item" 
+      <div v-if="EQUIPMENT_ENABLED" class="mobile-nav-item"
            :class="{ active: activeSection === 'equipment' }"
            @click="setActiveSection('equipment')">
-        EQUIPMENT
+        {{ t('EQUIPMENT') }}
       </div>
     </div>
 
@@ -91,7 +91,7 @@
               <iframe
                 v-if="mediaAllowed"
                 :src="video.embedUrl"
-                title="YouTube video player"
+                :title="t('YouTube video player')"
                 style="border: none;"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin"
@@ -104,16 +104,16 @@
               </div>
             </div>
             <div v-else class="video-error">
-              <p>Invalid video URL.</p>
+              <p>{{ t('Invalid video URL.') }}</p>
             </div>
             <div class="video-info">
-              <div class="video-title">{{ video.title }}</div>
+              <div class="video-title">{{ translateContent('videos', 'title', video.title) }}</div>
               <div class="video-channel">TWIIIINS</div>
             </div>
           </div>
         </div>
         <div v-else class="empty-state">
-          <p>No videos found.</p>
+          <p>{{ t('No videos found.') }}</p>
         </div>
       </div>
 
@@ -121,7 +121,7 @@
       <div v-if="activeSection === 'photos'" class="content-section">
         <div class="photos-gallery">
           <div class="photo-group" v-for="group in photoGroups" :key="group.id">
-            <div class="photo-group-title">{{ group.title }}</div>
+            <div class="photo-group-title">{{ translateContent('photos', 'title', group.title) }}</div>
             <div class="photos-grid">
               <div class="photo-item" 
                    v-for="photo in group.photos" 
@@ -130,7 +130,7 @@
                   :src="photo.src"
                   :srcset="getImageSrcset(photo.src)"
                   sizes="(max-width: 48rem) 50vw, 25vw"
-                  :alt="photo.alt"
+                  :alt="photo.alt ? translateContent('photos', 'altText', photo.alt) : `${t('Photo from')} ${translateContent('photos', 'title', group.title)}`"
                   loading="lazy"
                   decoding="async"
                   @error="handleResponsiveImageError($event, photo.src)"
@@ -146,9 +146,9 @@
         <div class="news-list">
           <div class="news-item" v-for="news in newsList" :key="news.id">
             <div class="news-preview" @click="toggleNews(news.id)">
-              <div class="news-date">{{ news.date }}</div>
+              <div class="news-date">{{ formatDate(news.date, 'short', websiteLocale) }}</div>
               <div class="news-content">
-                <div class="news-title">{{ websiteLanguage === 'de' && news.titleDe ? news.titleDe : news.title }}</div>
+                <div class="news-title">{{ newsTitle(news) }}</div>
               </div>
               <div class="news-expand" :class="{ 'expanded': news.expanded }">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -159,15 +159,15 @@
             
             <!-- 상세 정보 -->
             <div class="news-details" v-if="news.expanded">
-              <div v-if="news.bodyEn || news.bodyDe" class="news-description news-rich" v-html="websiteLanguage === 'de' && news.bodyDe ? news.bodyDe : news.bodyEn"></div>
-              <div v-else class="news-description">{{ news.description }}</div>
+              <div v-if="news.bodyEn || news.bodyDe" class="news-description news-rich" v-html="newsBody(news)"></div>
+              <div v-else class="news-description">{{ translateContent('news', 'description', news.description) }}</div>
               <p v-for="(url, index) in news.videoUrls || []" :key="url"><a :href="url" target="_blank" rel="noopener noreferrer">{{ websiteLanguage === 'de' ? 'Video ansehen' : 'Watch video' }} {{ index + 1 }} ↗</a></p>
               
               <!-- 사진 섹션 -->
               <div class="news-images" v-if="news.imageUrls && news.imageUrls.length > 0">
                 <ImageGrid 
                   :images="news.imageUrls" 
-                  :alt-text-prefix="news.title" 
+                  :alt-text-prefix="newsTitle(news)"
                   mobile-aspect-ratio="16 / 9"
                 />
               </div>
@@ -178,7 +178,7 @@
 
 
       <!-- EQUIPMENT 섹션 -->
-      <div v-if="activeSection === 'equipment'" class="content-section">
+      <div v-if="EQUIPMENT_ENABLED && activeSection === 'equipment'" class="content-section">
         <div class="equipment-grid">
           <div class="equipment-item" v-for="equipment in equipmentList" :key="equipment.id">
             <div class="equipment-image">
@@ -202,6 +202,8 @@
 </template>
 
 <script setup>
+import { t, websiteLocale, translateContent, newsTitle, newsBody } from '../composables/useWebsiteTranslation'
+import { EQUIPMENT_ENABLED } from '../constants'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { 
   musicService, 
@@ -235,13 +237,13 @@ const activeSection = ref('')
 
 // 섹션 변경 함수
 const setActiveSection = (section) => {
-  activeSection.value = section
+  activeSection.value = section === 'equipment' && !EQUIPMENT_ENABLED ? 'music' : section
 }
 
 // 쿼리 파라미터 변경 감지
 watch(() => route.query.section, (newSection) => {
   if (newSection) {
-    activeSection.value = newSection
+    setActiveSection(newSection)
   } 
 })
 
@@ -351,7 +353,7 @@ const loadVideos = async () => {
 onMounted(() => {
   // 초기 섹션 설정
   if (route.query.section) {
-    activeSection.value = route.query.section
+    setActiveSection(route.query.section)
   } else {
     activeSection.value = 'music'
   }
@@ -360,7 +362,7 @@ onMounted(() => {
   loadVideos()
   loadPhotoGroups()
   loadNews()
-  loadEquipment()
+  if (EQUIPMENT_ENABLED) loadEquipment()
 })
 
 // 사진 그룹 데이터
@@ -378,7 +380,7 @@ const loadPhotoGroups = async () => {
         photos: (group.photos && Array.isArray(group.photos)) ? group.photos.map(photo => ({
           src: toAbsoluteUrl(photo.thumbnailUrl || photo.imageUrl),
           fullSrc: toAbsoluteUrl(photo.imageUrl),
-          alt: photo.altText || `Photo from ${group.title}`
+          alt: photo.altText
         })) : []
       }))
     } else {
@@ -415,7 +417,7 @@ const loadNews = async () => {
     newsList.value = newsData.map(news => ({
       ...news,
       id: news.id,
-      date: formatDate(news.date, 'news'),
+      date: news.date,
       title: news.title,
       description: news.description,
       imageUrls: news.imageUrls ? news.imageUrls.map(url => toAbsoluteUrl(url)) : [],
@@ -449,7 +451,7 @@ const toggleNews = (newsId) => {
   display: flex;
   background-color: var(--color-background);
   padding-top: 3rem;
-  height: calc(100vh - var(--navbar-height));
+  height: calc(100dvh - var(--navbar-height) - var(--website-footer-space));
   overflow: hidden;
 }
 
@@ -889,7 +891,7 @@ const toggleNews = (newsId) => {
 
   .media-content {
     padding: 0;
-    padding-bottom: 8rem;
+    padding-bottom: var(--website-footer-space);
     overflow: visible;
     padding-top: 0; /* 네비게이션이 위에 있으므로 상단 패딩 제거 */
   }

@@ -1,6 +1,6 @@
 <template>
   <section class="newsletter-signup" aria-labelledby="newsletter-heading">
-    <h2 id="newsletter-heading">Newsletter</h2>
+    <h2 id="newsletter-heading">{{ copy.heading }}</h2>
     <p>{{ copy.intro }}</p>
     <p v-if="preview">{{ copy.preview }}</p>
     <form v-if="state === 'ready' || state === 'preview'" @submit.prevent="submit">
@@ -28,8 +28,8 @@ import { newsletterService as service } from '../../services/newsletterService'
 const preview = import.meta.env.DEV && import.meta.env.VITE_DUMMY_DATA === 'true'
 const email = ref(''), language = ref(websiteLanguage.value), consent = ref(false), busy = ref(false)
 const state = ref(preview ? 'preview' : 'loading'), messageKey = ref('')
-const copy = useWebsiteCopy({ preview: 'Preview only. No subscription is saved and no email is sent.', previewSuccess: 'Preview complete. No subscription was saved and no email was sent.', loading: 'Checking subscription availability…', connectionError: 'We could not check subscription availability. Please try again.', retry: 'Try again', intro: 'Music, performances and news from TWIIIINS, straight to your inbox.', email: 'Email address', language: 'Newsletter language', consent: 'I would like to receive the TWIIIINS newsletter. I can unsubscribe at any time. See our', privacy: 'privacy notice', subscribe: 'Subscribe', sending: 'Sending…', unavailable: 'Newsletter subscriptions are currently unavailable.', success: 'Thank you for subscribing! We’ll send you news from TWIIIINS. No further confirmation is needed.', error: 'We could not process your request. Please try again later.' },
-{ preview: 'Nur Vorschau. Es wird kein Abonnement gespeichert und keine E-Mail versendet.', previewSuccess: 'Vorschau abgeschlossen. Es wurde kein Abonnement gespeichert und keine E-Mail versendet.', loading: 'Die Verfügbarkeit wird geprüft…', connectionError: 'Die Verfügbarkeit konnte nicht geprüft werden. Bitte versuchen Sie es erneut.', retry: 'Erneut versuchen', intro: 'Musik, Auftritte und Neuigkeiten von TWIIIINS direkt in Ihr Postfach.', email: 'E-Mail-Adresse', language: 'Newsletter-Sprache', consent: 'Ich möchte den TWIIIINS-Newsletter erhalten und kann mich jederzeit abmelden. Weitere Informationen in unserer', privacy: 'Datenschutzerklärung', subscribe: 'Abonnieren', sending: 'Wird gesendet…', unavailable: 'Newsletter-Abonnements sind derzeit nicht verfügbar.', success: 'Vielen Dank für Ihr Abonnement! Sie erhalten ab jetzt Neuigkeiten von TWIIIINS. Eine weitere Bestätigung ist nicht erforderlich.', error: 'Die Anfrage konnte nicht bearbeitet werden. Bitte versuchen Sie es später erneut.' })
+const copy = useWebsiteCopy({ heading: 'STAY CONNECTED', preview: 'Preview only. No subscription is saved and no email is sent.', previewSuccess: 'Preview complete. No subscription was saved and no email was sent.', loading: 'Checking subscription availability…', connectionError: 'We could not check subscription availability. Please try again.', retry: 'Try again', intro: 'Subscribe to our newsletter for the latest news, upcoming concerts, new releases, and updates from TWIIIINS.', email: 'Email address', language: 'Newsletter language', consent: 'I would like to receive the TWIIIINS newsletter. I can unsubscribe at any time. See our', privacy: 'privacy notice', subscribe: 'Subscribe', sending: 'Sending…', unavailable: 'Newsletter subscriptions are currently unavailable.', success: 'Thank you for subscribing! We’ll send you news from TWIIIINS. No further confirmation is needed.', error: 'We could not process your request. Please try again later.' },
+{ heading: 'IN VERBINDUNG BLEIBEN', preview: 'Nur Vorschau. Es wird kein Abonnement gespeichert und keine E-Mail versendet.', previewSuccess: 'Vorschau abgeschlossen. Es wurde kein Abonnement gespeichert und keine E-Mail versendet.', loading: 'Die Verfügbarkeit wird geprüft…', connectionError: 'Die Verfügbarkeit konnte nicht geprüft werden. Bitte versuchen Sie es erneut.', retry: 'Erneut versuchen', intro: 'Abonnieren Sie unseren Newsletter für aktuelle Neuigkeiten, kommende Konzerte, neue Veröffentlichungen und Updates von TWIIIINS.', email: 'E-Mail-Adresse', language: 'Newsletter-Sprache', consent: 'Ich möchte den TWIIIINS-Newsletter erhalten und kann mich jederzeit abmelden. Weitere Informationen in unserer', privacy: 'Datenschutzerklärung', subscribe: 'Abonnieren', sending: 'Wird gesendet…', unavailable: 'Newsletter-Abonnements sind derzeit nicht verfügbar.', success: 'Vielen Dank für Ihr Abonnement! Sie erhalten ab jetzt Neuigkeiten von TWIIIINS. Eine weitere Bestätigung ist nicht erforderlich.', error: 'Die Anfrage konnte nicht bearbeitet werden. Bitte versuchen Sie es später erneut.' })
 watch(websiteLanguage, value => { language.value = value })
 async function checkAvailability() {
   if (preview) return
@@ -58,8 +58,8 @@ async function submit() {
 </script>
 
 <style scoped>
-.newsletter-signup { padding-bottom: 1.8rem; border-bottom: 1px solid #e8e3dd; }
-h2 { margin: 0 0 .75rem; font-size: 1.3rem; font-weight: 500; }
+.newsletter-signup { flex-shrink: 0; padding-bottom: 1.8rem; border-bottom: 1px solid #e8e3dd; }
+h2 { line-height: 1.4; overflow-wrap: anywhere; margin: 0 0 .75rem; font-size: 1.3rem; font-weight: 500; }
 p { color: #666; line-height: 1.6; }
 .signup-fields { display: flex; gap: 1rem; flex-wrap: wrap; }
 .signup-fields label { flex: 1; min-width: 10rem; }

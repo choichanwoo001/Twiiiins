@@ -23,23 +23,23 @@
           <!-- 상세 정보 -->
           <div class="event-details" v-if="event.expanded">
             <div class="detail-row">
-              <span class="detail-label">{{ isPast ? 'Concert started at:' : 'Concert starts at:' }}</span>
+              <span class="detail-label">{{ t(isPast ? 'Concert started at:' : 'Concert starts at:') }}</span>
               <span class="detail-value">{{ event.startTime }}</span>
             </div>
             <div class="detail-row" v-if="!isPast">
-              <span class="detail-label">Ticket Info:</span>
+              <span class="detail-label">{{ t('Ticket Info:') }}</span>
               <a :href="event.ticketInfo" target="_blank" class="detail-link">{{ event.ticketInfo }}</a>
             </div>
             <div class="detail-row">
-              <span class="detail-label">Location:</span>
+              <span class="detail-label">{{ t('Location:') }}</span>
               <span class="detail-value">{{ event.fullLocation }}</span>
             </div>
             <div class="detail-row">
-              <span class="detail-label">Google Map:</span>
-              <a :href="event.googleMap" target="_blank" class="detail-link">View on Google Maps</a>
+              <span class="detail-label">{{ t('Google Map:') }}</span>
+              <a :href="event.googleMap" target="_blank" class="detail-link">{{ t('View on Google Maps') }}</a>
             </div>
             <div class="detail-row" v-if="event.collaborationInfo">
-              <span class="detail-label">Concert information (only for collaboration):</span>
+              <span class="detail-label">{{ t('Concert information (only for collaboration):') }}</span>
               <span class="detail-value">{{ event.collaborationInfo }}</span>
             </div>
           </div>
@@ -50,6 +50,7 @@
 </template>
 
 <script setup>
+import { t } from '../composables/useWebsiteTranslation'
 defineProps({
   title: {
     type: String,

@@ -2,7 +2,7 @@
   <div class="projects">
     <!-- 좌측 고정 타이틀 -->
     <aside class="projects-title">
-      <h1>PROJECTS</h1>
+      <h1>{{ t('PROJECTS') }}</h1>
     </aside>
 
     <!-- 우측 콘텐츠 -->
@@ -25,13 +25,13 @@
               :src="getProjectCoverUrl(project)"
               :srcset="getImageSrcset(getProjectCoverUrl(project))"
               sizes="(max-width: 768px) 100vw, 60vw"
-              :alt="project.title || 'Project image'"
+              :alt="project.title || t('Project image')"
               loading="lazy"
               decoding="async"
-              @error="handleImageError($event, getProjectCoverUrl(project))"
+              @error="handleImageError($event, project)"
             />
-            <div v-else class="image-error">
-              Image not found
+            <div v-if="!project.coverImageUrl || failedImages.has(project.id)" class="image-error">
+              {{ t('Image not found') }}
             </div>
           </figure>
 
@@ -45,7 +45,7 @@
               <span 
                 class="caption-date"
                 @click.stop="goToProjectDetail(project.urlSlug)"
-              >{{ formatDate(project.premiereDate, 'short', 'en-US') }}</span>
+              >{{ formatDate(project.premiereDate, 'short', websiteLocale) }}</span>
               <span class="caption-separator">, </span>
               <span 
                 class="caption-location"
@@ -56,7 +56,7 @@
               </svg>
             </div>
             <div class="caption-right" v-else>
-              <span>{{ formatDate(project.premiereDate, 'short', 'en-US') }}, {{ project.location }}</span>
+              <span>{{ formatDate(project.premiereDate, 'short', websiteLocale) }}, {{ project.location }}</span>
             </div>
           </div> 
         </div>
@@ -64,13 +64,14 @@
 
       <!-- 프로젝트가 없을 때 -->
       <div v-else class="empty-state">
-        <p>No projects found.</p>
+        <p>{{ t('No projects found.') }}</p>
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
+import { t, websiteLocale } from '../composables/useWebsiteTranslation'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { projectService } from '../services'
@@ -82,6 +83,7 @@ const router = useRouter()
 
 // 프로젝트 목록
 const projects = ref([])
+const failedImages = ref(new Set())
 
 // 프로젝트 데이터 로드
 const loadProjects = async () => {
@@ -106,19 +108,13 @@ const getProjectCoverUrl = (project) => {
   return toAbsoluteUrl(project.coverImageUrl)
 }
 
-const handleImageError = (event, fallbackUrl) => {
+const handleImageError = (event, project) => {
   if (event.target?.dataset?.fallbackApplied !== 'true') {
-    handleResponsiveImageError(event, fallbackUrl)
+    handleResponsiveImageError(event, getProjectCoverUrl(project))
     return
   }
-
-  // 이미지 로드 실패 시 이미지를 숨기고 에러 메시지 표시
-  const img = event.target
-  img.style.display = 'none'
-  const errorDiv = document.createElement('div')
-  errorDiv.className = 'image-error'
-  errorDiv.textContent = 'Image not found'
-  img.parentElement.appendChild(errorDiv)
+  event.target.style.display = 'none'
+  failedImages.value.add(project.id)
 }
 
 onMounted(() => {
@@ -140,7 +136,7 @@ onMounted(() => {
   margin-right: auto;
   padding-left: 2rem;
   padding-right: 4rem;
-  height: calc(100vh - var(--navbar-height));
+  height: calc(100dvh - var(--navbar-height) - var(--website-footer-space));
   overflow: hidden;
 }
 
@@ -313,7 +309,7 @@ onMounted(() => {
     padding-top: 4rem; /* 헤더 공간 + 여백 */
     padding-left: 1.5rem;
     padding-right: 1.5rem;
-    padding-bottom: 2rem;
+    padding-bottom: var(--website-footer-space);
   }
 
   .projects-title {

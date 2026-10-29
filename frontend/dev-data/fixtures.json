@@ -1072,17 +1072,24 @@
   "media/equipment": [],
   "media/contacts": [
     {
+      "id": 6,
+      "name": "Shaggy Schwarz",
+      "role": "Concert Booking",
+      "email": "mail@shaggyschwarz.de",
+      "displayOrder": 0
+    },
+    {
       "id": 2,
       "name": "TWIIIINS",
-      "role": "Official ",
-      "email": "stickypeanutbutter@proton.me",
+      "role": "Official",
+      "email": "contact@twiiiins.com",
       "displayOrder": 1
     },
     {
       "id": 1,
       "name": "Dowon Kim",
       "role": "Violin",
-      "email": "dowonkimmusic@gmail.com",
+      "email": "music@dowonkim.com",
       "displayOrder": 2
     },
     {
@@ -1109,15 +1116,9 @@
   ],
   "media/download-files": [
     {
-      "id": 18,
-      "name": "About TWIIIINS [Deutsch]",
-      "fileUrl": "/uploads/dummy/612c9e91-d34e-4058-8f98-7ae9f3a670bd.pdf",
-      "displayOrder": 0
-    },
-    {
-      "id": 19,
-      "name": "About TWIIIINS [English]",
-      "fileUrl": "/uploads/dummy/e19dbeba-a715-4f79-ba17-daf5edba5da6.pdf",
+      "id": 20,
+      "name": "CV, Tech Rider, Posters and Pictures",
+      "fileUrl": "https://www.dropbox.com/scl/fo/j5ljjl7hlaa6o69od16x6/ACdneLWPOJZemzeiH2XM5oo?rlkey=iin1x4r4s1q3vciehu5u086eh&st=h0qr7sxz&dl=0",
       "displayOrder": 0
     }
   ]

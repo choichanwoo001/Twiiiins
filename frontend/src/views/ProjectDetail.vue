@@ -4,14 +4,14 @@
     <section class="project-text" v-if="project">
       <h1>{{ project.title }}</h1>
       <div class="project-content">
-        <div class="project-subtitle">{{ project.subtitle }}</div>
-        <div class="project-date-location">Premiere: {{ formatDate(project.premiereDate, 'date', 'en-US') }} · {{ project.location }}</div>
-        <div class="project-director" v-if="project.director">Director: {{ project.director }}</div>
-        <p v-for="(description, index) in projectDescriptions" :key="index">{{ description }}</p>
-        <p v-if="project.thankYouText">{{ project.thankYouText }}</p>
+        <div class="project-subtitle">{{ translateContent('projects', 'subtitle', project.subtitle) }}</div>
+        <div class="project-date-location">{{ t('Premiere:') }} {{ formatDate(project.premiereDate, 'date', websiteLocale) }} · {{ project.location }}</div>
+        <div class="project-director" v-if="project.director">{{ t('Director:') }} {{ project.director }}</div>
+        <p v-for="(description, index) in projectDescriptions" :key="index">{{ translateContent('projects', 'descriptions', description) }}</p>
+        <p v-if="project.thankYouText">{{ translateContent('projects', 'thankYouText', project.thankYouText) }}</p>
         <div class="more-info" v-if="project.moreInfoUrl">
           <a :href="project.moreInfoUrl" target="_blank">
-            More Information →
+            {{ t('More Information') }} →
           </a>
         </div>
       </div>
@@ -24,11 +24,11 @@
 
     <!-- 리뷰 섹션 -->
     <section class="reviews-section" v-if="project && projectReviews.length > 0">
-      <h2>REVIEWS</h2>
+      <h2>{{ t('REVIEWS') }}</h2>
       <div class="reviews-grid">
         <div class="review-item" v-for="(review, index) in projectReviews" :key="index">
           <blockquote>
-            „{{ review.text }}"
+            {{ translateContent('projects', 'reviews.text', review.text) }}
           </blockquote>
           <cite>{{ review.source }}</cite>
         </div>
@@ -38,6 +38,7 @@
 </template>
 
 <script setup>
+import { t, websiteLocale, translateContent } from '../composables/useWebsiteTranslation'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { projectService } from '../services'
@@ -117,7 +118,7 @@ onMounted(async () => {
   background-color: var(--color-background); /* white */
   color: var(--color-text); /* #1E1D1D */
   font-family: 'Jost', sans-serif;
-  height: calc(100vh - 3.75rem);
+  height: calc(100dvh - var(--navbar-height) + 3.75rem - var(--website-footer-space));
   margin-top: -3.75rem;
   padding-top: 6rem;
   padding-left: 2rem;
@@ -265,7 +266,7 @@ onMounted(async () => {
     padding-top: 4rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
-    padding-bottom: 4rem;
+    padding-bottom: var(--website-footer-space);
   }
 
   /* 텍스트 섹션 */

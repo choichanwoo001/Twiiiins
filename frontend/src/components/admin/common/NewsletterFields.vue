@@ -2,11 +2,7 @@
         <div class="row"><button v-for="lang in ['en', 'de']" :key="lang" type="button" :class="{ active: language === lang }" @click="language = lang">{{ lang === 'en' ? 'English' : 'Deutsch' }}</button></div>
         <label v-if="language === 'en'">영어 제목<input v-model="form.title" maxlength="255" required></label><label v-else>독일어 제목<input v-model="form.titleDe" maxlength="255"></label>
         <NewsletterEditor v-if="language === 'en'" key="en" v-model="form.bodyEn" /><NewsletterEditor v-else key="de" v-model="form.bodyDe" />
-        <label>{{ language === 'en' ? '영어 공연 일시' : '독일어 공연 일시' }}<input v-model="form[language === 'en' ? 'eventWhenEn' : 'eventWhenDe']" maxlength="255" placeholder="Saturday, October 24 · 7:30 pm"></label>
-        <label>{{ language === 'en' ? '영어 장소' : '독일어 장소' }}<input v-model="form[language === 'en' ? 'eventLocationEn' : 'eventLocationDe']" maxlength="255"></label>
-        <label>{{ language === 'en' ? '영어 안내 버튼 문구' : '독일어 안내 버튼 문구' }}<input v-model="form[language === 'en' ? 'ctaLabelEn' : 'ctaLabelDe']" maxlength="255" placeholder="Explore the concert"></label>
-        <label>안내 버튼 주소 · 두 언어 공통<input v-model.trim="form.ctaUrl" type="url" maxlength="2048" placeholder="https://…"></label>
-        <p>공연 일시·장소·안내 버튼은 선택입니다. 사용하려면 두 언어를 모두 입력하세요. 날짜는 게시 날짜입니다.</p>
+        <p>날짜는 게시 날짜입니다.</p>
         <p>게시·발송하려면 두 언어의 제목과 본문이 모두 필요합니다. 사진·영상 링크는 선택입니다.</p>
         <h4>사진 · 첫 번째가 대표 사진</h4>
         <div class="photos"><div v-for="(url, index) in form.imageUrls" :key="url + index"><img :src="imageSource(url)" alt="뉴스 사진"><div><button type="button" :disabled="index === 0 || busy" @click="moveImage(index, -1)">앞으로</button><button type="button" :disabled="index === form.imageUrls.length - 1 || busy" @click="moveImage(index, 1)">뒤로</button><button type="button" :disabled="busy" @click="form.imageUrls.splice(index, 1)">제거</button></div></div></div>
