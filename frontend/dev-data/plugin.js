@@ -5,21 +5,33 @@ import { fileURLToPath } from 'node:url'
 const directory = fileURLToPath(new URL('.', import.meta.url))
 
 // Development-only, read-only API. Never forwards fixture requests to production.
-export function localDataPlugin() {
+export function localDataPlugin({ originalPhotoPreview = false } = {}) {
   const data = JSON.parse(readFileSync(resolve(directory, 'fixtures.json'), 'utf8'))
+  // For photo-layout review, show actual public images instead of cropped stand-ins.
+  const reference = originalPhotoPreview ? JSON.parse(readFileSync(resolve(directory, 'reference.json'), 'utf8')) : null
+  const photoGroups = originalPhotoPreview
+    ? reference.data['media/photos/groups'].map(group => ({
+      ...group,
+      photos: group.photos.map(photo => ({
+        ...photo,
+        imageUrl: photo.imageUrl ? new URL(photo.imageUrl, reference.origin).href : null,
+        thumbnailUrl: photo.thumbnailUrl ? new URL(photo.thumbnailUrl, reference.origin).href : null
+      }))
+    }))
+    : data['media/photos/groups']
   const collections = {
     '/api/concerts': data.concerts,
     '/api/projects': data.projects,
     '/api/media/music': data['media/music'],
     '/api/media/videos': data['media/videos'],
     '/api/media/news': data['media/news'],
-    '/api/media/photos/groups': data['media/photos/groups'],
-    '/api/media/photo-groups': data['media/photos/groups'],
+    '/api/media/photos/groups': photoGroups,
+    '/api/media/photo-groups': photoGroups,
     '/api/media/equipment': data['media/equipment'],
     '/api/media/contacts': data['media/contacts'],
     '/api/media/download-files': data['media/download-files']
   }
-  const photos = data['media/photos/groups'].flatMap(group => group.photos)
+  const photos = photoGroups.flatMap(group => group.photos)
 
   return {
     name: 'twiiiins-local-data',
@@ -70,7 +82,7 @@ export function localDataPlugin() {
         const photoMatch = path.match(/^\/api\/media\/photos\/(\d+)$/)
         if (photoMatch) result = photos.find(item => item.id === Number(photoMatch[1]))
         const groupPhotos = path.match(/^\/api\/media\/photos\/groups\/(\d+)\/photos$/)
-        if (groupPhotos) result = data['media/photos/groups'].find(group => group.id === Number(groupPhotos[1]))?.photos
+        if (groupPhotos) result = photoGroups.find(group => group.id === Number(groupPhotos[1]))?.photos
         if (result === undefined) {
           const match = path.match(/^(.*)\/(\d+)$/)
           if (match && collections[match[1]]) result = collections[match[1]].find(item => item.id === Number(match[2]))

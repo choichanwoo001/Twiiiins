@@ -129,10 +129,11 @@
                 <img
                   :src="photo.src"
                   :srcset="getImageSrcset(photo.src)"
-                  sizes="(max-width: 48rem) 50vw, 25vw"
+                  sizes="(max-width: 48rem) 50vw, 20rem"
                   :alt="photo.alt ? translateContent('photos', 'altText', photo.alt) : `${t('Photo from')} ${translateContent('photos', 'title', group.title)}`"
                   loading="lazy"
                   decoding="async"
+                  @load="onGalleryPhotoLoad"
                   @error="handleResponsiveImageError($event, photo.src)"
                 >
               </div>
@@ -232,8 +233,27 @@ watch(() => route.query.newsId, id => {
 // 모바일 감지
 const { isMobile } = useMobile()
 
+// Size each masonry cell from the rendered image, including after a resize.
+function updatePhotoRows(image) {
+  const item = image.parentElement
+  const grid = item?.parentElement
+  if (!grid || !image.complete || !image.naturalWidth) return
+  const style = getComputedStyle(grid)
+  const rowHeight = parseFloat(style.gridAutoRows) || 4
+  const gap = parseFloat(style.rowGap) || 0
+  const rows = Math.ceil((image.getBoundingClientRect().height + gap) / (rowHeight + gap))
+  item.style.gridRowEnd = `span ${Math.max(1, rows)}`
+}
+const galleryResizeObserver = new ResizeObserver(entries => entries.forEach(({ target }) => updatePhotoRows(target)))
+function onGalleryPhotoLoad(event) {
+  galleryResizeObserver.observe(event.target)
+  updatePhotoRows(event.target)
+}
+onUnmounted(() => galleryResizeObserver.disconnect())
+
 // 활성 섹션 상태
 const activeSection = ref('')
+watch(activeSection, () => galleryResizeObserver.disconnect())
 
 // 섹션 변경 함수
 const setActiveSection = (section) => {
@@ -378,7 +398,7 @@ const loadPhotoGroups = async () => {
         id: group.id,
         title: group.title,
         photos: (group.photos && Array.isArray(group.photos)) ? group.photos.map(photo => ({
-          src: toAbsoluteUrl(photo.thumbnailUrl || photo.imageUrl),
+          src: toAbsoluteUrl(photo.imageUrl || photo.thumbnailUrl),
           fullSrc: toAbsoluteUrl(photo.imageUrl),
           alt: photo.altText
         })) : []
@@ -682,31 +702,19 @@ const toggleNews = (newsId) => {
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
-  gap: 0.3rem;
-}
-
-@media (max-width: 48rem) {
-  .photos-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.1rem;
-  }
-
-  .photo-item {
-    aspect-ratio: 1 / 1;
-    height: auto;
-  }
-
-  .photo-item img {
-    height: 100%;
-  }
-
-  .photo-item:hover {
-    transform: none;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  grid-auto-rows: 4px;
+  grid-auto-flow: row dense;
+  align-items: start;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .photo-item {
+  grid-row-end: span 16;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease;
@@ -718,10 +726,22 @@ const toggleNews = (newsId) => {
 }
 
 .photo-item img {
+  /* Let every image keep its full original aspect ratio, including tall photos. */
   width: 100%;
-  height: 12.5rem;
-  object-fit: cover;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
   display: block;
+}
+
+@media (max-width: 48rem) {
+  .photos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .photo-item:hover {
+    transform: none;
+  }
 }
 
 /* NEWS 섹션 */

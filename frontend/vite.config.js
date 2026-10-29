@@ -7,7 +7,7 @@ export default defineConfig(({ command, mode }) => ({
   plugins: [
     vue(),
     ...(command === 'serve' && loadEnv(mode, process.cwd(), '').VITE_DUMMY_DATA === 'true'
-      ? [localDataPlugin()] : [])
+      ? [localDataPlugin({ originalPhotoPreview: loadEnv(mode, process.cwd(), '').VITE_ORIGINAL_PHOTO_PREVIEW === 'true' })] : [])
   ],
   resolve: {
     alias: {
