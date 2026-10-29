@@ -103,10 +103,18 @@ test('Contact orders booking, newsletter and general inquiries and submits selec
   await page.screenshot({ path: testInfo.outputPath('contact-newsletter.png'), fullPage: true })
 })
 
-test('disabled SMTP shows availability notice without email form', async ({ page }) => {
-  await mocks(page, { available: false }); await page.goto('/contact')
+test('disabled SMTP keeps an editable form and blocks click and Enter submission', async ({ page }) => {
+  const posted = await mocks(page, { available: false }); await page.goto('/contact')
   await expect(page.locator('.newsletter-signup')).toContainText('Newsletter subscriptions are currently unavailable')
-  await expect(page.locator('.newsletter-signup input[type=email]')).toHaveCount(0)
+  const signup = page.locator('.newsletter-signup')
+  await expect(signup.getByLabel('Email address')).toBeVisible()
+  await signup.getByLabel('Email address').fill('reader@example.com')
+  await signup.getByRole('checkbox').check()
+  await expect(signup.getByRole('button', { name: 'Subscribe', exact: true })).toBeDisabled()
+  await signup.getByLabel('Email address').press('Enter')
+  await signup.locator('form').evaluate(form => form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+  expect(posted.filter(p => p.path.endsWith('/subscribe'))).toHaveLength(0)
+  await expect(signup.getByLabel('Email address')).toHaveValue('reader@example.com')
 })
 
 test('confirmation and unsubscribe only post after an explicit button click', async ({ page }) => {
@@ -211,7 +219,7 @@ test('Newsletter subscriber list shows dates, counts, translated states and sear
 
 for (const failure of [404, 500, 'network', 'invalid']) {
   test(`status failure ${failure} stays inline and can retry`, async ({ page }) => {
-    await mocks(page)
+    const posted = await mocks(page)
     let fail = true
     await page.route('**/api/newsletter/status', route => {
       if (!fail) return route.fulfill({ json: { success: true, data: { available: true } } })
@@ -224,9 +232,18 @@ for (const failure of [404, 500, 'network', 'invalid']) {
     await expect(signup.getByRole('alert')).toContainText('could not check')
     await expect(signup).not.toContainText('currently unavailable')
     await expect(page.getByText('요청한 리소스를 찾을 수 없습니다.', { exact: true })).toHaveCount(0)
+    await signup.getByLabel('Email address').fill('preserved@example.com')
+    await signup.getByLabel('Newsletter language').selectOption('de')
+    await signup.getByRole('checkbox').check()
+    await expect(signup.getByRole('button', { name: 'Subscribe', exact: true })).toBeDisabled()
+    await signup.locator('form').evaluate(form => form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
+    expect(posted.filter(p => p.path.endsWith('/subscribe'))).toHaveLength(0)
     fail = false
     await signup.getByRole('button', { name: 'Try again' }).click()
-    await expect(signup.getByLabel('Email address')).toBeVisible()
+    await expect(signup.getByRole('button', { name: 'Subscribe', exact: true })).toBeEnabled()
+    await expect(signup.getByLabel('Email address')).toHaveValue('preserved@example.com')
+    await expect(signup.getByLabel('Newsletter language')).toHaveValue('de')
+    await expect(signup.getByRole('checkbox')).toBeChecked()
   })
 }
 
@@ -242,8 +259,12 @@ test('status loading and German disabled copy', async ({ page }) => {
   await page.goto('/contact')
   const signup = page.locator('.newsletter-signup')
   await expect(signup).toContainText('Die Verfügbarkeit wird geprüft')
+  await expect(signup.getByRole('button', { name: 'Abonnieren', exact: true })).toBeDisabled()
+  await signup.getByLabel('E-Mail-Adresse').fill('loading@example.com')
   release()
   await expect(signup).toContainText('derzeit nicht verfügbar')
+  await expect(signup.getByLabel('E-Mail-Adresse')).toHaveValue('loading@example.com')
+  await expect(signup.getByRole('button', { name: 'Abonnieren', exact: true })).toBeDisabled()
 })
 
 test('real subscription prevents duplicates and preserves inputs on failure', async ({ page }) => {
@@ -266,6 +287,7 @@ test('real subscription prevents duplicates and preserves inputs on failure', as
   await expect(signup.getByRole('status')).toContainText('could not process')
   await expect(signup.getByLabel('Email address')).toHaveValue('reader@example.com')
   expect(count).toBe(1)
+  await expect(signup.getByRole('button', { name: 'Subscribe', exact: true })).toBeDisabled()
 })
 
 
@@ -302,4 +324,19 @@ test('administrator live preview uses unsaved draft, ignores stale responses and
   await expect(frame.getByRole('heading')).toHaveText('After retry')
   await expect(preview.getByRole('alert')).toHaveCount(0)
   expect(writes).toEqual([])
+})
+
+
+test('administrator sees actionable configuration issues without secret values', async ({ page }) => {
+  await mocks(page, { admin: true })
+  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.route('**/api/admin/newsletter/settings', route => route.fulfill({ json: { success: true, data: { available: false, perMinute: 10, dailyLimit: 300, paused: false, testRecipients: [], configurationIssues: ['NEWSLETTER_DISABLED', 'SMTP_HOST_MISSING', 'TOKEN_KEY_TOO_SHORT'] } } }))
+  await page.goto('/admin')
+  await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
+  await page.locator('.newsletter-admin').getByRole('button', { name: '설정 확인', exact: true }).click()
+  const issues = page.locator('.configuration-issues')
+  await expect(issues).toContainText('뉴스레터 활성화 설정이 꺼져 있습니다.')
+  await expect(issues).toContainText('SMTP 서버 주소를 설정하세요.')
+  await expect(issues).toContainText('최소 32자')
+  await expect(issues.getByRole('listitem')).toHaveCount(3)
 })

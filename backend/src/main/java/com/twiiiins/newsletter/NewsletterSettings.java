@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 import java.net.URI;
 import java.util.List;
+import java.util.ArrayList;
 
 @Component @ConfigurationProperties(prefix = "app.newsletter") @Getter @Setter
 public class NewsletterSettings {
@@ -29,15 +30,26 @@ public class NewsletterSettings {
     private int perMinute = 10;
     private int dailyLimit = 300;
     @Value("${spring.mail.host:}") private String smtpHost;
-    public boolean ready() {
+    public List<String> configurationIssues() {
+        List<String> issues = new ArrayList<>();
+        if (!enabled) issues.add("NEWSLETTER_DISABLED");
+        if (blank(smtpHost)) issues.add("SMTP_HOST_MISSING");
+        if (blank(tokenKey)) issues.add("TOKEN_KEY_MISSING");
+        else if (tokenKey.length() < 32) issues.add("TOKEN_KEY_TOO_SHORT");
+        if (blank(from)) issues.add("FROM_MISSING");
+        if (blank(replyTo)) issues.add("REPLY_TO_MISSING");
+        if (blank(operator)) issues.add("OPERATOR_MISSING");
         try {
             URI uri = URI.create(publicUrl);
-            return enabled && tokenKey.length() >= 32 && !smtpHost.isBlank() && !from.isBlank()
-                && !replyTo.isBlank() && !operator.isBlank() && uri.getHost() != null
-                && ("https".equals(uri.getScheme()) || "localhost".equals(uri.getHost()))
-                && perMinute > 0 && dailyLimit > 0;
-        } catch (Exception e) { return false; }
+            if (uri.getHost() == null || !("https".equals(uri.getScheme()) || "localhost".equals(uri.getHost())))
+                issues.add("PUBLIC_URL_INVALID");
+        } catch (Exception e) { issues.add("PUBLIC_URL_INVALID"); }
+        if (perMinute <= 0) issues.add("PER_MINUTE_INVALID");
+        if (dailyLimit <= 0) issues.add("DAILY_LIMIT_INVALID");
+        return List.copyOf(issues);
     }
+    private static boolean blank(String value) { return value == null || value.isBlank(); }
+    public boolean ready() { return configurationIssues().isEmpty(); }
     public void requireReady() {
         if (!ready()) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE, "Newsletter is not available yet.");
     }

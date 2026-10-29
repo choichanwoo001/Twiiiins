@@ -72,6 +72,29 @@ class NewsletterIntegrationTest {
         var image = new org.springframework.mock.web.MockMultipartFile("files", "test.png", "image/png", new byte[]{1});
         mvc.perform(multipart("/api/admin/newsletter/images").file(image)).andExpect(status().isUnauthorized());
     }
+    @Test void publicStatusOnlyExposesAvailabilityAndDiagnosticsRequireAuthentication() throws Exception {
+        settings.setEnabled(false);
+        String body = mvc.perform(get("/api/newsletter/status"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.available").value(false))
+            .andReturn().getResponse().getContentAsString();
+        assertEquals(1, json.readTree(body).get("data").size());
+        assertFalse(body.contains(settings.getTokenKey()));
+        mvc.perform(get("/api/admin/newsletter/settings")).andExpect(status().isUnauthorized());
+    }
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void administratorGetsIssueCodesButNoTokenOrSmtpValues() throws Exception {
+        settings.setEnabled(false);
+        settings.setSmtpHost("");
+        String body = mvc.perform(get("/api/admin/newsletter/settings"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.configurationIssues[0]").value("NEWSLETTER_DISABLED"))
+            .andExpect(jsonPath("$.data.configurationIssues[1]").value("SMTP_HOST_MISSING"))
+            .andExpect(jsonPath("$.data.tokenKey").doesNotExist())
+            .andExpect(jsonPath("$.data.smtpHost").doesNotExist())
+            .andReturn().getResponse().getContentAsString();
+        assertFalse(body.contains(settings.getTokenKey()));
+        verifyNoInteractions(sender);
+    }
     @Test void subscriptionActivatesImmediatelyQueuesOneWelcomeAndRecordsConsent() throws Exception {
         mvc.perform(post("/api/newsletter/subscribe").contentType(MediaType.APPLICATION_JSON)
             .content("{\"email\":\"instant@example.com\",\"language\":\"de\",\"consent\":false}"))

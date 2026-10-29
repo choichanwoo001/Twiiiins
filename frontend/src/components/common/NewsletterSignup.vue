@@ -3,36 +3,36 @@
     <h2 id="newsletter-heading">{{ copy.heading }}</h2>
     <p>{{ copy.intro }}</p>
     <p v-if="preview">{{ copy.preview }}</p>
-    <form v-if="state === 'ready' || state === 'preview'" @submit.prevent="submit">
+    <form @submit.prevent="submit" :aria-busy="busy || state === 'loading'">
       <div class="signup-fields">
         <label>{{ copy.email }}<input v-model.trim="email" type="email" autocomplete="email" maxlength="254" required :disabled="busy"></label>
         <label>{{ copy.language }}<select v-model="language" :disabled="busy"><option value="en">English</option><option value="de">Deutsch</option></select></label>
       </div>
       <label class="consent"><input v-model="consent" type="checkbox" required :disabled="busy"><span>{{ copy.consent }} <router-link to="/privacy#newsletter">{{ copy.privacy }}</router-link>.</span></label>
-      <button class="website-button" :disabled="busy">{{ busy ? copy.sending : copy.subscribe }}</button>
+      <button class="website-button" :disabled="busy || !canSubmit">{{ busy ? copy.sending : copy.subscribe }}</button>
     </form>
-    <p v-else-if="state === 'loading'" role="status">{{ copy.loading }}</p>
-    <p v-else-if="state === 'disabled'">{{ copy.unavailable }}</p>
-    <div v-else-if="state === 'error'">
+    <div v-if="state === 'error'">
       <p role="alert">{{ copy.connectionError }}</p>
       <button class="website-button" type="button" @click="checkAvailability">{{ copy.retry }}</button>
     </div>
-    <p role="status" aria-live="polite">{{ messageKey ? copy[messageKey] : '' }}</p>
+    <p role="status" aria-live="polite"><span v-if="state === 'loading'">{{ copy.loading }}</span><span v-if="state === 'disabled'">{{ copy.unavailable }} </span>{{ messageKey ? copy[messageKey] : '' }}</p>
   </section>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { websiteLanguage, useWebsiteCopy } from '../../composables/useWebsitePreferences'
 import { newsletterService as service } from '../../services/newsletterService'
 const preview = import.meta.env.DEV && import.meta.env.VITE_DUMMY_DATA === 'true'
 const email = ref(''), language = ref(websiteLanguage.value), consent = ref(false), busy = ref(false)
 const state = ref(preview ? 'preview' : 'loading'), messageKey = ref('')
+const canSubmit = computed(() => state.value === 'ready' || state.value === 'preview')
 const copy = useWebsiteCopy({ heading: 'STAY CONNECTED', preview: 'Preview only. No subscription is saved and no email is sent.', previewSuccess: 'Preview complete. No subscription was saved and no email was sent.', loading: 'Checking subscription availability…', connectionError: 'We could not check subscription availability. Please try again.', retry: 'Try again', intro: 'Subscribe to our newsletter for the latest news, upcoming concerts, new releases, and updates from TWIIIINS.', email: 'Email address', language: 'Newsletter language', consent: 'I would like to receive the TWIIIINS newsletter. I can unsubscribe at any time. See our', privacy: 'privacy notice', subscribe: 'Subscribe', sending: 'Sending…', unavailable: 'Newsletter subscriptions are currently unavailable.', success: 'Thank you for subscribing! We’ll send you news from TWIIIINS. No further confirmation is needed.', error: 'We could not process your request. Please try again later.' },
 { heading: 'IN VERBINDUNG BLEIBEN', preview: 'Nur Vorschau. Es wird kein Abonnement gespeichert und keine E-Mail versendet.', previewSuccess: 'Vorschau abgeschlossen. Es wurde kein Abonnement gespeichert und keine E-Mail versendet.', loading: 'Die Verfügbarkeit wird geprüft…', connectionError: 'Die Verfügbarkeit konnte nicht geprüft werden. Bitte versuchen Sie es erneut.', retry: 'Erneut versuchen', intro: 'Abonnieren Sie unseren Newsletter für aktuelle Neuigkeiten, kommende Konzerte, neue Veröffentlichungen und Updates von TWIIIINS.', email: 'E-Mail-Adresse', language: 'Newsletter-Sprache', consent: 'Ich möchte den TWIIIINS-Newsletter erhalten und kann mich jederzeit abmelden. Weitere Informationen in unserer', privacy: 'Datenschutzerklärung', subscribe: 'Abonnieren', sending: 'Wird gesendet…', unavailable: 'Newsletter-Abonnements sind derzeit nicht verfügbar.', success: 'Vielen Dank für Ihr Abonnement! Sie erhalten ab jetzt Neuigkeiten von TWIIIINS. Eine weitere Bestätigung ist nicht erforderlich.', error: 'Die Anfrage konnte nicht bearbeitet werden. Bitte versuchen Sie es später erneut.' })
 watch(websiteLanguage, value => { language.value = value })
 async function checkAvailability() {
   if (preview) return
+  messageKey.value = ''
   state.value = 'loading'
   try {
     const result = await service.available()
@@ -42,7 +42,7 @@ async function checkAvailability() {
 }
 onMounted(checkAvailability)
 async function submit() {
-  if (busy.value || !consent.value || !['ready', 'preview'].includes(state.value)) return
+  if (busy.value || !consent.value || !canSubmit.value) return
   busy.value = true; messageKey.value = ''
   try {
     if (preview) messageKey.value = 'previewSuccess'
@@ -51,7 +51,10 @@ async function submit() {
       messageKey.value = 'success'
     }
     email.value = ''; consent.value = false
-  } catch { messageKey.value = 'error' }
+  } catch (error) {
+    messageKey.value = 'error'
+    if (error.response?.status === 503) state.value = 'disabled'
+  }
   finally { busy.value = false }
 }
 

@@ -59,7 +59,8 @@ public class AdminNewsletterController {
     @GetMapping("/newsletter/settings") public ApiResponse<?> settings() {
         MailGate gate = gates.findById(1L).orElseGet(MailGate::new);
         return ApiResponse.success(Map.of("available", settings.ready(), "testRecipients", settings.getTestRecipients(), "perMinute", settings.getPerMinute(),
-            "dailyLimit", settings.getDailyLimit(), "paused", gate.isPaused(), "pauseReason", Objects.toString(gate.getReason(), ""), "localMailboxUrl", settings.localMailboxUrl()));
+            "dailyLimit", settings.getDailyLimit(), "paused", gate.isPaused(), "pauseReason", Objects.toString(gate.getReason(), ""), "localMailboxUrl", settings.localMailboxUrl(),
+            "configurationIssues", settings.configurationIssues()));
     }
     @PostMapping("/newsletter/resume") public ApiResponse<?> resume() { mailingService.resume(); return ApiResponse.success("Resumed"); }
     public record SubscriberView(Long id, String email, String language, String status, java.time.Instant createdAt) {

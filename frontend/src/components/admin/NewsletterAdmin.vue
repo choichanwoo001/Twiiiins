@@ -2,7 +2,7 @@
   <div class="newsletter-admin">
     <nav class="row" aria-label="뉴스레터 관리"><button v-for="tab in tabs" :key="tab.key" :class="{ active: section === tab.key }" @click="section = tab.key">{{ tab.label }}</button></nav>
     <p role="status" aria-live="polite">{{ message }}</p>
-    <p v-if="!settings.available" class="notice">SMTP 설정과 뉴스레터 활성화가 필요합니다. 초안 작성과 News 게시는 가능합니다.</p>
+    <p v-if="!settings.available" class="notice">SMTP 설정과 뉴스레터 활성화가 필요합니다. 초안 작성과 News 게시는 가능합니다. <button @click="section = 'settings'">설정 확인</button></p>
     <p v-if="settings.localMailboxUrl" class="notice">로컬에서는 환영·테스트·뉴스레터 메일이 외부 이메일 대신 로컬 메일함에 도착합니다. <a :href="settings.localMailboxUrl" target="_blank" rel="noopener">로컬 메일함 열기</a></p>
     <p v-if="settings.paused" class="notice">발송 중지: {{ settings.pauseReason }} <button :disabled="busy" @click="run(async () => { await service.resume(); await refresh() }, '발송을 재개했습니다.')">설정 확인 후 재개</button></p>
 
@@ -40,7 +40,11 @@
         <div class="table-scroll"><table><thead><tr><th>이메일</th><th>언어</th><th>상태</th><th>오류</th><th>작업</th></tr></thead><tbody><tr v-for="delivery in deliveryRows" :key="delivery.id"><td>{{ delivery.email }}</td><td>{{ delivery.language }}</td><td>{{ statusLabel(delivery.status) }}</td><td>{{ delivery.errorCode }}</td><td><button v-if="delivery.status === 'FAILED'" :disabled="busy" @click="ask('명확히 실패한 메일을 다시 보낼까요?', () => run(async () => { await service.retry(delivery.id); await refreshHistory() }, '재시도를 등록했습니다.'))">재시도</button><span v-if="delivery.status === 'UNKNOWN'">SMTP 기록 수동 확인 필요</span></td></tr></tbody></table></div>
       </template>
     </section>
-    <section v-if="section === 'settings'"><h2>발송 설정</h2><p>상태: {{ settings.available ? '사용 가능' : '비활성화 또는 설정 필요' }}</p><p>속도: 분당 {{ settings.perMinute }}건 · 하루 {{ settings.dailyLimit }}건 (UTC 기준, 환영·테스트 포함)</p><p>SMTP 계정, 비밀번호, 발신 정보와 한도는 서버 환경설정에서 관리합니다.</p></section>
+    <section v-if="section === 'settings'"><h2>발송 설정</h2><p>상태: {{ settings.available ? '사용 가능' : '비활성화 또는 설정 필요' }}</p><p>속도: 분당 {{ settings.perMinute }}건 · 하루 {{ settings.dailyLimit }}건 (UTC 기준, 환영·테스트 포함)</p><p>SMTP 계정, 비밀번호, 발신 정보와 한도는 서버 환경설정에서 관리합니다.</p>
+      <div v-if="settings.configurationIssues?.length" class="configuration-issues"><h3>설정이 필요한 항목</h3><ul><li v-for="issue in settings.configurationIssues" :key="issue">{{ configurationIssueLabel(issue) }}</li></ul></div>
+      <p v-else-if="settings.available">필수 설정이 입력되어 있습니다. 실제 메일 전달 여부는 허용된 테스트 수신 주소로 확인하세요.</p>
+      <button :disabled="busy" @click="run(refresh)">설정 상태 새로고침</button>
+    </section>
     <div v-if="previewOpen" class="overlay" @click.self="previewOpen = false"><section class="dialog" role="dialog" aria-modal="true" aria-label="뉴스레터 미리보기"><div class="row"><h3>{{ language.toUpperCase() }} 미리보기</h3><button @click="previewOpen = false">닫기</button></div><h4>{{ previewData.title }}</h4><iframe title="전체 메일 콘텐츠 미리보기" sandbox="" :srcdoc="previewData.html"></iframe><p>구독 해지는 비활성 예시입니다. 실제 발송 시 수신자별 링크가 적용됩니다.</p></section></div>
     <ConfirmDialog :is-visible="confirmOpen" title="확인" :message="confirmMessage" confirm-text="확인" cancel-text="취소" @confirm="confirmAction" @cancel="confirmOpen = false" />
   </div>
@@ -51,6 +55,19 @@ import { newsletterService as service } from '../../services/newsletterService'
 import NewsletterFields from './common/NewsletterFields.vue'
 import NewsletterPreview from './common/NewsletterPreview.vue'
 import ConfirmDialog from '../common/ConfirmDialog.vue'
+const configurationIssueLabels = {
+  NEWSLETTER_DISABLED: '뉴스레터 활성화 설정이 꺼져 있습니다. (NEWSLETTER_ENABLED)',
+  SMTP_HOST_MISSING: 'SMTP 서버 주소를 설정하세요. (SMTP_HOST)',
+  TOKEN_KEY_MISSING: '구독 해지 링크용 토큰 키를 설정하세요. (NEWSLETTER_TOKEN_KEY)',
+  TOKEN_KEY_TOO_SHORT: '토큰 키는 최소 32자여야 합니다. 기존 키를 변경하면 발급된 링크가 무효화됩니다.',
+  FROM_MISSING: '발신 주소를 설정하세요. (NEWSLETTER_FROM)',
+  REPLY_TO_MISSING: '회신 주소를 설정하세요. (NEWSLETTER_REPLY_TO)',
+  OPERATOR_MISSING: '메일 하단에 표시할 운영자 정보를 설정하세요. (NEWSLETTER_OPERATOR)',
+  PUBLIC_URL_INVALID: '유효한 HTTPS 사이트 주소를 설정하세요. 로컬 개발에서는 localhost를 사용할 수 있습니다. (NEWSLETTER_PUBLIC_URL)',
+  PER_MINUTE_INVALID: '분당 발송 한도는 0보다 커야 합니다. (NEWSLETTER_PER_MINUTE)',
+  DAILY_LIMIT_INVALID: '하루 발송 한도는 0보다 커야 합니다. (NEWSLETTER_DAILY_LIMIT)'
+}
+const configurationIssueLabel = issue => configurationIssueLabels[issue] || issue
 const uploading = ref(false)
 const props = defineProps({ initialNewsId: { type: Number, default: null } })
 const tabs = [{ key: 'news', label: '작성' }, { key: 'subscribers', label: '구독자' }, { key: 'history', label: '발송 기록' }, { key: 'settings', label: '설정' }]
