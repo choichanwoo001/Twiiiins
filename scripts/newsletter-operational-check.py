@@ -56,7 +56,8 @@ def request(path, body=None, token=None, method=None):
             result = json.load(response)
         if not result.get('success'):
             raise RuntimeError('API returned failure (details withheld)')
-        return result['data']
+        # Successful command endpoints return a message without a data field.
+        return result.get('data')
     except urllib.error.HTTPError as error:
         raise RuntimeError('API request failed, HTTP ' + str(error.code)) from None
 
