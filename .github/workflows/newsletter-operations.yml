@@ -8,7 +8,7 @@ on:
         required: true
         default: preflight
         type: choice
-        options: [preflight, diagnose, verify-publication, verify-single-language, verify-translation, verify]
+        options: [preflight, diagnose, verify-publication, verify-single-language, verify-translation, diagnose-translation, verify]
 
 permissions:
   contents: read
@@ -38,6 +38,11 @@ jobs:
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
           scp -i ~/.ssh/newsletter_key scripts/newsletter-operational-check.py "$SSH_USER@$SSH_HOST:~/twiiiins/Twiiiins/scripts/"
           scp -i ~/.ssh/newsletter_key scripts/translation_operational_check.py "$SSH_USER@$SSH_HOST:~/twiiiins/Twiiiins/scripts/"
+          if [ "$OPERATION" = "diagnose-translation" ]; then
+            ssh -i ~/.ssh/newsletter_key "$SSH_USER@$SSH_HOST" \
+              "cd ~/twiiiins/Twiiiins && python3 scripts/translation_operational_check.py --diagnose"
+            exit 0
+          fi
           if [ "$OPERATION" = "verify-translation" ]; then
             ssh -i ~/.ssh/newsletter_key "$SSH_USER@$SSH_HOST" \
               "cd ~/twiiiins/Twiiiins && python3 scripts/translation_operational_check.py"

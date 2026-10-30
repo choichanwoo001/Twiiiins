@@ -5,7 +5,45 @@ import json
 from pathlib import Path
 import secrets
 import time
+import socket
+import subprocess
+import sys
+import urllib.request
+import urllib.error
 from datetime import date
+
+
+def diagnose():
+    spec = importlib.util.spec_from_file_location('newsletter_operations', Path(__file__).with_name('newsletter-operational-check.py'))
+    operations = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(operations)
+    env = operations.environment()
+    key = env.get('GEMINI_API_KEY', '')
+    print(json.dumps({'keyConfigured': bool(key), 'enabled': env.get('TRANSLATION_ENABLED'),
+        'model': env.get('GEMINI_MODEL'), 'timeout': env.get('TRANSLATION_TIMEOUT_SECONDS')}), flush=True)
+    host = 'generativelanguage.googleapis.com'
+    try:
+        addresses = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
+        print(json.dumps({'dnsIPv4': sum(a[0] == socket.AF_INET for a in addresses),
+            'dnsIPv6': sum(a[0] == socket.AF_INET6 for a in addresses)}), flush=True)
+    except Exception as error:
+        print('DNS failed: ' + type(error).__name__, flush=True)
+    url = 'https://' + host + '/v1beta/models'
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={'x-goog-api-key': key}), timeout=15) as response:
+            models = json.load(response).get('models', [])
+            print(json.dumps({'hostProviderHttp': response.status, 'flashModels': [m['name'] for m in models if 'flash' in m.get('name', '')]}), flush=True)
+    except urllib.error.HTTPError as error:
+        print(json.dumps({'hostProviderHttp': error.code, 'message': error.read().decode().replace(key, '[REDACTED]')[:1500]}), flush=True)
+    except Exception as error:
+        print('Host provider connection failed: ' + type(error).__name__, flush=True)
+    for family in ('--ipv4', '--ipv6'):
+        result = subprocess.run(['docker', 'compose', 'exec', '-T', 'backend', 'curl', family, '--http1.1',
+            '--silent', '--show-error', '--connect-timeout', '8', '--max-time', '15', '--output', '/tmp/gemini-model-check.json',
+            '--write-out', '%{http_code}', '--header', '@-', url], input='x-goog-api-key: ' + key + '\n',
+            text=True, capture_output=True, timeout=25)
+        print(json.dumps({'containerFamily': family, 'exitCode': result.returncode,
+            'httpStatus': result.stdout[-10:], 'error': result.stderr.replace(key, '[REDACTED]')[:300]}), flush=True)
 
 
 def verify():
@@ -67,7 +105,7 @@ def verify():
 
 if __name__ == '__main__':
     try:
-        verify()
+        diagnose() if '--diagnose' in sys.argv else verify()
     except Exception as error:
         print('Translation operational check failed: ' + (str(error) if isinstance(error, RuntimeError) else type(error).__name__), flush=True)
         raise SystemExit(1)
