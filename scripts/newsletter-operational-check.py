@@ -95,13 +95,13 @@ def unsubscribe(subscriber_id, key):
 
 
 def diagnose():
-    rows = sql("SELECT JSON_OBJECT('id',id,'status',status,'archived',archived,'title',title,'titleDe',title_de,'bodyEn',body_en,'bodyDe',body_de) FROM news WHERE source='NEWSLETTER';")
+    rows = sql("SELECT JSON_OBJECT('id',id,'status',status,'archived',CAST(archived AS UNSIGNED),'hasMailing',EXISTS(SELECT 1 FROM newsletter_mailings m WHERE m.news_id=n.id),'title',title,'titleDe',title_de,'bodyEn',body_en,'bodyDe',body_de) FROM news n WHERE source='NEWSLETTER';")
     for row in rows.splitlines():
         item = json.loads(row)
         missing = [field for field in ('title', 'titleDe', 'bodyEn', 'bodyDe')
                    if not re.sub(r'<[^>]+>|&nbsp;', '', item.get(field) or '').strip()]
         print(json.dumps({'newsId': item['id'], 'status': item['status'],
-            'archived': bool(item['archived']), 'missingPublicationFields': missing}), flush=True)
+            'archived': bool(item['archived']), 'hasMailing': bool(item.get('hasMailing')), 'missingPublicationFields': missing}), flush=True)
     result = subprocess.run(['docker', 'logs', '--since', '30m', '--tail', '1500', 'twiiiins-backend'],
                             text=True, encoding='utf-8', errors='replace', capture_output=True, check=True)
     types = sorted(set(re.findall(r'\b(?:[\w]+\.)*([A-Z]\w*(?:Exception|Error))\b', result.stdout + result.stderr)))

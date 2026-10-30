@@ -1,7 +1,7 @@
 <template><div class="newsletter-fields">        <div class="row"><label>날짜<input v-model="form.date" type="date" required></label><label>표시 순서<input v-model.number="form.displayOrder" type="number" min="0"></label></div>
         <div class="row"><button v-for="lang in ['en', 'de']" :key="lang" type="button" :class="{ active: language === lang }" @click="language = lang">{{ lang === 'en' ? 'English' : 'Deutsch' }}</button></div>
         <label v-if="language === 'en'">영어 제목<input v-model="form.title" maxlength="255" required></label><label v-else>독일어 제목<input v-model="form.titleDe" maxlength="255"></label>
-        <NewsletterEditor v-if="language === 'en'" key="en" v-model="form.bodyEn" /><NewsletterEditor v-else key="de" v-model="form.bodyDe" />
+        <NewsletterEditor v-if="language === 'en'" key="en" v-model="form.bodyEn" :disabled="busy" /><NewsletterEditor v-else key="de" v-model="form.bodyDe" :disabled="busy" />
         <p>날짜는 게시 날짜입니다.</p>
         <p>게시·발송하려면 두 언어의 제목과 본문이 모두 필요합니다. 사진·영상 링크는 선택입니다.</p>
         <h4>사진 · 첫 번째가 대표 사진</h4>

@@ -1,8 +1,8 @@
 import api from '../api/axios'
 import { unwrapApiResponse } from './apiResponse'
 
-const get = async (path, params) => unwrapApiResponse(await api.get(path, { params }))
-const post = async (path, data = {}) => unwrapApiResponse(await api.post(path, data))
+const get = async (path, params) => unwrapApiResponse(await api.get(path, { params, handleErrorLocally: path.startsWith('/admin/') }))
+const post = async (path, data = {}) => unwrapApiResponse(await api.post(path, data, { handleErrorLocally: path.startsWith('/admin/') }))
 export const newsletterService = {
   available: async () => unwrapApiResponse(await api.get('/newsletter/status', { handleErrorLocally: true, timeout: 10000 })),
   subscribe: async data => unwrapApiResponse(await api.post('/newsletter/subscribe', data, { handleErrorLocally: true })),
@@ -10,8 +10,8 @@ export const newsletterService = {
   unsubscribe: token => post('/newsletter/unsubscribe', { token }),
   settings: () => get('/admin/newsletter/settings'),
   news: () => get('/admin/news', { source: 'NEWSLETTER' }),
-  save: async data => unwrapApiResponse(await (data.id ? api.put(`/admin/news/${data.id}`, data) : api.post('/admin/news', data))),
-  remove: id => api.delete(`/admin/news/${id}`),
+  save: async data => unwrapApiResponse(await (data.id ? api.put(`/admin/news/${data.id}`, data, { handleErrorLocally: true }) : api.post('/admin/news', data, { handleErrorLocally: true }))),
+  remove: id => api.delete(`/admin/news/${id}`, { handleErrorLocally: true }),
   upload: async files => {
     const data = new FormData()
     for (const file of files) data.append('files', file)

@@ -1,24 +1,32 @@
 <template>
   <div class="newsletter-admin">
     <nav class="row" aria-label="뉴스레터 관리"><button v-for="tab in tabs" :key="tab.key" :class="{ active: section === tab.key }" @click="section = tab.key">{{ tab.label }}</button></nav>
-    <p role="status" aria-live="polite">{{ message }}</p>
+    <div v-if="busy || message" class="operation-feedback" :class="operationState" :role="operationState === 'error' ? 'alert' : 'status'" :aria-live="operationState === 'error' ? 'assertive' : 'polite'" aria-atomic="true">
+      <strong>{{ busy ? busyLabel : operationState === 'error' ? '처리 실패' : '처리 완료' }}</strong>
+      <progress v-if="busy" aria-label="처리 진행 중"></progress>
+      <p v-else>{{ message }}</p>
+      <router-link v-if="!busy && operationState === 'success' && publishedId" :to="`/media?section=news&newsId=${publishedId}`" target="_blank" rel="noopener">게시글 확인 ↗</router-link>
+      <button v-if="!busy" type="button" @click="message = ''" aria-label="처리 알림 닫기">닫기</button>
+    </div>
     <p v-if="!settings.available" class="notice">SMTP 설정과 뉴스레터 활성화가 필요합니다. 초안 작성과 News 게시는 가능합니다. <button @click="section = 'settings'">설정 확인</button></p>
     <p v-if="settings.localMailboxUrl" class="notice">로컬에서는 환영·테스트·뉴스레터 메일이 외부 이메일 대신 로컬 메일함에 도착합니다. <a :href="settings.localMailboxUrl" target="_blank" rel="noopener">로컬 메일함 열기</a></p>
     <p v-if="settings.paused" class="notice">발송 중지: {{ settings.pauseReason }} <button :disabled="busy" @click="run(async () => { await service.resume(); await refresh() }, '발송을 재개했습니다.')">설정 확인 후 재개</button></p>
 
     <section v-if="section === 'news'">
       <div class="row"><h2>뉴스레터 작성</h2><button :disabled="busy" @click="reset">새 글 작성</button></div>
+      <p class="list-help">서버에 저장된 뉴스레터 글 목록입니다. ‘초안’은 사이트에 공개되지 않으며, ‘게시’는 Media → News에 공개됩니다. 작성 중인 내용과 사진 변경은 저장해야 반영됩니다. 발송 기록이 있는 글은 삭제 대신 보관합니다.</p>
       <label>검색<input v-model="search" placeholder="제목 검색"></label>
       <div class="table-scroll"><table><thead><tr><th>날짜</th><th>제목</th><th>상태</th><th>작업</th></tr></thead><tbody>
-        <tr v-for="item in filteredNews" :key="item.id"><td>{{ item.date }}</td><td>{{ item.title }}</td><td>{{ item.archived ? '보관' : item.status === 'DRAFT' ? '초안' : '게시' }}{{ mailingFor(item.id) ? ' · 발송 등록됨' : '' }}</td><td><button :disabled="busy" @click="edit(item)">수정</button> <button :disabled="busy" @click="ask(mailingFor(item.id) ? '발송 기록이 있어 보관 처리합니다. 웹 보기 주소는 유지됩니다.' : '이 글을 삭제할까요?', () => run(async () => { await service.remove(item.id); await refresh(); if (form.id === item.id) reset() }, '처리했습니다.'))">{{ mailingFor(item.id) ? '보관' : '삭제' }}</button></td></tr>
+        <tr v-for="item in filteredNews" :key="item.id"><td>{{ item.date }}</td><td>{{ item.title }}</td><td>{{ item.archived ? '보관' : item.status === 'DRAFT' ? '초안' : '게시' }}{{ mailingFor(item.id) ? ' · 발송 등록됨' : '' }}</td><td><button :disabled="busy || confirmOpen" @click="edit(item)">수정</button> <button :disabled="busy || confirmOpen || item.archived" @click="ask(mailingFor(item.id) ? '발송 기록이 있어 보관 처리합니다. 웹 보기 주소는 유지됩니다.' : '이 글을 서버에서 삭제할까요? 삭제한 초안은 새로고침해도 다시 나타나지 않습니다.', () => deleteItem(item))">{{ item.archived ? '보관됨' : mailingFor(item.id) ? '보관' : '삭제' }}</button></td></tr>
+        <tr v-if="!filteredNews.length"><td colspan="4">저장된 뉴스레터 글이 없습니다.</td></tr>
       </tbody></table></div>
       <div class="compose-layout">
-      <form class="compose" @submit.prevent="run(save, '저장했습니다.')">
+      <form class="compose" :aria-busy="busy" @submit.prevent="run(save, '서버에 저장했습니다.', '글 저장 중…')">
         <h3>{{ form.id ? '글 수정' : '새 글' }}</h3>
-        <NewsletterFields v-model="form" v-model:language="language" :busy="busy" :uploading="uploading" @upload="upload" />
+        <fieldset class="compose-fields" :disabled="busy || confirmOpen"><NewsletterFields v-model="form" v-model:language="language" :busy="busy || confirmOpen" :uploading="uploading" @upload="upload" /></fieldset>
         <section class="action-group"><h4>1. 초안 저장 · 화면 확인</h4><p>작성 내용을 저장하거나 메일 화면을 확인합니다. 구독자에게 보내지 않습니다.</p><div class="row"><button :disabled="busy">저장</button><button type="button" :disabled="busy" @click="preview">메일 미리보기</button></div></section>
         <section v-if="settings.testRecipients?.length" class="action-group"><h4>2. 테스트 메일</h4><p>선택한 테스트 주소 한 곳으로 현재 언어의 메일을 보냅니다.</p><div class="row"><label>테스트 수신 주소<select v-model="testEmail"><option v-for="email in settings.testRecipients" :key="email">{{ email }}</option></select></label><button type="button" :disabled="busy || !settings.available || !testEmail || settings.paused" @click="run(async () => { await save(); await service.test(form.id, language, testEmail) }, '테스트 메일을 대기열에 등록했습니다.')">{{ language.toUpperCase() }} 테스트 발송</button></div></section>
-        <section class="action-group publish-group"><h4>3. 게시 · 구독자 발송</h4><p>News 게시는 사이트에만 공개합니다. 구독자 발송은 수신에 동의한 구독자에게 이메일도 보냅니다.</p><div class="row"><button type="button" :disabled="busy || form.archived" @click="run(async () => { await save(); form = await service.publish(form.id); await refresh() }, 'News에 게시했습니다.')">News에만 게시</button><button type="button" class="send-button" :disabled="busy || !settings.available || settings.paused || form.archived || !!mailingFor(form.id)" @click="prepareSend">게시 및 구독자 발송</button></div></section>
+        <section class="action-group publish-group"><h4>3. 게시 · 구독자 발송</h4><p>News 게시는 사이트에만 공개합니다. 구독자 발송은 수신에 동의한 구독자에게 이메일도 보냅니다.</p><div class="row"><button type="button" :disabled="busy || confirmOpen || form.archived" @click="publishNews">News에만 게시</button><button type="button" class="send-button" :disabled="busy || confirmOpen || !settings.available || settings.paused || form.archived || !!mailingFor(form.id)" @click="prepareSend">게시 및 구독자 발송</button></div><p>게시·발송에는 영어와 독일어 제목·본문이 모두 필요합니다. 발송 등록 완료 후 메일별 진행 상황은 ‘발송 기록’에서 확인하세요.</p></section>
       </form>
       <NewsletterPreview :form="form" :language="language" />
       </div>
@@ -73,6 +81,7 @@ const props = defineProps({ initialNewsId: { type: Number, default: null } })
 const tabs = [{ key: 'news', label: '작성' }, { key: 'subscribers', label: '구독자' }, { key: 'history', label: '발송 기록' }, { key: 'settings', label: '설정' }]
 const section = ref('news'), language = ref('en'), items = ref([]), settings = ref({}), subscribers = ref([]), mailings = ref([])
 const search = ref(''), subscriberSearch = ref(''), subscriberLanguage = ref(''), subscriberStatus = ref(''), busy = ref(false), message = ref(''), testEmail = ref('')
+const busyLabel = ref('불러오는 중…'), operationState = ref('idle'), publishedId = ref(null)
 const selectedMailing = ref(null), deliveryRows = ref([]), previewOpen = ref(false), previewData = ref({}), confirmOpen = ref(false), confirmMessage = ref('')
 let pendingAction = null
 function empty() { const today = new Date(); const date = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, '0'), String(today.getDate()).padStart(2, '0')].join('-'); return { title: '', titleDe: '', bodyEn: '', bodyDe: '', date, displayOrder: 0, imageUrls: [], videoUrls: [], eventWhenEn: '', eventWhenDe: '', eventLocationEn: '', eventLocationDe: '', ctaLabelEn: '', ctaLabelDe: '', ctaUrl: '' } }
@@ -97,17 +106,56 @@ async function refresh() {
   if (!testEmail.value) testEmail.value = settings.value.testRecipients?.[0] || ''
 }
 async function refreshHistory() { await refresh(); if (selectedMailing.value) { selectedMailing.value = mailings.value.find(m => m.id === selectedMailing.value.id); deliveryRows.value = await service.deliveries(selectedMailing.value.id) } }
-async function run(action, success = '') {
+async function refreshNews() { items.value = await service.news() }
+async function run(action, success = '', pending = '처리 중…') {
   if (busy.value) return
-  busy.value = true; message.value = ''
-  try { await action(); message.value = success }
-  catch (error) { message.value = error.response?.data?.error?.message || error.message || '처리하지 못했습니다.' }
+  busy.value = true; message.value = ''; busyLabel.value = pending; operationState.value = 'pending'; publishedId.value = null
+  try { await action(); message.value = success; operationState.value = 'success' }
+  catch (error) { message.value = error.response?.data?.error?.message || error.message || '처리하지 못했습니다.'; operationState.value = 'error' }
   finally { busy.value = false }
 }
 async function save() {
+  if (!form.value.date) throw new Error('날짜를 입력하세요.')
   if (!form.value.title.trim()) throw new Error('영어 제목을 입력하세요.')
   form.value = await service.save({ ...form.value, videoUrls: form.value.videoUrls.filter(Boolean) })
-  await refresh()
+  const savedItem = JSON.parse(JSON.stringify(form.value))
+  items.value = items.value.some(item => item.id === savedItem.id)
+    ? items.value.map(item => item.id === savedItem.id ? savedItem : item)
+    : [...items.value, savedItem]
+}
+function validatePublication() {
+  const text = html => new DOMParser().parseFromString(html || '', 'text/html').body.textContent.trim()
+  const missing = []
+  if (!form.value.title?.trim()) missing.push('영어 제목')
+  if (!text(form.value.bodyEn)) missing.push('영어 본문')
+  if (!form.value.titleDe?.trim()) missing.push('독일어 제목')
+  if (!text(form.value.bodyDe)) missing.push('독일어 본문')
+  if (missing.length) {
+    language.value = missing.some(field => field.startsWith('영어')) ? 'en' : 'de'
+    throw new Error(`게시하려면 ${missing.join(', ')}을(를) 입력하세요. 작성 내용은 그대로 유지됩니다.`)
+  }
+}
+function publishNews() {
+  run(async () => {
+    validatePublication()
+    await save()
+    busyLabel.value = 'News에 게시 중…'
+    form.value = await service.publish(form.value.id)
+    publishedId.value = form.value.id
+    busyLabel.value = '서버 게시 상태 확인 중…'
+    await refreshNews()
+    if (!items.value.some(item => item.id === form.value.id && item.status === 'PUBLISHED')) throw new Error('서버의 게시 상태를 확인하지 못했습니다. 목록을 새로고침하세요.')
+  }, 'News에 게시했습니다. 아래 링크에서 실제 게시글을 확인하세요.', '게시할 내용 확인 중…')
+}
+function deleteItem(item) {
+  run(async () => {
+    await service.remove(item.id)
+    busyLabel.value = '서버에서 삭제 결과 확인 중…'
+    await refreshNews()
+    const remaining = items.value.find(news => news.id === item.id)
+    if (remaining && !remaining.archived) throw new Error('서버에 글이 남아 있어 삭제를 완료하지 못했습니다. 다시 시도하세요.')
+    if (form.value.id === item.id) reset()
+  }, mailingFor(item.id) ? '발송 기록이 있는 글을 보관했습니다. 웹 보기 주소는 유지됩니다.' : '서버에서 글을 삭제했습니다.', '글 삭제·보관 중…')
 }
 function upload(event) {
   const files = [...event.target.files]
@@ -125,7 +173,20 @@ function preview() { run(async () => { previewData.value = await service.preview
 function ask(text, action) { confirmMessage.value = text; pendingAction = action; confirmOpen.value = true }
 function confirmAction() { confirmOpen.value = false; const action = pendingAction; pendingAction = null; action?.() }
 function prepareSend() {
-  run(async () => { await save(); ask(`News에 게시하고 영어 ${activeCount('en')}명, 독일어 ${activeCount('de')}명에게 발송할까요? 발송 등록 후에는 수정한 내용이 이메일에 반영되지 않습니다.`, () => run(async () => { await service.send(form.value.id, form.value.version); await refresh(); form.value = items.value.find(n => n.id === form.value.id) || form.value }, '게시하고 발송 대기열에 등록했습니다.')) })
+  run(async () => {
+    validatePublication()
+    await save()
+    const { id, version } = form.value
+    ask(`News에 게시하고 영어 ${activeCount('en')}명, 독일어 ${activeCount('de')}명에게 발송할까요? 발송 등록 후에는 수정한 내용이 이메일에 반영되지 않습니다.`, () => run(async () => {
+      await service.send(id, version)
+      publishedId.value = id
+      busyLabel.value = '게시·발송 등록 결과 확인 중…'
+      await refreshNews()
+      mailings.value = await service.mailings()
+      form.value = items.value.find(n => n.id === id) || form.value
+      if (form.value.status !== 'PUBLISHED' || !mailingFor(id)) throw new Error('게시·발송 등록 상태를 확인하지 못했습니다. 발송 기록을 새로고침하세요.')
+    }, 'News에 게시하고 발송 대기열에 등록했습니다. 메일별 전송 결과는 발송 기록에서 확인하세요.', '게시 및 구독자 발송 등록 중…'))
+  }, '', '발송할 내용 저장 중…')
 }
 onMounted(() => run(async () => {
   await refresh()
@@ -137,6 +198,10 @@ onMounted(() => run(async () => {
 }))
 </script>
 <style scoped>
+.compose-fields { margin:0;padding:0;border:0;min-width:0; }
+.list-help { color:#555;line-height:1.6;font-size:.9rem; }
+.operation-feedback { position:fixed;right:1.25rem;bottom:1.25rem;z-index:3000;width:min(28rem,calc(100vw - 2.5rem));box-sizing:border-box;padding:1rem 1.25rem;background:#fff;border:2px solid #815d47;border-radius:8px;box-shadow:0 6px 28px #0003; }
+.operation-feedback strong { display:block; }.operation-feedback p { margin:.5rem 0;line-height:1.6;white-space:pre-line; }.operation-feedback progress { display:block;width:100%;height:.6rem;margin-top:.75rem;accent-color:#815d47; }.operation-feedback.success { border-color:#287552; }.operation-feedback.error { border-color:#b42318; }.operation-feedback.error strong { color:#b42318; }.operation-feedback a { display:inline-block;margin-right:1rem;color:#287552;text-decoration:underline; }
 .compose-layout { display:grid;grid-template-columns:minmax(0,1fr) minmax(0,680px);gap:2rem;align-items:start; }
 .compose { min-width:0; } .compose-layout > :last-child { margin-top:2rem;position:sticky;top:1rem; }
 @media (max-width:1199px) { .compose-layout { grid-template-columns:minmax(0,1fr); } .compose-layout > :last-child { position:static; } }
