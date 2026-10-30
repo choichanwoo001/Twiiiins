@@ -1,0 +1,41 @@
+name: Newsletter operational check
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'preflight is read-only; verify sends only to the configured test recipient'
+        required: true
+        default: preflight
+        type: choice
+        options: [preflight, verify]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: newsletter-operational-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check newsletter on the server
+        env:
+          SSH_HOST: ${{ secrets.EC2_HOST }}
+          SSH_USER: ${{ secrets.EC2_USER }}
+          SSH_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/newsletter_key
+          chmod 600 ~/.ssh/newsletter_key
+          trap 'rm -f ~/.ssh/newsletter_key' EXIT
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          scp -i ~/.ssh/newsletter_key scripts/newsletter-operational-check.py "$SSH_USER@$SSH_HOST:~/twiiiins/Twiiiins/scripts/"
+          ssh -i ~/.ssh/newsletter_key "$SSH_USER@$SSH_HOST" \
+            "cd ~/twiiiins/Twiiiins && python3 scripts/newsletter-operational-check.py $OPERATION"
