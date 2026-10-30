@@ -61,13 +61,14 @@
          class="sns-link">
         {{ sns.name }}
       </a>
-      <LanguageSwitch />
+      <LanguageSwitch v-if="!isMobile || isHomePage" />
     </div>
 
-    <div v-if="!isEditorPage && !shouldShowSnsLinks" class="standalone-language"><LanguageSwitch /></div>
+    <div v-if="!isEditorPage && !shouldShowSnsLinks && (!isMobile || isHomePage)" class="standalone-language"><LanguageSwitch /></div>
     <footer v-if="!isEditorPage && !isHomePage" class="legal-footer">
       <router-link to="/privacy">{{ websiteLanguage === 'de' ? 'Datenschutz & Bedingungen' : 'Privacy & Terms' }}</router-link>
       <button type="button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button>
+      <LanguageSwitch v-if="isMobile" />
     </footer>
     <CookieControls v-if="!isEditorPage" />
 

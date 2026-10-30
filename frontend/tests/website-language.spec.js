@@ -37,7 +37,7 @@ test('footer switch translates About and navigation, persists and supports keybo
   await mockWebsite(page)
   await page.goto('/about')
   await expect(page.locator('.navbar .website-language')).toHaveCount(0)
-  await expect(page.locator('.sns-links > :last-child')).toHaveClass('website-language')
+  await expect(page.locator(isMobile ? '.legal-footer > :last-child' : '.sns-links > :last-child')).toHaveClass('website-language')
   await page.locator('.website-language summary').click()
   const trigger = await page.locator('.website-language summary').boundingBox()
   const options = await page.locator('.language-options').boundingBox()
