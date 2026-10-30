@@ -21,6 +21,10 @@ async function mocks(page, { available = true, admin = false } = {}) {
       if (request.method() === 'POST') { const item = { ...request.postDataJSON(), id: 8, source: 'NEWS', status: 'PUBLISHED', version: 0 }; manualNews.push(item); data = item }
       else data = [...manualNews, { ...saved, status: 'PUBLISHED' }]
     }
+    if (path === '/api/media/news/7' && request.method() === 'PUT') {
+      manualNews[0] = { ...manualNews[0], ...request.postDataJSON(), version: manualNews[0].version + 1 }
+      data = manualNews[0]
+    }
     if (path === '/api/admin/news') {
       if (request.method() === 'POST') saved = { ...saved, ...request.postDataJSON(), id: 42 }
       data = request.method() === 'GET' ? [saved] : saved
@@ -192,6 +196,51 @@ test('Media preserves the regular News form and links generated posts to Newslet
   await expect(page.getByRole('tab', { name: '뉴스레터 관리 메뉴' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.locator('.newsletter-admin').getByLabel('영어 제목')).toHaveValue('English announcement')
   await expect(page.locator('.newsletter-admin').getByRole('cell', { name: 'Regular News', exact: true })).toHaveCount(0)
+})
+
+test('regular News clears its description and prevents duplicate registration while saving', async ({ page }) => {
+  await mocks(page, { admin: true })
+  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.goto('/admin')
+  await page.getByRole('tab', { name: '미디어 관리 메뉴' }).click()
+  await page.getByRole('button', { name: 'News', exact: true }).click()
+  const tab = page.locator('.news-tab'), form = tab.locator('.crud-form')
+  await tab.getByRole('button', { name: 'Regular News 수정', exact: true }).click()
+  await form.getByPlaceholder('설명을 입력하세요').fill('')
+  const update = page.waitForRequest(r => r.method() === 'PUT' && new URL(r.url()).pathname === '/api/media/news/7')
+  await form.getByRole('button', { name: '수정', exact: true }).click()
+  expect((await update).postDataJSON()).toMatchObject({ description: '', version: 0 })
+  await expect(tab.getByRole('row').filter({ hasText: 'Regular News' })).not.toContainText('Regular description')
+  await expect(form.getByPlaceholder('제목을 입력하세요')).toHaveAttribute('maxlength', '255')
+  await expect(form.getByPlaceholder('설명을 입력하세요')).toHaveAttribute('maxlength', '1000')
+
+  let release, creates = 0
+  const pending = new Promise(resolve => { release = resolve })
+  await page.route('**/api/media/news', async route => {
+    if (route.request().method() === 'POST') { creates++; await pending }
+    await route.fallback()
+  })
+  await form.locator('input[type=date]').fill('2026-10-30')
+  await form.getByPlaceholder('제목을 입력하세요').fill('Single announcement')
+  await form.getByRole('button', { name: '등록', exact: true }).click()
+  await expect(form.getByRole('button', { name: '등록', exact: true })).toBeDisabled()
+  await form.dispatchEvent('submit')
+  release()
+  await expect(tab.getByRole('cell', { name: 'Single announcement', exact: true })).toBeVisible()
+  expect(creates).toBe(1)
+})
+
+test('Newsletter publishes to News with SMTP disabled without sending email', async ({ page }) => {
+  const posted = await mocks(page, { admin: true, available: false })
+  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.goto('/admin')
+  await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
+  const admin = page.locator('.newsletter-admin')
+  await admin.getByRole('row').filter({ hasText: 'English announcement' }).getByRole('button', { name: '수정', exact: true }).click()
+  await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
+  await expect(admin.getByRole('status')).toContainText('News에 게시했습니다.')
+  expect(posted.filter(p => p.path.endsWith('/publish'))).toHaveLength(1)
+  expect(posted.filter(p => p.path.endsWith('/send'))).toHaveLength(0)
 })
 
 test('Newsletter subscriber list shows dates, counts, translated states and search filters', async ({ page }, testInfo) => {

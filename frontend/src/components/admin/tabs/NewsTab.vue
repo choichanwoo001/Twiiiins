@@ -36,6 +36,7 @@
       :fields="formFields"
       v-model="form"
       :editing-item="editingNews"
+      :submitting="isSaving"
       @submit="saveNews"
       @cancel="cancelEdit"
     />
@@ -147,14 +148,15 @@ const tableActions = [
 // 폼 필드 설정
 const formFields = [
   { key: 'date', label: '날짜', type: 'date', required: true },
-  { key: 'title', label: '제목', type: 'text', required: true, placeholder: '제목을 입력하세요' },
-  { key: 'description', label: '설명', type: 'textarea', placeholder: '설명을 입력하세요' },
+  { key: 'title', label: '제목', type: 'text', required: true, maxLength: 255, placeholder: '제목을 입력하세요' },
+  { key: 'description', label: '설명', type: 'textarea', maxLength: 1000, placeholder: '설명을 입력하세요' },
   { key: 'displayOrder', label: '표시 순서', type: 'number', min: 0 }
 ]
 
 // 반응형 데이터
 const form = ref({ date: '', title: '', description: '', displayOrder: 0 })
 const editingNews = ref(null)
+const isSaving = ref(false)
 const selectedNews = ref(null)
 const fileInput = ref(null)
 const selectedFiles = ref([])
@@ -300,6 +302,8 @@ const cancelEdit = () => {
 }
 
 const saveNews = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     // 날짜가 없으면 오늘 날짜로 설정
     const newsData = {
@@ -320,6 +324,8 @@ const saveNews = async () => {
   } catch (error) {
     logError(error, '뉴스 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
+  } finally {
+    isSaving.value = false
   }
 }
 

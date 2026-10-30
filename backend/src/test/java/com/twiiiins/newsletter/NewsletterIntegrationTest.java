@@ -210,6 +210,27 @@ class NewsletterIntegrationTest {
     }
 
     @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void newsPublicationWorksWithoutSmtpAndManualDescriptionCanBeCleared() throws Exception {
+        settings.setEnabled(false);
+        String response = mvc.perform(post("/api/media/news").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"date\":\"2026-10-30\",\"title\":\"Manual announcement\",\"description\":\"Original\"}"))
+            .andExpect(status().isCreated()).andExpect(jsonPath("$.data.status").value("PUBLISHED"))
+            .andReturn().getResponse().getContentAsString();
+        long id = json.readTree(response).path("data").path("id").asLong();
+        mvc.perform(put("/api/media/news/" + id).contentType(MediaType.APPLICATION_JSON)
+            .content("{\"date\":\"2026-10-30\",\"title\":\"Manual announcement\",\"description\":\"\"}"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.description").value(""));
+        mvc.perform(get("/api/media/news/" + id)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.body").value("<p></p>"));
+        NewsDto newsletter = draft();
+        mvc.perform(post("/api/admin/news/" + newsletter.getId() + "/publish"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.status").value("PUBLISHED"));
+        mvc.perform(get("/api/media/news")).andExpect(jsonPath("$.data.length()").value(2));
+        assertEquals(0, deliveries.count()); assertEquals(0, mailings.count());
+        verifyNoInteractions(sender);
+    }
+
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
     void sourceFiltersAndApiGuardsSeparateGeneralNewsFromNewsletters() throws Exception {
         NewsDto newsletter = draft();
         NewsCreateRequest request = new NewsCreateRequest(); request.setDate(LocalDate.now()); request.setTitle("Manual");
@@ -426,6 +447,10 @@ class NewsletterIntegrationTest {
             String raw = received.get(10, java.util.concurrent.TimeUnit.SECONDS);
             var mime = new MimeMessage(Session.getInstance(new Properties()), new java.io.ByteArrayInputStream(raw.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
             assertEquals("Deutscher Titel", mime.getSubject()); assertEquals(1, mime.getAllRecipients().length);
+            var from = (jakarta.mail.internet.InternetAddress) mime.getFrom()[0];
+            assertEquals("Twiiiins", from.getPersonal());
+            assertEquals(settings.getFrom(), from.getAddress());
+            assertEquals(settings.getReplyTo(), ((jakarta.mail.internet.InternetAddress) mime.getReplyTo()[0]).getAddress());
             var parts = (jakarta.mail.Multipart) mime.getContent(); assertEquals(2, parts.getCount());
             assertTrue(parts.getBodyPart(0).getContent().toString().contains("/newsletter/unsubscribe?token="));
             assertTrue(parts.getBodyPart(1).getContent().toString().contains("<h2>Hallo</h2>"));

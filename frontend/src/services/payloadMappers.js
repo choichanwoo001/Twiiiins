@@ -59,7 +59,7 @@ const sanitizeStringArray = (value) => {
 
 const buildBaseNewsPayload = (data) => {
   const payload = {};
-  const description = sanitizeString(data.description);
+  const description = sanitizeString(data.description, { allowEmpty: true });
   const displayOrder = sanitizeNumber(data.displayOrder);
   const imageUrls = sanitizeStringArray(data.imageUrls);
 

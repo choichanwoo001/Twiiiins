@@ -23,6 +23,7 @@
             :required="subField.required"
             :min="subField.min"
             :max="subField.max"
+            :maxlength="subField.maxLength"
           />
           
           <!-- 파일 업로드 -->
@@ -47,12 +48,13 @@
             :placeholder="subField.placeholder"
             :required="subField.required"
             :rows="subField.rows || 3"
+            :maxlength="subField.maxLength"
           ></textarea>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn-save">
+        <button type="submit" class="btn-save" :disabled="submitting">
           {{ editingItem ? '수정' : '등록' }}
         </button>
         <button 
@@ -72,6 +74,7 @@
 import { ref, watch } from 'vue'
 
 const props = defineProps({
+  submitting: { type: Boolean, default: false },
   title: {
     type: String,
     required: true
@@ -131,6 +134,7 @@ watch(formValues, (newValue) => {
 }, { deep: true })
 
 const handleSubmit = () => {
+  if (props.submitting) return
   emit('submit', formValues.value)
 }
 

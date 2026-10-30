@@ -106,7 +106,7 @@ public class NewsletterWorker implements ApplicationRunner {
             JavaMailSender sender = senders.getObject();
             var message = sender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
-            helper.setFrom(settings.getFrom()); helper.setReplyTo(settings.getReplyTo());
+            helper.setFrom(settings.getFrom(), "Twiiiins"); helper.setReplyTo(settings.getReplyTo());
             helper.setTo(envelope.email()); helper.setSubject(envelope.title());
             var alternative = new jakarta.mail.internet.MimeMultipart("alternative");
             var plain = new jakarta.mail.internet.MimeBodyPart();

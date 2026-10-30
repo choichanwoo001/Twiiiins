@@ -4,10 +4,13 @@
     <section class="hero-section">
       <div class="hero-image">
         <picture>
+          <source media="(max-width: 64rem)" :srcset="homeMobileSrcset" sizes="100vw">
           <img
             :src="homeImg1920"
             :srcset="homeSrcset"
-            sizes="(max-width: 48rem) 178vw, 100vw"
+            sizes="100vw"
+            width="1920"
+            height="1080"
             :alt="t('Dowon Kim and Linus Shastri holding their violins in a lively pose')"
             fetchpriority="high"
             loading="eager"
@@ -63,10 +66,13 @@ import { formatDate } from '../utils/commonHelpers'
 import { logError } from '../utils/errorHandler'
 
 // 이미지 리소스 임포트
-import homeImg1280 from '../imgs/optimized/home-1280.jpg'
-import homeImg1920 from '../imgs/optimized/home-1920.jpg'
+import homeImg1280 from '../imgs/optimized/home-photo-1280.webp'
+import homeImg1920 from '../imgs/optimized/home-photo-1920.webp'
+import homeMobile640 from '../imgs/optimized/home-photo-mobile-640.webp'
+import homeMobile1000 from '../imgs/optimized/home-photo-mobile-1000.webp'
 
 const homeSrcset = `${homeImg1280} 1280w, ${homeImg1920} 1920w`
+const homeMobileSrcset = `${homeMobile640} 640w, ${homeMobile1000} 1000w`
 
 // 스토어 사용
 const concertStore = useConcertStore()
@@ -208,19 +214,20 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Bias toward the printed copy on taller desktop screens. */
-  object-position: 75% center;
+  object-position: center;
 }
 
-/* The desktop artwork contains the copy; keep it available to screen readers. */
 .hero-description {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
+  right: 7%;
+  bottom: 13.5%;
+  width: 39%;
+  margin: 0;
+  color: #9e3e40;
+  text-align: right;
+  font-size: clamp(1.5rem, 2.8vw, 3.5rem);
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 /* 이벤트 섹션 */
@@ -504,7 +511,14 @@ onUnmounted(() => {
     display: none;
   }
   
-  /* Hero 이미지 모바일 최적화 */
+}
+
+/* Portrait compositions keep both musicians visible on tablets and phones. */
+@media (max-width: 64rem) {
+  .page-indicators {
+    display: none;
+  }
+
   .hero-image {
     display: flex;
     flex-direction: column;
@@ -515,27 +529,21 @@ onUnmounted(() => {
   }
 
   .hero-image picture {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 1000 / 1080;
     height: min(108vw, 32rem, calc(100dvh - var(--navbar-height) - 13rem));
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
+    mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
   }
 
   .hero-image img {
-    position: absolute;
-    top: 0;
-    /* Center the left 1000px of the artwork and blend its edges into the hero. */
-    left: 50%;
-    transform: translateX(-26.041667%);
-    width: auto;
-    max-width: none;
+    width: 100%;
     height: 100%;
-    clip-path: inset(0 47.916667% 0 0);
-    mask-image: linear-gradient(to right, transparent, #000 3%, #000 49%, transparent 52.083333%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 85%, transparent);
-    mask-composite: intersect;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 49%, transparent 52.083333%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 85%, transparent);
-    -webkit-mask-composite: source-in;
+    object-fit: contain;
+    mask-image: linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
   }
 
   .hero-description {
