@@ -9,6 +9,7 @@ import base64
 import hashlib
 import hmac
 import json
+import re
 import secrets
 import subprocess
 import sys
@@ -24,7 +25,10 @@ def sql(statement):
          'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root --batch --skip-column-names "$MYSQL_DATABASE"'],
         input=statement, text=True, capture_output=True, check=False)
     if result.returncode:
-        raise RuntimeError('Database operation failed (details withheld)')
+        code = re.search(r'ERROR\s+(\d+)\s+\(([A-Z0-9]+)\)', result.stderr)
+        # MySQL error numbers and operation names are safe; SQL values are not.
+        raise RuntimeError('Database operation failed: ' + statement.split()[0]
+            + ', MySQL ' + (code.group(1) if code else 'unknown'))
     return result.stdout.strip()
 
 
