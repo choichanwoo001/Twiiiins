@@ -33,7 +33,9 @@ def sql(statement):
 
 
 def quote(value):
-    return "CONVERT(0x" + value.encode().hex() + " USING utf8mb4)"
+    # Binary literals avoid collation conflicts between legacy tables and the
+    # mysql client's default connection collation. Addresses are normalized.
+    return "X'" + value.encode().hex() + "'"
 
 
 def environment():
