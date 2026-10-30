@@ -61,11 +61,11 @@
          class="sns-link">
         {{ sns.name }}
       </a>
-      <LanguageSwitch v-if="!isMobile || isHomePage" />
+      <LanguageSwitch v-if="!isHomePage && !isMobile" />
     </div>
 
-    <div v-if="!isEditorPage && !shouldShowSnsLinks && (!isMobile || isHomePage)" class="standalone-language"><LanguageSwitch /></div>
-    <footer v-if="!isEditorPage && !isHomePage" class="legal-footer">
+    <div v-if="!isEditorPage && !isHomePage && !shouldShowSnsLinks && !isMobile" class="standalone-language"><LanguageSwitch /></div>
+    <footer v-if="!isEditorPage && !isHomePage" ref="legalFooter" class="legal-footer">
       <router-link to="/privacy">{{ websiteLanguage === 'de' ? 'Datenschutz & Bedingungen' : 'Privacy & Terms' }}</router-link>
       <button type="button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button>
       <LanguageSwitch v-if="isMobile" />
@@ -96,6 +96,17 @@ const appStore = useAppStore()
 const isMobileMenuOpen = ref(false) // 모바일 메뉴 상태
 const isMediaMenuOpen = ref(false) // 미디어 서브메뉴 토글 상태
 const { isMobile } = useMobile()
+const legalFooter = ref(null)
+
+// Keep the social bar close even when translated footer links wrap to two rows.
+watch(legalFooter, (footer, _, onCleanup) => {
+  if (!footer) return
+  const updateHeight = () => footer.parentElement.style.setProperty('--legal-footer-height', `${footer.getBoundingClientRect().height}px`)
+  const observer = new ResizeObserver(updateHeight)
+  observer.observe(footer)
+  updateHeight()
+  onCleanup(() => observer.disconnect())
+}, { flush: 'post' })
 
 // 스크롤 관련 로직 Composable 사용
 const { 

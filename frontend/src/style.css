@@ -658,7 +658,7 @@ body:has(.privacy-page) .navbar { background: rgba(255, 255, 255, 0.97); }
   .legal-footer > * { flex: 0 0 auto; white-space: nowrap; text-align: center; }
   .legal-footer .website-language summary { font-size: inherit; text-align: center; }
   .sns-links { bottom: calc(3rem + env(safe-area-inset-bottom, 0px)); }
-  body:has(.legal-footer) .sns-links { bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
+  body:has(.legal-footer) .sns-links { bottom: calc(var(--legal-footer-height, 2.5rem) + 0.5rem); }
   .standalone-language { bottom: calc(3rem + env(safe-area-inset-bottom, 0px)); }
   body.events-section-active .legal-footer { background: #943c31; }
 }
