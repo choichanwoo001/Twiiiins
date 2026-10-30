@@ -22,8 +22,8 @@ from datetime import date
 def sql(statement):
     result = subprocess.run(
         ['docker', 'compose', 'exec', '-T', 'db', 'sh', '-c',
-         'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root --batch --skip-column-names "$MYSQL_DATABASE"'],
-        input=statement, text=True, capture_output=True, check=False)
+         'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --default-character-set=utf8mb4 -u root --batch --skip-column-names "$MYSQL_DATABASE"'],
+        input=statement, text=True, encoding='utf-8', capture_output=True, check=False)
     if result.returncode:
         code = re.search(r'ERROR\s+(\d+)\s+\(([A-Z0-9]+)\)', result.stderr)
         # MySQL error numbers and operation names are safe; SQL values are not.
@@ -40,7 +40,7 @@ def quote(value):
 
 def environment():
     result = subprocess.run(['docker', 'inspect', 'twiiiins-backend'],
-                            text=True, capture_output=True, check=True)
+                            text=True, encoding='utf-8', errors='replace', capture_output=True, check=True)
     return dict(item.split('=', 1) for item in json.loads(result.stdout)[0]['Config']['Env'] if '=' in item)
 
 
