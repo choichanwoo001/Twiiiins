@@ -479,7 +479,50 @@ class NewsletterIntegrationTest {
         mvc.perform(post("/api/admin/newsletter/preview").contentType(MediaType.APPLICATION_JSON).content("{\"language\":\"fr\"}"))
             .andExpect(status().isBadRequest());
     }
-    @Test void newsletterDesignFieldsPersistAndRequireBilingualPublication() {
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void singleLanguageNewslettersSavePublishPreviewAndQueueBothSubscriberLanguages() throws Exception {
+        active("english-reader@example.com", "en"); active("german-reader@example.com", "de"); clearNotificationJobs();
+        for (String language : List.of("en", "de")) {
+            boolean de = "de".equals(language);
+            String title = de ? "Deutsche Ankündigung" : "English announcement";
+            String body = de ? "Nur deutscher Text" : "English content only";
+            var request = new java.util.HashMap<String, Object>();
+            request.put("date", "2026-10-30"); request.put("title", de ? "" : title); request.put("titleDe", de ? title : "");
+            request.put("bodyEn", de ? "<p></p>" : "<p>" + body + "</p>"); request.put("bodyDe", de ? "<p>" + body + "</p>" : "");
+            String response = mvc.perform(post("/api/admin/news").contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(request)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+            long id = json.readTree(response).path("data").path("id").asLong();
+            mvc.perform(put("/api/admin/news/" + id).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(request)))
+                .andExpect(status().isOk());
+            mvc.perform(post("/api/admin/news/" + id + "/publish")).andExpect(status().isOk());
+            for (String view : List.of("en", "de")) {
+                mvc.perform(get("/api/media/news/" + id).param("lang", view)).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.title").value(title)).andExpect(jsonPath("$.data.body").value("<p>" + body + "</p>"));
+                Map<String, Object> preview = mailingService.preview(id, view);
+                assertEquals(title, preview.get("title")); assertTrue(preview.get("html").toString().contains(body));
+            }
+            NewsDto saved = news.adminGet(id);
+            Mailing mailing = mailingService.send(id, saved.getVersion());
+            assertEquals(title, mailing.getTitleEn()); assertEquals(title, mailing.getTitleDe());
+            assertTrue(mailing.getHtmlEn().contains(body)); assertTrue(mailing.getHtmlDe().contains(body));
+            assertEquals(2, mailing.getTotalCount());
+        }
+        verifyNoInteractions(sender);
+    }
+
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void partialLanguagesCannotPublishAndManualNewsStillRequiresItsTitle() throws Exception {
+        String data = "{\"date\":\"2026-10-30\",\"title\":\"English title\",\"bodyEn\":\"<p>&nbsp;</p>\",\"titleDe\":\"\",\"bodyDe\":\"<p>German body without title</p>\"}";
+        String response = mvc.perform(post("/api/admin/news").contentType(MediaType.APPLICATION_JSON).content(data))
+            .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        long id = json.readTree(response).path("data").path("id").asLong();
+        mvc.perform(post("/api/admin/news/" + id + "/publish")).andExpect(status().isBadRequest());
+        mvc.perform(post("/api/media/news").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"date\":\"2026-10-30\",\"title\":\"\",\"titleDe\":\"Nur Deutsch\"}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test void newsletterDesignFieldsPersistAndFallBackToTheAvailableLanguage() {
         NewsCreateRequest request = new NewsCreateRequest(); request.setDate(LocalDate.now()); request.setTitle("Show"); request.setTitleDe("Konzert");
         request.setBodyEn("<p>English body</p>"); request.setBodyDe("<p>Deutscher Text</p>");
         request.setEventWhenEn("Saturday 7pm"); request.setEventLocationEn("Hall"); request.setCtaLabelEn("Tickets"); request.setCtaUrl("https://example.com/tickets");
@@ -487,7 +530,9 @@ class NewsletterIntegrationTest {
         NewsDto item = news.createNews(request);
         assertEquals("Saturday 7pm", item.getEventWhenEn()); assertEquals("https://example.com/tickets", item.getCtaUrl());
         Long draftId = item.getId();
-        assertThrows(IllegalArgumentException.class, () -> news.publish(draftId));
+        news.publish(draftId);
+        String fallback = (String) mailingService.preview(draftId, "de").get("html");
+        assertTrue(fallback.contains("Saturday 7pm")); assertTrue(fallback.contains(">Tickets</a>"));
         NewsUpdateRequest update = new NewsUpdateRequest(); update.setEventWhenDe("Samstag 19 Uhr"); update.setEventLocationDe("Saal"); update.setCtaLabelDe("Karten");
         item = news.updateNews(item.getId(), update); news.publish(item.getId());
         String html = (String) mailingService.preview(item.getId(), "de").get("html");

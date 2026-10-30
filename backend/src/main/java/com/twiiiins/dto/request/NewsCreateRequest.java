@@ -19,7 +19,7 @@ public class NewsCreateRequest {
     @NotNull
     private LocalDate date;
 
-    @NotBlank
+    @NotBlank(groups = com.twiiiins.validation.ManualNews.class)
     @Size(max = 255)
     private String title;
 

@@ -32,7 +32,7 @@ public class MailingService {
         item.setStatus("PUBLISHED");
         Mailing mailing = new Mailing();
         mailing.setNewsId(newsId);
-        mailing.setTitleEn(item.getTitle()); mailing.setTitleDe(item.getTitleDe());
+        mailing.setTitleEn(content.title(item, "en")); mailing.setTitleDe(content.title(item, "de"));
         mailing.setHtmlEn(content.render(item, "en", settings.getPublicUrl()));
         mailing.setHtmlDe(content.render(item, "de", settings.getPublicUrl()));
         mailing.setImages(String.join("\n", item.getImageUrls()));
@@ -53,7 +53,7 @@ public class MailingService {
         SubscriptionService.language(language);
         News item = newsService.getEntity(newsId);
         newsService.requireSource(item, News.NEWSLETTER);
-        return Map.of("title", "de".equals(language) ? Objects.toString(item.getTitleDe(), "") : item.getTitle(),
+        return Map.of("title", content.title(item, language),
             "html", content.complete(content.render(item, language, settings.getPublicUrl()), language, settings, null, null, true));
     }
     @Transactional public void test(Long newsId, String language, String email) {

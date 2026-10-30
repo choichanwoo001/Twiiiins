@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { websiteLanguage } from './useWebsitePreferences'
 import contentTranslations from '../translations/content.json'
+import { newsContentLanguage } from '../utils/newsLanguage'
 
 const german = {
   ABOUT: 'ÜBER UNS', PROJECTS: 'PROJEKTE', CONCERTS: 'KONZERTE', CONCERT: 'KONZERTE',
@@ -42,10 +43,10 @@ export function translateContent(kind, field, source) {
 
 // Existing authored language variants take precedence over the saved translations.
 export function newsTitle(news) {
-  return websiteLanguage.value === 'de' && news.titleDe?.trim()
+  return newsContentLanguage(news, websiteLanguage.value) === 'de' && news.titleDe?.trim()
     ? news.titleDe : translateContent('news', 'title', news.title)
 }
 export function newsBody(news) {
-  if (websiteLanguage.value === 'de' && news.bodyDe?.trim()) return news.bodyDe
+  if (newsContentLanguage(news, websiteLanguage.value) === 'de' && news.bodyDe?.trim()) return news.bodyDe
   return translateContent('news', 'body', news.bodyEn || news.bodyDe || '')
 }

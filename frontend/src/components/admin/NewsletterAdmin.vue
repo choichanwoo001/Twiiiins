@@ -26,7 +26,7 @@
         <fieldset class="compose-fields" :disabled="busy || confirmOpen"><NewsletterFields v-model="form" v-model:language="language" :busy="busy || confirmOpen" :uploading="uploading" @upload="upload" /></fieldset>
         <section class="action-group"><h4>1. 초안 저장 · 화면 확인</h4><p>작성 내용을 저장하거나 메일 화면을 확인합니다. 구독자에게 보내지 않습니다.</p><div class="row"><button :disabled="busy">저장</button><button type="button" :disabled="busy" @click="preview">메일 미리보기</button></div></section>
         <section v-if="settings.testRecipients?.length" class="action-group"><h4>2. 테스트 메일</h4><p>선택한 테스트 주소 한 곳으로 현재 언어의 메일을 보냅니다.</p><div class="row"><label>테스트 수신 주소<select v-model="testEmail"><option v-for="email in settings.testRecipients" :key="email">{{ email }}</option></select></label><button type="button" :disabled="busy || !settings.available || !testEmail || settings.paused" @click="run(async () => { await save(); await service.test(form.id, language, testEmail) }, '테스트 메일을 대기열에 등록했습니다.')">{{ language.toUpperCase() }} 테스트 발송</button></div></section>
-        <section class="action-group publish-group"><h4>3. 게시 · 구독자 발송</h4><p>News 게시는 사이트에만 공개합니다. 구독자 발송은 수신에 동의한 구독자에게 이메일도 보냅니다.</p><div class="row"><button type="button" :disabled="busy || confirmOpen || form.archived" @click="publishNews">News에만 게시</button><button type="button" class="send-button" :disabled="busy || confirmOpen || !settings.available || settings.paused || form.archived || !!mailingFor(form.id)" @click="prepareSend">게시 및 구독자 발송</button></div><p>게시·발송에는 영어와 독일어 제목·본문이 모두 필요합니다. 발송 등록 완료 후 메일별 진행 상황은 ‘발송 기록’에서 확인하세요.</p></section>
+        <section class="action-group publish-group"><h4>3. 게시 · 구독자 발송</h4><p>News 게시는 사이트에만 공개합니다. 구독자 발송은 수신에 동의한 구독자에게 이메일도 보냅니다.</p><div class="row"><button type="button" :disabled="busy || confirmOpen || form.archived" @click="publishNews">News에만 게시</button><button type="button" class="send-button" :disabled="busy || confirmOpen || !settings.available || settings.paused || form.archived || !!mailingFor(form.id)" @click="prepareSend">게시 및 구독자 발송</button></div><p>게시·발송에는 English 또는 Deutsch 중 한 언어의 제목·본문이 필요합니다. 발송 등록 완료 후 메일별 진행 상황은 ‘발송 기록’에서 확인하세요.</p></section>
       </form>
       <NewsletterPreview :form="form" :language="language" />
       </div>
@@ -63,6 +63,7 @@ import { newsletterService as service } from '../../services/newsletterService'
 import NewsletterFields from './common/NewsletterFields.vue'
 import NewsletterPreview from './common/NewsletterPreview.vue'
 import ConfirmDialog from '../common/ConfirmDialog.vue'
+import { completeNewsLanguages, hasNewsText } from '../../utils/newsLanguage'
 const configurationIssueLabels = {
   NEWSLETTER_DISABLED: '뉴스레터 활성화 설정이 꺼져 있습니다. (NEWSLETTER_ENABLED)',
   SMTP_HOST_MISSING: 'SMTP 서버 주소를 설정하세요. (SMTP_HOST)',
@@ -116,7 +117,7 @@ async function run(action, success = '', pending = '처리 중…') {
 }
 async function save() {
   if (!form.value.date) throw new Error('날짜를 입력하세요.')
-  if (!form.value.title.trim()) throw new Error('영어 제목을 입력하세요.')
+  if (!form.value.title?.trim() && !form.value.titleDe?.trim()) throw new Error('영어 또는 독일어 제목을 입력하세요.')
   form.value = await service.save({ ...form.value, videoUrls: form.value.videoUrls.filter(Boolean) })
   const savedItem = JSON.parse(JSON.stringify(form.value))
   items.value = items.value.some(item => item.id === savedItem.id)
@@ -124,16 +125,10 @@ async function save() {
     : [...items.value, savedItem]
 }
 function validatePublication() {
-  const text = html => new DOMParser().parseFromString(html || '', 'text/html').body.textContent.trim()
-  const missing = []
-  if (!form.value.title?.trim()) missing.push('영어 제목')
-  if (!text(form.value.bodyEn)) missing.push('영어 본문')
-  if (!form.value.titleDe?.trim()) missing.push('독일어 제목')
-  if (!text(form.value.bodyDe)) missing.push('독일어 본문')
-  if (missing.length) {
-    language.value = missing.some(field => field.startsWith('영어')) ? 'en' : 'de'
-    throw new Error(`게시하려면 ${missing.join(', ')}을(를) 입력하세요. 작성 내용은 그대로 유지됩니다.`)
-  }
+  if (completeNewsLanguages(form.value).length) return
+  if (form.value.title?.trim() || hasNewsText(form.value.bodyEn)) language.value = 'en'
+  else if (form.value.titleDe?.trim() || hasNewsText(form.value.bodyDe)) language.value = 'de'
+  throw new Error('English 또는 Deutsch 중 한 언어의 제목과 본문을 함께 입력하세요. 다른 언어는 비워 두어도 됩니다. 작성 내용은 그대로 유지됩니다.')
 }
 function publishNews() {
   run(async () => {

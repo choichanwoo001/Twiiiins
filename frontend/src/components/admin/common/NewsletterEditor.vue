@@ -24,7 +24,7 @@ const editor = useEditor({ content: props.modelValue, extensions: [StarterKit.co
   editorProps: { attributes: { 'aria-label': '뉴스레터 본문', role: 'textbox', 'aria-multiline': 'true' } },
   onUpdate: ({ editor }) => emit('update:modelValue', editor.getHTML()) })
 watch(() => props.modelValue, value => { if (editor.value && editor.value.getHTML() !== value) editor.value.commands.setContent(value || '', { emitUpdate: false }) })
-watch([() => props.disabled, editor], () => editor.value?.setEditable(!props.disabled), { immediate: true })
+watch([() => props.disabled, editor], () => editor.value?.setEditable(!props.disabled, false), { immediate: true })
 function addLink() {
   try { if (new URL(link.value).protocol !== 'https:') throw new Error(); editor.value.chain().focus().setLink({ href: link.value }).run(); linkOpen.value = false; linkError.value = '' }
   catch { linkError.value = 'HTTPS 주소를 입력하세요.' }

@@ -18,8 +18,8 @@ public class NewsUpdateRequest {
     @NotNull
     private LocalDate date;
 
-    @NotBlank
-    @Size(min = 1, max = 255)
+    @NotBlank(groups = com.twiiiins.validation.ManualNews.class)
+    @Size(max = 255)
     private String title;
 
     @Size(max = 1000)

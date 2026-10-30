@@ -47,6 +47,22 @@ public class NewsletterContent {
         return matcher.replaceAll(match -> java.util.regex.Matcher.quoteReplacement(values.getOrDefault(match.group(1), "")));
     }
     private String safe(String value) { return value == null ? "" : value; }
+    private String first(String preferred, String fallback) { return preferred == null || preferred.isBlank() ? safe(fallback) : preferred; }
+    public boolean completeLanguage(String title, String body) {
+        return title != null && !title.isBlank() && !text(clean(body)).replace('\u00a0', ' ').isBlank();
+    }
+    public String languageFor(String title, String body, String titleDe, String bodyDe, String requested) {
+        SubscriptionService.language(requested);
+        boolean en = completeLanguage(title, body), de = completeLanguage(titleDe, bodyDe);
+        if ("de".equals(requested)) return de || !en ? "de" : "en";
+        return en || !de ? "en" : "de";
+    }
+    public String languageFor(News news, String requested) {
+        return languageFor(news.getTitle(), news.getBodyEn(), news.getTitleDe(), news.getBodyDe(), requested);
+    }
+    public String title(News news, String requested) {
+        return "de".equals(languageFor(news, requested)) ? first(news.getTitleDe(), news.getTitle()) : first(news.getTitle(), news.getTitleDe());
+    }
     private String image(String value, String base, String alt) {
         return "<p style=\"margin:24px 0;\"><img width=\"640\" style=\"display:block;width:100%;max-width:640px;height:auto;border-radius:16px;\" alt=\"" + escape(alt) + "\" src=\"" + escape(url(value, base)) + "\"></p>";
     }
@@ -55,11 +71,12 @@ public class NewsletterContent {
     }
     public String render(News news, String language, String base) {
         SubscriptionService.language(language);
-        boolean de = "de".equals(language);
-        String title = safe(de ? news.getTitleDe() : news.getTitle());
-        String when = safe(de ? news.getEventWhenDe() : news.getEventWhenEn());
-        String location = safe(de ? news.getEventLocationDe() : news.getEventLocationEn());
-        String label = safe(de ? news.getCtaLabelDe() : news.getCtaLabelEn());
+        String selected = languageFor(news, language);
+        boolean de = "de".equals(selected);
+        String title = title(news, language);
+        String when = de ? first(news.getEventWhenDe(), news.getEventWhenEn()) : first(news.getEventWhenEn(), news.getEventWhenDe());
+        String location = de ? first(news.getEventLocationDe(), news.getEventLocationEn()) : first(news.getEventLocationEn(), news.getEventLocationDe());
+        String label = de ? first(news.getCtaLabelDe(), news.getCtaLabelEn()) : first(news.getCtaLabelEn(), news.getCtaLabelDe());
         var body = Jsoup.parseBodyFragment(clean(de ? news.getBodyDe() : news.getBodyEn()));
         body.select("a").attr("style", "color:#80ffcf;text-decoration:underline;");
         String details = "";
@@ -77,7 +94,7 @@ public class NewsletterContent {
         if (news.getVideoUrls() != null) for (String video : news.getVideoUrls()) {
             if (!video.isBlank()) actions.append("<p>").append(link(url(video, base), de ? "Video ansehen" : "Watch video")).append("</p>");
         }
-        return expand(TEMPLATE, java.util.Map.of("language", language, "title", escape(title), "hero", images.isEmpty() ? "" : image(images.get(0), base, title),
+        return expand(TEMPLATE, java.util.Map.of("language", selected, "title", escape(title), "hero", images.isEmpty() ? "" : image(images.get(0), base, title),
             "details", details, "body", body.body().html(), "gallery", gallery.toString(), "actions", actions.toString()));
     }
     public String complete(String html, String language, NewsletterSettings settings, String view, String unsubscribe, boolean preview) {

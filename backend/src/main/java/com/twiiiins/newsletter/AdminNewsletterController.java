@@ -53,7 +53,7 @@ public class AdminNewsletterController {
         SubscriptionService.language(request.getLanguage());
         com.twiiiins.entity.News item = request.toNews();
         String html = content.render(item, request.getLanguage(), settings.getPublicUrl());
-        return ApiResponse.success(Map.of("title", Objects.toString("de".equals(request.getLanguage()) ? item.getTitleDe() : item.getTitle(), ""),
+        return ApiResponse.success(Map.of("title", content.title(item, request.getLanguage()),
             "html", content.complete(html, request.getLanguage(), settings, null, null, true)));
     }
     @GetMapping("/newsletter/settings") public ApiResponse<?> settings() {

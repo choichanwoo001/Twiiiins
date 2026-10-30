@@ -100,37 +100,49 @@ def diagnose():
         item = json.loads(row)
         missing = [field for field in ('title', 'titleDe', 'bodyEn', 'bodyDe')
                    if not re.sub(r'<[^>]+>|&nbsp;', '', item.get(field) or '').strip()]
+        languages = [lang for lang, title, body in [('en', 'title', 'bodyEn'), ('de', 'titleDe', 'bodyDe')]
+                     if title not in missing and body not in missing]
         print(json.dumps({'newsId': item['id'], 'status': item['status'],
-            'archived': bool(item['archived']), 'hasMailing': bool(item.get('hasMailing')), 'missingPublicationFields': missing}), flush=True)
+            'archived': bool(item['archived']), 'hasMailing': bool(item.get('hasMailing')), 'missingPublicationFields': missing,
+            'completeLanguages': languages, 'publicationReady': bool(languages)}), flush=True)
     result = subprocess.run(['docker', 'logs', '--since', '30m', '--tail', '1500', 'twiiiins-backend'],
                             text=True, encoding='utf-8', errors='replace', capture_output=True, check=True)
     types = sorted(set(re.findall(r'\b(?:[\w]+\.)*([A-Z]\w*(?:Exception|Error))\b', result.stdout + result.stderr)))
     print(json.dumps({'recentErrorTypes': types}), flush=True)
 
 
-def verify_publication():
+def verify_publication(language=None):
     token = secrets.token_urlsafe(32)
     digest = hashlib.sha256(token.encode()).hexdigest()
     draft_id = None
     sql("INSERT INTO admin_sessions(token_hash,username,expires_at) VALUES ('" + digest
         + "','publication-operational-check',DATE_ADD(UTC_TIMESTAMP(),INTERVAL 15 MINUTE));")
     try:
-        draft = request('/admin/news', {'date': date.today().isoformat(),
-            'title': '[Technical check] News publication', 'titleDe': '[Technischer Test] News',
-            'bodyEn': '<p>Temporary publication verification. This entry will be removed.</p>',
-            'bodyDe': '<p>Temporäre Prüfung. Dieser Eintrag wird entfernt.</p>',
-            'imageUrls': [], 'videoUrls': []}, token)
+        payload = {'date': date.today().isoformat(),
+            'title': '' if language == 'de' else '[Technical check] News publication',
+            'titleDe': '' if language == 'en' else '[Technischer Test] News',
+            'bodyEn': '' if language == 'de' else '<p>Temporary publication verification. This entry will be removed.</p>',
+            'bodyDe': '' if language == 'en' else '<p>Temporäre Prüfung. Dieser Eintrag wird entfernt.</p>',
+            'imageUrls': [], 'videoUrls': []}
+        draft = request('/admin/news', payload, token)
         draft_id = int(draft['id'])
-        update = {**draft, 'title': '[Technical check] Saved publication'}
+        update = {**draft, 'title': '' if language == 'de' else '[Technical check] Saved publication'}
         updated = request('/admin/news/' + str(draft_id), update, token, method='PUT')
-        if updated['title'] != update['title']:
+        if updated['title'] != (update['title'] or update['titleDe']):
             raise RuntimeError('Draft update did not persist')
         published = request(f'/admin/news/{draft_id}/publish', {}, token)
         if published['status'] != 'PUBLISHED':
             raise RuntimeError('Publication status did not persist')
         if not any(n['id'] == draft_id for n in request('/media/news')):
             raise RuntimeError('Published entry is missing from public News')
-        print('Draft save, update, News-only publication and public API read: PASS', flush=True)
+        if language:
+            expected_body = payload['bodyDe'] if language == 'de' else payload['bodyEn']
+            for view in ('en', 'de'):
+                public = request(f'/media/news/{draft_id}?lang={view}')
+                preview = request(f'/admin/news/{draft_id}/preview?language={view}', token=token)
+                if public['title'] != updated['title'] or public['body'] != expected_body or preview['title'] != updated['title']:
+                    raise RuntimeError('Single-language public content or preview fallback failed')
+        print((language or 'bilingual') + ': Draft save, update, News-only publication and public API read: PASS', flush=True)
         request('/admin/news/' + str(draft_id), token=token, method='DELETE')
         if any(n['id'] == draft_id for n in request('/admin/news?source=NEWSLETTER', token=token)):
             raise RuntimeError('Deleted draft reappeared in the server list')
@@ -214,10 +226,13 @@ if __name__ == '__main__':
             diagnose()
         elif operation == 'verify-publication':
             verify_publication()
+        elif operation == 'verify-single-language':
+            for language in ('en', 'de'):
+                verify_publication(language)
         elif operation == 'verify':
             verify()
         else:
-            raise RuntimeError('Choose preflight or verify')
+            raise RuntimeError('Choose preflight, diagnose, verify-publication, verify-single-language or verify')
     except Exception as error:
         # Avoid printing request bodies, SMTP configuration or exception tracebacks.
         print('Operational check failed: ' + (str(error) if isinstance(error, RuntimeError) else type(error).__name__), flush=True)

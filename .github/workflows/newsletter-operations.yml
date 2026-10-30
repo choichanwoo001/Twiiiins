@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: 'preflight is read-only; verify sends only to the configured test recipient'
+        description: 'preflight/diagnose: read-only; publication checks: temporary posts, no email; verify: test-recipient email'
         required: true
         default: preflight
         type: choice
-        options: [preflight, diagnose, verify-publication, verify]
+        options: [preflight, diagnose, verify-publication, verify-single-language, verify]
 
 permissions:
   contents: read

@@ -74,7 +74,7 @@ public class NewsController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
-    public ResponseEntity<ApiResponse<NewsDto>> createNews(@Valid @RequestBody @NonNull NewsCreateRequest request) {
+    public ResponseEntity<ApiResponse<NewsDto>> createNews(@Validated(com.twiiiins.validation.ManualNews.class) @RequestBody @NonNull NewsCreateRequest request) {
         return ResponseUtil.created(newsService.createManualNews(request), "뉴스가 성공적으로 생성되었습니다.");
     }
     
@@ -88,7 +88,7 @@ public class NewsController {
     })
     public ResponseEntity<ApiResponse<NewsDto>> updateNews(
             @PathVariable @NonNull Long id,
-            @Valid @RequestBody @NonNull NewsUpdateRequest request) {
+            @Validated(com.twiiiins.validation.ManualNews.class) @RequestBody @NonNull NewsUpdateRequest request) {
         return ResponseUtil.success(newsService.updateManualNews(id, request), "뉴스가 성공적으로 수정되었습니다.");
     }
     

@@ -62,7 +62,23 @@ class NewsletterOperationsTest(unittest.TestCase):
             self.assertNotIn('Private', output.getvalue())
             report = json.loads(output.getvalue().splitlines()[0])
             self.assertEqual(report['missingPublicationFields'], ['titleDe', 'bodyDe'])
+            self.assertEqual(report['completeLanguages'], ['en'])
+            self.assertTrue(report['publicationReady'])
             self.assertTrue(sql.call_args.args[0].startswith('SELECT'))
+
+    def test_single_language_fallback_failure_cleans_up_without_sending_mail(self):
+        draft = {'id': 99, 'title': 'Deutsch', 'titleDe': 'Deutsch'}
+        with patch.object(operations, 'sql', return_value='') as sql, \
+             patch.object(operations, 'request', side_effect=[draft, draft, {'status': 'PUBLISHED'}, [{'id': 99}],
+                 {'title': 'Wrong', 'body': ''}, {'title': 'Deutsch'}, None]) as request:
+            with self.assertRaisesRegex(RuntimeError, 'Single-language public content or preview fallback failed'):
+                operations.verify_publication('de')
+            payload = request.call_args_list[0].args[1]
+            self.assertEqual(payload['title'], '')
+            self.assertEqual(payload['bodyEn'], '')
+            self.assertEqual(request.call_args.kwargs['method'], 'DELETE')
+            self.assertFalse(any('/send' in call.args[0] for call in request.call_args_list))
+            self.assertTrue(sql.call_args.args[0].startswith('DELETE FROM admin_sessions'))
 
 
 if __name__ == '__main__':

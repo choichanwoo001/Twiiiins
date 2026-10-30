@@ -271,7 +271,7 @@ test('newsletter publication shows progress at the action and confirms the persi
   await expect(page.locator('.newsletter-admin tbody tr').first()).toContainText('게시')
 })
 
-test('missing bilingual content and server publication failures remain visible without clearing drafts', async ({ page }) => {
+test('missing content and server publication failures remain visible without clearing drafts', async ({ page }) => {
   const posted = await mocks(page, { admin: true })
   await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
   await page.goto('/admin')
@@ -280,15 +280,17 @@ test('missing bilingual content and server publication failures remain visible w
   await admin.getByRole('button', { name: '수정', exact: true }).click()
   await admin.getByRole('button', { name: 'Deutsch', exact: true }).click()
   await admin.getByLabel('독일어 제목').fill('')
+  await admin.getByRole('button', { name: 'English', exact: true }).click()
+  await admin.getByRole('textbox', { name: '뉴스레터 본문' }).fill('')
   await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
-  await expect(admin.getByRole('alert')).toContainText('독일어 제목')
+  await expect(admin.getByRole('alert')).toContainText('한 언어의 제목과 본문')
   await expect(admin.getByRole('alert')).toBeInViewport()
   expect(posted.filter(p => p.path.endsWith('/publish'))).toHaveLength(0)
-  await admin.getByLabel('독일어 제목').fill('Deutscher Titel')
+  await admin.getByRole('textbox', { name: '뉴스레터 본문' }).fill('English content')
   await page.route('**/api/admin/news/42/publish', route => route.fulfill({ status: 409, json: { success: false, error: { message: 'News changed. Reload before saving.' } } }))
   await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
   await expect(admin.getByRole('alert')).toContainText('News changed')
-  await expect(admin.getByLabel('독일어 제목')).toHaveValue('Deutscher Titel')
+  await expect(admin.getByLabel('영어 제목')).toHaveValue('English announcement')
   await expect(admin.getByRole('button', { name: 'News에만 게시', exact: true })).toBeEnabled()
 })
 
@@ -317,6 +319,40 @@ test('subscriber send shows queue progress and preserves the draft on failure be
   await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
   await expect(admin.getByRole('status')).toContainText('발송 대기열에 등록했습니다')
   await expect(admin.getByRole('row').filter({ hasText: 'English announcement' })).toContainText('발송 등록됨')
+})
+
+for (const language of ['en', 'de']) {
+  test(`newsletter saves publishes and queues with ${language} content only`, async ({ page }) => {
+    const posted = await mocks(page, { admin: true })
+    await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+    await page.goto('/admin')
+    await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
+    const admin = page.locator('.newsletter-admin')
+    if (language === 'de') await admin.getByRole('button', { name: 'Deutsch', exact: true }).click()
+    await admin.getByLabel(language === 'de' ? '독일어 제목' : '영어 제목').fill('Single language title')
+    await admin.getByRole('textbox', { name: '뉴스레터 본문' }).fill('Single language body')
+    await admin.getByRole('button', { name: '저장', exact: true }).click()
+    await expect(admin.getByRole('status')).toContainText('서버에 저장했습니다')
+    const draft = posted.find(request => request.path === '/api/admin/news').data
+    expect(draft[language === 'de' ? 'bodyEn' : 'bodyDe'].replace(/<[^>]+>/g, '').trim()).toBe('')
+    expect(draft[language === 'de' ? 'title' : 'titleDe']).toBe('')
+    await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
+    await expect(admin.getByRole('status')).toContainText('News에 게시했습니다')
+    await admin.getByRole('button', { name: '게시 및 구독자 발송', exact: true }).click()
+    await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
+    await expect(admin.getByRole('status')).toContainText('발송 대기열에 등록했습니다')
+    expect(posted.filter(request => request.path.endsWith('/send'))).toHaveLength(1)
+  })
+}
+
+test('German-only published content stays visible on the English website with empty English editor markup', async ({ page }) => {
+  await mocks(page)
+  await page.route('**/api/media/news', route => route.fulfill({ json: { success: true, data: [{
+    id: 88, date: '2026-10-30', title: 'Deutsche Nachricht', titleDe: 'Deutsche Nachricht',
+    bodyEn: '<p></p>', bodyDe: '<p>Nur deutscher Inhalt</p>', imageUrls: [], source: 'NEWSLETTER', status: 'PUBLISHED'
+  }] } }))
+  await page.goto('/media?section=news&newsId=88')
+  await expect(page.locator('.news-description')).toContainText('Nur deutscher Inhalt')
 })
 
 test('newsletter deletion persists after reload and failed deletion keeps the server row', async ({ page }) => {
