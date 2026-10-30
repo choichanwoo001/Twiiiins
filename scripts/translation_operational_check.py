@@ -20,7 +20,8 @@ def diagnose():
     env = operations.environment()
     key = env.get('GEMINI_API_KEY', '')
     print(json.dumps({'keyConfigured': bool(key), 'enabled': env.get('TRANSLATION_ENABLED'),
-        'model': env.get('GEMINI_MODEL'), 'timeout': env.get('TRANSLATION_TIMEOUT_SECONDS')}), flush=True)
+        'model': env.get('GEMINI_MODEL'), 'timeout': env.get('TRANSLATION_TIMEOUT_SECONDS'),
+        'containerProxyConfigured': any(env.get(k) for k in ('HTTPS_PROXY', 'HTTP_PROXY', 'https_proxy', 'http_proxy'))}), flush=True)
     host = 'generativelanguage.googleapis.com'
     try:
         addresses = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
@@ -44,6 +45,26 @@ def diagnose():
             text=True, capture_output=True, timeout=25)
         print(json.dumps({'containerFamily': family, 'exitCode': result.returncode,
             'httpStatus': result.stdout[-10:], 'error': result.stderr.replace(key, '[REDACTED]')[:300]}), flush=True)
+    generation_url = 'https://' + host + '/v1beta/models/' + env.get('GEMINI_MODEL', 'gemini-3.8-flash') + ':generateContent'
+    body = json.dumps({'contents': [{'parts': [{'text': 'Translate Hello TWIIIINS to German.'}]}]})
+    try:
+        with urllib.request.urlopen(urllib.request.Request(generation_url, data=body.encode(),
+            headers={'x-goog-api-key': key, 'Content-Type': 'application/json'}), timeout=35) as response:
+            data = json.load(response)
+            print(json.dumps({'hostGenerateHttp': response.status,
+                'finishReason': data.get('candidates', [{}])[0].get('finishReason')}), flush=True)
+    except urllib.error.HTTPError as error:
+        print(json.dumps({'hostGenerateHttp': error.code, 'message': error.read().decode().replace(key, '[REDACTED]')[:1500]}), flush=True)
+    except Exception as error:
+        print('Host generation failed: ' + type(error).__name__, flush=True)
+    config = 'header = ' + json.dumps('x-goog-api-key: ' + key) + '\nheader = "Content-Type: application/json"\ndata = ' + json.dumps(body) + '\n'
+    result = subprocess.run(['docker', 'compose', 'exec', '-T', 'backend', 'curl', '--ipv4', '--http1.1',
+        '--silent', '--show-error', '--connect-timeout', '8', '--max-time', '35', '--config', '-',
+        '--write-out', '\n%{http_code}', generation_url], input=config, text=True, capture_output=True, timeout=45)
+    response_body, _, code = result.stdout.rpartition('\n')
+    print(json.dumps({'containerGenerateHttp': code, 'exitCode': result.returncode,
+        'error': result.stderr.replace(key, '[REDACTED]')[:300],
+        'providerError': response_body.replace(key, '[REDACTED]')[:1500] if code != '200' else None}), flush=True)
 
 
 def verify():
