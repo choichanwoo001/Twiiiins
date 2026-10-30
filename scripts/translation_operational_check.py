@@ -45,7 +45,7 @@ def diagnose():
             text=True, capture_output=True, timeout=25)
         print(json.dumps({'containerFamily': family, 'exitCode': result.returncode,
             'httpStatus': result.stdout[-10:], 'error': result.stderr.replace(key, '[REDACTED]')[:300]}), flush=True)
-    generation_url = 'https://' + host + '/v1beta/models/' + env.get('GEMINI_MODEL', 'gemini-3.8-flash') + ':generateContent'
+    generation_url = 'https://' + host + '/v1beta/models/' + env.get('GEMINI_MODEL', 'gemini-3.5-flash-lite') + ':generateContent'
     body = json.dumps({'contents': [{'parts': [{'text': 'Translate Hello TWIIIINS to German.'}]}]})
     try:
         with urllib.request.urlopen(urllib.request.Request(generation_url, data=body.encode(),
