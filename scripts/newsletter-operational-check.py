@@ -92,6 +92,58 @@ def unsubscribe(subscriber_id, key):
     request('/newsletter/unsubscribe', {'token': (encoded + b'.' + signature).decode()})
 
 
+def diagnose():
+    rows = sql("SELECT JSON_OBJECT('id',id,'status',status,'archived',archived,'title',title,'titleDe',title_de,'bodyEn',body_en,'bodyDe',body_de) FROM news WHERE source='NEWSLETTER';")
+    for row in rows.splitlines():
+        item = json.loads(row)
+        missing = [field for field in ('title', 'titleDe', 'bodyEn', 'bodyDe')
+                   if not re.sub(r'<[^>]+>|&nbsp;', '', item.get(field) or '').strip()]
+        print(json.dumps({'newsId': item['id'], 'status': item['status'],
+            'archived': bool(item['archived']), 'missingPublicationFields': missing}), flush=True)
+    result = subprocess.run(['docker', 'logs', '--since', '30m', '--tail', '1500', 'twiiiins-backend'],
+                            text=True, capture_output=True, check=True)
+    types = sorted(set(re.findall(r'\b(?:[\w]+\.)*([A-Z]\w*(?:Exception|Error))\b', result.stdout + result.stderr)))
+    print(json.dumps({'recentErrorTypes': types}), flush=True)
+
+
+def verify_publication():
+    token = secrets.token_urlsafe(32)
+    digest = hashlib.sha256(token.encode()).hexdigest()
+    draft_id = None
+    sql("INSERT INTO admin_sessions(token_hash,username,expires_at) VALUES ('" + digest
+        + "','publication-operational-check',DATE_ADD(UTC_TIMESTAMP(),INTERVAL 15 MINUTE));")
+    try:
+        draft = request('/admin/news', {'date': date.today().isoformat(),
+            'title': '[Technical check] News publication', 'titleDe': '[Technischer Test] News',
+            'bodyEn': '<p>Temporary publication verification. This entry will be removed.</p>',
+            'bodyDe': '<p>Temporäre Prüfung. Dieser Eintrag wird entfernt.</p>',
+            'imageUrls': [], 'videoUrls': []}, token)
+        draft_id = int(draft['id'])
+        update = {**draft, 'title': '[Technical check] Saved publication'}
+        updated = request('/admin/news/' + str(draft_id), update, token, method='PUT')
+        if updated['title'] != update['title']:
+            raise RuntimeError('Draft update did not persist')
+        published = request(f'/admin/news/{draft_id}/publish', {}, token)
+        if published['status'] != 'PUBLISHED':
+            raise RuntimeError('Publication status did not persist')
+        if not any(n['id'] == draft_id for n in request('/media/news')):
+            raise RuntimeError('Published entry is missing from public News')
+        print('Draft save, update, News-only publication and public API read: PASS', flush=True)
+        request('/admin/news/' + str(draft_id), token=token, method='DELETE')
+        if any(n['id'] == draft_id for n in request('/admin/news?source=NEWSLETTER', token=token)):
+            raise RuntimeError('Deleted draft reappeared in the server list')
+        if any(n['id'] == draft_id for n in request('/media/news')):
+            raise RuntimeError('Deleted entry is still public')
+        draft_id = None
+        print('Server deletion and fresh list read: PASS; no email send requested', flush=True)
+    finally:
+        try:
+            if draft_id is not None:
+                request('/admin/news/' + str(draft_id), token=token, method='DELETE')
+        finally:
+            sql("DELETE FROM admin_sessions WHERE token_hash='" + digest + "';")
+
+
 def verify():
     env = environment()
     recipients = [x.strip() for x in env.get('NEWSLETTER_TEST_RECIPIENTS', '').split(',') if x.strip()]
@@ -156,6 +208,10 @@ if __name__ == '__main__':
         operation = sys.argv[1] if len(sys.argv) == 2 else ''
         if operation == 'preflight':
             preflight()
+        elif operation == 'diagnose':
+            diagnose()
+        elif operation == 'verify-publication':
+            verify_publication()
         elif operation == 'verify':
             verify()
         else:

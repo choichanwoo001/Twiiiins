@@ -8,7 +8,7 @@ on:
         required: true
         default: preflight
         type: choice
-        options: [preflight, verify]
+        options: [preflight, diagnose, verify-publication, verify]
 
 permissions:
   contents: read
