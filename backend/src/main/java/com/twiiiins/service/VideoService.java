@@ -19,6 +19,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class VideoService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper;
@@ -49,7 +50,7 @@ public class VideoService {
                 videoMapper.toEntity(request),
                 "VideoMapper.toEntity returned null"
         );
-        final Video savedVideo = videoRepository.save(video);
+        final Video savedVideo = translations.capture(videoRepository.save(video));
         return videoMapper.toDto(savedVideo);
     }
     
@@ -60,7 +61,7 @@ public class VideoService {
         
         videoMapper.updateEntityFromUpdateRequest(request, video);
         
-        final Video savedVideo = videoRepository.save(video);
+        final Video savedVideo = translations.capture(videoRepository.save(video));
         return videoMapper.toDto(savedVideo);
     }
     
@@ -69,6 +70,7 @@ public class VideoService {
         if (!videoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Video not found with id: " + id);
         }
+        translations.remove("videos", id);
         videoRepository.deleteById(id);
     }
 }

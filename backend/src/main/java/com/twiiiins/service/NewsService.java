@@ -15,6 +15,7 @@ import java.util.*;
 
 @Service @RequiredArgsConstructor @Transactional(readOnly = true)
 public class NewsService {
+    private final com.twiiiins.translation.TranslationService translations;
     private final NewsRepository newsRepository;
     private final NewsMapper newsMapper;
     private final NewsletterContent content;
@@ -72,7 +73,9 @@ public class NewsService {
         content.url(url, settings.getPublicUrl());
     }
     private void sanitize(News news) {
-        if (!present(news.getTitle()) && present(news.getTitleDe())) news.setTitle(news.getTitleDe());
+        if (!present(news.getTitle()) && present(news.getTitleDe())) {
+            news.setTitle(news.getTitleDe()); news.setTranslationTitleFallback(true);
+        }
         if (news.getTitle() == null) throw new IllegalArgumentException("Enter an English or German title.");
         news.setTitle(news.getTitle().replaceAll("[\\p{Cntrl}]", "").strip());
         if (news.getTitle().isBlank()) throw new IllegalArgumentException("Title is required.");
@@ -85,6 +88,11 @@ public class NewsService {
         for (String url : news.getImageUrls()) validateImage(url, News.NEWSLETTER.equals(news.getSource()));
     }
     private boolean present(String value) { return value != null && !value.isBlank(); }
+    private NewsDto saveTranslated(News item) {
+        translations.capture(newsRepository.save(item));
+        newsRepository.flush();
+        return newsMapper.toDto(item);
+    }
     public void validatePublication(News news) {
         requireSource(news, News.NEWSLETTER);
         if (present(news.getCtaUrl()) || present(news.getCtaLabelEn()) || present(news.getCtaLabelDe())) {
@@ -100,15 +108,15 @@ public class NewsService {
         news.setSource(News.NEWSLETTER);
         news.setStatus("DRAFT");
         sanitize(news);
-        return newsMapper.toDto(newsRepository.saveAndFlush(news));
+        return saveTranslated(news);
     }
     @Transactional public NewsDto createManualNews(NewsCreateRequest request) {
         News item = newsMapper.toEntity(request);
         item.setSource(News.NEWS); item.setStatus("PUBLISHED");
-        item.setTitleDe(null); item.setBodyDe(null); item.setVideoUrls(new ArrayList<>());
+        item.setVideoUrls(new ArrayList<>());
         item.setBodyEn(plainBody(item.getDescription()));
         sanitize(item);
-        return newsMapper.toDto(newsRepository.saveAndFlush(item));
+        return saveTranslated(item);
     }
     @Transactional public NewsDto updateNews(Long id, NewsUpdateRequest request) {
         return update(id, request, News.NEWSLETTER);
@@ -125,18 +133,20 @@ public class NewsService {
             if (request.getDate() != null) news.setDate(request.getDate());
             if (request.getTitle() != null) news.setTitle(request.getTitle());
             if (request.getDescription() != null) news.setDescription(request.getDescription());
+            if (request.getTitleDe() != null) news.setTitleDe(request.getTitleDe());
+            if (request.getBodyDe() != null) news.setBodyDe(request.getBodyDe());
             if (request.getDisplayOrder() != null) news.setDisplayOrder(request.getDisplayOrder());
             if (request.getImageUrls() != null) news.setImageUrls(new ArrayList<>(request.getImageUrls()));
-            news.setBodyEn(plainBody(news.getDescription()));
+            translations.manualNewsBody(news, plainBody(news.getDescription()));
         } else newsMapper.updateEntityFromUpdateRequest(request, news);
         sanitize(news);
-        return newsMapper.toDto(newsRepository.saveAndFlush(news));
+        return saveTranslated(news);
     }
     @Transactional public NewsDto publish(Long id) {
         News news = newsRepository.lockById(id).orElseThrow(() -> new ResourceNotFoundException("News not found"));
         validatePublication(news);
         news.setStatus("PUBLISHED");
-        return newsMapper.toDto(newsRepository.saveAndFlush(news));
+        return saveTranslated(news);
     }
     @Transactional public void deleteNews(Long id) {
         delete(id, News.NEWSLETTER);
@@ -148,6 +158,6 @@ public class NewsService {
         News news = newsRepository.lockById(id).orElseThrow(() -> new ResourceNotFoundException("News not found"));
         requireSource(news, source);
         if (mailings.existsByNewsId(id)) news.setArchived(true);
-        else newsRepository.delete(news);
+        else { translations.remove("news", id); newsRepository.delete(news); }
     }
 }

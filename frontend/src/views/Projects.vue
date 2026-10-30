@@ -25,7 +25,7 @@
               :src="getProjectCoverUrl(project)"
               :srcset="getImageSrcset(getProjectCoverUrl(project))"
               sizes="(max-width: 768px) 100vw, 60vw"
-              :alt="project.title || t('Project image')"
+              :alt="translateContent('projects', 'title', project.title, project) || t('Project image')"
               loading="lazy"
               decoding="async"
               @error="handleImageError($event, project)"
@@ -37,7 +37,7 @@
 
           <!-- 캡션 행 -->
           <div class="project-caption">
-            <div class="caption-left">{{ project.title }}</div>
+            <div class="caption-left">{{ translateContent('projects', 'title', project.title, project) }}</div>
             <div 
               class="caption-right" 
               v-if="project.urlSlug"
@@ -50,13 +50,13 @@
               <span 
                 class="caption-location"
                 @click.stop="goToProjectDetail(project.urlSlug)"
-              >{{ project.location }}</span>
+              >{{ translateContent('projects', 'location', project.location, project) }}</span>
               <svg class="caption-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
             <div class="caption-right" v-else>
-              <span>{{ formatDate(project.premiereDate, 'short', websiteLocale) }}, {{ project.location }}</span>
+              <span>{{ formatDate(project.premiereDate, 'short', websiteLocale) }}, {{ translateContent('projects', 'location', project.location, project) }}</span>
             </div>
           </div> 
         </div>
@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { t, websiteLocale } from '../composables/useWebsiteTranslation'
+import { t, websiteLocale, translateContent } from '../composables/useWebsiteTranslation'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { projectService } from '../services'

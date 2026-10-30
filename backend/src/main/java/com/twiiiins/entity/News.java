@@ -15,6 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class News {
+    // Only used during a save; generated-language provenance is persisted in content_translations.
+    @Transient @com.fasterxml.jackson.annotation.JsonIgnore
+    private boolean translationTitleFallback;
     public static final String NEWS = "NEWS";
     public static final String NEWSLETTER = "NEWSLETTER";
 

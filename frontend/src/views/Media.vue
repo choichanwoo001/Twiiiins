@@ -69,14 +69,14 @@
                 :src="item.cover"
                 :srcset="getImageSrcset(item.cover)"
                 sizes="(max-width: 48rem) 33vw, 14vw"
-                :alt="item.title"
+                :alt="translateContent('music', 'title', item.title, item)"
                 loading="lazy"
                 decoding="async"
                 @error="handleResponsiveImageError($event, item.cover)"
               >
             </div>
             <div class="music-info">
-              <div class="music-title">{{ item.title }}</div>
+              <div class="music-title">{{ translateContent('music', 'title', item.title, item) }}</div>
               <div class="music-artist">{{ item.artist }}</div>
             </div>
           </div>
@@ -107,7 +107,7 @@
               <p>{{ t('Invalid video URL.') }}</p>
             </div>
             <div class="video-info">
-              <div class="video-title">{{ translateContent('videos', 'title', video.title) }}</div>
+              <div class="video-title">{{ translateContent('videos', 'title', video.title, video) }}</div>
               <div class="video-channel">TWIIIINS</div>
             </div>
           </div>
@@ -121,7 +121,7 @@
       <div v-if="activeSection === 'photos'" class="content-section">
         <div class="photos-gallery">
           <div class="photo-group" v-for="group in photoGroups" :key="group.id">
-            <div class="photo-group-title">{{ translateContent('photos', 'title', group.title) }}</div>
+            <div class="photo-group-title">{{ translateContent('photos', 'title', group.title, group) }}</div>
             <div class="photos-grid">
               <div class="photo-item" 
                    v-for="photo in group.photos" 
@@ -130,7 +130,7 @@
                   :src="photo.src"
                   :srcset="getImageSrcset(photo.src)"
                   sizes="(max-width: 48rem) 50vw, 20rem"
-                  :alt="photo.alt ? translateContent('photos', 'altText', photo.alt) : `${t('Photo from')} ${translateContent('photos', 'title', group.title)}`"
+                  :alt="photo.alt ? translateContent('photos', 'altText', photo.alt, photo) : `${t('Photo from')} ${translateContent('photos', 'title', group.title, group)}`"
                   loading="lazy"
                   decoding="async"
                   @load="onGalleryPhotoLoad"
@@ -161,7 +161,7 @@
             <!-- 상세 정보 -->
             <div class="news-details" v-if="news.expanded">
               <div v-if="news.bodyEn || news.bodyDe" class="news-description news-rich" v-html="newsBody(news)"></div>
-              <div v-else class="news-description">{{ translateContent('news', 'description', news.description) }}</div>
+              <div v-else class="news-description">{{ translateContent('news', 'description', news.description, news) }}</div>
               <p v-for="(url, index) in news.videoUrls || []" :key="url"><a :href="url" target="_blank" rel="noopener noreferrer">{{ websiteLanguage === 'de' ? 'Video ansehen' : 'Watch video' }} {{ index + 1 }} ↗</a></p>
               
               <!-- 사진 섹션 -->
@@ -187,13 +187,13 @@
                 :src="equipment.imageUrl || fallbackEquipmentImage"
                 :srcset="getImageSrcset(equipment.imageUrl)"
                 sizes="(max-width: 48rem) 100vw, 33vw"
-                :alt="equipment.name"
+                :alt="translateContent('equipment', 'name', equipment.name, equipment)"
                 loading="lazy"
                 decoding="async"
                 @error="handleResponsiveImageError($event, equipment.imageUrl || fallbackEquipmentImage)"
               >
             </div>
-            <div class="equipment-name">{{ equipment.name }}</div>
+            <div class="equipment-name">{{ translateContent('equipment', 'name', equipment.name, equipment) }}</div>
           </div>
         </div>
       </div>
@@ -283,6 +283,7 @@ const loadMusic = async () => {
     
     if (musicData && musicData.length > 0) {
       musicItems.value = musicData.map(music => ({
+        ...music,
         id: music.id,
         title: music.title,
         artist: music.artist,
@@ -355,6 +356,7 @@ const loadVideos = async () => {
           return isValid
         })
         .map(video => ({
+          ...video,
           id: video.id,
           title: video.title,
           embedUrl: video.embedUrl.trim()
@@ -395,9 +397,11 @@ const loadPhotoGroups = async () => {
     
     if (Array.isArray(data)) {
       photoGroups.value = data.map(group => ({
+        ...group,
         id: group.id,
         title: group.title,
         photos: (group.photos && Array.isArray(group.photos)) ? group.photos.map(photo => ({
+          ...photo,
           src: toAbsoluteUrl(photo.imageUrl || photo.thumbnailUrl),
           fullSrc: toAbsoluteUrl(photo.imageUrl),
           alt: photo.altText
@@ -417,6 +421,7 @@ const loadEquipment = async () => {
   try {
     const equipmentData = await equipmentService.getAllEquipment()
     equipmentList.value = equipmentData.map(equipment => ({
+      ...equipment,
       id: equipment.id,
       name: equipment.name,
       imageUrl: toAbsoluteUrl(equipment.imageUrl)

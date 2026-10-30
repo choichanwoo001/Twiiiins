@@ -95,8 +95,8 @@ const events = computed(() => {
         dateMonthDay: monthDay,
         dateYear: year,
         dateValue: dateObj, 
-        location: translateContent('concerts', 'location', concert.location),
-        name: translateContent('concerts', 'name', concert.name)
+        location: translateContent('concerts', 'location', concert.location, concert),
+        name: translateContent('concerts', 'name', concert.name, concert)
       }
     })
     .sort((a, b) => a.dateValue - b.dateValue) // 오름차순 정렬 (가장 이른 날짜가 위로)

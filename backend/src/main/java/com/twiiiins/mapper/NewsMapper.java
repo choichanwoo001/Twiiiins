@@ -20,6 +20,7 @@ public interface NewsMapper {
     NewsDto toDto(News entity);
 
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "translationTitleFallback", ignore = true)
     @Mapping(target = "source", ignore = true)
     @Mapping(target = "archived", ignore = true)
     @Mapping(target = "version", ignore = true)
@@ -27,6 +28,7 @@ public interface NewsMapper {
     News toEntity(NewsCreateRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "translationTitleFallback", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "source", ignore = true)
     @Mapping(target = "archived", ignore = true)

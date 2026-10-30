@@ -15,6 +15,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ContactService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final ContactInfoRepository contactInfoRepository;
     
@@ -29,7 +30,7 @@ public class ContactService {
     
     @Transactional
     public ContactInfo createContactInfo(@NonNull ContactInfo contactInfo) {
-        return contactInfoRepository.save(Objects.requireNonNull(contactInfo, "ContactInfo must not be null"));
+        return translations.capture(contactInfoRepository.save(Objects.requireNonNull(contactInfo, "ContactInfo must not be null")));
     }
     
     @Transactional
@@ -47,12 +48,13 @@ public class ContactService {
         contactInfo.setStageRiderUrl(contactDetails.getStageRiderUrl());
         contactInfo.setCvUrl(contactDetails.getCvUrl());
         
-        return contactInfoRepository.save(Objects.requireNonNull(contactInfo, "ContactInfo must not be null"));
+        return translations.capture(contactInfoRepository.save(Objects.requireNonNull(contactInfo, "ContactInfo must not be null")));
     }
     
     @Transactional
     public void deleteContactInfo(@NonNull Long id) {
         ContactInfo contactInfo = getContactInfoById(id);
+        translations.remove("contactInfo", id);
         contactInfoRepository.delete(Objects.requireNonNull(contactInfo, "ContactInfo must not be null"));
     }
 }

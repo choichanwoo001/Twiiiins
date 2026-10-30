@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PhotoService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final PhotoGroupRepository photoGroupRepository;
     private final PhotoRepository photoRepository;
@@ -55,7 +56,7 @@ public class PhotoService {
     @Transactional
     public PhotoGroupDto createPhotoGroup(PhotoGroupCreateRequest request) {
         PhotoGroup photoGroup = photoGroupMapper.toEntity(request);
-        PhotoGroup savedPhotoGroup = photoGroupRepository.save(requireNonNull(photoGroup));
+        PhotoGroup savedPhotoGroup = translations.capture(photoGroupRepository.save(requireNonNull(photoGroup)));
         return mapPhotoGroupWithPhotos(savedPhotoGroup);
     }
     
@@ -66,12 +67,14 @@ public class PhotoService {
         
         photoGroupMapper.updateEntityFromUpdateRequest(request, photoGroup);
         
-        PhotoGroup savedPhotoGroup = photoGroupRepository.save(requireNonNull(photoGroup));
+        PhotoGroup savedPhotoGroup = translations.capture(photoGroupRepository.save(requireNonNull(photoGroup)));
         return mapPhotoGroupWithPhotos(savedPhotoGroup);
     }
     
     @Transactional
     public void deletePhotoGroup(@NonNull Long id) {
+        photoRepository.findByPhotoGroupId(id).forEach(photo -> translations.remove("photos", photo.getId()));
+        translations.remove("photoGroups", id);
         photoGroupRepository.deleteById(id);
     }
     
@@ -97,7 +100,7 @@ public class PhotoService {
         Photo photo = photoMapper.toEntity(request);
         photo.setPhotoGroup(photoGroup);
         
-        Photo savedPhoto = photoRepository.save(requireNonNull(photo));
+        Photo savedPhoto = translations.capture(photoRepository.save(requireNonNull(photo)));
         return photoMapper.toDto(savedPhoto);
     }
     
@@ -108,12 +111,13 @@ public class PhotoService {
         
         photoMapper.updateEntityFromUpdateRequest(request, photo);
         
-        Photo savedPhoto = photoRepository.save(requireNonNull(photo));
+        Photo savedPhoto = translations.capture(photoRepository.save(requireNonNull(photo)));
         return photoMapper.toDto(savedPhoto);
     }
     
     @Transactional
     public void deletePhoto(@NonNull Long id) {
+        translations.remove("photos", id);
         photoRepository.deleteById(id);
     }
     

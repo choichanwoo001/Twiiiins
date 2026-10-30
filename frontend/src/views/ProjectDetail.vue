@@ -2,13 +2,13 @@
   <div class="project-detail">
     <!-- 텍스트 섹션 (왼쪽 정렬) -->
     <section class="project-text" v-if="project">
-      <h1>{{ project.title }}</h1>
+      <h1>{{ translateContent('projects', 'title', project.title, project) }}</h1>
       <div class="project-content">
-        <div class="project-subtitle">{{ translateContent('projects', 'subtitle', project.subtitle) }}</div>
-        <div class="project-date-location">{{ t('Premiere:') }} {{ formatDate(project.premiereDate, 'date', websiteLocale) }} · {{ project.location }}</div>
+        <div class="project-subtitle">{{ translateContent('projects', 'subtitle', project.subtitle, project) }}</div>
+        <div class="project-date-location">{{ t('Premiere:') }} {{ formatDate(project.premiereDate, 'date', websiteLocale) }} · {{ translateContent('projects', 'location', project.location, project) }}</div>
         <div class="project-director" v-if="project.director">{{ t('Director:') }} {{ project.director }}</div>
-        <p v-for="(description, index) in projectDescriptions" :key="index">{{ translateContent('projects', 'descriptions', description) }}</p>
-        <p v-if="project.thankYouText">{{ translateContent('projects', 'thankYouText', project.thankYouText) }}</p>
+        <p v-for="(description, index) in projectDescriptions" :key="index">{{ translateContent('projects', 'descriptions', description.text, project, `descriptions[${description.index}]`) }}</p>
+        <p v-if="project.thankYouText">{{ translateContent('projects', 'thankYouText', project.thankYouText, project) }}</p>
         <div class="more-info" v-if="project.moreInfoUrl">
           <a :href="project.moreInfoUrl" target="_blank">
             {{ t('More Information') }} →
@@ -28,7 +28,7 @@
       <div class="reviews-grid">
         <div class="review-item" v-for="(review, index) in projectReviews" :key="index">
           <blockquote>
-            {{ translateContent('projects', 'reviews.text', review.text) }}
+            {{ translateContent('projects', 'reviews.text', review.text, project, `reviews[${review.index}].text`) }}
           </blockquote>
           <cite>{{ review.source }}</cite>
         </div>
@@ -66,7 +66,7 @@ const projectReviews = computed(() => {
   if (!project.value) return []
   
   if (project.value.reviews && Array.isArray(project.value.reviews) && project.value.reviews.length > 0) {
-    return project.value.reviews.filter(review => review.text && review.text.trim() !== '')
+    return project.value.reviews.map((review, index) => ({ ...review, index })).filter(review => review.text && review.text.trim() !== '')
   }
   
   return []
@@ -77,7 +77,7 @@ const projectDescriptions = computed(() => {
   if (!project.value) return []
   
   if (project.value.descriptions && Array.isArray(project.value.descriptions) && project.value.descriptions.length > 0) {
-    return project.value.descriptions.filter(desc => desc && desc.trim() !== '')
+    return project.value.descriptions.map((text, index) => ({ text, index })).filter(desc => desc.text && desc.text.trim() !== '')
   }
   
   return []

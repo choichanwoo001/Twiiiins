@@ -40,10 +40,11 @@ const localizedConcerts = computed(() => concerts.value.map(concert => {
     ...concert,
     dateMain: new Intl.DateTimeFormat(websiteLocale.value, { month: 'long', day: 'numeric' }).format(date),
     dateYear: String(date.getFullYear()),
-    location: translateContent('concerts', 'location', concert.location),
-    name: translateContent('concerts', 'name', concert.name),
-    fullLocation: translateContent('concerts', 'fullLocation', concert.fullLocation),
-    collaborationInfo: translateContent('concerts', 'collaborationInfo', concert.collaborationInfo),
+    location: translateContent('concerts', 'location', concert.location, concert),
+    name: translateContent('concerts', 'name', concert.name, concert),
+    fullLocation: translateContent('concerts', 'fullLocation', concert.fullLocation, concert),
+    collaborationInfo: translateContent('concerts', 'collaborationInfo', concert.collaborationInfo, concert),
+    ticketInfo: translateContent('concerts', 'ticketInfo', concert.ticketInfo, concert),
     googleMap: concert.googleMapUrl,
     expanded: expandedIds.value.has(concert.id)
   }

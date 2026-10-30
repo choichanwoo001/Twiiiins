@@ -21,6 +21,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ConcertService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final ConcertRepository concertRepository;
     private final ConcertMapper concertMapper;
@@ -58,7 +59,7 @@ public class ConcertService {
                 concertMapper.toEntity(request),
                 "ConcertMapper.toEntity returned null"
         );
-        Concert savedConcert = concertRepository.save(concert);
+        Concert savedConcert = translations.capture(concertRepository.save(concert));
         return concertMapper.toDto(savedConcert);
     }
     
@@ -67,7 +68,7 @@ public class ConcertService {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
         concertMapper.updateEntityFromUpdateRequest(request, concert);
-        Concert savedConcert = concertRepository.save(concert);
+        Concert savedConcert = translations.capture(concertRepository.save(concert));
         return concertMapper.toDto(savedConcert);
     }
     
@@ -75,6 +76,7 @@ public class ConcertService {
     public void deleteConcert(@NonNull Long id) {
         Concert concert = concertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Concert not found with id: " + id));
+        translations.remove("concerts", id);
         concertRepository.delete(concert);
     }
     

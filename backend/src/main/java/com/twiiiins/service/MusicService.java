@@ -21,6 +21,7 @@ import java.util.Objects;
 @Transactional(readOnly = true)
 @Slf4j
 public class MusicService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final MusicRepository musicRepository;
     private final MusicMapper musicMapper;
@@ -70,7 +71,7 @@ public class MusicService {
                 musicMapper.toEntity(request),
                 "MusicMapper.toEntity returned null"
         );
-        Music savedMusic = musicRepository.save(music);
+        Music savedMusic = translations.capture(musicRepository.save(music));
         log.info("[음악 생성] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
         return musicMapper.toDto(savedMusic);
     }
@@ -81,7 +82,7 @@ public class MusicService {
         Music music = musicRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Music not found with id: " + id));
         musicMapper.updateEntityFromUpdateRequest(request, music);
-        Music savedMusic = musicRepository.save(music);
+        Music savedMusic = translations.capture(musicRepository.save(music));
         log.info("[음악 수정] 완료 - ID: {}, 제목: {}", savedMusic.getId(), savedMusic.getTitle());
         return musicMapper.toDto(savedMusic);
     }
@@ -92,6 +93,7 @@ public class MusicService {
         if (!musicRepository.existsById(id)) {
             throw new ResourceNotFoundException("Music not found with id: " + id);
         }
+        translations.remove("music", id);
         musicRepository.deleteById(id);
         log.info("[음악 삭제] 완료 - ID: {}", id);
     }

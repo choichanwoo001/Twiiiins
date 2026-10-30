@@ -19,6 +19,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DownloadFileService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final DownloadFileRepository downloadFileRepository;
     private final DownloadFileMapper downloadFileMapper;
@@ -42,8 +43,8 @@ public class DownloadFileService {
                 downloadFileMapper.toEntity(request),
                 "DownloadFileMapper.toEntity returned null"
         );
-        DownloadFile savedDownloadFile = downloadFileRepository.save(
-                Objects.requireNonNull(downloadFile, "DownloadFile must not be null"));
+        DownloadFile savedDownloadFile = translations.capture(downloadFileRepository.save(
+                Objects.requireNonNull(downloadFile, "DownloadFile must not be null")));
         return downloadFileMapper.toDto(savedDownloadFile);
     }
     
@@ -54,13 +55,14 @@ public class DownloadFileService {
         
         downloadFileMapper.updateEntityFromUpdateRequest(request, downloadFile);
         
-        DownloadFile savedDownloadFile = downloadFileRepository.save(
-                Objects.requireNonNull(downloadFile, "DownloadFile must not be null"));
+        DownloadFile savedDownloadFile = translations.capture(downloadFileRepository.save(
+                Objects.requireNonNull(downloadFile, "DownloadFile must not be null")));
         return downloadFileMapper.toDto(savedDownloadFile);
     }
     
     @Transactional
     public void deleteDownloadFile(@NonNull Long id) {
+        translations.remove("downloads", id);
         downloadFileRepository.deleteById(id);
     }
 }

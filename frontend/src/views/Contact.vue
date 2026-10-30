@@ -29,7 +29,7 @@
           <div class="contact-details">
             <div v-for="contact in individualContacts" :key="contact.id" class="contact-item">
               <div class="contact-name">{{ contact.name }}</div>
-              <div v-if="contact.role" class="contact-role">{{ translateContent('contacts', 'role', contact.role) }}</div>
+              <div v-if="contact.role" class="contact-role">{{ translateContent('contacts', 'role', contact.role, contact) }}</div>
               <a class="contact-email" :href="`mailto:${contact.email}`">{{ contact.email }}</a>
             </div>
           </div>
@@ -41,7 +41,7 @@
                 :href="toAbsoluteUrl(file.fileUrl)" :download="isDropboxUrl(file.fileUrl) ? undefined : file.name"
                 @click="previewMode && $event.preventDefault()"
                 target="_blank" rel="noopener noreferrer">
-                <span>{{ translateContent('downloads', 'name', file.name) }}</span>
+                <span>{{ translateContent('downloads', 'name', file.name, file) }}</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 5V19M12 19L7 14M12 19L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>

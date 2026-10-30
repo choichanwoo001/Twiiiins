@@ -136,6 +136,10 @@ jobs:
           NEWSLETTER_DAILY_LIMIT: ${{ secrets.NEWSLETTER_DAILY_LIMIT }}
           DEFAULT_ADMIN_USERNAME: ${{ secrets.DEFAULT_ADMIN_USERNAME }}
           DEFAULT_ADMIN_PASSWORD: ${{ secrets.DEFAULT_ADMIN_PASSWORD }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+          TRANSLATION_ENABLED: ${{ secrets.TRANSLATION_ENABLED }}
+          TRANSLATION_TIMEOUT_SECONDS: ${{ secrets.TRANSLATION_TIMEOUT_SECONDS }}
         run: |
           set -euo pipefail
 
@@ -170,6 +174,8 @@ jobs:
               "CORS_ORIGINS": "https://twiiiins.com,https://www.twiiiins.com",
               "FILE_UPLOAD_DIR": "uploads", "FILE_BASE_URL": "/uploads", "UPLOAD_MAX_SIZE": "104857600",
               "GITHUB_REPOSITORY_OWNER": "",
+              "GEMINI_API_KEY": "", "GEMINI_MODEL": "gemini-3.8-flash",
+              "TRANSLATION_ENABLED": "false", "TRANSLATION_TIMEOUT_SECONDS": "30",
           }
           optional = "SMTP_HOST SMTP_PORT SMTP_USERNAME SMTP_PASSWORD SMTP_AUTH SMTP_STARTTLS SMTP_SSL NEWSLETTER_ENABLED NEWSLETTER_TOKEN_KEY NEWSLETTER_PUBLIC_URL NEWSLETTER_FROM NEWSLETTER_REPLY_TO NEWSLETTER_OPERATOR NEWSLETTER_TEST_RECIPIENTS NEWSLETTER_PER_MINUTE NEWSLETTER_DAILY_LIMIT DEFAULT_ADMIN_USERNAME DEFAULT_ADMIN_PASSWORD".split()
           defaults.update({key: "" for key in optional})
@@ -243,6 +249,7 @@ jobs:
             test -s "$backup_file"
             echo "=== Migrate newsletter schema ==="
             docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root "$MYSQL_DATABASE"' < scripts/migrate-newsletter.sql
+            docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root "$MYSQL_DATABASE"' < scripts/migrate-translations.sql
             echo "=== Restart services ==="
             docker compose up -d backend
             docker compose up -d --force-recreate nginx

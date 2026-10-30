@@ -19,6 +19,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ContactEntityService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final ContactRepository contactRepository;
     private final ContactMapper contactMapper;
@@ -42,7 +43,7 @@ public class ContactEntityService {
                 contactMapper.toEntity(request),
                 "ContactMapper.toEntity returned null"
         );
-        Contact savedContact = contactRepository.save(Objects.requireNonNull(contact, "Contact must not be null"));
+        Contact savedContact = translations.capture(contactRepository.save(Objects.requireNonNull(contact, "Contact must not be null")));
         return contactMapper.toDto(savedContact);
     }
     
@@ -53,12 +54,13 @@ public class ContactEntityService {
         
         contactMapper.updateEntityFromUpdateRequest(request, contact);
         
-        Contact savedContact = contactRepository.save(Objects.requireNonNull(contact, "Contact must not be null"));
+        Contact savedContact = translations.capture(contactRepository.save(Objects.requireNonNull(contact, "Contact must not be null")));
         return contactMapper.toDto(savedContact);
     }
     
     @Transactional
     public void deleteContact(@NonNull Long id) {
+        translations.remove("contacts", id);
         contactRepository.deleteById(id);
     }
 }

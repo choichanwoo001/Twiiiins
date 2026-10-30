@@ -17,12 +17,18 @@ the local seed content cross-checked. Equipment had no public entries.
 Translations are keyed by content kind, field and exact source text. Names,
 work titles, brands, venues, addresses, URLs and email addresses are preserved.
 Existing authored newsletter titles/bodies take precedence over saved copy.
-Original API data is never rewritten. New or edited text without a matching
-translation is displayed as received, avoiding stale translations.
+General content API source fields are preserved. News uses its existing language-specific
+fields for generated variants. Text without a current translation is displayed as received.
 
-To translate later content, add its exact source and reviewed `en`/`de` values
-to the relevant kind and field in the JSON file. There is no translation service,
-API key, automatic translation job, database migration or additional admin input.
+New and edited content is now queued for server-side Gemini translation. Public API
+responses include additive `translations` metadata keyed by field path (for example,
+`descriptions[0]`, `reviews[0].text`). The UI prefers current completed DB translations,
+then the reviewed static map above, then the original source. API source fields remain
+unchanged except News' existing English/German fields, which receive generated variants.
+
+See [automatic translation setup and operations](translations.md). Static interface copy,
+PDFs/files, personal names, artist names, URLs and email addresses are not translated.
+There is no automatic backfill of untouched existing content.
 
 Validation:
 

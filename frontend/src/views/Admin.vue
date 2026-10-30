@@ -23,6 +23,7 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main class="admin-content" role="tabpanel" :aria-label="`${activeSection} 관리 섹션`">
+      <TranslationAdmin />
       <!-- Dashboard -->
       <DashboardSection 
         v-if="activeSection === 'dashboard'"
@@ -77,6 +78,7 @@ import NewsletterAdmin from '../components/admin/NewsletterAdmin.vue'
 import ProjectAdmin from '../components/admin/ProjectAdmin.vue'
 import ContactAdmin from '../components/admin/ContactAdmin.vue'
 import DownloadFilesAdmin from '../components/admin/DownloadFilesAdmin.vue'
+import TranslationAdmin from '../components/admin/TranslationAdmin.vue'
 
 // 스토어 사용
 const concertStore = useConcertStore()

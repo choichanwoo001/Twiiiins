@@ -36,17 +36,23 @@ export const websiteLocale = computed(() => websiteLanguage.value === 'de' ? 'de
 export function t(source) { return websiteLanguage.value === 'de' ? german[source] ?? source : source }
 
 // Only exact, reviewed source strings are localized. New or edited content stays intact.
-export function translateContent(kind, field, source) {
+export function translateContent(kind, field, source, record, path = field) {
   if (typeof source !== 'string') return source
+  const saved = record?.translations?.[path]
+  if (saved?.state === 'COMPLETED' && typeof saved[websiteLanguage.value] === 'string') return saved[websiteLanguage.value]
   return contentTranslations[kind]?.[field]?.[source]?.[websiteLanguage.value] ?? source
 }
 
 // Existing authored language variants take precedence over the saved translations.
 export function newsTitle(news) {
+  const saved = news.translations?.title
+  if (saved?.state === 'COMPLETED') return saved[websiteLanguage.value]
   return newsContentLanguage(news, websiteLanguage.value) === 'de' && news.titleDe?.trim()
     ? news.titleDe : translateContent('news', 'title', news.title)
 }
 export function newsBody(news) {
+  const saved = news.translations?.bodyEn
+  if (saved?.state === 'COMPLETED') return saved[websiteLanguage.value]
   if (newsContentLanguage(news, websiteLanguage.value) === 'de' && news.bodyDe?.trim()) return news.bodyDe
   return translateContent('news', 'body', news.bodyEn || news.bodyDe || '')
 }

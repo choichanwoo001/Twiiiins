@@ -82,6 +82,11 @@ logging:
     file: UTF-8
 
 app:
+  translation:
+    enabled: ${TRANSLATION_ENABLED:false}
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-3.8-flash}
+    timeout-seconds: ${TRANSLATION_TIMEOUT_SECONDS:30}
   newsletter:
     enabled: ${NEWSLETTER_ENABLED:false}
     token-key: ${NEWSLETTER_TOKEN_KEY:}

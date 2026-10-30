@@ -21,6 +21,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
@@ -57,7 +58,7 @@ public class ProjectService {
                 projectMapper.toEntity(request),
                 "ProjectMapper.toEntity returned null"
         );
-        final Project savedProject = projectRepository.save(project);
+        final Project savedProject = translations.capture(projectRepository.save(project));
         return projectMapper.toDto(savedProject);
     }
     
@@ -68,7 +69,7 @@ public class ProjectService {
         
         projectMapper.updateEntityFromUpdateRequest(request, project);
 
-        final Project savedProject = projectRepository.save(project);
+        final Project savedProject = translations.capture(projectRepository.save(project));
         return projectMapper.toDto(savedProject);
     }
 
@@ -82,7 +83,7 @@ public class ProjectService {
             project.getImageUrls().addAll(request.getImageUrls());
         }
 
-        final Project savedProject = projectRepository.save(project);
+        final Project savedProject = translations.capture(projectRepository.save(project));
         return projectMapper.toDto(savedProject);
     }
     
@@ -90,6 +91,7 @@ public class ProjectService {
     public void deleteProject(@NonNull Long id) {
         final Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        translations.remove("projects", id);
         projectRepository.delete(project);
     }
     

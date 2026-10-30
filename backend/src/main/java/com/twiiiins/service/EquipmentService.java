@@ -19,6 +19,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class EquipmentService {
+    private final com.twiiiins.translation.TranslationService translations;
     
     private final EquipmentRepository equipmentRepository;
     private final EquipmentMapper equipmentMapper;
@@ -49,7 +50,7 @@ public class EquipmentService {
                 equipmentMapper.toEntity(request),
                 "EquipmentMapper.toEntity returned null"
         );
-        Equipment savedEquipment = equipmentRepository.save(equipment);
+        Equipment savedEquipment = translations.capture(equipmentRepository.save(equipment));
         return equipmentMapper.toDto(savedEquipment);
     }
     
@@ -60,7 +61,7 @@ public class EquipmentService {
         
         equipmentMapper.updateEntityFromUpdateRequest(request, equipment);
         
-        Equipment savedEquipment = equipmentRepository.save(equipment);
+        Equipment savedEquipment = translations.capture(equipmentRepository.save(equipment));
         return equipmentMapper.toDto(savedEquipment);
     }
     
@@ -69,6 +70,7 @@ public class EquipmentService {
         if (!equipmentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Equipment not found with id: " + id);
         }
+        translations.remove("equipment", id);
         equipmentRepository.deleteById(id);
     }
 }
