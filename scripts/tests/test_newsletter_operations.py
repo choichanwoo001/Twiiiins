@@ -39,6 +39,31 @@ class NewsletterOperationsTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, '^Database operation failed: SELECT, MySQL 1267$'):
                 operations.sql("SELECT 'sensitive recipient';")
 
+    def test_failed_publication_cleans_up_its_test_draft_and_session(self):
+        draft = {'id': 99, 'title': 'Draft'}
+        updated = {**draft, 'title': '[Technical check] Saved publication'}
+        with patch.object(operations, 'sql', return_value='') as sql, \
+             patch.object(operations, 'request', side_effect=[draft, updated, {'status': 'DRAFT'}, None]) as request:
+            with self.assertRaisesRegex(RuntimeError, 'Publication status did not persist'):
+                operations.verify_publication()
+            self.assertEqual(request.call_args.kwargs['method'], 'DELETE')
+            self.assertEqual(request.call_args.args[0], '/admin/news/99')
+            self.assertTrue(sql.call_args.args[0].startswith('DELETE FROM admin_sessions'))
+            self.assertFalse(any('/send' in call.args[0] for call in request.call_args_list))
+
+    def test_diagnosis_reports_missing_fields_without_disclosing_content(self):
+        row = json.dumps({'id': 1, 'status': 'DRAFT', 'archived': 0,
+            'title': 'Private title', 'titleDe': '', 'bodyEn': '<p>Private text</p>', 'bodyDe': '<p></p>'})
+        result = type('Result', (), {'stdout': '', 'stderr': ''})()
+        with patch.object(operations, 'sql', return_value=row) as sql, \
+             patch.object(operations.subprocess, 'run', return_value=result), \
+             patch('sys.stdout', new_callable=io.StringIO) as output:
+            operations.diagnose()
+            self.assertNotIn('Private', output.getvalue())
+            report = json.loads(output.getvalue().splitlines()[0])
+            self.assertEqual(report['missingPublicationFields'], ['titleDe', 'bodyDe'])
+            self.assertTrue(sql.call_args.args[0].startswith('SELECT'))
+
 
 if __name__ == '__main__':
     unittest.main()

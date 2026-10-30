@@ -1,9 +1,11 @@
-"""Explicit server-admin operation; never publishes or sends to the subscriber list.
+"""Explicit server-admin operation; never sends to the subscriber list.
 
 Run in the production compose directory. Preflight is read-only. Verify creates a
 short-lived admin session and a private draft, sends EN/DE tests to the first
 allowlisted test recipient, and tests signup/unsubscribe only for a new address.
 Credentials, recipient addresses and unsubscribe tokens are never printed.
+Diagnose is read-only. Verify-publication publishes only its own temporary test
+entry and deletes it, without requesting any email delivery.
 """
 import base64
 import hashlib
@@ -22,7 +24,7 @@ from datetime import date
 def sql(statement):
     result = subprocess.run(
         ['docker', 'compose', 'exec', '-T', 'db', 'sh', '-c',
-         'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --default-character-set=utf8mb4 -u root --batch --skip-column-names "$MYSQL_DATABASE"'],
+         'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql --default-character-set=utf8mb4 -u root --batch --raw --skip-column-names "$MYSQL_DATABASE"'],
         input=statement, text=True, encoding='utf-8', capture_output=True, check=False)
     if result.returncode:
         code = re.search(r'ERROR\s+(\d+)\s+\(([A-Z0-9]+)\)', result.stderr)
@@ -101,7 +103,7 @@ def diagnose():
         print(json.dumps({'newsId': item['id'], 'status': item['status'],
             'archived': bool(item['archived']), 'missingPublicationFields': missing}), flush=True)
     result = subprocess.run(['docker', 'logs', '--since', '30m', '--tail', '1500', 'twiiiins-backend'],
-                            text=True, capture_output=True, check=True)
+                            text=True, encoding='utf-8', errors='replace', capture_output=True, check=True)
     types = sorted(set(re.findall(r'\b(?:[\w]+\.)*([A-Z]\w*(?:Exception|Error))\b', result.stdout + result.stderr)))
     print(json.dumps({'recentErrorTypes': types}), flush=True)
 
