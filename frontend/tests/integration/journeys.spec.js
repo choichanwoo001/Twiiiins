@@ -168,6 +168,9 @@ test('subscription reaches SMTP and unsubscribe excludes the recipient from publ
     await page.goto(`/media?section=news&newsId=${post.id}`)
     await expect(page.getByText('Hello newsletter', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Hello audience', { exact: true })).toBeVisible()
+    await page.locator('.media-nav:visible, .mobile-nav:visible').getByText('NEWS', { exact: true }).click()
+    await expect(page).toHaveURL(/\/media\?section=news$/)
+    await expect(page.getByText('Hello newsletter', { exact: true })).toHaveCount(0)
   } finally { await call(request, 'delete', `/api/admin/news/${post.id}`) }
 })
 

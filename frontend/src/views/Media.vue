@@ -4,27 +4,27 @@
     <div class="media-nav" v-if="!isMobile">
       <div class="nav-item main-title"
            :class="{ active: activeSection === 'music' || activeSection === '' }"
-           @click="setActiveSection('music')">
+           @click="navigateToSection('music')">
         <h1>{{ t('MUSIC') }}</h1>
       </div>
       <div class="nav-item" 
            :class="{ active: activeSection === 'videos' }"
-           @click="setActiveSection('videos')">
+           @click="navigateToSection('videos')">
         <h2>{{ t('VIDEOS') }}</h2>
       </div>
       <div class="nav-item" 
            :class="{ active: activeSection === 'photos' }"
-           @click="setActiveSection('photos')">
+           @click="navigateToSection('photos')">
         <h2>{{ t('PHOTOS') }}</h2>
       </div>
       <div class="nav-item" 
            :class="{ active: activeSection === 'news' }"
-           @click="setActiveSection('news')">
+           @click="navigateToSection('news')">
         <h2>{{ t('NEWS') }}</h2>
       </div>
       <div v-if="EQUIPMENT_ENABLED" class="nav-item"
            :class="{ active: activeSection === 'equipment' }"
-           @click="setActiveSection('equipment')">
+           @click="navigateToSection('equipment')">
         <h2>{{ t('EQUIPMENT') }}</h2>
       </div>
     </div>
@@ -33,27 +33,27 @@
     <div class="mobile-nav" v-if="isMobile">
       <div class="mobile-nav-item"
            :class="{ active: activeSection === 'music' || activeSection === '' }"
-           @click="setActiveSection('music')">
+           @click="navigateToSection('music')">
         {{ t('MUSIC') }}
       </div>
       <div class="mobile-nav-item" 
            :class="{ active: activeSection === 'videos' }"
-           @click="setActiveSection('videos')">
+           @click="navigateToSection('videos')">
         {{ t('VIDEOS') }}
       </div>
       <div class="mobile-nav-item" 
            :class="{ active: activeSection === 'photos' }"
-           @click="setActiveSection('photos')">
+           @click="navigateToSection('photos')">
         {{ t('PHOTOS') }}
       </div>
       <div class="mobile-nav-item" 
            :class="{ active: activeSection === 'news' }"
-           @click="setActiveSection('news')">
+           @click="navigateToSection('news')">
         {{ t('NEWS') }}
       </div>
       <div v-if="EQUIPMENT_ENABLED" class="mobile-nav-item"
            :class="{ active: activeSection === 'equipment' }"
-           @click="setActiveSection('equipment')">
+           @click="navigateToSection('equipment')">
         {{ t('EQUIPMENT') }}
       </div>
     </div>
@@ -219,11 +219,12 @@ import { ImageGrid } from '../components/common'
 import { logError } from '../utils/errorHandler'
 import { useMobile } from '../composables/useMobile' 
 
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { mediaAllowed, websiteLanguage, cookieSettingsOpen } from '../composables/useWebsitePreferences'
 import fallbackEquipmentImage from '../imgs/exphoto1.png'
 
 const route = useRoute()
+const router = useRouter()
 if (['en', 'de'].includes(route.query.lang)) websiteLanguage.value = route.query.lang
 watch(() => route.query.newsId, () => loadNews())
 
@@ -256,6 +257,18 @@ watch(activeSection, () => galleryResizeObserver.disconnect())
 // 섹션 변경 함수
 const setActiveSection = (section) => {
   activeSection.value = section === 'equipment' && !EQUIPMENT_ENABLED ? 'music' : section
+}
+
+// Menu navigation leaves an email web view and returns to the current public list.
+const navigateToSection = async (section) => {
+  setActiveSection(section)
+  const hadLinkedNews = route.query.newsId !== undefined
+  const query = { ...route.query, section: activeSection.value }
+  delete query.newsId
+  newsList.value = newsList.value.filter(news => !news.archived)
+  await router.replace({ query })
+  // Removing newsId triggers its watcher; a plain list click still needs a refresh.
+  if (section === 'news' && !hadLinkedNews) await loadNews()
 }
 
 // 쿼리 파라미터 변경 감지
@@ -432,13 +445,16 @@ const loadEquipment = async () => {
 
 // 뉴스 데이터
 const newsList = ref([])
+let newsLoadVersion = 0
 
 // 뉴스 데이터 로드
 const loadNews = async () => {
+  const loadVersion = ++newsLoadVersion
+  const linkedId = route.query.newsId
   try {
     const newsData = await newsService.getAllNews()
+    if (loadVersion !== newsLoadVersion) return
     // Archived newsletters stay available through links in already-sent email.
-    const linkedId = route.query.newsId
     if (/^\d+$/.test(String(linkedId)) && !newsData.some(news => String(news.id) === String(linkedId))) {
       try {
         newsData.push(await newsService.getNewsById(linkedId))
@@ -446,6 +462,7 @@ const loadNews = async () => {
         if (error.response?.status !== 404) throw error
       }
     }
+    if (loadVersion !== newsLoadVersion) return
     newsList.value = newsData.map(news => ({
       ...news,
       id: news.id,
@@ -453,11 +470,11 @@ const loadNews = async () => {
       title: news.title,
       description: news.description,
       imageUrls: news.imageUrls ? news.imageUrls.map(url => toAbsoluteUrl(url)) : [],
-      expanded: String(news.id) === String(route.query.newsId)
+      expanded: String(news.id) === String(linkedId)
     }))
   } catch (error) {
     logError(error, '뉴스 데이터 로드')
-    newsList.value = []
+    if (loadVersion === newsLoadVersion) newsList.value = []
   }
 }
 

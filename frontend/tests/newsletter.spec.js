@@ -251,8 +251,45 @@ test('sent newsletter can be removed from News with failure recovery while keepi
   await page.goto('/media?section=news&newsId=42')
   await expect(page.getByText(news.title, { exact: true })).toBeVisible()
   await expect(page.getByText('Hello friends', { exact: true })).toBeVisible()
-  await page.goto('/media?section=news')
+  const menu = page.locator('.media-nav:visible, .mobile-nav:visible')
+  await menu.getByText('NEWS', { exact: true }).click()
+  await expect(page).toHaveURL(/\/media\?section=news$/)
   await expect(page.getByText(news.title, { exact: true })).toHaveCount(0)
+  await page.reload()
+  await expect(page.getByText(news.title, { exact: true })).toHaveCount(0)
+})
+
+test('returning to News refreshes a list that was archived while the page stayed open', async ({ page }) => {
+  await mocks(page)
+  await page.goto('/media?section=news')
+  await expect(page.getByText(news.title, { exact: true })).toBeVisible()
+  await page.route('**/api/media/news', route => route.fulfill({ json: { success: true, data: [] } }))
+  const menu = page.locator('.media-nav:visible, .mobile-nav:visible')
+  await menu.getByText('MUSIC', { exact: true }).click()
+  await menu.getByText('NEWS', { exact: true }).click()
+  await expect(page.getByText(news.title, { exact: true })).toHaveCount(0)
+})
+
+test('late email web view response cannot restore an archived post after opening the News list', async ({ page }) => {
+  await mocks(page)
+  await page.route('**/api/media/news', route => route.fulfill({ json: { success: true, data: [] } }))
+  let release, started
+  const pending = new Promise(resolve => { release = resolve })
+  const requested = new Promise(resolve => { started = resolve })
+  await page.route('**/api/media/news/42', async route => {
+    started()
+    await pending
+    await route.fulfill({ json: { success: true, data: { ...news, status: 'PUBLISHED', archived: true } } })
+  })
+  await page.goto('/media?section=news&newsId=42')
+  await requested
+  await page.locator('.media-nav:visible, .mobile-nav:visible').getByText('NEWS', { exact: true }).click()
+  await expect(page).toHaveURL(/\/media\?section=news$/)
+  const response = page.waitForResponse(r => new URL(r.url()).pathname === '/api/media/news/42')
+  release()
+  await (await response).finished()
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  await expect(page.locator('.news-item')).toHaveCount(0)
 })
 
 test('regular News clears its description and prevents duplicate registration while saving', async ({ page }) => {
