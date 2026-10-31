@@ -159,6 +159,15 @@ test('subscription reaches SMTP and unsubscribe excludes the recipient from publ
     const inbox = (await (await request.get('http://127.0.0.1:18025/api/v1/messages')).json()).messages
     expect(inbox.filter(m => m.Subject === 'Hello newsletter' && m.To.some(to => to.Address === activeEmail))).toHaveLength(1)
     await page.goto('/media?section=news'); await expect(page.getByText('Hello newsletter', { exact: true }).first()).toBeVisible()
+    await call(request, 'delete', `/api/admin/news/${post.id}`)
+    await page.reload()
+    await expect(page.getByText('Hello newsletter', { exact: true })).toHaveCount(0)
+    expect((await call(request, 'get', '/api/media/news?title=Hello')).some(item => item.id === post.id)).toBe(false)
+    expect((await call(request, 'get', '/api/admin/newsletter/mailings')).some(item => item.id === first.id)).toBe(true)
+    expect((await call(request, 'get', `/api/admin/newsletter/mailings/${first.id}/deliveries`)).map(item => item.id)).toEqual(deliveries.map(item => item.id))
+    await page.goto(`/media?section=news&newsId=${post.id}`)
+    await expect(page.getByText('Hello newsletter', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Hello audience', { exact: true })).toBeVisible()
   } finally { await call(request, 'delete', `/api/admin/news/${post.id}`) }
 })
 

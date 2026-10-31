@@ -22,6 +22,7 @@ public class NewsService {
     private final NewsletterSettings settings;
     private final MailingRepository mailings;
     private boolean published(News n) { return "PUBLISHED".equals(n.getStatus()); }
+    private boolean listed(News n) { return published(n) && !n.isArchived(); }
     public NewsDto localize(NewsDto dto, String language) {
         SubscriptionService.language(language);
         String selected = content.languageFor(dto.getTitle(), dto.getBodyEn(), dto.getTitleDe(), dto.getBodyDe(), language);
@@ -31,10 +32,10 @@ public class NewsService {
         return dto;
     }
     public List<NewsDto> getAllNews() {
-        return newsRepository.findAllByOrderByDisplayOrderAsc().stream().filter(this::published).map(newsMapper::toDto).toList();
+        return newsRepository.findAllByOrderByDisplayOrderAsc().stream().filter(this::listed).map(newsMapper::toDto).toList();
     }
     public List<NewsDto> getNewsWithFilters(String title, LocalDate startDate, LocalDate endDate) {
-        return newsRepository.findNewsWithFilters(title, startDate, endDate).stream().filter(this::published).map(newsMapper::toDto).toList();
+        return newsRepository.findNewsWithFilters(title, startDate, endDate).stream().filter(this::listed).map(newsMapper::toDto).toList();
     }
     public List<NewsDto> adminList() {
         return newsRepository.findAllByOrderByDisplayOrderAsc().stream().map(newsMapper::toDto).toList();

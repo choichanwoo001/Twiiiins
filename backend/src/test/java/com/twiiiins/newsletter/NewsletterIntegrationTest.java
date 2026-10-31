@@ -343,6 +343,35 @@ class NewsletterIntegrationTest {
         worker.finish(envelope.id(), "ACCEPTED", null);
         news.deleteNews(item.getId()); assertTrue(news.adminGet(item.getId()).isArchived()); assertNotNull(news.getNewsById(item.getId()));
     }
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void removingSentNewsletterHidesAllListsButPreservesMailAndWebView() throws Exception {
+        active("preserved@example.com", "en"); clearNotificationJobs();
+        NewsDto item = draft();
+        Mailing mailing = mailingService.send(item.getId(), item.getVersion());
+        String snapshot = mailing.getHtmlEn();
+        var deliveryIds = deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).stream().map(Delivery::getId).toList();
+        assertTrue(news.getAllNews().stream().anyMatch(row -> row.getId().equals(item.getId())));
+        mvc.perform(delete("/api/admin/news/" + item.getId())).andExpect(status().isOk());
+        mvc.perform(delete("/api/admin/news/" + item.getId())).andExpect(status().isOk());
+        assertTrue(news.adminGet(item.getId()).isArchived());
+        assertTrue(news.getAllNews().isEmpty());
+        assertTrue(news.getNewsWithFilters("English", item.getDate(), item.getDate()).isEmpty());
+        for (String language : List.of("en", "de")) {
+            mvc.perform(get("/api/media/news").param("lang", language))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+            mvc.perform(get("/api/media/news/" + item.getId()).param("lang", language))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.id").value(item.getId()));
+        }
+        assertEquals(snapshot, mailings.findById(mailing.getId()).orElseThrow().getHtmlEn());
+        assertEquals(deliveryIds, deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).stream().map(Delivery::getId).toList());
+        assertEquals(mailing.getId(), mailingService.send(item.getId(), news.adminGet(item.getId()).getVersion()).getId());
+        assertTrue(news.getAllNews().isEmpty());
+    }
+    @Test void removingNewsletterFromListRequiresAuthentication() throws Exception {
+        NewsDto item = draft();
+        mvc.perform(delete("/api/admin/news/" + item.getId())).andExpect(status().isUnauthorized());
+        assertNotNull(news.adminGet(item.getId()));
+    }
     @Test void resubscribingDoesNotReceiveAnOldQueuedMailing() {
         Subscriber subscriber = active("again@example.com", "en"); clearNotificationJobs();
         NewsDto item = draft(); Mailing mailing = mailingService.send(item.getId(), item.getVersion());

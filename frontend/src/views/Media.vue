@@ -225,9 +225,7 @@ import fallbackEquipmentImage from '../imgs/exphoto1.png'
 
 const route = useRoute()
 if (['en', 'de'].includes(route.query.lang)) websiteLanguage.value = route.query.lang
-watch(() => route.query.newsId, id => {
-  newsList.value.forEach(news => { news.expanded = String(news.id) === String(id) })
-})
+watch(() => route.query.newsId, () => loadNews())
 
 // 모바일 감지
 // 모바일 감지
@@ -439,6 +437,15 @@ const newsList = ref([])
 const loadNews = async () => {
   try {
     const newsData = await newsService.getAllNews()
+    // Archived newsletters stay available through links in already-sent email.
+    const linkedId = route.query.newsId
+    if (/^\d+$/.test(String(linkedId)) && !newsData.some(news => String(news.id) === String(linkedId))) {
+      try {
+        newsData.push(await newsService.getNewsById(linkedId))
+      } catch (error) {
+        if (error.response?.status !== 404) throw error
+      }
+    }
     newsList.value = newsData.map(news => ({
       ...news,
       id: news.id,

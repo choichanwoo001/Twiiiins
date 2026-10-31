@@ -8,6 +8,7 @@
       @reset="resetFilters"
     />
 
+    <p v-if="removingNewsletterId !== null || removalMessage" role="status" aria-live="polite">{{ removingNewsletterId !== null ? 'News 목록에서 삭제 중…' : removalMessage }}</p>
     <!-- 뉴스 목록 -->
     <DataTable
       title="전체 목록"
@@ -23,7 +24,10 @@
         {{ item.source === 'NEWSLETTER' ? 'Newsletter' : 'News' }}
       </template>
       <template #actions="{ item }">
-        <button v-if="item.source === 'NEWSLETTER'" class="btn-edit" @click="emit('edit-newsletter', item.id)">Newsletter에서 수정</button>
+        <template v-if="item.source === 'NEWSLETTER'">
+          <button class="btn-edit" @click="emit('edit-newsletter', item.id)">Newsletter에서 수정</button>
+          <button class="btn-delete" :disabled="removingNewsletterId !== null || confirmDialog.isVisible" :aria-label="`${item.title} 목록에서 삭제`" @click="removeNewsletter(item)">{{ removingNewsletterId === item.id ? '삭제 중…' : '목록에서 삭제' }}</button>
+        </template>
         <template v-else>
           <button v-for="action in tableActions" :key="action.key" :class="action.class" :aria-label="`${item.title} ${action.label}`" @click="handleTableAction(action.key, item)">{{ action.label }}</button>
         </template>
@@ -99,6 +103,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useMediaStore } from '../../../stores/useMediaStore'
 import { newsService } from '../../../services'
+import { newsletterService } from '../../../services/newsletterService'
 import { logError, getErrorMessage } from '../../../utils/errorHandler'
 import { ConfirmDialog, AlertDialog } from '../../common'
 import SearchFilters from '../common/SearchFilters.vue'
@@ -116,6 +121,8 @@ const searchFilters = ref({ title: '', startDate: '', endDate: '' })
 // 뉴스 목록
 const newsList = ref([])
 const isFiltered = ref(false)
+const removingNewsletterId = ref(null)
+const removalMessage = ref('')
 
 // 검색 필터 설정
 const searchFilterConfig = [
@@ -326,6 +333,27 @@ const saveNews = async () => {
     await showAlert(getErrorMessage(error), '오류', 'danger')
   } finally {
     isSaving.value = false
+  }
+}
+
+const removeNewsletter = async (item) => {
+  if (removingNewsletterId.value !== null || confirmDialog.value.isVisible) return
+  const confirmed = await showConfirm('News 목록에서 삭제할까요? 이미 발송한 이메일과 발송 기록은 유지되며, 메일의 웹 보기 주소도 유지됩니다.', '목록에서 삭제')
+  if (!confirmed) return
+  removingNewsletterId.value = item.id
+  removalMessage.value = ''
+  try {
+    await newsletterService.remove(item.id)
+    const results = await newsService.searchNews(isFiltered.value ? searchFilters.value : {})
+    if (results.some(news => news.id === item.id)) throw new Error('News 목록에 글이 남아 있습니다. 다시 시도하세요.')
+    if (!isFiltered.value) mediaStore.newsItems = results
+    newsList.value = results.map(news => ({ ...news, expanded: false }))
+    removalMessage.value = 'News 목록에서 삭제했습니다. 발송 기록과 메일의 웹 보기 주소는 유지됩니다.'
+  } catch (error) {
+    logError(error, '뉴스레터 목록 삭제')
+    await showAlert(error.response?.data?.error?.message || getErrorMessage(error), '오류', 'danger')
+  } finally {
+    removingNewsletterId.value = null
   }
 }
 
