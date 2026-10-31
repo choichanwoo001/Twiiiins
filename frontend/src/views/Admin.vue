@@ -23,6 +23,7 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main class="admin-content" role="tabpanel" :aria-label="`${activeSection} 관리 섹션`">
+      <AdminRequestStatus />
       <TranslationAdmin />
       <!-- Dashboard -->
       <DashboardSection 
@@ -66,6 +67,7 @@
 </template>
 
 <script setup>
+import AdminRequestStatus from '../components/admin/common/AdminRequestStatus.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useConcertStore } from '../stores/useConcertStore'
 import { useMediaStore } from '../stores/useMediaStore'

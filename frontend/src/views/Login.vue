@@ -58,6 +58,7 @@ const error = ref(null)
 const isLoading = ref(false)
 
 const handleLogin = async () => {
+  if (isLoading.value) return
   error.value = null
   isLoading.value = true
   
@@ -154,7 +155,7 @@ const handleLogin = async () => {
 
 .login-button {
   padding: 0.875rem;
-  background: #007bff;
+  background: #0069d9;
   color: white;
   border: none;
   border-radius: 4px;

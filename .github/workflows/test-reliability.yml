@@ -1,0 +1,61 @@
+name: Extended test reliability
+on:
+  schedule:
+    - cron: '0 19 * * *'
+    - cron: '0 20 * * 0'
+  workflow_dispatch:
+    inputs:
+      suite:
+        type: choice
+        options: [nightly, weekly]
+        default: nightly
+permissions:
+  contents: read
+concurrency:
+  group: extended-tests-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  extended:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    env:
+      TEST_SUITE: ${{ (github.event.schedule == '0 20 * * 0' || inputs.suite == 'weekly') && 'weekly' || 'nightly' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Prepare
+        run: |
+          chmod +x backend/gradlew
+          cd backend && ./gradlew bootJar --no-daemon
+          cd ../frontend && npm ci && npm run build
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Nightly browsers, restart, layout and visual regression
+        if: env.TEST_SUITE == 'nightly'
+        run: |
+          python scripts/test-stack.py run
+          cd frontend && npm run test:e2e
+          npm run test:visual
+      - name: Three clean runs, mutation and volume tests
+        if: env.TEST_SUITE == 'weekly'
+        run: |
+          python scripts/prove-test-guards.py
+          python scripts/repeat-tests.py --repeat 3
+          cd frontend && npm run test:mutation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: extended-test-results
+          path: |
+            frontend/test-results
+            frontend/.cache
+            frontend/reports
+            backend/build/reports
+            backend/build/test-results
+            .local/test-artifacts
+          retention-days: 14

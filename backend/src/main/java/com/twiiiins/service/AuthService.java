@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthService {
+    private final java.time.Clock clock;
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -44,7 +45,7 @@ public class AuthService {
         var session = new com.twiiiins.security.AdminSession();
         session.setTokenHash(com.twiiiins.security.Tokens.hash(token));
         session.setUsername(user.getUsername());
-        session.setExpiresAt(java.time.Instant.now().plusSeconds(8 * 3600));
+        session.setExpiresAt(clock.instant().plusSeconds(8 * 3600));
         sessions.save(session);
         return new LoginResponse(user.getUsername(), "로그인에 성공했습니다.", token, session.getExpiresAt());
     }

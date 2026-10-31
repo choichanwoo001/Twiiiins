@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAppStore } from '../stores'
+import { beginAdminRequest, finishAdminRequest } from '../composables/useAdminRequestStatus'
 
 const apiClient = axios.create({
   baseURL: import.meta.env.DEV && import.meta.env.VITE_DUMMY_DATA === 'true'
@@ -36,6 +37,7 @@ apiClient.interceptors.request.use(
         }
       }
     }
+    beginAdminRequest(config)
     return config
   },
   error => {
@@ -48,6 +50,7 @@ apiClient.interceptors.request.use(
 // 응답 인터셉터: 에러 처리 및 토큰 갱신
 apiClient.interceptors.response.use(
   response => {
+    finishAdminRequest(response.config, response.data?.success === false ? { response } : null)
     const appStore = useAppStore()
     // 업로드 완료 시 상태 초기화
     if (response.config.data instanceof FormData) {
@@ -62,6 +65,7 @@ apiClient.interceptors.response.use(
     return response
   },
   error => {
+    finishAdminRequest(error.config, error)
     const appStore = useAppStore()
     
     // 업로드 중 에러 발생 시 상태 초기화

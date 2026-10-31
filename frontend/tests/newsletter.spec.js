@@ -1,15 +1,16 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, emptyApiResponse } from './support/fixtures'
 
 const news = { id: 42, date: '2026-10-07', title: 'English announcement', titleDe: 'Deutsche Neuigkeiten', bodyEn: '<p>Hello <strong>friends</strong></p>', bodyDe: '<p>Hallo <strong>Freunde</strong></p>', description: 'Legacy description', imageUrls: [], videoUrls: ['https://example.com/video'], status: 'DRAFT', source: 'NEWSLETTER', version: 0, displayOrder: 0 }
 async function mocks(page, { available = true, admin = false } = {}) {
-  await page.addInitScript(() => localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) })
   let saved = { ...news }, posted = [], deleted = false, mailing = null
   let manualNews = [{ id: 7, date: '2026-10-07', title: 'Regular News', description: 'Regular description', imageUrls: [], source: 'NEWS', status: 'PUBLISHED', version: 0 }]
   await page.route('**/api/**', async route => {
     const request = route.request(), path = new URL(request.url()).pathname
     if (!path.startsWith('/api/')) return route.continue()
     if (request.method() === 'POST') posted.push({ path, data: request.headers()['content-type']?.includes('multipart/form-data') ? null : request.postDataJSON() })
-    let data = []
+    let data
+    if (['/api/newsletter/subscribe', '/api/newsletter/confirm', '/api/newsletter/unsubscribe'].includes(path) && request.method() === 'POST') data = 'Accepted'
     if (path === '/api/admin/newsletter/preview') { const draft = request.postDataJSON(); data = { title: draft.language === 'de' ? draft.titleDe : draft.title, html: `<html><body><h1>${draft.language === 'de' ? draft.titleDe : draft.title}</h1></body></html>` } }
     if (path === '/api/admin/newsletter/images') data = ['/uploads/test-newsletter.png']
     if (path === '/api/newsletter/status') data = { available }
@@ -30,7 +31,7 @@ async function mocks(page, { available = true, admin = false } = {}) {
       data = request.method() === 'GET' ? (deleted ? [] : [saved]) : saved
     }
     if (path === '/api/admin/news/42' && request.method() === 'PUT') { saved = { ...saved, ...request.postDataJSON(), version: saved.version + 1 }; data = saved }
-    if (path === '/api/admin/news/42' && request.method() === 'DELETE') deleted = true
+    if (path === '/api/admin/news/42' && request.method() === 'DELETE') { deleted = true; data = 'Deleted' }
     if (path === '/api/admin/news/42/preview') data = { title: saved.title, html: saved.bodyEn }
     if (path === '/api/admin/news/42/publish') { saved.status = 'PUBLISHED'; data = saved }
     if (path === '/api/admin/news/42/send') { saved.status = 'PUBLISHED'; mailing = { id: 1, newsId: 42, totalCount: 2 }; data = mailing }
@@ -42,7 +43,7 @@ async function mocks(page, { available = true, admin = false } = {}) {
       { id: 3, email: 'pending@example.com', language: 'de', status: 'PENDING', createdAt: '2026-10-07T03:00:00Z' },
       { id: 4, email: 'excluded@example.com', language: 'en', status: 'EXCLUDED', createdAt: '2026-10-07T03:00:00Z' }
     ]
-    return route.fulfill({ json: { success: true, data } })
+    return route.fulfill({ json: { success: true, data: data === undefined ? emptyApiResponse(route.request()) : data } })
   })
   return posted
 }
@@ -50,7 +51,7 @@ async function mocks(page, { available = true, admin = false } = {}) {
 test('newsletter photos upload without saving an incomplete draft and actions are separated', async ({ page }, testInfo) => {
   const posted = await mocks(page, { admin: true })
   await page.route('**/uploads/test-newsletter.png', route => route.fulfill({ contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfsUAAAAASUVORK5CYII=', 'base64') }))
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
@@ -75,7 +76,7 @@ test('newsletter photos upload without saving an incomplete draft and actions ar
 
 test('subscriber management explains immediate activation without a confirmation action', async ({ page }) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
@@ -148,13 +149,13 @@ test('email web link opens the correct German News', async ({ page }) => {
 
 test('stale local administrator information cannot open management without a server token', async ({ page }) => {
   await mocks(page)
-  await page.addInitScript(() => localStorage.setItem('user', JSON.stringify({ username: 'forged-admin' })))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('user', JSON.stringify({ username: 'forged-admin' })) })
   await page.goto('/admin'); await expect(page).toHaveURL(/\/login/)
 })
 
 test('administrator edits both languages and confirms audience before sending', async ({ page }, testInfo) => {
   const posted = await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
@@ -174,7 +175,7 @@ test('administrator edits both languages and confirms audience before sending', 
 
 test('Media preserves the regular News form and links generated posts to Newsletter editing', async ({ page }, testInfo) => {
   const posted = await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '미디어 관리 메뉴' }).click()
   await page.getByRole('button', { name: 'News', exact: true }).click()
@@ -202,7 +203,7 @@ test('Media preserves the regular News form and links generated posts to Newslet
 
 test('regular News clears its description and prevents duplicate registration while saving', async ({ page }) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '미디어 관리 메뉴' }).click()
   await page.getByRole('button', { name: 'News', exact: true }).click()
@@ -225,7 +226,7 @@ test('regular News clears its description and prevents duplicate registration wh
   await form.locator('input[type=date]').fill('2026-10-30')
   await form.getByPlaceholder('제목을 입력하세요').fill('Single announcement')
   await form.getByRole('button', { name: '등록', exact: true }).click()
-  await expect(form.getByRole('button', { name: '등록', exact: true })).toBeDisabled()
+  await expect(form.getByRole('button', { name: '저장 중…', exact: true })).toBeDisabled()
   await form.dispatchEvent('submit')
   release()
   await expect(tab.getByRole('cell', { name: 'Single announcement', exact: true })).toBeVisible()
@@ -234,7 +235,7 @@ test('regular News clears its description and prevents duplicate registration wh
 
 test('Newsletter publishes to News with SMTP disabled without sending email', async ({ page }) => {
   const posted = await mocks(page, { admin: true, available: false })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
@@ -247,7 +248,7 @@ test('Newsletter publishes to News with SMTP disabled without sending email', as
 
 test('newsletter publication shows progress at the action and confirms the persisted result', async ({ page }, testInfo) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   let release
   const waiting = new Promise(resolve => { release = resolve })
   await page.route('**/api/admin/news/42/publish', async route => { await waiting; await route.fallback() })
@@ -273,7 +274,7 @@ test('newsletter publication shows progress at the action and confirms the persi
 
 test('missing content and server publication failures remain visible without clearing drafts', async ({ page }) => {
   const posted = await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
@@ -296,7 +297,7 @@ test('missing content and server publication failures remain visible without cle
 
 test('subscriber send shows queue progress and preserves the draft on failure before retry', async ({ page }) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   let release
   const pending = new Promise(resolve => { release = resolve })
   await page.route('**/api/admin/news/42/send', async route => {
@@ -324,7 +325,7 @@ test('subscriber send shows queue progress and preserves the draft on failure be
 for (const language of ['en', 'de']) {
   test(`newsletter saves publishes and queues with ${language} content only`, async ({ page }) => {
     const posted = await mocks(page, { admin: true })
-    await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+    await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
     await page.goto('/admin')
     await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
     const admin = page.locator('.newsletter-admin')
@@ -357,7 +358,7 @@ test('German-only published content stays visible on the English website with em
 
 test('newsletter deletion persists after reload and failed deletion keeps the server row', async ({ page }) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
@@ -378,7 +379,7 @@ test('newsletter deletion persists after reload and failed deletion keeps the se
 
 test('Newsletter subscriber list shows dates, counts, translated states and search filters', async ({ page }, testInfo) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
@@ -431,7 +432,7 @@ for (const failure of [404, 500, 'network', 'invalid']) {
 
 test('status loading and German disabled copy', async ({ page }) => {
   await mocks(page)
-  await page.addInitScript(() => localStorage.setItem('twiiiins-website-language', 'de'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-website-language', 'de') })
   let release
   const pending = new Promise(resolve => { release = resolve })
   await page.route('**/api/newsletter/status', async route => {
@@ -475,7 +476,7 @@ test('real subscription prevents duplicates and preserves inputs on failure', as
 
 test('administrator live preview uses unsaved draft, ignores stale responses and retries inline', async ({ page }) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   const calls = [], writes = []
   let first, failure = false
   page.on('request', request => { if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/admin/news') writes.push(request.url()) })
@@ -511,7 +512,7 @@ test('administrator live preview uses unsaved draft, ignores stale responses and
 
 test('administrator sees actionable configuration issues without secret values', async ({ page }) => {
   await mocks(page, { admin: true })
-  await page.addInitScript(() => localStorage.setItem('token', 'test-token'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.route('**/api/admin/newsletter/settings', route => route.fulfill({ json: { success: true, data: { available: false, perMinute: 10, dailyLimit: 300, paused: false, testRecipients: [], configurationIssues: ['NEWSLETTER_DISABLED', 'SMTP_HOST_MISSING', 'TOKEN_KEY_TOO_SHORT'] } } }))
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()

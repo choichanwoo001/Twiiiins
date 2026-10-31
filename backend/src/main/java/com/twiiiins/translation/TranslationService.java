@@ -15,6 +15,7 @@ import static com.twiiiins.translation.TranslationFields.present;
 
 @Service @RequiredArgsConstructor
 public class TranslationService {
+    private final java.time.Clock clock;
     private final TranslationRepository rows;
     private final TranslationFields fields;
     private final TranslationSettings settings;
@@ -26,8 +27,10 @@ public class TranslationService {
     public <T> T capture(T entity) {
         String kind = fields.kind(entity);
         Long id = fields.id(entity);
+        // Serialize content edits with worker completion, then lock translation rows.
+        fields.lockEntity(kind, id);
         Map<String, ContentTranslation> existing = new HashMap<>();
-        rows.findByKindAndContentId(kind, id).forEach(row -> existing.put(row.getFieldPath(), row));
+        rows.lockByKindAndContentId(kind, id).forEach(row -> existing.put(row.getFieldPath(), row));
         Map<String, String> texts = fields.texts(entity);
         for (var entry : texts.entrySet()) {
             String path = entry.getKey();
@@ -72,7 +75,7 @@ public class TranslationService {
     }
     private void reset(ContentTranslation row) {
         row.setState(row.isManualEn() && row.isManualDe() ? "COMPLETED" : settings.available() ? "PENDING" : "DISABLED");
-        row.setAttempts(0); row.setNextAttempt(Instant.now()); row.setErrorCode(null);
+        row.setAttempts(0); row.setNextAttempt(clock.instant()); row.setErrorCode(null);
     }
     boolean paired(Object entity, String path) { return entity instanceof News && TranslationFields.NEWS_PAIRS.containsKey(path); }
     private String[] pairSource(Object entity, String path, ContentTranslation row) {
@@ -95,7 +98,12 @@ public class TranslationService {
         return entity != null && fields.texts(entity).containsKey(row.getFieldPath())
             && Objects.equals(row.getSourceHash(), TranslationFields.hash(snapshot(entity, row.getFieldPath(), row)));
     }
-    @Transactional public void remove(String kind, Long id) { rows.deleteByKindAndContentId(kind, id); }
+    @Transactional public void remove(String kind, Long id) {
+        fields.lockEntity(kind, id);
+        // A worker may have claimed a row since a prior read in this transaction.
+        // Delete the current rows atomically rather than checking stale entity versions.
+        rows.deleteByKindAndContentId(kind, id);
+    }
 
     public record View(Long id, String kind, Long contentId, String field, String source, String sourceHash,
                        String en, String de, boolean manualEn, boolean manualDe, String state, String errorCode, Long version) {}
@@ -137,7 +145,7 @@ public class TranslationService {
             r.setSourceText(snapshot(entity, r.getFieldPath(), r));
             r.setSourceHash(TranslationFields.hash(r.getSourceText()));
         }
-        r.setState("COMPLETED"); r.setErrorCode(null); r.setNextAttempt(Instant.now());
+        r.setState("COMPLETED"); r.setErrorCode(null); r.setNextAttempt(clock.instant());
         rows.flush(); return view(r);
     }
     String validate(ContentTranslation row, String value) {

@@ -61,7 +61,7 @@ const copy = useWebsiteCopy({
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 400;
   letter-spacing: 0.12em;
-  color: #C1E1DC;
+  color: #60867e;
   line-height: 1;
   margin: 0;
 }
@@ -87,7 +87,7 @@ const copy = useWebsiteCopy({
 .album-artwork { margin: 0; }
 .album-artwork img { display: block; width: 100%; height: auto; aspect-ratio: 1; }
 .album-details { min-width: 0; }
-.album-format { margin: 0 0 0.75rem; color: #777; font-size: 0.8rem; letter-spacing: 0.1em; }
+.album-format { margin: 0 0 0.75rem; color: #707070; font-size: 0.8rem; letter-spacing: 0.1em; }
 .album-details h2 { margin: 0 0 1.25rem; font-size: clamp(1.75rem, 2.5vw, 2.5rem); line-height: 1.15; font-weight: 400; }
 .album-description, .album-shipping, .album-order p { color: #555; font-size: 0.95rem; line-height: 1.7; margin: 0; }
 .album-price { margin: 1.75rem 0 0.5rem; font-size: 1.6rem; font-weight: 400; }

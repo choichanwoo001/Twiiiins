@@ -24,7 +24,7 @@ services:
 
   # 2. Spring Boot 백엔드
   backend:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/twiiiins-backend:latest
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/twiiiins-backend:${BACKEND_IMAGE_TAG:-latest}
     container_name: twiiiins-backend
     restart: unless-stopped
     ports:

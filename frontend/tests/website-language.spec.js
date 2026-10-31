@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, emptyApiResponse } from './support/fixtures'
 import content from '../src/translations/content.json' with { type: 'json' }
 
 const projectDescription = Object.keys(content.projects.descriptions)[0]
@@ -7,11 +7,12 @@ const newsDescription = Object.keys(content.news.description)[0]
 const newsHtml = Object.keys(content.news.body)[0]
 const project = { id: 9, title: 'THE RESISTIBLE RISE OF ARTURO UI', subtitle: 'Collaboration with Salzburger Landestheater', premiereDate: '2025-02-22', location: 'Salzburg State Theatre', descriptions: [projectDescription], director: 'Alexandra Liedtke', urlSlug: 'arturo-ui', imageUrls: [], reviews: [{ text: review, source: 'Reichenhaller Tagblatt' }] }
 async function mockWebsite(page) {
-  await page.addInitScript(() => localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) })
   await page.route('**/api/**', async route => {
     const path = new URL(route.request().url()).pathname
     if (!path.startsWith('/api/')) return route.continue()
-    let data = []
+    let data
+    if (path === '/api/newsletter/unsubscribe' && route.request().method() === 'POST') data = 'Unsubscribed'
     if (path === '/api/projects') data = [project]
     if (path.includes('/projects/') && path !== '/api/projects') data = project
     if (path === '/api/concerts') data = [{ id: 34, date: '2026-12-19', name: 'TWIIIINS Concert', location: 'Märchenbazar München [DE]', fullLocation: 'Spcecial Concert', collaborationInfo: 'we are gonna be part of Gala show!', isPast: false }]
@@ -25,7 +26,7 @@ async function mockWebsite(page) {
       { id: 3, date: '2026-10-20', title: 'Introducing Our Debut Single: Common Room', titleDe: 'Redaktioneller deutscher Titel', bodyEn: newsHtml, bodyDe: '<p>Redaktioneller deutscher Text</p>', imageUrls: [] },
     ]
     if (path === '/api/newsletter/status') data = { available: true }
-    await route.fulfill({ json: { success: true, data } })
+    await route.fulfill({ json: { success: true, data: data === undefined ? emptyApiResponse(route.request()) : data } })
   })
 }
 async function selectLanguage(page, language) {
@@ -70,7 +71,7 @@ test('footer switch translates About and navigation, persists and supports keybo
   await expect(page.locator('.website-language')).not.toHaveAttribute('open', '')
 })
 
-test('current content, media tabs and dates react to language without changing source data', async ({ page }, testInfo) => {
+test('project, concert dates and contact content follow language changes across navigation', async ({ page }) => {
   await mockWebsite(page)
   await page.goto('/projects/arturo-ui')
   await selectLanguage(page, 'Deutsch')
@@ -97,6 +98,12 @@ test('current content, media tabs and dates react to language without changing s
   await expect(page.locator('.contact-details .contact-name')).toHaveText('Dowon Kim')
   await expect(page.locator('.contact-details .contact-role')).toHaveText('Geige')
   await expect(page.locator('.download-item')).toContainText('Lebenslauf, Technical Rider, Plakate und Bilder')
+})
+
+test('media tabs and shop preserve German selection without changing edited source content', async ({ page }, testInfo) => {
+  await mockWebsite(page)
+  await page.goto('/about')
+  await selectLanguage(page, 'Deutsch')
   await page.goto('/media?section=news&newsId=1')
   await expect(page.locator('.news-rich')).toContainText('Hallo zusammen')
   await expect(page.locator('.news-title').nth(1)).toHaveText('A newly edited title')
@@ -113,6 +120,12 @@ test('current content, media tabs and dates react to language without changing s
   await page.screenshot({ path: testInfo.outputPath('media-de.png'), fullPage: true })
   await page.goto('/shop')
   await expect(page.locator('.album-description')).toContainText('Hol dir dein physisches Exemplar')
+})
+
+test('home and unsubscribe preserve language changes across navigation', async ({ page }) => {
+  await mockWebsite(page)
+  await page.goto('/about')
+  await selectLanguage(page, 'Deutsch')
   await page.goto('/')
   await expect(page.locator('.website-language summary')).toBeHidden()
   await expect(page.locator('.hero-description')).toContainText('modernes, dynamisches Violinduo')
@@ -134,7 +147,7 @@ test('current content, media tabs and dates react to language without changing s
 
 test('footer controls stay separate on narrow screens and empty-state copy is German', async ({ page }) => {
   await mockWebsite(page)
-  await page.addInitScript(() => localStorage.setItem('twiiiins-website-language', 'de'))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-website-language', 'de') })
   for (const width of [320, 800]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/about')

@@ -176,9 +176,7 @@ public class FileUploadService {
         } catch (FileUploadException e) {
             throw e;
         } catch (NoClassDefFoundError | Exception e) {
-            log.warn("이미지 크기 검증 실패 (계속 진행): {}", e.getMessage());
-            // 검증 실패해도 업로드는 진행 (이미지가 손상되었거나 형식이 예상과 다를 수 있음)
-            // 또는 java.desktop 모듈이 사용 불가능한 환경일 수 있음
+            throw new FileUploadException("이미지 파일을 읽을 수 없습니다. 올바른 이미지 파일을 선택하세요.", e);
         }
     }
     

@@ -70,7 +70,7 @@ export const createCacheKey = (endpoint, params = {}) => {
 // 캐시된 API 호출 래퍼
 export const cachedApiCall = async (apiFunction, cacheKey, ttl = null) => {
   const cached = apiCache.get(cacheKey)
-  if (cached) {
+  if (cached !== null) {
     return cached
   }
 

@@ -24,6 +24,7 @@
       :fields="formFields"
       v-model="form"
       :editing-item="editingMusic"
+      :submitting="isSaving"
       @submit="saveMusic"
       @cancel="cancelEdit"
     />
@@ -245,7 +246,11 @@ const cancelEdit = () => {
   resetMusicForm(form.value)
 }
 
+const isSaving = ref(false)
+
 const saveMusic = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     // 커버 이미지가 선택된 경우 먼저 업로드
     const fileObject = crudFormRef.value?.getFileObject('coverUrl')
@@ -272,7 +277,7 @@ const saveMusic = async () => {
   } catch (error) {
     logError(error, '음악 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
-  }
+  } finally { isSaving.value = false }
 }
 
 const deleteMusic = async (id) => {

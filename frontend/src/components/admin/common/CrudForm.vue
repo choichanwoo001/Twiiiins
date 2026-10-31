@@ -1,7 +1,7 @@
 <template>
   <div class="form-section">
     <h2>{{ editingItem ? `${title} 수정` : `새 ${title} 등록` }}</h2>
-    <form @submit.prevent="handleSubmit" class="crud-form">
+    <form @submit.prevent="handleSubmit" class="crud-form" :aria-busy="submitting">
       <div 
         v-for="field in fields" 
         :key="field.key" 
@@ -55,7 +55,7 @@
 
       <div class="form-actions">
         <button type="submit" class="btn-save" :disabled="submitting">
-          {{ editingItem ? '수정' : '등록' }}
+          {{ submitting ? '저장 중…' : editingItem ? '수정' : '등록' }}
         </button>
         <button 
           type="button" 
@@ -188,11 +188,12 @@ defineExpose({
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
 .form-group {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -207,6 +208,9 @@ defineExpose({
 .form-group input,
 .form-group textarea {
   padding: 0.75rem;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   border: 1px solid #ddd;
   border-radius: 0.25rem;
   font-size: 1rem;
@@ -276,6 +280,9 @@ defineExpose({
 
 .btn-cancel:hover {
   background: #7f8c8d;
+}
+@media (max-width: 768px) {
+  .form-row { grid-template-columns: minmax(0, 1fr); }
 }
 </style>
 

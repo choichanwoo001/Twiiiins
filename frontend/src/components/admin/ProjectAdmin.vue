@@ -96,7 +96,7 @@
         </div>
 
         <div class="form-actions">
-          <BaseButton type="submit" variant="primary">{{ editingProject ? '수정' : '등록' }}</BaseButton>
+          <BaseButton type="submit" variant="primary" :disabled="isSaving">{{ isSaving ? '저장 중…' : editingProject ? '수정' : '등록' }}</BaseButton>
           <BaseButton type="button" variant="secondary" @click="cancelEdit" v-if="editingProject">취소</BaseButton>
         </div>
       </form>
@@ -241,7 +241,7 @@
         </div>
 
         <div class="form-actions">
-          <BaseButton type="submit" variant="primary">{{ editingProjectDetail ? '수정' : '등록' }}</BaseButton>
+          <BaseButton type="submit" variant="primary" :disabled="isSaving">{{ isSaving ? '저장 중…' : editingProjectDetail ? '수정' : '등록' }}</BaseButton>
           <BaseButton type="button" variant="secondary" @click="cancelEditDetail" v-if="editingProjectDetail">취소</BaseButton>
         </div>
       </form>
@@ -595,7 +595,11 @@ const cancelEditDetail = () => {
   }
 }
 
+const isSaving = ref(false)
+
 const saveProject = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     const coverImageUrl = form.value.coverImageUrl || uploadedCoverImageUrl.value || undefined
     const basePayload = {
@@ -629,7 +633,7 @@ const saveProject = async () => {
   } catch (error) {
     logError(error, '프로젝트 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
-  }
+  } finally { isSaving.value = false }
 }
 
 // 리뷰 추가/삭제 함수
@@ -661,6 +665,8 @@ const removeDescription = (index) => {
 }
 
 const saveProjectDetail = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     // URL Slug가 없으면 제목에서 자동 생성
     const urlSlug = detailForm.value.urlSlug || generateUrlSlug()
@@ -694,7 +700,7 @@ const saveProjectDetail = async () => {
   } catch (error) {
     logError(error, '프로젝트 상세 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
-  }
+  } finally { isSaving.value = false }
 }
 
 // 프로젝트 이미지 관리

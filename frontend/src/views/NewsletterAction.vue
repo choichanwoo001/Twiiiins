@@ -26,6 +26,7 @@ const message = computed(() => {
 })
 watch(() => route.fullPath, () => { complete.value = false; messageKey.value = '' })
 async function submit() {
+  if (busy.value || complete.value || !token.value) return
   busy.value = true
   try {
     await (unsubscribe.value ? service.unsubscribe(token.value) : service.confirm(token.value))
