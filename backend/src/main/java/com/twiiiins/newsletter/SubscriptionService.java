@@ -9,6 +9,7 @@ import java.util.Locale;
 
 @Service @RequiredArgsConstructor
 public class SubscriptionService {
+    private final java.time.Clock clock;
     private final SubscriberRepository subscribers;
     private final DeliveryRepository deliveries;
     private final NewsletterSettings settings;
@@ -23,8 +24,8 @@ public class SubscriptionService {
         language(language);
         gate.lock(); // serialize subscription changes and welcome-mail creation
         email = email.strip().toLowerCase(Locale.ROOT);
-        Subscriber subscriber = subscribers.findByEmail(email).orElseGet(Subscriber::new);
-        Instant now = Instant.now();
+        Subscriber subscriber = subscribers.findByEmail(email).orElseGet(() -> { Subscriber created = new Subscriber(); created.setCreatedAt(clock.instant()); return created; });
+        Instant now = clock.instant();
         if ("EXCLUDED".equals(subscriber.getStatus())) return;
         if ("ACTIVE".equals(subscriber.getStatus()) && language.equals(subscriber.getLanguage())) return;
         boolean alreadyActive = "ACTIVE".equals(subscriber.getStatus());
@@ -41,6 +42,7 @@ public class SubscriptionService {
         subscribers.saveAndFlush(subscriber);
         if (!sendWelcome) return;
         Delivery delivery = new Delivery();
+        delivery.setCreatedAt(clock.instant()); delivery.setNextAttempt(clock.instant());
         delivery.setKind("WELCOME");
         delivery.setEmail(email);
         delivery.setLanguage(language);
@@ -54,15 +56,15 @@ public class SubscriptionService {
         gate.lock();
         Subscriber subscriber = subscribers.findByConfirmationHash(Tokens.hash(token))
             .orElseThrow(() -> new IllegalArgumentException("Invalid, used or expired link."));
-        if (subscriber.getConfirmationExpires() == null || !subscriber.getConfirmationExpires().isAfter(Instant.now()) || "EXCLUDED".equals(subscriber.getStatus()))
+        if (subscriber.getConfirmationExpires() == null || !subscriber.getConfirmationExpires().isAfter(clock.instant()) || "EXCLUDED".equals(subscriber.getStatus()))
             throw new IllegalArgumentException("Invalid, used or expired link.");
         boolean alreadyActive = "ACTIVE".equals(subscriber.getStatus());
         subscriber.setLanguage(subscriber.getPendingLanguage());
         subscriber.setPendingLanguage(null);
         subscriber.setStatus("ACTIVE");
-        subscriber.setConsentAt(Instant.now());
+        subscriber.setConsentAt(clock.instant());
         subscriber.setConsentVersion("newsletter-v1");
-        subscriber.setUpdatedAt(Instant.now());
+        subscriber.setUpdatedAt(clock.instant());
         if (!alreadyActive) subscriber.setUnsubscribeVersion(Tokens.random());
         clearConfirmation(subscriber);
     }
@@ -76,14 +78,14 @@ public class SubscriptionService {
         Subscriber subscriber = subscribers.lockById(Long.valueOf(context[1])).orElseThrow(() -> new IllegalArgumentException("Invalid link."));
         if (!context[2].equals(subscriber.getUnsubscribeVersion())) throw new IllegalArgumentException("Invalid link.");
         if (!"EXCLUDED".equals(subscriber.getStatus())) subscriber.setStatus("UNSUBSCRIBED");
-        subscriber.setUpdatedAt(Instant.now());
+        subscriber.setUpdatedAt(clock.instant());
         clearConfirmation(subscriber);
     }
     @Transactional
     public void exclude(Long id) {
         Subscriber subscriber = subscribers.lockById(id).orElseThrow(() -> new IllegalArgumentException("Subscriber not found"));
         subscriber.setStatus("EXCLUDED");
-        subscriber.setUpdatedAt(Instant.now());
+        subscriber.setUpdatedAt(clock.instant());
         clearConfirmation(subscriber);
     }
     private void clearConfirmation(Subscriber s) {

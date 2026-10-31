@@ -1,0 +1,10 @@
+{
+  "frontend": {
+    "lines": 96.0,
+    "branches": 92.0
+  },
+  "backend": {
+    "lines": 77.82,
+    "branches": 27.54
+  }
+}

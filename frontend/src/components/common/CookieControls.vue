@@ -38,8 +38,8 @@ a { font-size: 0.8rem; color: #815d47; }
 .cookie-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
 .cookie-category { border: 1px solid #e4ded8; padding: 1rem; margin-top: 0.75rem; }
 .cookie-option { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.9rem; }
-.cookie-status { color: #777; font-size: 0.75rem; }
-summary { cursor: pointer; font-size: 0.75rem; color: #777; padding-top: 0.7rem; }
+.cookie-status { color: #707070; font-size: 0.75rem; }
+summary { cursor: pointer; font-size: 0.75rem; color: #707070; padding-top: 0.7rem; }
 .cookie-policy { display: block; margin-top: 1.25rem; }
 input { appearance: none; position: relative; flex-shrink: 0; width: 2.5rem; height: 1.4rem; border-radius: 1rem; background: #c9c6c2; cursor: pointer; }
 input::after { content: ''; position: absolute; top: 0.2rem; left: 0.2rem; width: 1rem; height: 1rem; border-radius: 50%; background: white; transition: transform 0.15s; }

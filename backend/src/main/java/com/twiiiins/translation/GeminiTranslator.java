@@ -34,7 +34,7 @@ public class GeminiTranslator {
                 "contents", List.of(Map.of("role", "user", "parts", List.of(Map.of("text", row.getSourceText())))),
                 "generationConfig", Map.of("responseMimeType", "application/json", "responseSchema", schema)));
             if (!settings.getModel().matches("[a-zA-Z0-9.-]+")) throw new Failure("INVALID_MODEL", false);
-            HttpRequest request = HttpRequest.newBuilder(URI.create("https://generativelanguage.googleapis.com/v1beta/models/" + settings.getModel() + ":generateContent"))
+            HttpRequest request = HttpRequest.newBuilder(URI.create(settings.getBaseUrl().replaceAll("/+$", "") + "/v1beta/models/" + settings.getModel() + ":generateContent"))
                 .timeout(Duration.ofSeconds(Math.max(1, Math.min(settings.getTimeoutSeconds(), 120))))
                 .header("x-goog-api-key", settings.getApiKey()).header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body)).build();

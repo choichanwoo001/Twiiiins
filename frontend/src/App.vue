@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :lang="websiteLanguage">
+  <div id="site-root" :lang="websiteLanguage">
     <!-- 관리자 페이지가 아닐 때만 네비게이션 표시 -->
     <nav v-if="!isEditorPage" class="navbar">
       <div class="container">

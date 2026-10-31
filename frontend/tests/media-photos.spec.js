@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './support/fixtures'
 
 const shapes = [[1200, 800], [800, 1200], [900, 900], [2000, 400], [400, 1600], [1200, 800]]
 
 test('photo gallery fills its width, contains originals and reflows without overlap', async ({ page, isMobile }) => {
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
-  await page.addInitScript(() => localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) })
   await page.route('**/api/**', route => {
     const path = new URL(route.request().url()).pathname
     if (!path.startsWith('/api/')) return route.continue()

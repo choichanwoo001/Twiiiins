@@ -16,8 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import java.time.*;
 import java.util.*;
 
-@Component @EnableScheduling @RequiredArgsConstructor @Slf4j
+@Component @RequiredArgsConstructor @Slf4j
 public class NewsletterWorker implements ApplicationRunner {
+    private final java.time.Clock clock;
     private final NewsletterSettings settings;
     private final ObjectProvider<JavaMailSender> senders;
     private final DeliveryRepository deliveries;
@@ -35,7 +36,7 @@ public class NewsletterWorker implements ApplicationRunner {
             if (!gates.existsById(1L)) gates.saveAndFlush(new MailGate());
             // One application instance owns the queue. Never resend a message interrupted during SMTP.
             for (Delivery delivery : deliveries.findByStatus("SENDING")) {
-                delivery.setStatus("UNKNOWN"); delivery.setErrorCode("RESTART_DURING_SMTP"); delivery.setFinishedAt(Instant.now());
+                delivery.setStatus("UNKNOWN"); delivery.setErrorCode("RESTART_DURING_SMTP"); delivery.setFinishedAt(clock.instant());
             }
         });
     }
@@ -44,7 +45,7 @@ public class NewsletterWorker implements ApplicationRunner {
     public Envelope claim() {
         return transactions.execute(tx -> {
             if (!settings.ready() || gates.lock().isPaused()) return null;
-            Instant now = Instant.now();
+            Instant now = clock.instant();
             Instant day = now.atZone(ZoneOffset.UTC).toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant();
             if (attempts.countByAttemptedAtGreaterThanEqual(now.minusSeconds(60)) >= settings.getPerMinute()
                 || attempts.countByAttemptedAtGreaterThanEqual(day) >= settings.getDailyLimit()) return null;
@@ -93,7 +94,7 @@ public class NewsletterWorker implements ApplicationRunner {
             return new Envelope(delivery.getId(), delivery.getEmail(), title, html, unsubscribe);
         });
     }
-    private void skip(Delivery delivery) { delivery.setStatus("SKIPPED"); delivery.setFinishedAt(Instant.now()); }
+    private void skip(Delivery delivery) { delivery.setStatus("SKIPPED"); delivery.setFinishedAt(clock.instant()); }
 
     @Scheduled(initialDelayString = "${app.newsletter.worker-initial-delay:30000}", fixedDelay = 1000)
     public void tick() {
@@ -136,9 +137,9 @@ public class NewsletterWorker implements ApplicationRunner {
             if ("AUTH".equals(result)) {
                 gate.setPaused(true); gate.setReason("SMTP_AUTH"); delivery.setStatus("WAITING");
             } else if ("TRANSIENT".equals(result) && delivery.getAttempts() <= 3) {
-                delivery.setStatus("WAITING"); delivery.setNextAttempt(Instant.now().plusSeconds(60L * (long) Math.pow(5, delivery.getAttempts() - 1)));
+                delivery.setStatus("WAITING"); delivery.setNextAttempt(clock.instant().plusSeconds(60L * (long) Math.pow(5, delivery.getAttempts() - 1)));
             } else {
-                delivery.setStatus("TRANSIENT".equals(result) ? "FAILED" : result); delivery.setFinishedAt(Instant.now());
+                delivery.setStatus("TRANSIENT".equals(result) ? "FAILED" : result); delivery.setFinishedAt(clock.instant());
             }
         });
     }
@@ -158,7 +159,7 @@ public class NewsletterWorker implements ApplicationRunner {
     @Scheduled(initialDelay = 60000, fixedDelay = 3600000)
     public void cleanup() {
         transactions.executeWithoutResult(tx -> {
-            Instant now = Instant.now();
+            Instant now = clock.instant();
             gates.lock();
             for (Subscriber subscriber : subscribers.findAll()) {
                 boolean pendingExpired = "PENDING".equals(subscriber.getStatus()) && subscriber.getUpdatedAt().isBefore(now.minusSeconds(7 * 86400));

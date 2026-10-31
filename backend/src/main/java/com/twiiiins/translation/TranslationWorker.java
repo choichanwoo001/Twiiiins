@@ -10,8 +10,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.Instant;
 import java.util.*;
 
-@Component @EnableScheduling @RequiredArgsConstructor
+@Component @RequiredArgsConstructor
 public class TranslationWorker {
+    private final java.time.Clock clock;
     private final TranslationRepository rows;
     private final TranslationFields fields;
     private final TranslationService service;
@@ -29,16 +30,16 @@ public class TranslationWorker {
     @Scheduled(fixedDelayString = "${app.translation.worker-delay:3000}", initialDelayString = "${app.translation.worker-initial-delay:15000}", scheduler = "translationScheduler")
     public void tick() {
         if (!settings.available()) return;
-        for (Long id : rows.due(Instant.now(), org.springframework.data.domain.PageRequest.of(0, 1))) process(id);
+        for (Long id : rows.due(clock.instant(), org.springframework.data.domain.PageRequest.of(0, 1))) process(id);
     }
     public void process(Long id) {
         if (!settings.available()) return;
         var tx = new TransactionTemplate(transactions);
         ContentTranslation job = tx.execute(status -> {
             ContentTranslation r = rows.lock(id).orElse(null);
-            if (r == null || !Set.of("PENDING", "PROCESSING", "DISABLED").contains(r.getState()) || r.getNextAttempt().isAfter(Instant.now())) return null;
+            if (r == null || !Set.of("PENDING", "PROCESSING", "DISABLED").contains(r.getState()) || r.getNextAttempt().isAfter(clock.instant())) return null;
             r.setState("PROCESSING"); r.setAttempts(r.getAttempts() + 1);
-            r.setNextAttempt(Instant.now().plusSeconds(180)); rows.flush();
+            r.setNextAttempt(clock.instant().plusSeconds(180)); rows.flush();
             return r;
         });
         if (job == null) return;
@@ -94,6 +95,6 @@ public class TranslationWorker {
         boolean retry = error.retryable && row.getAttempts() <= 3;
         row.setState(retry ? "PENDING" : "FAILED");
         long[] delays = {30, 120, 600};
-        row.setNextAttempt(Instant.now().plusSeconds(delays[Math.min(Math.max(row.getAttempts() - 1, 0), 2)]));
+        row.setNextAttempt(clock.instant().plusSeconds(delays[Math.min(Math.max(row.getAttempts() - 1, 0), 2)]));
     }
 }

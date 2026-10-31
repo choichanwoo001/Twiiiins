@@ -1,6 +1,7 @@
 <template>
   <div class="content-section">
     <h1 class="section-title">Contact 관리</h1>
+    <p v-if="saveError" role="alert">{{ saveError }}</p>
     
     <!-- 검색/필터 섹션 -->
     <SearchFilters
@@ -29,6 +30,7 @@
       :fields="formFields"
       v-model="form"
       :editing-item="editingContact"
+      :submitting="isSaving"
       @submit="saveContact"
       @cancel="cancelEdit"
     />
@@ -146,7 +148,13 @@ const cancelEdit = () => {
   resetContactForm(form.value)
 }
 
+const isSaving = ref(false)
+const saveError = ref('')
+
 const saveContact = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
+  saveError.value = ''
   try {
     if (editingContact.value) {
       // 수정
@@ -160,7 +168,8 @@ const saveContact = async () => {
     cancelEdit()
   } catch (error) {
     console.error('연락처 저장 실패:', error)
-  }
+    saveError.value = error.message || '연락처 저장에 실패했습니다. 다시 시도해주세요.'
+  } finally { isSaving.value = false }
 }
 
 const deleteContact = async (id) => {
@@ -170,6 +179,7 @@ const deleteContact = async (id) => {
       await loadContacts()
     } catch (error) {
       console.error('연락처 삭제 실패:', error)
+      saveError.value = error.message || '연락처 삭제에 실패했습니다. 다시 시도해주세요.'
     }
   }
 }

@@ -6,6 +6,7 @@
         <button class="btn-close" @click="handleClose">×</button>
       </div>
       
+      <AdminRequestStatus />
       <div class="modal-body">
         <slot></slot>
       </div>
@@ -20,6 +21,7 @@
 </template>
 
 <script setup>
+import AdminRequestStatus from './AdminRequestStatus.vue'
 const props = defineProps({
   isVisible: {
     type: Boolean,

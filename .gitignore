@@ -36,6 +36,8 @@ frontend/*.log
 backend/test-results/
 frontend/test-results/
 coverage/
+frontend/reports/
+frontend/.stryker-tmp/
 backups/
 
 # OS

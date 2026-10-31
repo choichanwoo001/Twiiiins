@@ -14,11 +14,12 @@ import java.util.List;
 @Component
 public class AdminTokenFilter extends OncePerRequestFilter {
     private final AdminSessionRepository sessions;
-    public AdminTokenFilter(AdminSessionRepository sessions) { this.sessions = sessions; }
+    private final java.time.Clock clock;
+    public AdminTokenFilter(AdminSessionRepository sessions, java.time.Clock clock) { this.sessions = sessions; this.clock = clock; }
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
-            sessions.findById(Tokens.hash(header.substring(7))).filter(s -> s.getExpiresAt().isAfter(Instant.now())).ifPresent(s ->
+            sessions.findById(Tokens.hash(header.substring(7))).filter(s -> s.getExpiresAt().isAfter(clock.instant())).ifPresent(s ->
                 SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(s.getUsername(), null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")))));
         }
         chain.doFilter(request, response);

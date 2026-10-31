@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, emptyApiResponse } from './support/fixtures'
 
 const translated = (en, de) => ({ state: 'COMPLETED', en, de })
 const project = { id: 901, title: 'New project', subtitle: 'Collaboration with Salzburger Landestheater', urlSlug: 'translated-project', premiereDate: '2026-10-30', location: 'Vienna', descriptions: ['First paragraph', 'Second paragraph'], reviews: [{ text: 'Wonderful music', source: 'Reviewer Name' }], imageUrls: [], translations: {
@@ -10,11 +10,11 @@ async function mock(page, { admin = false } = {}) {
   const writes = []
   let rows = [{ id: 1, kind: 'projects', contentId: 901, field: 'title', source: 'New project', en: 'New project', de: 'Neues Projekt', state: 'COMPLETED', version: 2 },
     { id: 2, kind: 'projects', contentId: 901, field: 'subtitle', source: 'Source', en: null, de: null, state: 'FAILED', errorCode: 'GEMINI_HTTP_429', version: 1 }]
-  await page.addInitScript(admin => { if (admin) localStorage.setItem('token', 'test-token'); localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) }, admin)
+  await page.addInitScript(admin => { if (window !== window.top) return; if (admin) localStorage.setItem('token', 'test-token'); localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) }, admin)
   await page.route('**/api/**', async route => {
     const request = route.request(), path = new URL(request.url()).pathname
     if (!path.startsWith('/api/')) return route.continue()
-    let data = []
+    let data
     if (path === '/api/auth/me') data = { username: 'test-admin' }
     if (path === '/api/projects') data = [project]
     else if (path.startsWith('/api/projects/')) data = project
@@ -25,7 +25,7 @@ async function mock(page, { admin = false } = {}) {
     if (path === '/api/admin/translations') data = { available: true, items: rows }
     if (path === '/api/admin/translations/2/retry') { writes.push({ path, body: request.postDataJSON() }); rows[1] = { ...rows[1], state: 'PENDING', errorCode: null }; data = rows[1] }
     if (path === '/api/admin/translations/1' && request.method() === 'PUT') { writes.push({ path, body: request.postDataJSON() }); rows[0] = { ...rows[0], ...request.postDataJSON(), manualDe: true, version: 3 }; data = rows[0] }
-    await route.fulfill({ json: { success: true, data } })
+    await route.fulfill({ json: { success: true, data: data === undefined ? emptyApiResponse(route.request()) : data } })
   })
   return writes
 }

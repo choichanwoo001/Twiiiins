@@ -23,6 +23,7 @@
       :fields="formFields"
       v-model="form"
       :editing-item="editingVideo"
+      :submitting="isSaving"
       @submit="saveVideo"
       @cancel="cancelEdit"
     />
@@ -186,7 +187,11 @@ const cancelEdit = () => {
   form.value = { title: '', youtubeUrl: '', displayOrder: 0 }
 }
 
+const isSaving = ref(false)
+
 const saveVideo = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     // YouTube URL을 Embed URL로 변환
     const embedUrl = convertToEmbedUrl(form.value.youtubeUrl)
@@ -217,7 +222,7 @@ const saveVideo = async () => {
   } catch (error) {
     console.error('비디오 저장 실패:', error)
     alert('비디오 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
-  }
+  } finally { isSaving.value = false }
 }
 
 const deleteVideo = async (id) => {

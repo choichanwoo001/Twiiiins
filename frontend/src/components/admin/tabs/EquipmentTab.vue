@@ -28,6 +28,7 @@
       :fields="formFields"
       v-model="form"
       :editing-item="editingEquipment"
+      :submitting="isSaving"
       @submit="saveEquipment"
       @cancel="cancelEdit"
     />
@@ -232,7 +233,11 @@ const cancelEdit = () => {
   form.value = { name: '', imageUrl: '', displayOrder: 0 }
 }
 
+const isSaving = ref(false)
+
 const saveEquipment = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     // 이미지가 선택된 경우 먼저 업로드
     const fileObject = crudFormRef.value?.getFileObject('imageUrl')
@@ -257,7 +262,7 @@ const saveEquipment = async () => {
   } catch (error) {
     logError(error, '장비 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
-  }
+  } finally { isSaving.value = false }
 }
 
 const deleteEquipment = async (id) => {

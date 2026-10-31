@@ -141,7 +141,7 @@
         </div>
 
         <div class="form-actions">
-          <BaseButton type="submit" variant="primary">{{ editingConcert ? '수정' : '등록' }}</BaseButton>
+          <BaseButton type="submit" variant="primary" :disabled="isSaving">{{ isSaving ? '저장 중…' : editingConcert ? '수정' : '등록' }}</BaseButton>
           <BaseButton type="button" variant="secondary" @click="cancelEdit" v-if="editingConcert">취소</BaseButton>
         </div>
       </form>
@@ -345,7 +345,11 @@ const cancelEdit = () => {
   resetConcertForm(form.value)
 }
 
+const isSaving = ref(false)
+
 const saveConcert = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     if (editingConcert.value) {
       // 수정
@@ -359,7 +363,7 @@ const saveConcert = async () => {
   } catch (error) {
     logError(error, '콘서트 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
-  }
+  } finally { isSaving.value = false }
 }
 
 const deleteConcert = async (id) => {

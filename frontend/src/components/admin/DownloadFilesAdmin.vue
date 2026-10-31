@@ -38,6 +38,7 @@
       :fields="formFields"
       v-model="form"
       :editing-item="editingFile"
+      :submitting="isSaving"
       @submit="saveFile"
       @cancel="cancelEdit"
     />
@@ -159,7 +160,11 @@ const cancelEdit = () => {
   resetDownloadFileForm(form.value)
 }
 
+const isSaving = ref(false)
+
 const saveFile = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     // 파일이 선택된 경우 먼저 업로드
     const fileObject = crudFormRef.value?.getFileObject('fileUrl')
@@ -189,7 +194,7 @@ const saveFile = async () => {
   } catch (error) {
     console.error('파일 저장 실패:', error)
     alert('파일 저장에 실패했습니다: ' + (error.response?.data?.message || error.message))
-  }
+  } finally { isSaving.value = false }
 }
 
 const deleteFile = async (id) => {

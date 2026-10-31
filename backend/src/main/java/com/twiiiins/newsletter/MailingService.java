@@ -10,6 +10,7 @@ import java.util.*;
 
 @Service @RequiredArgsConstructor
 public class MailingService {
+    private final java.time.Clock clock;
     private final NewsRepository news;
     private final NewsService newsService;
     private final MailingRepository mailings;
@@ -30,7 +31,7 @@ public class MailingService {
         if (item.isArchived()) throw new IllegalArgumentException("Archived news cannot be sent");
         newsService.validatePublication(item);
         item.setStatus("PUBLISHED");
-        Mailing mailing = new Mailing();
+        Mailing mailing = new Mailing(); mailing.setCreatedAt(clock.instant());
         mailing.setNewsId(newsId);
         mailing.setTitleEn(content.title(item, "en")); mailing.setTitleDe(content.title(item, "de"));
         mailing.setHtmlEn(content.render(item, "en", settings.getPublicUrl()));
@@ -41,6 +42,7 @@ public class MailingService {
         mailings.saveAndFlush(mailing);
         for (Subscriber subscriber : recipients) {
             Delivery delivery = new Delivery();
+        delivery.setCreatedAt(clock.instant()); delivery.setNextAttempt(clock.instant());
             delivery.setKind("NEWS"); delivery.setMailingId(mailing.getId());
             delivery.setSubscriberId(subscriber.getId()); delivery.setEmail(subscriber.getEmail());
             delivery.setLanguage(subscriber.getLanguage());
@@ -63,6 +65,7 @@ public class MailingService {
         if (gate.isPaused()) throw new IllegalArgumentException("SMTP is paused.");
         Map<String, Object> preview = preview(newsId, language);
         Delivery delivery = new Delivery();
+        delivery.setCreatedAt(clock.instant()); delivery.setNextAttempt(clock.instant());
         delivery.setKind("TEST"); delivery.setEmail(email); delivery.setLanguage(language);
         delivery.setTestTitle("[TEST] " + preview.get("title")); delivery.setTestHtml((String) preview.get("html"));
         deliveries.save(delivery);
@@ -72,7 +75,7 @@ public class MailingService {
         Delivery delivery = deliveries.findById(id).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
         if (!"FAILED".equals(delivery.getStatus()) || !"NEWS".equals(delivery.getKind())) throw new IllegalArgumentException("Only definitely failed newsletter deliveries can be retried.");
         delivery.setStatus("WAITING"); delivery.setAttempts(0); delivery.setErrorCode(null);
-        delivery.setNextAttempt(java.time.Instant.now()); delivery.setFinishedAt(null);
+        delivery.setNextAttempt(clock.instant()); delivery.setFinishedAt(null);
     }
     @Transactional public void resume() {
         settings.requireReady();

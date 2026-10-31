@@ -85,6 +85,7 @@
       :fields="formFields"
       v-model="form"
       :editing-item="editingGroup"
+      :submitting="isSaving"
       @submit="saveGroup"
       @cancel="cancelEdit"
     />
@@ -306,7 +307,11 @@ const cancelEdit = () => {
   resetPhotoGroupForm(form.value)
 }
 
+const isSaving = ref(false)
+
 const saveGroup = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
   try {
     if (editingGroup.value) {
       await mediaStore.updatePhotoGroup(editingGroup.value.id, form.value)
@@ -321,7 +326,7 @@ const saveGroup = async () => {
   } catch (error) {
     logError(error, '그룹 저장')
     await showAlert(getErrorMessage(error), '오류', 'danger')
-  }
+  } finally { isSaving.value = false }
 }
 
 const deleteGroup = async (id) => {

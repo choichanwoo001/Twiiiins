@@ -1,9 +1,10 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './support/fixtures'
 for (const language of ['en', 'de']) {
   test(`dummy preview validates without requests or storage (${language})`, async ({ page }) => {
     const requests = []
     page.on('request', request => { if (request.url().includes('/api/newsletter/')) requests.push(request.url()) })
     await page.addInitScript(lang => {
+      if (window !== window.top) return
       localStorage.setItem('twiiiins-website-language', lang)
       localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() }))
     }, language)
@@ -34,7 +35,7 @@ for (const language of ['en', 'de']) {
 test('newsletter studio renders attachments and both languages without API writes', async ({ page }, testInfo) => {
   const writes = []
   page.on('request', request => { if (request.method() !== 'GET' && request.method() !== 'HEAD') writes.push(request.url()) })
-  await page.addInitScript(() => localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })))
+  await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) })
   await page.goto('/dev/newsletter')
   await expect(page.locator('.navbar')).toHaveCount(0)
   await page.getByRole('button', { name: '예시 내용 채우기' }).click()

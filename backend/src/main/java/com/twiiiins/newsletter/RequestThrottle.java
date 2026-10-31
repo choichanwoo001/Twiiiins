@@ -5,10 +5,12 @@ import java.time.Instant;
 import java.util.*;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class RequestThrottle {
+    private final java.time.Clock clock;
     private final Map<String, Deque<Instant>> requests = new HashMap<>();
     public synchronized boolean allow(String key, int count, long seconds) {
-        Instant now = Instant.now();
+        Instant now = clock.instant();
         requests.entrySet().removeIf(e -> e.getValue().isEmpty() || e.getValue().peekLast().isBefore(now.minusSeconds(3600)));
         if (requests.size() > 10000 && !requests.containsKey(key)) return false;
         Deque<Instant> times = requests.computeIfAbsent(key, k -> new ArrayDeque<>());

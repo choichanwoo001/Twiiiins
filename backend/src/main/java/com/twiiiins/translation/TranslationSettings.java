@@ -12,5 +12,6 @@ public class TranslationSettings {
     private String apiKey = "";
     private String model = "gemini-3.5-flash-lite";
     private int timeoutSeconds = 30;
+    private String baseUrl = "https://generativelanguage.googleapis.com";
     public boolean available() { return enabled && apiKey != null && !apiKey.isBlank(); }
 }

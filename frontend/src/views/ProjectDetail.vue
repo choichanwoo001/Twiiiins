@@ -1,5 +1,10 @@
 <template>
   <div class="project-detail">
+    <p v-if="loading" role="status">{{ websiteLanguage === 'de' ? 'Projekt wird geladen…' : 'Loading project…' }}</p>
+    <section v-else-if="loadError" role="alert">
+      <h1>{{ websiteLanguage === 'de' ? 'Projekt nicht verfügbar' : 'Project unavailable' }}</h1>
+      <button type="button" @click="loadProject">{{ websiteLanguage === 'de' ? 'Erneut versuchen' : 'Try again' }}</button>
+    </section>
     <!-- 텍스트 섹션 (왼쪽 정렬) -->
     <section class="project-text" v-if="project">
       <h1>{{ translateContent('projects', 'title', project.title, project) }}</h1>
@@ -39,7 +44,8 @@
 
 <script setup>
 import { t, websiteLocale, translateContent } from '../composables/useWebsiteTranslation'
-import { ref, computed, onMounted } from 'vue'
+import { websiteLanguage } from '../composables/useWebsitePreferences'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { projectService } from '../services'
 import { ImageGrid } from '../components/common'
@@ -49,6 +55,9 @@ import { logError } from '../utils/errorHandler'
 const route = useRoute()
 
 const project = ref(null)
+const loading = ref(true)
+const loadError = ref(false)
+let requestSequence = 0
 
 // 프로젝트 이미지 URL 배열 생성
 const projectImageUrls = computed(() => {
@@ -85,14 +94,20 @@ const projectDescriptions = computed(() => {
 
 // 프로젝트 데이터 로드
 const loadProject = async () => {
+  const sequence = ++requestSequence
+  loading.value = true
+  loadError.value = false
   const urlSlug = route.params.slug
   
   if (!urlSlug) {
+    loading.value = false
+    loadError.value = true
     return
   }
   
   try {
     const projectData = await projectService.getProjectBySlug(urlSlug)
+    if (sequence !== requestSequence) return
     
     if (projectData) {
       project.value = {
@@ -100,16 +115,18 @@ const loadProject = async () => {
         // 이미지 URL 변환
         imageUrls: projectData.imageUrls ? projectData.imageUrls.map(url => toAbsoluteUrl(url)) : []
       }
-    }
+    } else loadError.value = true
   } catch (error) {
+    if (sequence !== requestSequence) return
     logError(error, '프로젝트 데이터 로드')
     project.value = null
+    loadError.value = true
+  } finally {
+    if (sequence === requestSequence) loading.value = false
   }
 }
 
-onMounted(async () => {
-  await loadProject()
-})
+watch(() => route.params.slug, loadProject, { immediate: true })
 
 </script>
 

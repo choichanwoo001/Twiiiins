@@ -43,7 +43,7 @@ public class LocalFileService implements FileStorageService {
             Path targetDirectory = resolveTargetDirectory(folder);
             Files.createDirectories(targetDirectory);
 
-            Path targetFile = targetDirectory.resolve(fileName);
+            Path targetFile = resolveFile(targetDirectory, fileName);
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
             }
@@ -63,7 +63,7 @@ public class LocalFileService implements FileStorageService {
             Path targetDirectory = resolveTargetDirectory(folder);
             Files.createDirectories(targetDirectory);
 
-            Path targetFile = targetDirectory.resolve(filename);
+            Path targetFile = resolveFile(targetDirectory, filename);
             Files.write(targetFile, bytes);
 
             String fileUrl = buildFileUrl(folder, filename);
@@ -78,9 +78,19 @@ public class LocalFileService implements FileStorageService {
     private Path resolveTargetDirectory(String folder) {
         Path basePath = Paths.get(uploadDir).toAbsolutePath().normalize();
         if (StringUtils.hasText(folder)) {
-            return basePath.resolve(folder).normalize();
+            Path resolved = basePath.resolve(folder).normalize();
+            if (!resolved.startsWith(basePath)) throw new FileUploadException("Upload directory must stay inside storage.");
+            return resolved;
         }
         return basePath;
+    }
+
+    private Path resolveFile(Path directory, String name) {
+        if (!StringUtils.hasText(name) || name.contains("/") || name.contains("\\") || name.equals(".") || name.equals(".."))
+            throw new FileUploadException("Invalid storage filename.");
+        Path resolved = directory.resolve(name).normalize();
+        if (!resolved.startsWith(directory)) throw new FileUploadException("Invalid storage filename.");
+        return resolved;
     }
 
     private String getFileExtension(String filename) {

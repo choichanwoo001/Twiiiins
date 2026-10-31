@@ -1,11 +1,15 @@
 plugins {
 	id 'java'
+    id 'jacoco'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.5'
 }
 
 group = 'com.twiiiins'
 version = '0.0.1-SNAPSHOT'
+
+// Keep the 1.x API while supporting current Docker Engine API negotiation.
+ext['testcontainers.version'] = '1.21.4'
 
 java {
 	sourceCompatibility = '17'
@@ -59,10 +63,17 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'com.h2database:h2'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform { excludeTags 'mysql' }
+    systemProperty 'app.env.disabled', 'true'
+    systemProperty 'app.file.upload-dir', layout.buildDirectory.dir('test-uploads').get().asFile.absolutePath
+    systemProperty 'logging.file.name', layout.buildDirectory.file('test-backend.log').get().asFile.absolutePath
+    systemProperty 'app.scheduling.enabled', 'false'
+    finalizedBy jacocoTestReport
 }
 
 // JVM 인코딩 설정
@@ -81,3 +92,20 @@ bootJar {
 	archiveFileName = "twiiiins-backend-${version}.jar"
 }
 
+
+
+tasks.register('mysqlTest', Test) {
+    description = 'Runs real MySQL contracts; Docker is required (never silently skipped).'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform { includeTags 'mysql' }
+    systemProperty 'app.env.disabled', 'true'
+    systemProperty 'app.file.upload-dir', layout.buildDirectory.dir('test-uploads').get().asFile.absolutePath
+    systemProperty 'logging.file.name', layout.buildDirectory.file('test-backend.log').get().asFile.absolutePath
+    systemProperty 'app.scheduling.enabled', 'false'
+    shouldRunAfter test
+}
+jacocoTestReport {
+    dependsOn test
+    reports { xml.required = true; html.required = true }
+}
