@@ -14,10 +14,10 @@
 
     <section v-if="section === 'news'">
       <div class="row"><h2>뉴스레터 작성</h2><button :disabled="busy" @click="reset">새 글 작성</button></div>
-      <p class="list-help">서버에 저장된 뉴스레터 글 목록입니다. ‘초안’은 사이트에 공개되지 않으며, ‘게시’는 Media → News에 공개됩니다. 작성 중인 내용과 사진 변경은 저장해야 반영됩니다. 발송 기록이 있는 글은 삭제 대신 보관합니다.</p>
+      <p class="list-help">서버에 저장된 뉴스레터 글 목록입니다. ‘초안’은 사이트에 공개되지 않으며, ‘게시’는 Media → News에 공개됩니다. 작성 중인 내용과 사진 변경은 저장해야 반영됩니다. 발송 기록이 있는 글은 News 목록에서 삭제하고 보관합니다. 발송 기록과 메일의 웹 보기 주소는 유지됩니다.</p>
       <label>검색<input v-model="search" placeholder="제목 검색"></label>
       <div class="table-scroll"><table><thead><tr><th>날짜</th><th>제목</th><th>상태</th><th>작업</th></tr></thead><tbody>
-        <tr v-for="item in filteredNews" :key="item.id"><td>{{ item.date }}</td><td>{{ item.title }}</td><td>{{ item.archived ? '보관' : item.status === 'DRAFT' ? '초안' : '게시' }}{{ mailingFor(item.id) ? ' · 발송 등록됨' : '' }}</td><td><button :disabled="busy || confirmOpen" @click="edit(item)">수정</button> <button :disabled="busy || confirmOpen || item.archived" @click="ask(mailingFor(item.id) ? '발송 기록이 있어 보관 처리합니다. 웹 보기 주소는 유지됩니다.' : '이 글을 서버에서 삭제할까요? 삭제한 초안은 새로고침해도 다시 나타나지 않습니다.', () => deleteItem(item))">{{ item.archived ? '보관됨' : mailingFor(item.id) ? '보관' : '삭제' }}</button></td></tr>
+        <tr v-for="item in filteredNews" :key="item.id"><td>{{ item.date }}</td><td>{{ item.title }}</td><td>{{ item.archived ? '보관' : item.status === 'DRAFT' ? '초안' : '게시' }}{{ mailingFor(item.id) ? ' · 발송 등록됨' : '' }}</td><td><button :disabled="busy || confirmOpen" @click="edit(item)">수정</button> <button :disabled="busy || confirmOpen || item.archived" @click="ask(mailingFor(item.id) ? 'News 목록에서 삭제하고 보관할까요? 발송 기록과 메일의 웹 보기 주소는 유지됩니다.' : '이 글을 서버에서 삭제할까요? 삭제한 초안은 새로고침해도 다시 나타나지 않습니다.', () => deleteItem(item))">{{ item.archived ? '보관됨' : mailingFor(item.id) ? '목록에서 삭제' : '삭제' }}</button></td></tr>
         <tr v-if="!filteredNews.length"><td colspan="4">저장된 뉴스레터 글이 없습니다.</td></tr>
       </tbody></table></div>
       <div class="compose-layout">
@@ -150,7 +150,7 @@ function deleteItem(item) {
     const remaining = items.value.find(news => news.id === item.id)
     if (remaining && !remaining.archived) throw new Error('서버에 글이 남아 있어 삭제를 완료하지 못했습니다. 다시 시도하세요.')
     if (form.value.id === item.id) reset()
-  }, mailingFor(item.id) ? '발송 기록이 있는 글을 보관했습니다. 웹 보기 주소는 유지됩니다.' : '서버에서 글을 삭제했습니다.', '글 삭제·보관 중…')
+  }, mailingFor(item.id) ? 'News 목록에서 삭제하고 보관했습니다. 발송 기록과 메일의 웹 보기 주소는 유지됩니다.' : '서버에서 글을 삭제했습니다.', '글 삭제·보관 중…')
 }
 function upload(event) {
   const files = [...event.target.files]

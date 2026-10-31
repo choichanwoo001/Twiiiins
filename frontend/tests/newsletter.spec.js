@@ -1,9 +1,9 @@
 import { test, expect, emptyApiResponse } from './support/fixtures'
 
 const news = { id: 42, date: '2026-10-07', title: 'English announcement', titleDe: 'Deutsche Neuigkeiten', bodyEn: '<p>Hello <strong>friends</strong></p>', bodyDe: '<p>Hallo <strong>Freunde</strong></p>', description: 'Legacy description', imageUrls: [], videoUrls: ['https://example.com/video'], status: 'DRAFT', source: 'NEWSLETTER', version: 0, displayOrder: 0 }
-async function mocks(page, { available = true, admin = false } = {}) {
+async function mocks(page, { available = true, admin = false, sent = false } = {}) {
   await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) })
-  let saved = { ...news }, posted = [], deleted = false, mailing = null
+  let saved = { ...news }, posted = [], deleted = false, mailing = sent ? { id: 1, newsId: 42, titleEn: news.title, totalCount: 2 } : null
   let manualNews = [{ id: 7, date: '2026-10-07', title: 'Regular News', description: 'Regular description', imageUrls: [], source: 'NEWS', status: 'PUBLISHED', version: 0 }]
   await page.route('**/api/**', async route => {
     const request = route.request(), path = new URL(request.url()).pathname
@@ -20,7 +20,7 @@ async function mocks(page, { available = true, admin = false } = {}) {
     }
     if (path === '/api/media/news') {
       if (request.method() === 'POST') { const item = { ...request.postDataJSON(), id: 8, source: 'NEWS', status: 'PUBLISHED', version: 0 }; manualNews.push(item); data = item }
-      else data = [...manualNews, { ...saved, status: 'PUBLISHED' }]
+      else data = [...manualNews, ...(deleted || saved.archived ? [] : [{ ...saved, status: 'PUBLISHED' }])]
     }
     if (path === '/api/media/news/7' && request.method() === 'PUT') {
       manualNews[0] = { ...manualNews[0], ...request.postDataJSON(), version: manualNews[0].version + 1 }
@@ -31,7 +31,12 @@ async function mocks(page, { available = true, admin = false } = {}) {
       data = request.method() === 'GET' ? (deleted ? [] : [saved]) : saved
     }
     if (path === '/api/admin/news/42' && request.method() === 'PUT') { saved = { ...saved, ...request.postDataJSON(), version: saved.version + 1 }; data = saved }
-    if (path === '/api/admin/news/42' && request.method() === 'DELETE') { deleted = true; data = 'Deleted' }
+    if (path === '/api/admin/news/42' && request.method() === 'DELETE') {
+      if (mailing) saved.archived = true
+      else deleted = true
+      data = 'Deleted or archived'
+    }
+    if (path === '/api/media/news/42') data = { ...saved, status: 'PUBLISHED' }
     if (path === '/api/admin/news/42/preview') data = { title: saved.title, html: saved.bodyEn }
     if (path === '/api/admin/news/42/publish') { saved.status = 'PUBLISHED'; data = saved }
     if (path === '/api/admin/news/42/send') { saved.status = 'PUBLISHED'; mailing = { id: 1, newsId: 42, totalCount: 2 }; data = mailing }
@@ -191,7 +196,7 @@ test('Media preserves the regular News form and links generated posts to Newslet
   expect(posted.find(p => p.path === '/api/media/news').data).toMatchObject({ title: 'New regular announcement', description: 'Plain News content' })
   expect(posted.filter(p => p.path.endsWith('/send'))).toHaveLength(0)
   const generatedRow = newsTab.getByRole('row').filter({ hasText: 'English announcement' })
-  await expect(generatedRow.getByRole('button')).toHaveCount(1)
+  await expect(generatedRow.getByRole('button')).toHaveCount(2)
   await page.screenshot({ path: testInfo.outputPath('admin-regular-news.png'), fullPage: true })
   const listRequest = page.waitForRequest(r => new URL(r.url()).pathname === '/api/admin/news')
   await generatedRow.getByRole('button', { name: 'Newsletter에서 수정' }).click()
@@ -199,6 +204,55 @@ test('Media preserves the regular News form and links generated posts to Newslet
   await expect(page.getByRole('tab', { name: '뉴스레터 관리 메뉴' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.locator('.newsletter-admin').getByLabel('영어 제목')).toHaveValue('English announcement')
   await expect(page.locator('.newsletter-admin').getByRole('cell', { name: 'Regular News', exact: true })).toHaveCount(0)
+})
+
+test('sent newsletter can be removed from News with failure recovery while keeping history and web view', async ({ page }) => {
+  await mocks(page, { admin: true, sent: true })
+  await page.addInitScript(() => { if (window === window.top) localStorage.setItem('token', 'test-token') })
+  let attempts = 0, release
+  const pending = new Promise(resolve => { release = resolve })
+  await page.route('**/api/admin/news/42', async route => {
+    if (route.request().method() !== 'DELETE') return route.fallback()
+    attempts++
+    if (attempts === 1) return route.fulfill({ status: 500, json: { success: false, error: { message: 'Delete failed' } } })
+    await pending
+    return route.fallback()
+  })
+  await page.goto('/admin')
+  await page.getByRole('tab', { name: '미디어 관리 메뉴' }).click()
+  await page.getByRole('button', { name: 'News', exact: true }).click()
+  const tab = page.locator('.news-tab')
+  const remove = tab.getByRole('button', { name: 'English announcement 목록에서 삭제', exact: true })
+  await remove.click()
+  await expect(page.locator('.dialog-body')).toContainText('발송 기록은 유지')
+  await page.locator('.dialog-footer').getByRole('button', { name: '취소', exact: true }).click()
+  expect(attempts).toBe(0)
+  await remove.click()
+  await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
+  await expect(page.locator('.dialog-body')).toContainText('Delete failed')
+  await page.locator('.dialog-footer').getByRole('button').click()
+  await expect(remove).toBeEnabled()
+  await remove.click()
+  await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
+  await expect(tab.getByRole('status')).toContainText('삭제 중')
+  await expect(remove).toBeDisabled()
+  release()
+  await expect(tab.getByRole('status')).toContainText('News 목록에서 삭제했습니다')
+  await expect(remove).toHaveCount(0)
+  expect(attempts).toBe(2)
+  await page.reload()
+  await page.getByRole('tab', { name: '미디어 관리 메뉴' }).click()
+  await page.getByRole('button', { name: 'News', exact: true }).click()
+  await expect(page.locator('.news-tab').getByRole('cell', { name: news.title, exact: true })).toHaveCount(0)
+  await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
+  await expect(page.locator('.newsletter-admin').getByRole('row').filter({ hasText: news.title })).toContainText('보관')
+  await page.locator('.newsletter-admin').getByRole('button', { name: '발송 기록', exact: true }).click()
+  await expect(page.locator('.newsletter-admin').getByRole('cell', { name: news.title, exact: true })).toBeVisible()
+  await page.goto('/media?section=news&newsId=42')
+  await expect(page.getByText(news.title, { exact: true })).toBeVisible()
+  await expect(page.getByText('Hello friends', { exact: true })).toBeVisible()
+  await page.goto('/media?section=news')
+  await expect(page.getByText(news.title, { exact: true })).toHaveCount(0)
 })
 
 test('regular News clears its description and prevents duplicate registration while saving', async ({ page }) => {
