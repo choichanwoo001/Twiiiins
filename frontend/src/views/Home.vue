@@ -4,7 +4,7 @@
     <section class="hero-section">
       <div class="hero-image">
         <picture>
-          <source media="(max-width: 64rem)" :srcset="homeMobileSrcset" sizes="100vw">
+          <source media="(max-width: 64rem)" :srcset="homeSrcset" sizes="192vw">
           <img
             :src="homeImg1920"
             :srcset="homeSrcset"
@@ -68,11 +68,8 @@ import { logError } from '../utils/errorHandler'
 // 이미지 리소스 임포트
 import homeImg1280 from '../imgs/optimized/home-photo-1280.webp'
 import homeImg1920 from '../imgs/optimized/home-photo-1920.webp'
-import homeMobile640 from '../imgs/optimized/home-photo-mobile-640.webp'
-import homeMobile1000 from '../imgs/optimized/home-photo-mobile-1000.webp'
 
 const homeSrcset = `${homeImg1280} 1280w, ${homeImg1920} 1920w`
-const homeMobileSrcset = `${homeMobile640} 640w, ${homeMobile1000} 1000w`
 
 // 스토어 사용
 const concertStore = useConcertStore()
@@ -540,9 +537,14 @@ onUnmounted(() => {
   }
 
   .hero-image img {
-    width: 100%;
+    /* Keep the full photo's duo centered inside the existing portrait frame. */
+    position: absolute;
+    top: 0;
+    left: -11%;
+    width: 192%;
+    max-width: none;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     mask-image: linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
   }
 
