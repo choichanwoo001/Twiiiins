@@ -21,18 +21,31 @@ public class MailingService {
     private final MailGateRepository gates;
 
     @Transactional public Mailing send(Long newsId, Long version) {
-        settings.requireReady();
-        if (gates.lock().isPaused()) throw new IllegalArgumentException("SMTP is paused. Check settings and resume first.");
+        return send(newsId, version, true);
+    }
+
+    @Transactional public Mailing send(Long newsId, Long version, boolean publishToNews) {
+        MailGate gate = gates.lock();
         News item = news.lockById(newsId).orElseThrow(() -> new IllegalArgumentException("News not found"));
         newsService.requireSource(item, News.NEWSLETTER);
         Optional<Mailing> existing = mailings.findByNewsId(newsId);
-        if (existing.isPresent()) return existing.get();
+        if (existing.isPresent()) {
+            Mailing mailing = existing.get();
+            if (mailing.isPublishToNews() != publishToNews)
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "This newsletter was already queued with a different publishing option.");
+            return mailing;
+        }
+        settings.requireReady();
+        if (gate.isPaused()) throw new IllegalArgumentException("SMTP is paused. Check settings and resume first.");
         if (!Objects.equals(item.getVersion(), version)) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "News changed. Reload before sending.");
         if (item.isArchived()) throw new IllegalArgumentException("Archived news cannot be sent");
+        if (!publishToNews && !"DRAFT".equals(item.getStatus()))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Only unpublished newsletters can be sent by email only.");
         newsService.validatePublication(item);
-        item.setStatus("PUBLISHED");
+        if (publishToNews) item.setStatus("PUBLISHED");
         Mailing mailing = new Mailing(); mailing.setCreatedAt(clock.instant());
         mailing.setNewsId(newsId);
+        mailing.setPublishToNews(publishToNews);
         mailing.setTitleEn(content.title(item, "en")); mailing.setTitleDe(content.title(item, "de"));
         mailing.setHtmlEn(content.render(item, "en", settings.getPublicUrl()));
         mailing.setHtmlDe(content.render(item, "de", settings.getPublicUrl()));

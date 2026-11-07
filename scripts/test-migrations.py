@@ -34,11 +34,19 @@ def main():
             assert sql("SELECT COLUMN_TYPE FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='content_translations' AND column_name='source_text'") == 'longtext'
             assert sql("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='content_translations' AND index_name='uq_translation_field' AND non_unique=0") == '3'
             assert sql("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='newsletter_deliveries' AND index_name='newsletter_recipient' AND non_unique=0") == '2'
-        # Administrator ordering and explicit source must survive later migrations.
+        # Recreate the pre-change mailing schema with a queued legacy record.
+        sql("""ALTER TABLE newsletter_mailings DROP COLUMN publish_to_news;
+             INSERT INTO newsletter_mailings (news_id, title_en, title_de) VALUES (101, 'Legacy mailing', 'Legacy mailing');""")
+        migration = (ROOT / 'scripts/migrate-newsletter.sql').read_text(encoding='utf-8')
+        sql(migration)
+        assert sql('SELECT publish_to_news + 0 FROM newsletter_mailings WHERE news_id=101') == '1'
+        sql("INSERT INTO newsletter_mailings (news_id, title_en, title_de, publish_to_news) VALUES (102, 'Email only', 'Email only', b'0');")
+        # Administrator ordering, explicit source and email-only delivery must survive later migrations.
         sql("UPDATE news SET source='NEWS', title_de='Manuell'; UPDATE news_images SET image_order=9 WHERE image_url='/uploads/a.png';")
-        sql((ROOT / 'scripts/migrate-newsletter.sql').read_text(encoding='utf-8'))
+        sql(migration)
         assert sql('SELECT source FROM news WHERE id=101') == 'NEWS'
         assert sql("SELECT image_order FROM news_images WHERE image_url='/uploads/a.png'") == '9'
+        assert sql('SELECT publish_to_news + 0 FROM newsletter_mailings WHERE news_id=102') == '0'
         print('Legacy data, escaping, source classification and migration idempotency passed.')
     finally:
         subprocess.run([*COMPOSE, 'down', '-v', '--remove-orphans'], check=True)

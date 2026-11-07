@@ -13,7 +13,8 @@ export { expect }
 // Only known empty GET resources may use a default response. Writes must be explicit.
 const emptyReads = new Set(['/api/concerts', '/api/concerts/upcoming', '/api/concerts/past',
   '/api/projects', '/api/media/photo-groups', '/api/media/music', '/api/media/videos',
-  '/api/media/news', '/api/media/equipment', '/api/media/contacts', '/api/media/download-files'])
+  '/api/media/news', '/api/media/equipment', '/api/media/contacts', '/api/media/download-files',
+  '/api/admin/newsletter/subscribers', '/api/admin/newsletter/mailings'])
 export function emptyApiResponse(request) {
   const path = new URL(request.url()).pathname
   if (request.method() === 'GET' && path === '/api/admin/translations') return { available: false, items: [] }

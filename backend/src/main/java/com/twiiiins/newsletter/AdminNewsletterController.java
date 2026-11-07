@@ -23,7 +23,7 @@ public class AdminNewsletterController {
     private final NewsletterSettings settings;
     private final MailGateRepository gates;
     private final FileUploadService uploads;
-    public record Send(@NotNull Long version) {}
+    public record Send(@NotNull Long version, Boolean publishToNews) {}
     public record Test(@Pattern(regexp = "en|de") @NotNull String language, @NotBlank @Email String email) {}
     @PostMapping("/newsletter/images") public ApiResponse<?> draftImages(@RequestParam("files") List<MultipartFile> files) {
         if (files.isEmpty() || files.size() > 50) throw new IllegalArgumentException("Choose 1 to 50 images.");
@@ -45,7 +45,9 @@ public class AdminNewsletterController {
         return ApiResponse.success(news.updateNews(id, request));
     }
     @PostMapping("/news/{id}/publish") public ApiResponse<?> publish(@PathVariable Long id) { return ApiResponse.success(news.publish(id)); }
-    @PostMapping("/news/{id}/send") public ApiResponse<?> send(@PathVariable Long id, @Valid @RequestBody Send request) { return ApiResponse.success(mailingService.send(id, request.version())); }
+    @PostMapping("/news/{id}/send") public ApiResponse<?> send(@PathVariable Long id, @Valid @RequestBody Send request) {
+        return ApiResponse.success(mailingService.send(id, request.version(), !Boolean.FALSE.equals(request.publishToNews())));
+    }
     @GetMapping("/news/{id}/preview") public ApiResponse<?> preview(@PathVariable Long id, @RequestParam String language) { return ApiResponse.success(mailingService.preview(id, language)); }
     @PostMapping("/news/{id}/test") public ApiResponse<?> test(@PathVariable Long id, @Valid @RequestBody Test request) { mailingService.test(id, request.language(), request.email()); return ApiResponse.success("Test queued"); }
     // A separate DTO accepts incomplete drafts without relaxing create/publish validation.

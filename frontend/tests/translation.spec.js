@@ -55,7 +55,10 @@ test('media transformations preserve generated translations', async ({ page }) =
 })
 test('admin can inspect failures, retry and preserve edited variants', async ({ page }, testInfo) => {
   const writes = await mock(page, { admin: true }); await page.goto('/admin')
-  const panel = page.locator('.translation-panel'); await panel.locator('summary').click()
+  const panel = page.locator('.translation-panel')
+  await expect(panel).toHaveCount(0)
+  await page.getByRole('tab', { name: '자동 번역 관리 메뉴' }).click()
+  await expect(panel.getByRole('heading', { name: '자동 번역', exact: true })).toBeVisible()
   await expect(panel).toContainText('Gemini 할당량을 초과했습니다.')
   await panel.getByRole('button', { name: '번역 재시도' }).click(); await expect(panel).toContainText('번역을 다시 대기열에 등록했습니다.')
   await panel.getByRole('button', { name: '번역 수정' }).first().click()

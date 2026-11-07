@@ -18,7 +18,7 @@ export const newsletterService = {
     return unwrapApiResponse(await api.post('/admin/newsletter/images', data, { handleErrorLocally: true }))
   },
   publish: id => post(`/admin/news/${id}/publish`),
-  send: (id, version) => post(`/admin/news/${id}/send`, { version }),
+  send: (id, version, publishToNews) => post(`/admin/news/${id}/send`, { version, publishToNews }),
   previewDraft: async (data, language) => unwrapApiResponse(await api.post('/admin/newsletter/preview', { ...data, language }, { handleErrorLocally: true, timeout: 10000 })),
   preview: (id, language) => get(`/admin/news/${id}/preview`, { language }),
   test: (id, language, email) => post(`/admin/news/${id}/test`, { language, email }),

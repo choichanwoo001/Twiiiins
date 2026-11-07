@@ -39,8 +39,14 @@ async function mocks(page, { available = true, admin = false, sent = false } = {
     if (path === '/api/media/news/42') data = { ...saved, status: 'PUBLISHED' }
     if (path === '/api/admin/news/42/preview') data = { title: saved.title, html: saved.bodyEn }
     if (path === '/api/admin/news/42/publish') { saved.status = 'PUBLISHED'; data = saved }
-    if (path === '/api/admin/news/42/send') { saved.status = 'PUBLISHED'; mailing = { id: 1, newsId: 42, totalCount: 2 }; data = mailing }
+    if (path === '/api/admin/news/42/send') {
+      const publishToNews = request.postDataJSON().publishToNews !== false
+      if (publishToNews) saved.status = 'PUBLISHED'
+      mailing = { id: 1, newsId: 42, titleEn: saved.title, totalCount: 2, publishToNews }
+      data = mailing
+    }
     if (path === '/api/admin/newsletter/mailings') data = mailing ? [mailing] : []
+    if (path === '/api/admin/newsletter/mailings/1/deliveries') data = []
     if (path === '/api/admin/newsletter/settings') data = { available, paused: false, perMinute: 10, dailyLimit: 300, testRecipients: ['admin@example.com'] }
     if (path === '/api/admin/newsletter/subscribers') data = [
       { id: 1, email: 'one@example.com', language: 'en', status: 'ACTIVE', createdAt: '2026-10-07T03:00:00Z' },
@@ -52,6 +58,36 @@ async function mocks(page, { available = true, admin = false, sent = false } = {
   })
   return posted
 }
+
+test('dashboard shows live subscriber, mailing and upcoming concert metrics', async ({ page }) => {
+  await mocks(page, { admin: true })
+  await page.addInitScript(() => { if (window === window.top) localStorage.setItem('token', 'test-token') })
+  await page.route('**/api/concerts', route => route.fulfill({ json: { success: true, data: [
+    { id: 1, name: 'Later concert', date: '2099-06-12', isPast: false },
+    { id: 2, name: 'Next concert', date: '2099-05-12', location: 'Vienna', isPast: false },
+    { id: 3, name: 'Past concert', date: '2026-01-12', isPast: true },
+    { id: 4, name: 'Past date still marked upcoming', date: '2020-01-12', isPast: false }
+  ] } }))
+  await page.route('**/api/admin/newsletter/mailings', route => route.fulfill({ json: { success: true, data: [
+    { id: 8, titleEn: 'Latest mailing', createdAt: '2026-11-07T12:00:00Z', totalCount: 6, acceptedCount: 1, failedCount: 1 },
+    { id: 9, titleEn: 'Older mailing', createdAt: '2026-11-06T12:00:00Z', totalCount: 5 }
+  ] } }))
+  await page.route('**/api/admin/newsletter/mailings/8/deliveries', route => route.fulfill({ json: { success: true, data: [
+    { status: 'ACCEPTED' }, { status: 'WAITING' }, { status: 'UNKNOWN' }, { status: 'SKIPPED' }
+  ] } }))
+  await page.goto('/admin')
+  const dashboard = page.locator('.dashboard')
+  await expect(dashboard.getByRole('heading', { name: '대시보드' })).toBeVisible({ timeout: 15000 })
+  await expect(dashboard).toContainText('영어 1명 · 독일어 1명')
+  await expect(dashboard).toContainText('Latest mailing')
+  await expect(dashboard).toContainText('SMTP 접수2건')
+  await expect(dashboard).toContainText('실패·확인 필요2건')
+  await expect(dashboard).toContainText('발송 제외1건')
+  await expect(dashboard).toContainText('Next concert')
+  await expect(dashboard).toContainText('예정 공연 2건')
+  await dashboard.getByRole('button', { name: '발송 기록 보기' }).click()
+  await expect(page.locator('.newsletter-admin').getByRole('heading', { name: '발송 기록' })).toBeVisible()
+})
 
 test('newsletter photos upload without saving an incomplete draft and actions are separated', async ({ page }, testInfo) => {
   const posted = await mocks(page, { admin: true })
@@ -74,7 +110,7 @@ test('newsletter photos upload without saving an incomplete draft and actions ar
   await expect(groups).toHaveCount(3)
   await expect(groups.nth(0).getByRole('button', { name: '저장', exact: true })).toBeVisible()
   await expect(groups.nth(1).getByRole('button', { name: 'EN 테스트 발송' })).toBeVisible()
-  await expect(groups.nth(2).getByRole('button', { name: '게시 및 구독자 발송' })).toBeVisible()
+  await expect(groups.nth(2).getByRole('button', { name: '게시하기' })).toBeVisible()
   await groups.nth(2).scrollIntoViewIfNeeded()
   await page.screenshot({ path: testInfo.outputPath('newsletter-actions.png'), fullPage: true })
 })
@@ -169,7 +205,8 @@ test('administrator edits both languages and confirms audience before sending', 
   await admin.getByRole('button', { name: 'Deutsch', exact: true }).click()
   await admin.getByLabel('독일어 제목').fill('Aktualisierte Neuigkeiten')
   await expect(admin.getByRole('textbox', { name: '뉴스레터 본문' })).toContainText('Hallo')
-  await admin.getByRole('button', { name: '게시 및 구독자 발송', exact: true }).click()
+  await admin.getByLabel('게시·발송 방식').selectOption('publish-and-send')
+  await admin.getByRole('button', { name: '게시하고 발송하기', exact: true }).click()
   await expect(page.locator('.dialog-body')).toContainText('영어 1명, 독일어 1명')
   expect(posted.filter(p => p.path.endsWith('/send'))).toHaveLength(0)
   await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
@@ -331,7 +368,7 @@ test('Newsletter publishes to News with SMTP disabled without sending email', as
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
   await admin.getByRole('row').filter({ hasText: 'English announcement' }).getByRole('button', { name: '수정', exact: true }).click()
-  await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
+  await admin.getByRole('button', { name: '게시하기', exact: true }).click()
   await expect(admin.getByRole('status')).toContainText('News에 게시했습니다.')
   expect(posted.filter(p => p.path.endsWith('/publish'))).toHaveLength(1)
   expect(posted.filter(p => p.path.endsWith('/send'))).toHaveLength(0)
@@ -347,7 +384,7 @@ test('newsletter publication shows progress at the action and confirms the persi
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
   await admin.getByRole('row').filter({ hasText: 'English announcement' }).getByRole('button', { name: '수정', exact: true }).click()
-  await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
+  await admin.getByRole('button', { name: '게시하기', exact: true }).click()
   const feedback = admin.getByRole('status')
   await expect(feedback).toContainText('News에 게시 중')
   await expect(feedback.getByRole('progressbar')).toBeVisible()
@@ -374,16 +411,40 @@ test('missing content and server publication failures remain visible without cle
   await admin.getByLabel('독일어 제목').fill('')
   await admin.getByRole('button', { name: 'English', exact: true }).click()
   await admin.getByRole('textbox', { name: '뉴스레터 본문' }).fill('')
-  await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
+  await admin.getByRole('button', { name: '게시하기', exact: true }).click()
   await expect(admin.getByRole('alert')).toContainText('한 언어의 제목과 본문')
   await expect(admin.getByRole('alert')).toBeInViewport()
   expect(posted.filter(p => p.path.endsWith('/publish'))).toHaveLength(0)
   await admin.getByRole('textbox', { name: '뉴스레터 본문' }).fill('English content')
   await page.route('**/api/admin/news/42/publish', route => route.fulfill({ status: 409, json: { success: false, error: { message: 'News changed. Reload before saving.' } } }))
-  await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
+  await admin.getByRole('button', { name: '게시하기', exact: true }).click()
   await expect(admin.getByRole('alert')).toContainText('News changed')
   await expect(admin.getByLabel('영어 제목')).toHaveValue('English announcement')
-  await expect(admin.getByRole('button', { name: 'News에만 게시', exact: true })).toBeEnabled()
+  await expect(admin.getByRole('button', { name: '게시하기', exact: true })).toBeEnabled()
+})
+
+test('subscriber-only send stays unpublished and can be published later', async ({ page }) => {
+  const posted = await mocks(page, { admin: true })
+  await page.addInitScript(() => { if (window === window.top) localStorage.setItem('token', 'test-token') })
+  await page.goto('/admin')
+  await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
+  const admin = page.locator('.newsletter-admin')
+  await admin.getByRole('button', { name: '수정', exact: true }).click()
+  const mode = admin.getByLabel('게시·발송 방식')
+  await expect(mode).toHaveValue('publish')
+  await mode.selectOption('send-only')
+  await admin.getByRole('button', { name: '발송하기', exact: true }).click()
+  await expect(page.locator('.dialog-body')).toContainText('News에 게시하지 않고 영어 1명, 독일어 1명')
+  await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
+  await expect(admin.getByRole('status')).toContainText('구독자 발송 대기열에 등록했습니다')
+  await expect(admin.getByRole('link', { name: '게시글 확인' })).toHaveCount(0)
+  await expect(admin.getByRole('row', { name: /English announcement/ })).toContainText('미게시 · 발송 등록됨')
+  expect(posted.find(request => request.path.endsWith('/send')).data.publishToNews).toBe(false)
+  expect(posted.filter(request => request.path.endsWith('/publish'))).toHaveLength(0)
+  await mode.selectOption('publish')
+  await admin.getByRole('button', { name: '게시하기', exact: true }).click()
+  await expect(admin.getByRole('status')).toContainText('News에 게시했습니다')
+  expect(posted.filter(request => request.path.endsWith('/send'))).toHaveLength(1)
 })
 
 test('subscriber send shows queue progress and preserves the draft on failure before retry', async ({ page }) => {
@@ -399,15 +460,17 @@ test('subscriber send shows queue progress and preserves the draft on failure be
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
   const admin = page.locator('.newsletter-admin')
   await admin.getByRole('button', { name: '수정', exact: true }).click()
-  await admin.getByRole('button', { name: '게시 및 구독자 발송', exact: true }).click()
+  await admin.getByLabel('게시·발송 방식').selectOption('publish-and-send')
+  await admin.getByRole('button', { name: '게시하고 발송하기', exact: true }).click()
   await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
-  await expect(admin.getByRole('status')).toContainText('게시 및 구독자 발송 등록 중')
+  await expect(admin.getByRole('status')).toContainText('구독자 발송 등록 중')
   await expect(admin.getByRole('progressbar')).toBeInViewport()
   release()
   await expect(admin.getByRole('alert')).toContainText('SMTP is paused')
   await expect(admin.getByLabel('영어 제목')).toHaveValue('English announcement')
   await page.unroute('**/api/admin/news/42/send')
-  await admin.getByRole('button', { name: '게시 및 구독자 발송', exact: true }).click()
+  await admin.getByLabel('게시·발송 방식').selectOption('publish-and-send')
+  await admin.getByRole('button', { name: '게시하고 발송하기', exact: true }).click()
   await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
   await expect(admin.getByRole('status')).toContainText('발송 대기열에 등록했습니다')
   await expect(admin.getByRole('row').filter({ hasText: 'English announcement' })).toContainText('발송 등록됨')
@@ -428,9 +491,10 @@ for (const language of ['en', 'de']) {
     const draft = posted.find(request => request.path === '/api/admin/news').data
     expect(draft[language === 'de' ? 'bodyEn' : 'bodyDe'].replace(/<[^>]+>/g, '').trim()).toBe('')
     expect(draft[language === 'de' ? 'title' : 'titleDe']).toBe('')
-    await admin.getByRole('button', { name: 'News에만 게시', exact: true }).click()
+    await admin.getByRole('button', { name: '게시하기', exact: true }).click()
     await expect(admin.getByRole('status')).toContainText('News에 게시했습니다')
-    await admin.getByRole('button', { name: '게시 및 구독자 발송', exact: true }).click()
+    await admin.getByLabel('게시·발송 방식').selectOption('publish-and-send')
+    await admin.getByRole('button', { name: '게시하고 발송하기', exact: true }).click()
     await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
     await expect(admin.getByRole('status')).toContainText('발송 대기열에 등록했습니다')
     expect(posted.filter(request => request.path.endsWith('/send'))).toHaveLength(1)
@@ -607,7 +671,9 @@ test('administrator sees actionable configuration issues without secret values',
   await page.route('**/api/admin/newsletter/settings', route => route.fulfill({ json: { success: true, data: { available: false, perMinute: 10, dailyLimit: 300, paused: false, testRecipients: [], configurationIssues: ['NEWSLETTER_DISABLED', 'SMTP_HOST_MISSING', 'TOKEN_KEY_TOO_SHORT'] } } }))
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
-  await page.locator('.newsletter-admin').getByRole('button', { name: '설정 확인', exact: true }).click()
+  const admin = page.locator('.newsletter-admin')
+  await expect(admin.getByRole('button', { name: '설정', exact: true })).toHaveCount(0)
+  await admin.getByText('메일 발송을 사용할 수 없습니다', { exact: true }).click()
   const issues = page.locator('.configuration-issues')
   await expect(issues).toContainText('뉴스레터 활성화 설정이 꺼져 있습니다.')
   await expect(issues).toContainText('SMTP 서버 주소를 설정하세요.')
