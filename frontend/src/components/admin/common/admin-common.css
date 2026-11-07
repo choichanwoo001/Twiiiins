@@ -74,13 +74,13 @@
 }
 
 .data-table th {
-  background: #f8f9fa;
+  background: var(--admin-canvas, #eff4f8);
   font-weight: 600;
   color: #555;
 }
 
 .data-table tr:hover {
-  background: #f8f9fa;
+  background: var(--admin-canvas, #eff4f8);
 }
 
 /* 폼 섹션 */
@@ -241,7 +241,7 @@
 }
 
 .btn-search {
-  background: #3498db;
+  background: var(--admin-accent, #245880);
   color: white;
 }
 

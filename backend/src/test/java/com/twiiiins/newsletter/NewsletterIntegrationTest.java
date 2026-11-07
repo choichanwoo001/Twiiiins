@@ -327,6 +327,57 @@ class NewsletterIntegrationTest {
         assertThrows(IllegalArgumentException.class, () -> subscriptions.confirm(token));
         assertThrows(IllegalArgumentException.class, () -> subscriptions.confirm(token + "x"));
     }
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void subscriberOnlySendStaysPrivateAndKeepsItsSnapshotAfterPublication() throws Exception {
+        active("private@example.com", "en"); clearNotificationJobs();
+        NewsDto item = draft();
+        String endpoint = "/api/admin/news/" + item.getId();
+        String sendOnly = json.writeValueAsString(Map.of("version", item.getVersion(), "publishToNews", false));
+        for (int i = 0; i < 2; i++) {
+            mvc.perform(post(endpoint + "/send").contentType(MediaType.APPLICATION_JSON).content(sendOnly))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.publishToNews").value(false));
+        }
+        mvc.perform(post(endpoint + "/send").contentType(MediaType.APPLICATION_JSON)
+            .content(json.writeValueAsString(Map.of("version", item.getVersion())))).andExpect(status().isConflict());
+        mvc.perform(get("/api/media/news")).andExpect(jsonPath("$.data.length()").value(0));
+        mvc.perform(get("/api/media/news/" + item.getId())).andExpect(status().isNotFound());
+        Mailing mailing = mailings.findByNewsId(item.getId()).orElseThrow();
+        var queued = deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).stream().map(Delivery::getId).toList();
+        assertEquals(1, queued.size());
+
+        mvc.perform(post(endpoint + "/publish")).andExpect(status().isOk());
+        mvc.perform(get("/api/media/news/" + item.getId())).andExpect(status().isOk());
+        assertEquals(queued, deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).stream().map(Delivery::getId).toList());
+        NewsletterWorker.Envelope envelope = worker.claim();
+        assertNotNull(envelope);
+        assertFalse(envelope.html().contains("View in browser"));
+        assertTrue(envelope.html().contains("Unsubscribe"));
+    }
+
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void sendRejectsPublishedItemsInEmailOnlyModeAndDefaultsToPublicForLegacyRequests() throws Exception {
+        NewsDto published = draft();
+        news.publish(published.getId());
+        mvc.perform(post("/api/admin/news/" + published.getId() + "/send").contentType(MediaType.APPLICATION_JSON)
+            .content(json.writeValueAsString(Map.of("version", news.adminGet(published.getId()).getVersion(), "publishToNews", false))))
+            .andExpect(status().isConflict());
+        assertEquals(0, mailings.count());
+
+        NewsDto draft = draft();
+        String legacyRequest = json.writeValueAsString(Map.of("version", draft.getVersion()));
+        settings.setEnabled(false);
+        mvc.perform(post("/api/admin/news/" + draft.getId() + "/send").contentType(MediaType.APPLICATION_JSON)
+            .content(legacyRequest)).andExpect(status().isServiceUnavailable());
+        mvc.perform(get("/api/media/news/" + draft.getId())).andExpect(status().isNotFound());
+        assertEquals(0, mailings.count());
+
+        settings.setEnabled(true);
+        mvc.perform(post("/api/admin/news/" + draft.getId() + "/send").contentType(MediaType.APPLICATION_JSON)
+            .content(legacyRequest))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.publishToNews").value(true));
+        mvc.perform(get("/api/media/news/" + draft.getId())).andExpect(status().isOk());
+    }
+
     @Test void idempotentSnapshotUsesRecipientLanguageAndSkipsUnsubscribed() {
         Subscriber en = active("english@example.com", "en"), de = active("deutsch@example.com", "de"); clearNotificationJobs();
         NewsDto item = draft();

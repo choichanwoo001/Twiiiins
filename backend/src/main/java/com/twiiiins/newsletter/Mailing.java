@@ -9,6 +9,9 @@ import java.time.Instant;
 public class Mailing {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(nullable = false, unique = true) private Long newsId;
+    @Column(nullable = false)
+    @org.hibernate.annotations.ColumnDefault("true")
+    private boolean publishToNews = true;
     private Instant createdAt = Instant.now();
     @Column(nullable = false, length = 255) private String titleEn;
     @Column(nullable = false, length = 255) private String titleDe;

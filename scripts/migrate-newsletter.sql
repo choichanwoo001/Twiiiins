@@ -36,7 +36,6 @@ CALL newsletter_add_column('news', 'event_location_de', 'VARCHAR(255) NULL');
 CALL newsletter_add_column('news', 'cta_label_en', 'VARCHAR(255) NULL');
 CALL newsletter_add_column('news', 'cta_label_de', 'VARCHAR(255) NULL');
 CALL newsletter_add_column('news', 'cta_url', 'VARCHAR(2048) NULL');
-DROP PROCEDURE newsletter_add_column;
 
 CREATE TABLE IF NOT EXISTS news_videos (
   news_id BIGINT NOT NULL, video_order INT NOT NULL, video_url VARCHAR(2048),
@@ -64,6 +63,8 @@ CREATE TABLE IF NOT EXISTS newsletter_mailings (
   accepted_count INT NOT NULL DEFAULT 0, failed_count INT NOT NULL DEFAULT 0,
   skipped_count INT NOT NULL DEFAULT 0, unknown_count INT NOT NULL DEFAULT 0, total_count INT NOT NULL DEFAULT 0
 );
+CALL newsletter_add_column('newsletter_mailings', 'publish_to_news', 'BIT NOT NULL DEFAULT b''1''');
+DROP PROCEDURE newsletter_add_column;
 CREATE TABLE IF NOT EXISTS newsletter_deliveries (
   id BIGINT AUTO_INCREMENT PRIMARY KEY, mailing_id BIGINT, subscriber_id BIGINT,
   kind VARCHAR(20) NOT NULL, email VARCHAR(254), language VARCHAR(2), status VARCHAR(20) NOT NULL,

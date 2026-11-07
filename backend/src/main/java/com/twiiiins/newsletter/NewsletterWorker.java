@@ -82,7 +82,9 @@ public class NewsletterWorker implements ApplicationRunner {
                 boolean de = "de".equals(delivery.getLanguage());
                 title = de ? mailing.getTitleDe() : mailing.getTitleEn();
                 html = de ? mailing.getHtmlDe() : mailing.getHtmlEn();
-                String view = settings.getPublicUrl() + "/media?section=news&newsId=" + mailing.getNewsId() + "&lang=" + delivery.getLanguage();
+                String view = mailing.isPublishToNews()
+                    ? settings.getPublicUrl() + "/media?section=news&newsId=" + mailing.getNewsId() + "&lang=" + delivery.getLanguage()
+                    : null;
                 unsubscribe = settings.getPublicUrl() + "/newsletter/unsubscribe?token=" + subscriptions.unsubscribeToken(subscriber) + "&lang=" + delivery.getLanguage();
                 html = content.complete(html, delivery.getLanguage(), settings, view, unsubscribe, false);
             } else { title = delivery.getTestTitle(); html = delivery.getTestHtml(); }

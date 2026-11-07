@@ -24,18 +24,8 @@
     <!-- 메인 콘텐츠 영역 -->
     <main class="admin-content" role="tabpanel" :aria-label="`${activeSection} 관리 섹션`">
       <AdminRequestStatus />
-      <TranslationAdmin />
       <!-- Dashboard -->
-      <DashboardSection 
-        v-if="activeSection === 'dashboard'"
-        :concerts="concerts"
-        :photo-groups="photoGroups"
-        :music-list="musicList"
-        :videos="videos"
-        :news-list="newsList"
-        :equipment-list="equipmentList"
-        @navigate="activeSection = $event"
-      />
+      <DashboardSection v-if="activeSection === 'dashboard'" @navigate="setSection" />
 
       <!-- Concerts 관리 -->
       <ConcertAdmin 
@@ -46,8 +36,14 @@
       <MediaAdmin v-if="activeSection === 'media'" @edit-newsletter="openNewsletter" />
 
       <section v-if="activeSection === 'newsletter'" class="content-section">
-        <h1 class="section-title">Newsletter 관리</h1>
-        <NewsletterAdmin :initial-news-id="selectedNewsletterId" />
+        <h1 class="section-title">뉴스레터</h1>
+        <NewsletterAdmin :initial-news-id="selectedNewsletterId" :initial-section="newsletterSection" />
+      </section>
+
+      <section v-show="activeSection === 'translations'" class="content-section">
+        <KeepAlive>
+          <TranslationAdmin v-if="activeSection === 'translations'" />
+        </KeepAlive>
       </section>
 
       <!-- Projects 관리 -->
@@ -68,9 +64,7 @@
 
 <script setup>
 import AdminRequestStatus from '../components/admin/common/AdminRequestStatus.vue'
-import { ref, onMounted, computed } from 'vue'
-import { useConcertStore } from '../stores/useConcertStore'
-import { useMediaStore } from '../stores/useMediaStore'
+import { ref } from 'vue'
 import { useAppStore } from '../stores/useAppStore'
 import AdminSidebar from '../components/admin/AdminSidebar.vue'
 import DashboardSection from '../components/admin/DashboardSection.vue'
@@ -83,52 +77,36 @@ import DownloadFilesAdmin from '../components/admin/DownloadFilesAdmin.vue'
 import TranslationAdmin from '../components/admin/TranslationAdmin.vue'
 
 // 스토어 사용
-const concertStore = useConcertStore()
-const mediaStore = useMediaStore()
 const appStore = useAppStore()
 
 // Reactive data
 const activeSection = ref('dashboard')
 const selectedNewsletterId = ref(null)
-function setSection(section) { selectedNewsletterId.value = null; activeSection.value = section }
-function openNewsletter(id) { selectedNewsletterId.value = id; activeSection.value = 'newsletter' }
-
-// Dashboard data (스토어에서 가져온 데이터)
-const concerts = computed(() => concertStore.concerts)
-const photoGroups = computed(() => mediaStore.photoGroups)
-const musicList = computed(() => mediaStore.musicItems)
-const videos = computed(() => mediaStore.videos)
-const newsList = computed(() => mediaStore.newsItems)
-const equipmentList = computed(() => mediaStore.equipmentItems)
-
-// Methods
-const loadDashboardData = async () => {
-  try {
-    appStore.setLoading(true)
-    // 스토어를 통해 데이터 로드
-    await Promise.all([
-      concertStore.loadConcerts(),
-      mediaStore.loadAllMedia()
-    ])
-  } catch (error) {
-    appStore.setError('대시보드 데이터 로드에 실패했습니다.')
-    console.error('대시보드 데이터 로드 실패:', error)
-  } finally {
-    appStore.setLoading(false)
-  }
+const newsletterSection = ref('news')
+function setSection(section, newsletterTab = 'news') {
+  selectedNewsletterId.value = null
+  newsletterSection.value = newsletterTab
+  activeSection.value = section
 }
-
-// Lifecycle
-onMounted(() => {
-  loadDashboardData()
-})
+function openNewsletter(id) {
+  selectedNewsletterId.value = id
+  newsletterSection.value = 'news'
+  activeSection.value = 'newsletter'
+}
 </script>
 
 <style scoped>
 .admin {
+  --admin-ink: #132a41;
+  --admin-muted: #475d73;
+  --admin-canvas: #eff4f8;
+  --admin-surface: #fff;
+  --admin-line: #cbd9e4;
+  --admin-accent: #245880;
+  --admin-tint: #e1edf6;
   display: flex;
   min-height: 100vh;
-  background: #f8f9fa;
+  background: var(--admin-canvas);
   position: relative;
 }
 
@@ -140,13 +118,20 @@ onMounted(() => {
 }
 
 .content-section {
-  padding: 2rem;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  max-width: 96rem;
+  margin-inline: auto;
 }
 
 .section-title {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  color: #1E1D1D;
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  margin: 0 0 1rem;
+  color: var(--admin-ink);
+}
+
+.admin :deep(:focus-visible) {
+  outline: 2px solid #4b85af;
+  outline-offset: 3px;
 }
 
 /* 업로드 진행률 오버레이 */
