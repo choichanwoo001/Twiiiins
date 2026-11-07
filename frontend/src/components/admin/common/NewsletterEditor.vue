@@ -17,11 +17,15 @@
 import { ref, watch } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-const props = defineProps({ modelValue: { type: String, default: '' }, disabled: Boolean })
+const props = defineProps({
+  modelValue: { type: String, default: '' },
+  disabled: Boolean,
+  editorLabel: { type: String, default: '뉴스레터 본문' }
+})
 const emit = defineEmits(['update:modelValue'])
 const linkOpen = ref(false), link = ref(''), linkError = ref('')
 const editor = useEditor({ content: props.modelValue, extensions: [StarterKit.configure({ heading: { levels: [2, 3] }, codeBlock: false, code: false, blockquote: false, horizontalRule: false, strike: false, underline: false, link: { openOnClick: false, protocols: ['https'] } })],
-  editorProps: { attributes: { 'aria-label': '뉴스레터 본문', role: 'textbox', 'aria-multiline': 'true' } },
+  editorProps: { attributes: { 'aria-label': props.editorLabel, role: 'textbox', 'aria-multiline': 'true' } },
   onUpdate: ({ editor }) => emit('update:modelValue', editor.getHTML()) })
 watch(() => props.modelValue, value => { if (editor.value && editor.value.getHTML() !== value) editor.value.commands.setContent(value || '', { emitUpdate: false }) })
 watch([() => props.disabled, editor], () => editor.value?.setEditable(!props.disabled, false), { immediate: true })

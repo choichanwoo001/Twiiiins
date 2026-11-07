@@ -18,18 +18,30 @@
     <div class="translation-list">
       <article v-for="row in items" :key="row.id">
         <div class="row-heading"><h2>{{ kinds[row.kind] || row.kind }} #{{ row.contentId }} <small>{{ fields[row.field] || row.field }}</small></h2><span class="state" :class="`state-${row.state.toLowerCase()}`">{{ states[row.state] || row.state }}</span></div>
-        <div class="source-block"><strong>원문</strong><p class="source">{{ row.source }}</p></div>
+        <div class="source-block">
+          <strong>원문</strong>
+          <div class="source">
+            <div v-for="entry in sourceEntries(row)" :key="entry.language">
+              <strong v-if="entry.language" class="source-language">{{ entry.language }}</strong>
+              <p>{{ entry.text }}</p>
+            </div>
+          </div>
+        </div>
         <p v-if="row.errorCode" class="error">{{ errors[row.errorCode] || `번역 오류 (${row.errorCode})` }}</p>
         <template v-if="editing?.id === row.id">
-          <div class="variants">
+          <div v-if="isRichText(row)" class="variants">
+            <div><strong>English</strong><NewsletterEditor v-model="editing.en" editor-label="English 본문" :disabled="busy" /></div>
+            <div><strong>Deutsch</strong><NewsletterEditor v-model="editing.de" editor-label="Deutsch 본문" :disabled="busy" /></div>
+          </div>
+          <div v-else class="variants">
             <label>English<textarea v-model="editing.en" rows="5" /></label>
             <label>Deutsch<textarea v-model="editing.de" rows="5" /></label>
           </div>
-          <p>직접 바꾼 언어는 수동 번역으로 보존됩니다. HTML 본문은 태그를 포함해 편집할 수 있습니다.</p>
+          <p>직접 바꾼 언어는 수동 번역으로 보존됩니다.</p>
           <div class="tools"><button class="primary" :disabled="busy" @click="save">번역 저장</button><button :disabled="busy" @click="editing = null">취소</button></div>
         </template>
         <template v-else>
-          <div class="variants"><div><strong>English{{ row.manualEn ? ' · 직접 작성' : '' }}</strong><p>{{ row.en || '—' }}</p></div><div><strong>Deutsch{{ row.manualDe ? ' · 직접 작성' : '' }}</strong><p>{{ row.de || '—' }}</p></div></div>
+          <div class="variants"><div><strong>English{{ row.manualEn ? ' · 직접 작성' : '' }}</strong><p>{{ displayText(row, row.en) || '—' }}</p></div><div><strong>Deutsch{{ row.manualDe ? ' · 직접 작성' : '' }}</strong><p>{{ displayText(row, row.de) || '—' }}</p></div></div>
           <div class="tools"><button v-if="['FAILED', 'DISABLED'].includes(row.state)" :disabled="busy || !available" @click="retry(row)">번역 재시도</button><button :disabled="busy || row.state === 'PROCESSING'" @click="editing = { ...row, en: row.en || '', de: row.de || '' }">번역 수정</button></div>
         </template>
       </article>
@@ -42,11 +54,35 @@
 <script setup>
 import { computed, onActivated, onDeactivated, onUnmounted, ref } from 'vue'
 import api from '../../api/axios'
+import NewsletterEditor from './common/NewsletterEditor.vue'
 const items = ref([]), available = ref(false), loaded = ref(false), busy = ref(false), editing = ref(null)
 const error = ref(''), message = ref(''), kind = ref(''), contentId = ref(''), page = ref(0)
 const kinds = { projects: '프로젝트', concerts: '공연', news: '뉴스·뉴스레터', music: '음악', videos: '영상', photoGroups: '사진 그룹', photos: '사진', contacts: '연락처', contactInfo: '연락처 안내', downloads: '다운로드', equipment: '장비' }
 const states = { PENDING: '번역 대기', PROCESSING: '번역 중', COMPLETED: '번역 완료', FAILED: '번역 실패', DISABLED: '비활성' }
 const fields = { title: '제목', subtitle: '부제목', description: '설명', bodyEn: '본문' }
+const pairedNewsFields = new Set(['title', 'bodyEn', 'eventWhenEn', 'eventLocationEn', 'ctaLabelEn'])
+const isRichText = row => row.kind === 'news' && row.field === 'bodyEn'
+function displayText(row, value) {
+  if (!value || !isRichText(row)) return value
+  const doc = new DOMParser().parseFromString(value, 'text/html')
+  doc.querySelectorAll('script, style').forEach(node => node.remove())
+  doc.body.querySelectorAll('p, div, h1, h2, h3, li, br').forEach(node => node.after('\n'))
+  return doc.body.textContent.replace(/\n[\t \r]*\n+/g, '\n\n').trim()
+}
+function sourceEntries(row) {
+  if (row.kind === 'news' && pairedNewsFields.has(row.field)) {
+    try {
+      const pair = JSON.parse(row.source)
+      if (Array.isArray(pair) && pair.length === 2 && pair.every(value => typeof value === 'string')) {
+        return pair.map((value, index) => ({
+          language: index === 0 ? 'English' : 'Deutsch',
+          text: displayText(row, value)
+        })).filter(entry => entry.text)
+      }
+    } catch { /* Older source records may contain a single unwrapped value. */ }
+  }
+  return [{ language: '', text: displayText(row, row.source) || '—' }]
+}
 const errors = { GEMINI_HTTP_400: 'Gemini 요청 또는 API 키 설정을 확인하세요.', GEMINI_HTTP_401: 'Gemini API 키 인증에 실패했습니다.', GEMINI_HTTP_403: 'Gemini API 키 권한을 확인하세요.', GEMINI_HTTP_404: 'Gemini 모델 설정을 확인하세요.', GEMINI_HTTP_429: 'Gemini 할당량을 초과했습니다. 잠시 후 다시 시도하세요.', GEMINI_CONNECTION: 'Gemini 연결이 지연되거나 실패했습니다.', INVALID_RESPONSE: '번역 응답을 읽지 못했습니다.', INVALID_TRANSLATION: '번역 결과가 저장 조건에 맞지 않습니다.' }
 const pendingCount = computed(() => items.value.filter(row => ['PENDING', 'PROCESSING'].includes(row.state)).length)
 const failedCount = computed(() => items.value.filter(row => row.state === 'FAILED').length)
@@ -105,6 +141,9 @@ onUnmounted(() => { requestId++; clearInterval(timer) })
 .source-block { margin-top: .9rem; background: var(--admin-canvas); }
 .source, .variants p { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 12rem; overflow-y: auto; }
 .source, .variants p { margin: .4rem 0 0; }
+.source p { margin: 0; }
+.source > div + div { margin-top: .75rem; }
+.source-language { display: block; margin-bottom: .25rem; color: var(--admin-muted); font-size: .85rem; }
 .variants { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-block: .75rem; }
 label { display: block; font-weight: 600; }
 button, input, select, textarea { font: inherit; padding: .55rem .7rem; min-height: 2.6rem; border: 1px solid var(--admin-line); border-radius: .4rem; color: inherit; background: white; }

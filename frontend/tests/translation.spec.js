@@ -69,3 +69,29 @@ test('admin can inspect failures, retry and preserve edited variants', async ({ 
   expect(writes[1].body).toEqual({ version: 2, en: 'New project', de: 'Redaktionelles Projekt' })
   await page.screenshot({ path: testInfo.outputPath('translation-admin.png'), fullPage: true })
 })
+
+test('admin displays paired news sources and rich translations without raw markup', async ({ page }) => {
+  await mock(page, { admin: true })
+  const en = '<p><strong>New release</strong></p><p>Second line<br>Third line</p>'
+  const de = '<p><em>Neue Veröffentlichung</em></p>'
+  const row = { id: 3, kind: 'news', contentId: 4, field: 'bodyEn', source: JSON.stringify([en, '']), en, de, state: 'COMPLETED', version: 2 }
+  await page.route('**/api/admin/translations?*', route => route.fulfill({ json: { success: true, data: { available: true, items: [row] } } }))
+  await page.goto('/admin')
+  await page.getByRole('tab', { name: '자동 번역 관리 메뉴' }).click()
+  const panel = page.locator('.translation-panel')
+  const source = panel.locator('.source')
+  await expect(source.locator('p')).toHaveText('New release\nSecond line\nThird line', { useInnerText: true })
+  await expect(panel.locator('.variants')).toContainText('Neue Veröffentlichung')
+  await expect(panel).not.toContainText('<p>')
+  await page.route('**/api/admin/translations/3', async route => {
+    const body = route.request().postDataJSON()
+    expect(body.en).toBe(en)
+    expect(body.de).toBe('<p><em>Bearbeitet</em></p>')
+    await route.fulfill({ json: { success: true, data: { ...row, ...body } } })
+  })
+  await panel.getByRole('button', { name: '번역 수정' }).click()
+  await expect(panel.getByRole('textbox', { name: 'English 본문' }).locator('strong')).toHaveText('New release')
+  await panel.getByRole('textbox', { name: 'Deutsch 본문' }).fill('Bearbeitet')
+  await panel.getByRole('button', { name: '번역 저장' }).click()
+  await expect(panel).toContainText('번역을 저장했습니다.')
+})
