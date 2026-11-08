@@ -77,7 +77,7 @@ button[aria-pressed=true] { background: var(--admin-tint, #e1edf6); color: var(-
 [role=alert] { color: #a12323; }
 .preview-note { margin: .65rem 1rem; }
 .preview-stage { padding: 12px; display: flex; justify-content: center; background: var(--admin-tint, #d9d8d4); }
-iframe { display: block; border: 0; height: 720px; background: #050505; }
+iframe { display: block; border: 0; height: 720px; background: #FFFFFF; }
 .preview-stage iframe { max-width: 100%; }
 .wide-dialog { width: min(46rem, calc(100vw - 1rem)); box-sizing: border-box; border: 1px solid var(--admin-line, #bbb); border-radius: .65rem; padding: .75rem; }
 .wide-dialog::backdrop { background: #10263b99; }
