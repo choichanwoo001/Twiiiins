@@ -3,9 +3,21 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { localDataPlugin } from './dev-data/plugin.js'
 
+function serveNewsletterFonts(server) {
+  server.middlewares.use('/newsletter-fonts/', (_request, response, next) => {
+    response.setHeader('Access-Control-Allow-Origin', '*')
+    next()
+  })
+}
+
 export default defineConfig(({ command, mode }) => ({
   plugins: [
     vue(),
+    {
+      name: 'newsletter-font-cors',
+      configureServer: serveNewsletterFonts,
+      configurePreviewServer: serveNewsletterFonts
+    },
     ...(command === 'serve' && loadEnv(mode, process.cwd(), '').VITE_DUMMY_DATA === 'true'
       ? [localDataPlugin({ originalPhotoPreview: loadEnv(mode, process.cwd(), '').VITE_ORIGINAL_PHOTO_PREVIEW === 'true' })] : [])
   ],

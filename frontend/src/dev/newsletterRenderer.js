@@ -22,7 +22,7 @@ function clean(html) {
     if (tag === 'a') {
       let href
       try { href = url(value.getAttribute('href') || '') } catch { return children }
-      return `<a href="${escape(href)}" rel="noopener noreferrer" style="color:#80ffcf;text-decoration:underline;">${children}</a>`
+      return `<a href="${escape(href)}" rel="noopener noreferrer" style="color:#1E1D1D;text-decoration:underline;">${children}</a>`
     }
     return `<${tag}>${children}</${tag}>`
   }
@@ -37,13 +37,13 @@ export function renderPreview(data, language) {
   let actions = ''
   if (data.ctaUrl) {
     const href = url(data.ctaUrl)
-    if (label) actions += `<p style="margin:28px 0;"><a style="display:inline-block;background:#80ffcf;color:#050505;padding:14px 24px;font-size:16px;font-weight:bold;text-decoration:none;" href="${escape(href)}">${escape(label)}</a></p>`
+    if (label) actions += `<p style="margin:28px 0;"><a style="display:inline-block;background:#943C31;color:#FFFFFF;padding:14px 24px;font-size:16px;font-weight:bold;text-decoration:none;" href="${escape(href)}">${escape(label)}</a></p>`
   }
-  for (const video of data.videoUrls || []) if (video) actions += `<p><a style="color:#80ffcf;text-decoration:underline;" href="${escape(url(video))}">${de ? 'Video ansehen' : 'Watch video'}</a></p>`
-  const html = expand(template, { language: selected, title: escape(title), hero: images.length ? image(images[0], title) : '',
-    details: when || place ? `<p style="margin:20px 0 28px;text-align:center;font-size:18px;line-height:1.5;color:#fff;">${escape(when)}${when && place ? '<br>' : ''}${escape(place)}</p>` : '',
+  for (const video of data.videoUrls || []) if (video) actions += `<p><a style="color:#1E1D1D;text-decoration:underline;" href="${escape(url(video))}">${de ? 'Video ansehen' : 'Watch video'}</a></p>`
+  const html = expand(template, { language: selected, fontBase: new URL("/newsletter-fonts/", location.origin).href, title: escape(title), hero: images.length ? image(images[0], title) : '',
+    details: when || place ? `<p style="margin:20px 0 28px;text-align:center;font-size:18px;line-height:1.5;color:#1E1D1D;">${escape(when)}${when && place ? '<br>' : ''}${escape(place)}</p>` : '',
     body: clean(de ? data.bodyDe : data.bodyEn), gallery: images.slice(1).map(src => image(src)).join(''), actions })
   const footer = expand(footerTemplate, { operator: de ? 'Beispiel: Veranstalter' : 'Example: sender information', replyTo: 'Example: contact@example.com',
     view: `<span>${de ? 'Im Browser ansehen (Vorschau)' : 'View in browser (preview)'}</span>`, unsubscribe: `<span>${de ? 'Abmelden (Vorschau)' : 'Unsubscribe (preview)'}</span>` })
-  return { title, html: html.replace('<!--NEWSLETTER_FOOTER-->', footer) }
+  return { title, html: html.replace('<!--NEWSLETTER_LIGHT_FOOTER-->', footer) }
 }

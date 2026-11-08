@@ -550,7 +550,10 @@ class NewsletterIntegrationTest {
             .content("{\"language\":\"en\",\"title\":\"Live <show>\",\"bodyEn\":\"<p>Draft</p><script>alert(1)</script>\"}"))
             .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         String html = json.readTree(response).path("data").path("html").asText();
-        assertTrue(html.startsWith("<!doctype html>")); assertTrue(html.contains("#80ffcf")); assertTrue(html.contains("#8300ef"));
+        assertTrue(html.startsWith("<!doctype html>")); assertTrue(html.contains("bgcolor=\"#FFFFFF\""));
+        assertTrue(html.contains("background:#943C31")); assertFalse(html.contains("#8300ef"));
+        assertTrue(html.contains("font-family:Jost,Arial,Helvetica,sans-serif"));
+        assertTrue(html.contains("https://example.com/newsletter-fonts/Jost-800-Heavy.ttf"));
         assertTrue(html.contains("Live &lt;show&gt;")); assertTrue(html.contains("Example: sender information"));
         assertTrue(html.contains("Unsubscribe (preview)")); assertFalse(html.contains("<script")); assertFalse(html.contains("token="));
         assertEquals(before, newsRepository.count()); assertEquals(0, deliveries.count());
@@ -558,6 +561,16 @@ class NewsletterIntegrationTest {
             .andExpect(status().isBadRequest());
         mvc.perform(post("/api/admin/newsletter/preview").contentType(MediaType.APPLICATION_JSON).content("{\"language\":\"fr\"}"))
             .andExpect(status().isBadRequest());
+    }
+    @Test void legacyMailingKeepsDarkFooterAndLocalizedLinks() {
+        String html = "<!doctype html><html><body style=\"background:#050505\">Old mailing<!--NEWSLETTER_FOOTER--></body></html>";
+        String completed = content.complete(html, "de", settings, "https://example.com/news", "https://example.com/unsubscribe", false);
+        assertTrue(completed.contains("background:#050505"));
+        assertTrue(completed.contains("border-top:1px solid #444"));
+        assertTrue(completed.contains("color:#80ffcf;text-decoration:underline"));
+        assertTrue(completed.contains("href=\"https://example.com/news\">Im Browser ansehen</a>"));
+        assertTrue(completed.contains("href=\"https://example.com/unsubscribe\">Abmelden</a>"));
+        assertFalse(completed.contains("<!--NEWSLETTER_FOOTER-->"));
     }
     @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
     void singleLanguageNewslettersSavePublishPreviewAndQueueBothSubscriberLanguages() throws Exception {
@@ -630,7 +643,10 @@ class NewsletterIntegrationTest {
         assertEquals(snapshot, mailings.findById(mailing.getId()).orElseThrow().getHtmlEn());
         NewsletterWorker.Envelope envelope = worker.claim(); assertNotNull(envelope);
         assertTrue(envelope.html().contains("Hello")); assertFalse(envelope.html().contains("Changed after queueing"));
-        assertTrue(envelope.html().contains("/newsletter/unsubscribe?token=")); assertFalse(envelope.html().contains("<!--NEWSLETTER_FOOTER-->"));
+        assertTrue(envelope.html().contains("/newsletter/unsubscribe?token="));
+        assertTrue(envelope.html().contains("border-top:1px solid #E0E0E0"));
+        assertTrue(envelope.html().contains("color:#1E1D1D;text-decoration:underline"));
+        assertFalse(envelope.html().contains("<!--NEWSLETTER_LIGHT_FOOTER-->"));
         worker.finish(envelope.id(), "ACCEPTED", null);
         NewsDto legacy = draft(); Mailing old = mailingService.send(legacy.getId(), legacy.getVersion());
         old.setHtmlEn("<h1>Legacy queued body</h1>"); mailings.save(old);

@@ -34,9 +34,12 @@ public class NewsletterContent {
         if (!"https".equals(uri.getScheme()) || uri.getHost() == null || uri.getUserInfo() != null) throw new IllegalArgumentException("Use an HTTPS button URL");
         return uri.toASCIIString();
     }
-    private static final String FOOTER = "<!--NEWSLETTER_FOOTER-->";
+    private static final String LIGHT_FOOTER = "<!--NEWSLETTER_LIGHT_FOOTER-->";
+    private static final String LEGACY_FOOTER = "<!--NEWSLETTER_FOOTER-->";
+    private static final String INK = "#1E1D1D";
     private static final String TEMPLATE = resource("email.html");
     private static final String FOOTER_TEMPLATE = resource("footer.html");
+    private static final String LEGACY_FOOTER_TEMPLATE = resource("footer-legacy.html");
     private static String resource(String name) {
         try (var input = new org.springframework.core.io.ClassPathResource("newsletter/" + name).getInputStream()) {
             return new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
@@ -66,8 +69,13 @@ public class NewsletterContent {
     private String image(String value, String base, String alt) {
         return "<p style=\"margin:24px 0;\"><img width=\"640\" style=\"display:block;width:100%;max-width:640px;height:auto;border-radius:16px;\" alt=\"" + escape(alt) + "\" src=\"" + escape(url(value, base)) + "\"></p>";
     }
-    private String link(String href, String label) {
-        return "<a style=\"color:#80ffcf;text-decoration:underline;\" href=\"" + escape(href) + "\">" + escape(label) + "</a>";
+    private String link(String href, String label, String color) {
+        return "<a style=\"color:" + color + ";text-decoration:underline;\" href=\"" + escape(href) + "\">" + escape(label) + "</a>";
+    }
+    private String fontBase(String base) {
+        String path = "/newsletter-fonts/";
+        try { return url(URI.create(safe(base)).resolve(path).toASCIIString(), safe(base)); }
+        catch (IllegalArgumentException e) { return path; }
     }
     public String render(News news, String language, String base) {
         SubscriptionService.language(language);
@@ -78,9 +86,9 @@ public class NewsletterContent {
         String location = de ? first(news.getEventLocationDe(), news.getEventLocationEn()) : first(news.getEventLocationEn(), news.getEventLocationDe());
         String label = de ? first(news.getCtaLabelDe(), news.getCtaLabelEn()) : first(news.getCtaLabelEn(), news.getCtaLabelDe());
         var body = Jsoup.parseBodyFragment(clean(de ? news.getBodyDe() : news.getBodyEn()));
-        body.select("a").attr("style", "color:#80ffcf;text-decoration:underline;");
+        body.select("a").attr("style", "color:" + INK + ";text-decoration:underline;");
         String details = "";
-        if (!when.isBlank() || !location.isBlank()) details = "<p style=\"margin:20px 0 28px;text-align:center;font-size:18px;line-height:1.5;color:#fff;\">"
+        if (!when.isBlank() || !location.isBlank()) details = "<p style=\"margin:20px 0 28px;text-align:center;font-size:18px;line-height:1.5;color:#1E1D1D;\">"
             + escape(when) + (!when.isBlank() && !location.isBlank() ? "<br>" : "") + escape(location) + "</p>";
         var images = news.getImageUrls() == null ? java.util.List.<String>of() : news.getImageUrls();
         var gallery = new StringBuilder();
@@ -88,25 +96,29 @@ public class NewsletterContent {
         var actions = new StringBuilder();
         if (news.getCtaUrl() != null && !news.getCtaUrl().isBlank()) {
             String href = buttonUrl(news.getCtaUrl());
-            if (!label.isBlank()) actions.append("<p style=\"margin:28px 0;\"><a style=\"display:inline-block;background:#80ffcf;color:#050505;padding:14px 24px;font-size:16px;font-weight:bold;text-decoration:none;\" href=\"")
+            if (!label.isBlank()) actions.append("<p style=\"margin:28px 0;\"><a style=\"display:inline-block;background:#943C31;color:#FFFFFF;padding:14px 24px;font-size:16px;font-weight:bold;text-decoration:none;\" href=\"")
                 .append(escape(href)).append("\">").append(escape(label)).append("</a></p>");
         }
         if (news.getVideoUrls() != null) for (String video : news.getVideoUrls()) {
-            if (!video.isBlank()) actions.append("<p>").append(link(url(video, base), de ? "Video ansehen" : "Watch video")).append("</p>");
+            if (!video.isBlank()) actions.append("<p>").append(link(url(video, base), de ? "Video ansehen" : "Watch video", INK)).append("</p>");
         }
         return expand(TEMPLATE, java.util.Map.of("language", selected, "title", escape(title), "hero", images.isEmpty() ? "" : image(images.get(0), base, title),
-            "details", details, "body", body.body().html(), "gallery", gallery.toString(), "actions", actions.toString()));
+            "details", details, "body", body.body().html(), "gallery", gallery.toString(), "actions", actions.toString(),
+            "fontBase", fontBase(base)));
     }
     public String complete(String html, String language, NewsletterSettings settings, String view, String unsubscribe, boolean preview) {
         boolean de = "de".equals(language);
         String operator = safe(settings.getOperator());
         String reply = safe(settings.getReplyTo());
-        String footer = expand(FOOTER_TEMPLATE, java.util.Map.of(
+        boolean light = html.contains(LIGHT_FOOTER);
+        String linkColor = light ? INK : "#80ffcf";
+        String footer = expand(light ? FOOTER_TEMPLATE : LEGACY_FOOTER_TEMPLATE, java.util.Map.of(
             "operator", escape(operator.isBlank() && preview ? (de ? "Beispiel: Veranstalter" : "Example: sender information") : operator),
             "replyTo", escape(reply.isBlank() && preview ? "Example: contact@example.com" : reply),
-            "view", view == null ? (preview ? "<span>" + (de ? "Im Browser ansehen (Vorschau)" : "View in browser (preview)") + "</span>" : "") : link(view, de ? "Im Browser ansehen" : "View in browser"),
-            "unsubscribe", unsubscribe == null ? (preview ? "<span>" + (de ? "Abmelden (Vorschau)" : "Unsubscribe (preview)") + "</span>" : "") : link(unsubscribe, de ? "Abmelden" : "Unsubscribe")));
-        if (html.contains(FOOTER)) return html.replace(FOOTER, footer);
+            "view", view == null ? (preview ? "<span>" + (de ? "Im Browser ansehen (Vorschau)" : "View in browser (preview)") + "</span>" : "") : link(view, de ? "Im Browser ansehen" : "View in browser", linkColor),
+            "unsubscribe", unsubscribe == null ? (preview ? "<span>" + (de ? "Abmelden (Vorschau)" : "Unsubscribe (preview)") + "</span>" : "") : link(unsubscribe, de ? "Abmelden" : "Unsubscribe", linkColor)));
+        String marker = light ? LIGHT_FOOTER : LEGACY_FOOTER;
+        if (html.contains(marker)) return html.replace(marker, footer);
         // Already rendered test emails and legacy queued fragments keep their original body.
         if (html.stripLeading().toLowerCase(java.util.Locale.ROOT).startsWith("<!doctype html>")) return html;
         return "<!doctype html><html><body><div style=\"max-width:640px;margin:auto;font-family:Arial,sans-serif;line-height:1.6\">" + html + footer + "</div></body></html>";
