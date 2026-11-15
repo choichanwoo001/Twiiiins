@@ -78,7 +78,7 @@ if (!$backendOwner) {
         NEWSLETTER_OPERATOR='TWIIIINS Local Development'; NEWSLETTER_TEST_RECIPIENTS='admin@example.com'
         NEWSLETTER_LOCAL_MAILBOX_URL='http://localhost:8025'
         SMTP_HOST='127.0.0.1'; SMTP_PORT='1025'; SMTP_AUTH='false'; SMTP_STARTTLS='false'; SMTP_SSL='false'
-        SMTP_USERNAME=''; SMTP_PASSWORD=''; NEWSLETTER_PER_MINUTE='10'; NEWSLETTER_DAILY_LIMIT='300'
+        SMTP_USERNAME=''; SMTP_PASSWORD=''; NEWSLETTER_PER_MINUTE='10'; NEWSLETTER_DAILY_LIMIT='500'
     }
     $previous = @{}
     foreach ($name in $values.Keys) { $previous[$name] = [Environment]::GetEnvironmentVariable($name); [Environment]::SetEnvironmentVariable($name, $values[$name]) }

@@ -44,19 +44,24 @@ class NewsletterIntegrationTest {
     @Autowired DeliveryRepository deliveries;
     @Autowired MailAttemptRepository attempts;
     @Autowired NewsletterWorker worker;
+    @Autowired NewsletterQueue queue;
     @Autowired NewsletterSettings settings;
     @Autowired MailGateRepository gates;
     @Autowired UserRepository users;
     @Autowired PasswordEncoder passwords;
     @Autowired AdminSessionRepository sessions;
     @Autowired NewsletterContent content;
+    @Autowired SignupCounts signupCounts;
+    @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
     @MockBean JavaMailSender sender;
+    @org.springframework.boot.test.mock.mockito.SpyBean NewsletterTurnstile turnstile;
 
     @BeforeEach void setup() {
         deliveries.deleteAll(); attempts.deleteAll(); mailings.deleteAll(); subscribers.deleteAll(); newsRepository.deleteAll(); sessions.deleteAll();
         settings.setEnabled(true); settings.setSmtpHost("localhost"); settings.setTokenKey("test-key-for-local-tests-only-123456789");
         settings.setFrom("news@example.com"); settings.setReplyTo("reply@example.com"); settings.setOperator("TWIIIINS Test Operator");
         settings.setPublicUrl("https://example.com"); settings.setPerMinute(10); settings.setDailyLimit(300); settings.setTestRecipients(List.of("admin@example.com"));
+        settings.setTurnstileSiteKey(""); settings.setTurnstileSecretKey("");
         MailGate gate = gates.findById(1L).orElseGet(MailGate::new); gate.setPaused(false); gate.setReason(null); gates.save(gate);
         when(sender.createMimeMessage()).thenAnswer(i -> new MimeMessage(Session.getInstance(new Properties())));
     }
@@ -115,7 +120,7 @@ class NewsletterIntegrationTest {
         assertTrue(welcome.html().contains("/newsletter/unsubscribe?token=")); assertFalse(welcome.html().contains("/newsletter/confirm"));
         assertNotNull(welcome.unsubscribe());
         assertFalse(welcome.html().contains("(preview)")); assertFalse(welcome.html().contains("(Vorschau)"));
-        worker.finish(welcome.id(), "FAILED", "SMTP_TEMPORARY");
+        queue.finish(welcome.id(), NewsletterQueue.Outcome.FAILED, "SMTP_TEMPORARY");
         assertEquals("ACTIVE", subscribers.findById(subscriber.getId()).orElseThrow().getStatus());
     }
     @Test void legacyPendingSignupCanSubscribeImmediatelyAndInvalidatesOldConfirmation() {
@@ -127,6 +132,52 @@ class NewsletterIntegrationTest {
         assertThrows(IllegalArgumentException.class, () -> subscriptions.confirm(oldToken));
         assertEquals("WELCOME", deliveries.findAll().get(0).getKind());
     }
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void adminRestoresAnActiveSubscriberWithoutReleasingOldDeliveries() throws Exception {
+        Subscriber subscriber = active("restore@example.com", "de");
+        var draft = draft();
+        Mailing previous = mailingService.send(draft.getId(), draft.getVersion());
+        String path = "/api/admin/newsletter/subscribers/" + subscriber.getId();
+
+        mvc.perform(post(path + "/exclude")).andExpect(status().isOk());
+        mvc.perform(post(path + "/exclude")).andExpect(status().isOk());
+        mvc.perform(get("/api/admin/newsletter/subscribers").param("status", "EXCLUDED"))
+            .andExpect(jsonPath("$.data[0].restoreStatus").value("ACTIVE"));
+        mvc.perform(post(path + "/restore")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.status").value("ACTIVE"))
+            .andExpect(jsonPath("$.data.language").value("de"));
+
+        assertEquals(2, deliveries.count());
+        assertEquals(2, deliveries.findByStatus("SKIPPED").size());
+        assertEquals("SKIPPED", deliveries.findByMailingIdOrderByIdAsc(previous.getId()).get(0).getStatus());
+        assertNull(worker.claim());
+        var next = draft();
+        assertEquals(1, mailingService.send(next.getId(), next.getVersion()).getTotalCount());
+        subscriptions.unsubscribe(subscriptions.unsubscribeToken(subscriber));
+        assertEquals("UNSUBSCRIBED", subscribers.findById(subscriber.getId()).orElseThrow().getStatus());
+    }
+
+    @Test void restoreRespectsOptOutsAndLegacyExclusionsAndRequiresAnAdmin() throws Exception {
+        Subscriber subscriber = active("opt-out@example.com", "en");
+        String token = subscriptions.unsubscribeToken(subscriber);
+        subscriptions.exclude(subscriber.getId());
+        mvc.perform(post("/api/admin/newsletter/subscribers/" + subscriber.getId() + "/restore"))
+            .andExpect(status().isUnauthorized());
+        subscriptions.unsubscribe(token);
+        assertEquals("UNSUBSCRIBED", subscriptions.restoreExcluded(subscriber.getId()).getStatus());
+        subscriptions.exclude(subscriber.getId());
+        assertEquals("UNSUBSCRIBED", subscriptions.restoreExcluded(subscriber.getId()).getStatus());
+
+        Subscriber legacy = active("legacy-excluded@example.com", "en");
+        legacy.setStatus("EXCLUDED");
+        subscribers.saveAndFlush(legacy);
+        assertEquals("UNSUBSCRIBED", subscriptions.restoreExcluded(legacy.getId()).getStatus());
+
+        Subscriber pending = legacyPending("pending-restore@example.com", "de");
+        subscriptions.exclude(pending.getId());
+        assertEquals("PENDING", subscriptions.restoreExcluded(pending.getId()).getStatus());
+    }
+
     @Test void welcomeEmailsUseTheChosenLanguageAndAWorkingPersonalUnsubscribeLink() {
         for (String language : List.of("en", "de")) {
             Subscriber subscriber = active(language + "@example.com", language);
@@ -134,7 +185,7 @@ class NewsletterIntegrationTest {
             assertNotNull(envelope);
             assertTrue(envelope.html().contains("de".equals(language) ? "Vielen Dank für Ihr Abonnement" : "Thank you for subscribing"));
             assertFalse(envelope.html().contains("/newsletter/confirm"));
-            worker.finish(envelope.id(), "ACCEPTED", null);
+            queue.finish(envelope.id(), NewsletterQueue.Outcome.ACCEPTED, null);
             String token = java.net.URI.create(envelope.unsubscribe()).getRawQuery().split("&")[0].substring("token=".length());
             subscriptions.unsubscribe(token);
             assertEquals("UNSUBSCRIBED", subscribers.findById(subscriber.getId()).orElseThrow().getStatus());
@@ -310,12 +361,12 @@ class NewsletterIntegrationTest {
         assertThrows(IllegalArgumentException.class, () -> content.url("//evil.example/image", settings.getPublicUrl()));
         assertThrows(IllegalArgumentException.class, () -> content.url("javascript:alert(1)", settings.getPublicUrl()));
     }
-    @Test void languageChangesImmediatelyAndLegacyConfirmationLinksStillExpire() {
+    @Test void duplicateSignupPreservesLanguageAndLegacyConfirmationLinksStillExpire() {
         Subscriber subscriber = active("person@example.com", "en");
         String originalUnsubscribe = subscriptions.unsubscribeToken(subscriber);
         subscriptions.subscribe(subscriber.getEmail(), "de");
-        assertEquals("de", subscribers.findById(subscriber.getId()).orElseThrow().getLanguage());
-        assertEquals(1, deliveries.count()); // do not repeatedly send welcome mail for rapid language changes
+        assertEquals("en", subscribers.findById(subscriber.getId()).orElseThrow().getLanguage());
+        assertEquals(1, deliveries.count());
         subscriptions.unsubscribe(originalUnsubscribe);
         assertEquals("UNSUBSCRIBED", subscribers.findById(subscriber.getId()).orElseThrow().getStatus());
         Subscriber pending = legacyPending("legacy@example.com", "de");
@@ -326,6 +377,60 @@ class NewsletterIntegrationTest {
         assertEquals("ACTIVE", subscribers.findById(pending.getId()).orElseThrow().getStatus());
         assertThrows(IllegalArgumentException.class, () -> subscriptions.confirm(token));
         assertThrows(IllegalArgumentException.class, () -> subscriptions.confirm(token + "x"));
+    }
+
+    @Test void dottedGmailAliasesShareOneSubscriptionAndOtherDomainsKeepDots() {
+        var gmail = active("band.fan@gmail.com", "en");
+        assertFalse(subscriptions.subscribe("b.a.ndfan@gmail.com", "de"));
+        assertEquals("en", subscribers.findById(gmail.getId()).orElseThrow().getLanguage());
+        assertEquals(1, subscribers.count());
+        assertEquals(1, deliveries.count());
+        subscriptions.exclude(gmail.getId());
+        assertFalse(subscriptions.subscribe("bandfan@gmail.com", "de"));
+        assertTrue(subscriptions.subscribe("band.fan@example.com", "en"));
+        assertTrue(subscriptions.subscribe("bandfan@example.com", "en"));
+        assertEquals(3, subscribers.count());
+    }
+
+    @Test void existingUnkeyedGmailAliasesDoNotAllowAnotherSignup() {
+        var active = active("b.andle.gacy@gmail.com", "en");
+        jdbc.update("UPDATE newsletter_subscribers SET email_key = NULL WHERE id = ?", active.getId());
+        jdbc.update("""
+            INSERT INTO newsletter_subscribers (email, language, status, created_at, updated_at)
+            VALUES ('ba.ndlegacy@gmail.com', 'de', 'EXCLUDED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            """);
+        assertNull(worker.claim());
+        assertEquals("SKIPPED", deliveries.findAll().get(0).getStatus());
+        clearNotificationJobs();
+
+        assertFalse(subscriptions.subscribe("bandlegacy@gmail.com", "de"));
+        assertEquals(2, subscribers.count());
+        assertEquals(0, deliveries.count());
+        assertEquals("en", subscribers.findById(active.getId()).orElseThrow().getLanguage());
+    }
+
+    @Test void signupRequiresVerificationWhenConfiguredAndCountsOutcomes() throws Exception {
+        var before = signupCounts.snapshot();
+        settings.setTurnstileSiteKey("public-key");
+        mvc.perform(get("/api/newsletter/status")).andExpect(jsonPath("$.data.available").value(false));
+        settings.setTurnstileSecretKey("private-key");
+        mvc.perform(get("/api/newsletter/status")).andExpect(jsonPath("$.data.available").value(true))
+            .andExpect(jsonPath("$.data.turnstileSiteKey").value("public-key"));
+        var signup = post("/api/newsletter/subscribe").with(request -> { request.setRemoteAddr("192.0.2.85"); return request; })
+            .contentType(MediaType.APPLICATION_JSON);
+        mvc.perform(signup.content("{\"email\":\"b.and@gmail.com\",\"language\":\"en\",\"consent\":true}"))
+            .andExpect(status().isForbidden());
+        assertEquals(0, subscribers.count());
+        doReturn(NewsletterTurnstile.Result.PASSED).when(turnstile).verify("valid");
+        mvc.perform(signup.content("{\"email\":\"b.and@gmail.com\",\"language\":\"en\",\"consent\":true,\"turnstileToken\":\"valid\"}"))
+            .andExpect(status().isOk());
+        mvc.perform(signup.content("{\"email\":\"band@gmail.com\",\"language\":\"de\",\"consent\":true,\"turnstileToken\":\"valid\"}"))
+            .andExpect(status().isOk());
+        assertEquals(1, subscribers.count()); assertEquals(1, deliveries.count());
+        var after = signupCounts.snapshot();
+        assertEquals(before.registered() + 1, after.registered());
+        assertEquals(before.duplicate() + 1, after.duplicate());
+        assertEquals(before.rejected() + 1, after.rejected());
     }
     @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
     void subscriberOnlySendStaysPrivateAndKeepsItsSnapshotAfterPublication() throws Exception {
@@ -352,6 +457,26 @@ class NewsletterIntegrationTest {
         assertNotNull(envelope);
         assertFalse(envelope.html().contains("View in browser"));
         assertTrue(envelope.html().contains("Unsubscribe"));
+    }
+
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void archivingAnEmailOnlyMailingKeepsItPrivateAndPreservesTheMailing() throws Exception {
+        NewsDto item = draft();
+        Mailing mailing = mailingService.send(item.getId(), item.getVersion(), false);
+
+        mvc.perform(delete("/api/admin/news/" + item.getId())).andExpect(status().isOk());
+        mvc.perform(get("/api/admin/news/" + item.getId())).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.status").value("DRAFT"))
+            .andExpect(jsonPath("$.data.archived").value(true));
+        mvc.perform(get("/api/media/news").param("title", item.getTitle()))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(0));
+        mvc.perform(get("/api/media/news/" + item.getId())).andExpect(status().isNotFound());
+
+        Mailing retained = mailingService.send(item.getId(), item.getVersion(), false);
+        assertEquals(mailing.getId(), retained.getId());
+        assertFalse(retained.isPublishToNews());
+        assertEquals(mailing.getHtmlEn(), retained.getHtmlEn());
+        assertEquals(1, mailings.count());
     }
 
     @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
@@ -391,8 +516,180 @@ class NewsletterIntegrationTest {
         NewsletterWorker.Envelope envelope = worker.claim();
         assertEquals(de.getEmail(), envelope.email()); assertEquals("Deutscher Titel", envelope.title()); assertTrue(envelope.html().contains("Hallo"));
         assertTrue(envelope.html().contains("newsId=" + item.getId())); assertTrue(envelope.html().contains("Unsub") || envelope.html().contains("Abmelden"));
-        worker.finish(envelope.id(), "ACCEPTED", null);
+        queue.finish(envelope.id(), NewsletterQueue.Outcome.ACCEPTED, null);
         news.deleteNews(item.getId()); assertTrue(news.adminGet(item.getId()).isArchived()); assertNotNull(news.getNewsById(item.getId()));
+    }
+
+    @Test void gmailRecipientsUseLatestConsentAndExcludeUncertainOrNewerOptOuts() {
+        Instant now = Instant.now();
+        active("first.fan@gmail.com", "en");
+        legacyGmail("f.irstfan@gmail.com", "de", "ACTIVE", now.plusSeconds(60), null, now.plusSeconds(60));
+        legacyGmail("firstfan@gmail.com", "en", "UNSUBSCRIBED", null, now.minusSeconds(60), now);
+        active("second.fan@gmail.com", "en");
+        legacyGmail("s.econdfan@gmail.com", "de", "UNSUBSCRIBED", null, null, now.plusSeconds(60));
+        active("third.fan@gmail.com", "en");
+        legacyGmail("t.hirdfan@gmail.com", "de", "UNSUBSCRIBED", null, now.plusSeconds(60), now.plusSeconds(60));
+        clearNotificationJobs();
+
+        NewsDto item = draft();
+        Mailing mailing = mailingService.send(item.getId(), item.getVersion());
+        assertEquals(1, mailing.getTotalCount());
+        NewsletterWorker.Envelope envelope = worker.claim();
+        assertNotNull(envelope);
+        assertEquals("f.irstfan@gmail.com", envelope.email());
+        assertEquals("Deutscher Titel", envelope.title());
+    }
+
+    @Test void gmailUnsubscribeFromAnotherAliasSkipsAlreadyQueuedDelivery() {
+        Instant now = Instant.now();
+        Subscriber otherAlias = active("another.fan@gmail.com", "en");
+        legacyGmail("a.notherfan@gmail.com", "de", "ACTIVE", now.plusSeconds(60), null, now.plusSeconds(60));
+        clearNotificationJobs();
+        NewsDto item = draft();
+        Mailing mailing = mailingService.send(item.getId(), item.getVersion());
+        assertEquals(1, mailing.getTotalCount());
+
+        subscriptions.unsubscribe(subscriptions.unsubscribeToken(otherAlias));
+        assertNull(worker.claim());
+        assertEquals("SKIPPED", deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).get(0).getStatus());
+        assertEquals(2, subscribers.count());
+        assertTrue(subscribers.findAll().stream()
+            .allMatch(subscriber -> "UNSUBSCRIBED".equals(subscriber.getStatus()) && subscriber.getUnsubscribedAt() != null));
+    }
+
+    @Test void gmailResubscriptionInvalidatesPreviousLinksFromEveryAlias() {
+        Instant now = Instant.now();
+        Subscriber subscriber = active("re.join@gmail.com", "en");
+        legacyGmail("rej.oin@gmail.com", "de", "ACTIVE", now.minusSeconds(60), null, now.minusSeconds(60));
+        Subscriber alias = subscribers.findByEmail("rej.oin@gmail.com").orElseThrow();
+        alias.setUnsubscribeVersion(Tokens.random());
+        subscribers.saveAndFlush(alias);
+        String originalLink = subscriptions.unsubscribeToken(subscriber);
+        String otherLink = subscriptions.unsubscribeToken(alias);
+        subscriptions.unsubscribe(otherLink);
+
+        assertTrue(subscriptions.subscribe("rejo.in@gmail.com", "de"));
+        assertThrows(IllegalArgumentException.class, () -> subscriptions.unsubscribe(originalLink));
+        assertThrows(IllegalArgumentException.class, () -> subscriptions.unsubscribe(otherLink));
+        Subscriber renewed = subscribers.findById(subscriber.getId()).orElseThrow();
+        assertEquals("ACTIVE", renewed.getStatus());
+        subscriptions.unsubscribe(subscriptions.unsubscribeToken(renewed));
+        assertEquals("UNSUBSCRIBED", subscribers.findById(renewed.getId()).orElseThrow().getStatus());
+    }
+
+    @Test void gmailAdminExclusionAndRestorationApplyToTheMailboxAndRespectOptOut() {
+        Instant now = Instant.now();
+        Subscriber subscriber = active("ex.clude@gmail.com", "en");
+        legacyGmail("exc.lude@gmail.com", "de", "ACTIVE", now.minusSeconds(60), null, now.minusSeconds(60));
+        Subscriber alias = subscribers.findByEmail("exc.lude@gmail.com").orElseThrow();
+        alias.setUnsubscribeVersion(Tokens.random());
+        subscribers.saveAndFlush(alias);
+        clearNotificationJobs();
+        NewsDto item = draft();
+        Mailing mailing = mailingService.send(item.getId(), item.getVersion());
+
+        subscriptions.exclude(alias.getId());
+        assertEquals(2, subscribers.findAll().stream()
+            .filter(row -> "EXCLUDED".equals(row.getStatus())).count());
+        assertEquals(0, mailingService.audience().total());
+        subscriptions.restoreExcluded(subscriber.getId());
+        assertEquals(1, mailingService.audience().total());
+        assertEquals("SKIPPED", deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).get(0).getStatus());
+
+        subscriptions.exclude(alias.getId());
+        subscriptions.unsubscribe(subscriptions.unsubscribeToken(subscriber));
+        subscriptions.restoreExcluded(alias.getId());
+        assertEquals(2, subscribers.findAll().stream()
+            .filter(row -> "UNSUBSCRIBED".equals(row.getStatus())).count());
+        assertEquals(0, mailingService.audience().total());
+    }
+
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void confirmedAudienceUsesMailboxSelectionAndMustBeReconfirmedWhenCountsChange() throws Exception {
+        Instant now = Instant.now();
+        Subscriber subscriber = active("new.s@gmail.com", "en");
+        legacyGmail("n.ews@gmail.com", "de", "ACTIVE", now.plusSeconds(60), null, now.plusSeconds(60));
+        clearNotificationJobs();
+        mvc.perform(get("/api/admin/newsletter/audience")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.total").value(1))
+            .andExpect(jsonPath("$.data.en").value(0))
+            .andExpect(jsonPath("$.data.de").value(1));
+
+        subscriptions.exclude(subscriber.getId());
+        NewsDto item = draft();
+        String request = json.writeValueAsString(Map.of("version", item.getVersion(),
+            "expectedAudience", Map.of("total", 1, "en", 0, "de", 1)));
+        mvc.perform(post("/api/admin/news/" + item.getId() + "/send").contentType(MediaType.APPLICATION_JSON).content(request))
+            .andExpect(status().isConflict());
+        assertEquals(0, mailings.count());
+        assertEquals("DRAFT", news.adminGet(item.getId()).getStatus());
+        subscriptions.restoreExcluded(subscriber.getId());
+        mvc.perform(post("/api/admin/news/" + item.getId() + "/send").contentType(MediaType.APPLICATION_JSON).content(request))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.data.totalCount").value(1));
+        assertEquals("de", deliveries.findAll().get(0).getLanguage());
+    }
+
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void dailyUsageCountsCurrentUtcDayAndReportsResetEvenWhenRemainingIsZero() throws Exception {
+        Instant day = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.DAYS);
+        for (Instant timestamp : List.of(day.minusNanos(1000), day, day.plusNanos(1000))) {
+            MailAttempt attempt = new MailAttempt();
+            attempt.setAttemptedAt(timestamp);
+            attempts.save(attempt);
+        }
+        settings.setDailyLimit(1);
+        mvc.perform(get("/api/admin/newsletter/settings")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.dailyUsage.used").value(2))
+            .andExpect(jsonPath("$.data.dailyUsage.remaining").value(0))
+            .andExpect(jsonPath("$.data.dailyUsage.resetsAt").value(day.plus(Duration.ofDays(1)).toString()));
+    }
+
+    @Test void gmailLegacyQueueSkipsAnAliasWhenTheSameMailboxAlreadyReceivedThatIssue() {
+        Instant now = Instant.now();
+        Subscriber older = active("old.queue@gmail.com", "en");
+        legacyGmail("o.ldqueue@gmail.com", "de", "ACTIVE", now.plusSeconds(60), null, now.plusSeconds(60));
+        clearNotificationJobs();
+        NewsDto item = draft();
+        Mailing mailing = mailingService.send(item.getId(), item.getVersion());
+        Delivery alreadySent = new Delivery();
+        alreadySent.setKind("NEWS");
+        alreadySent.setMailingId(mailing.getId());
+        alreadySent.setSubscriberId(older.getId());
+        alreadySent.setEmail(older.getEmail());
+        alreadySent.setStatus("ACCEPTED");
+        deliveries.saveAndFlush(alreadySent);
+
+        assertNull(worker.claim());
+        assertEquals(List.of("SKIPPED", "ACCEPTED"), deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).stream()
+            .map(Delivery::getStatus).toList());
+    }
+
+    @Test void cleaningUpAmbiguousGmailOptOutDoesNotReactivateAnotherAlias() {
+        Instant now = Instant.now();
+        Subscriber older = active("cleanup.fan@gmail.com", "en");
+        older.setConsentAt(now.minus(Duration.ofDays(40)));
+        subscribers.saveAndFlush(older);
+        legacyGmail("c.leanupfan@gmail.com", "de", "UNSUBSCRIBED", null, null, now.minus(Duration.ofDays(31)));
+        clearNotificationJobs();
+
+        worker.cleanup();
+        assertEquals(1, subscribers.count());
+        assertEquals("UNSUBSCRIBED", subscribers.findById(older.getId()).orElseThrow().getStatus());
+        assertEquals(0, mailingService.audience().total());
+        NewsDto item = draft();
+        assertEquals(0, mailingService.send(item.getId(), item.getVersion()).getTotalCount());
+        assertTrue(subscriptions.subscribe("cleanu.pfan@gmail.com", "de"));
+        assertEquals("ACTIVE", subscribers.findById(older.getId()).orElseThrow().getStatus());
+    }
+
+    private void legacyGmail(String email, String language, String status, Instant consentAt,
+                             Instant unsubscribedAt, Instant updatedAt) {
+        jdbc.update("""
+            INSERT INTO newsletter_subscribers (email, language, status, consent_at, unsubscribed_at, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, email, language, status, consentAt == null ? null : java.sql.Timestamp.from(consentAt),
+            unsubscribedAt == null ? null : java.sql.Timestamp.from(unsubscribedAt),
+            java.sql.Timestamp.from(updatedAt), java.sql.Timestamp.from(updatedAt));
     }
     @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
     void removingSentNewsletterHidesAllListsButPreservesMailAndWebView() throws Exception {
@@ -438,11 +735,45 @@ class NewsletterIntegrationTest {
         NewsDto item = draft(); mailingService.send(item.getId(), item.getVersion());
         settings.setPerMinute(1);
         NewsletterWorker.Envelope first = worker.claim(); assertNotNull(first); assertNull(worker.claim());
-        worker.run(null);
+        queue.run(null);
         assertEquals("UNKNOWN", deliveries.findById(first.id()).orElseThrow().getStatus());
-        assertThrows(IllegalArgumentException.class, () -> mailingService.retry(first.id()));
+        assertThrows(IllegalArgumentException.class, () -> queue.retry(first.id()));
         settings.setPerMinute(10); settings.setDailyLimit(1); assertNull(worker.claim());
         settings.setDailyLimit(300); assertNotNull(worker.claim());
+    }
+
+    @Test void remainingDeliveriesResumeInTheSameMailingAfterTheUtcDayChanges() {
+        active("first-day@example.com", "en");
+        active("next-day@example.com", "de");
+        clearNotificationJobs();
+        NewsDto item = draft();
+        Mailing mailing = mailingService.send(item.getId(), item.getVersion());
+        settings.setDailyLimit(1);
+
+        NewsletterWorker.Envelope first = worker.claim();
+        assertNotNull(first);
+        queue.finish(first.id(), NewsletterQueue.Outcome.ACCEPTED, null);
+        assertNull(worker.claim());
+
+        MailAttempt previousDay = attempts.findAll().get(0);
+        previousDay.setAttemptedAt(Instant.now().truncatedTo(java.time.temporal.ChronoUnit.DAYS).minusSeconds(1));
+        attempts.saveAndFlush(previousDay);
+
+        NewsletterWorker.Envelope next = worker.claim();
+        assertNotNull(next);
+        assertNotEquals(first.id(), next.id());
+        assertEquals(mailing.getId(), deliveries.findById(next.id()).orElseThrow().getMailingId());
+        assertEquals(1, mailings.count());
+    }
+
+    @Test void failedEnvelopePreparationLeavesTheDeliveryWaitingWithoutConsumingAnAttempt() {
+        active("render-failure@example.com", "en");
+        assertThrows(IllegalStateException.class, () -> queue.claim((delivery, subscriber) -> {
+            throw new IllegalStateException("Test render failure");
+        }));
+        assertEquals(0, attempts.count());
+        assertEquals("WAITING", deliveries.findAll().get(0).getStatus());
+        assertNotNull(worker.claim());
     }
     @Test void smtpMessageContainsPlainAndHtmlAndSingleRecipient() throws Exception {
         Subscriber subscriber = active("mime@example.com", "de"); clearNotificationJobs();
@@ -455,16 +786,19 @@ class NewsletterIntegrationTest {
         assertTrue(message.getContentType().startsWith("multipart/alternative"));
         assertEquals("ACCEPTED", deliveries.findAll().get(0).getStatus());
     }
-    @Test void authFailurePausesQueueAndSafeFailureCanRetry() {
+    @Test @org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
+    void authFailurePausesQueueAndSafeFailureCanRetry() throws Exception {
         active("errors@example.com", "en"); clearNotificationJobs();
         NewsDto item = draft(); mailingService.send(item.getId(), item.getVersion());
         doThrow(new org.springframework.mail.MailAuthenticationException("test")).when(sender).send(any(MimeMessage.class)); tickQueuedMail();
         assertTrue(gates.findById(1L).orElseThrow().isPaused()); assertEquals("WAITING", deliveries.findAll().get(0).getStatus());
-        mailingService.resume(); reset(sender); when(sender.createMimeMessage()).thenAnswer(i -> new MimeMessage(Session.getInstance(new Properties())));
-        NewsletterWorker.Envelope delivery = worker.claim(); worker.finish(delivery.id(), "FAILED", "SMTP_550");
-        mailingService.retry(delivery.id()); assertEquals("WAITING", deliveries.findById(delivery.id()).orElseThrow().getStatus());
+        mvc.perform(post("/api/admin/newsletter/resume")).andExpect(status().isOk());
+        reset(sender); when(sender.createMimeMessage()).thenAnswer(i -> new MimeMessage(Session.getInstance(new Properties())));
+        NewsletterWorker.Envelope delivery = worker.claim(); queue.finish(delivery.id(), NewsletterQueue.Outcome.FAILED, "SMTP_550");
+        mvc.perform(post("/api/admin/newsletter/deliveries/" + delivery.id() + "/retry")).andExpect(status().isOk());
+        assertEquals("WAITING", deliveries.findById(delivery.id()).orElseThrow().getStatus());
         Delivery due = deliveries.findById(delivery.id()).orElseThrow(); due.setNextAttempt(Instant.now().minusSeconds(1)); deliveries.save(due);
-        NewsletterWorker.Envelope retry = worker.claim(); assertNotNull(retry); worker.finish(retry.id(), "TRANSIENT", "SMTP_450");
+        NewsletterWorker.Envelope retry = worker.claim(); assertNotNull(retry); queue.finish(retry.id(), NewsletterQueue.Outcome.TRANSIENT, "SMTP_450");
         Delivery waiting = deliveries.findById(retry.id()).orElseThrow(); assertEquals("WAITING", waiting.getStatus()); assertTrue(waiting.getNextAttempt().isAfter(Instant.now()));
     }
     @Test void threeHundredRecipientsAreProcessedWithinQuotaWithoutDuplicates() {
@@ -472,7 +806,7 @@ class NewsletterIntegrationTest {
         for (int i = 0; i < 300; i++) { Subscriber s = new Subscriber(); s.setEmail("load" + i + "@example.com"); s.setStatus("ACTIVE"); s.setLanguage(i % 2 == 0 ? "en" : "de"); batch.add(s); }
         subscribers.saveAll(batch); settings.setPerMinute(500);
         NewsDto item = draft(); Mailing mailing = mailingService.send(item.getId(), item.getVersion()); Set<Long> seen = new HashSet<>();
-        for (int i = 0; i < 300; i++) { NewsletterWorker.Envelope envelope = worker.claim(); assertNotNull(envelope); assertTrue(seen.add(envelope.id())); worker.finish(envelope.id(), "ACCEPTED", null); }
+        for (int i = 0; i < 300; i++) { NewsletterWorker.Envelope envelope = worker.claim(); assertNotNull(envelope); assertTrue(seen.add(envelope.id())); queue.finish(envelope.id(), NewsletterQueue.Outcome.ACCEPTED, null); }
         assertNull(worker.claim()); assertEquals(300, attempts.count());
         assertEquals(300, deliveries.findByMailingIdOrderByIdAsc(mailing.getId()).stream().filter(d -> "ACCEPTED".equals(d.getStatus())).count());
     }
@@ -487,7 +821,7 @@ class NewsletterIntegrationTest {
         Subscriber removed = new Subscriber(); removed.setEmail("removed@example.com"); removed.setStatus("UNSUBSCRIBED"); removed.setUpdatedAt(Instant.now().minusSeconds(31 * 86400)); subscribers.save(removed);
         active("retain-active@example.com", "en"); clearNotificationJobs();
         NewsDto item = draft(); Mailing mailing = mailingService.send(item.getId(), item.getVersion());
-        NewsletterWorker.Envelope envelope = worker.claim(); worker.finish(envelope.id(), "ACCEPTED", null);
+        NewsletterWorker.Envelope envelope = worker.claim(); queue.finish(envelope.id(), NewsletterQueue.Outcome.ACCEPTED, null);
         Delivery delivery = deliveries.findById(envelope.id()).orElseThrow(); delivery.setFinishedAt(Instant.now().minusSeconds(91 * 86400)); deliveries.save(delivery);
         worker.cleanup();
         assertTrue(subscribers.findByEmail(pending.getEmail()).isEmpty()); assertTrue(subscribers.findByEmail(removed.getEmail()).isEmpty());
@@ -647,7 +981,7 @@ class NewsletterIntegrationTest {
         assertTrue(envelope.html().contains("border-top:1px solid #E0E0E0"));
         assertTrue(envelope.html().contains("color:#1E1D1D;text-decoration:underline"));
         assertFalse(envelope.html().contains("<!--NEWSLETTER_LIGHT_FOOTER-->"));
-        worker.finish(envelope.id(), "ACCEPTED", null);
+        queue.finish(envelope.id(), NewsletterQueue.Outcome.ACCEPTED, null);
         NewsDto legacy = draft(); Mailing old = mailingService.send(legacy.getId(), legacy.getVersion());
         old.setHtmlEn("<h1>Legacy queued body</h1>"); mailings.save(old);
         envelope = worker.claim(); assertNotNull(envelope); assertTrue(envelope.html().contains("<h1>Legacy queued body</h1>"));

@@ -38,8 +38,22 @@ def main():
         sql("""ALTER TABLE newsletter_mailings DROP COLUMN publish_to_news;
              INSERT INTO newsletter_mailings (news_id, title_en, title_de) VALUES (101, 'Legacy mailing', 'Legacy mailing');""")
         migration = (ROOT / 'scripts/migrate-newsletter.sql').read_text(encoding='utf-8')
+        sql("""ALTER TABLE newsletter_subscribers DROP INDEX newsletter_email_key, DROP COLUMN email_key,
+                 DROP COLUMN status_before_exclusion, DROP COLUMN unsubscribed_at;
+             INSERT INTO newsletter_subscribers (email, language, status, created_at, updated_at, unsubscribe_version) VALUES
+             ('s.o.lo@gmail.com', 'en', 'ACTIVE', NOW(), NOW(), 'solo-link'),
+             ('f.an@gmail.com', 'en', 'ACTIVE', NOW(), NOW(), 'fan-link-1'),
+             ('fa.n@gmail.com', 'de', 'EXCLUDED', NOW(), NOW(), 'fan-link-2'),
+             ('fan@gmail.com', 'de', 'UNSUBSCRIBED', NOW(), NOW(), 'fan-link-3'),
+             ('f.an@example.com', 'en', 'ACTIVE', NOW(), NOW(), 'other-link');""")
         sql(migration)
         assert sql('SELECT publish_to_news + 0 FROM newsletter_mailings WHERE news_id=101') == '1'
+        assert sql("SELECT email_key FROM newsletter_subscribers WHERE unsubscribe_version='solo-link'") == 'solo@gmail.com'
+        assert sql("SELECT email_key FROM newsletter_subscribers WHERE unsubscribe_version='other-link'") == 'f.an@example.com'
+        assert sql("SELECT COUNT(*) FROM newsletter_subscribers WHERE unsubscribe_version LIKE 'fan-link-%' AND email_key IS NULL") == '3'
+        assert sql("SELECT COUNT(*) FROM newsletter_subscribers WHERE unsubscribe_version='fan-link-2' AND status='EXCLUDED' AND status_before_exclusion IS NULL") == '1'
+        assert sql("SELECT COUNT(*) FROM newsletter_subscribers WHERE unsubscribe_version='fan-link-3' AND status='UNSUBSCRIBED' AND unsubscribed_at IS NULL") == '1'
+        sql("UPDATE newsletter_subscribers SET unsubscribed_at='2026-11-15 01:02:03.123456' WHERE unsubscribe_version='fan-link-3'")
         sql("INSERT INTO newsletter_mailings (news_id, title_en, title_de, publish_to_news) VALUES (102, 'Email only', 'Email only', b'0');")
         # Administrator ordering, explicit source and email-only delivery must survive later migrations.
         sql("UPDATE news SET source='NEWS', title_de='Manuell'; UPDATE news_images SET image_order=9 WHERE image_url='/uploads/a.png';")
@@ -47,6 +61,8 @@ def main():
         assert sql('SELECT source FROM news WHERE id=101') == 'NEWS'
         assert sql("SELECT image_order FROM news_images WHERE image_url='/uploads/a.png'") == '9'
         assert sql('SELECT publish_to_news + 0 FROM newsletter_mailings WHERE news_id=102') == '0'
+        assert sql("SELECT unsubscribed_at FROM newsletter_subscribers WHERE unsubscribe_version='fan-link-3'") == '2026-11-15 01:02:03.123456'
+        assert sql("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='newsletter_subscribers' AND index_name='newsletter_email_key' AND non_unique=0") == '1'
         print('Legacy data, escaping, source classification and migration idempotency passed.')
     finally:
         subprocess.run([*COMPOSE, 'down', '-v', '--remove-orphans'], check=True)

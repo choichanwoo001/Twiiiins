@@ -140,6 +140,8 @@ jobs:
           NEWSLETTER_TEST_RECIPIENTS: ${{ secrets.NEWSLETTER_TEST_RECIPIENTS }}
           NEWSLETTER_PER_MINUTE: ${{ secrets.NEWSLETTER_PER_MINUTE }}
           NEWSLETTER_DAILY_LIMIT: ${{ secrets.NEWSLETTER_DAILY_LIMIT }}
+          NEWSLETTER_TURNSTILE_SITE_KEY: ${{ secrets.NEWSLETTER_TURNSTILE_SITE_KEY }}
+          NEWSLETTER_TURNSTILE_SECRET_KEY: ${{ secrets.NEWSLETTER_TURNSTILE_SECRET_KEY }}
           DEFAULT_ADMIN_USERNAME: ${{ secrets.DEFAULT_ADMIN_USERNAME }}
           DEFAULT_ADMIN_PASSWORD: ${{ secrets.DEFAULT_ADMIN_PASSWORD }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -185,6 +187,9 @@ jobs:
           }
           optional = "SMTP_HOST SMTP_PORT SMTP_USERNAME SMTP_PASSWORD SMTP_AUTH SMTP_STARTTLS SMTP_SSL NEWSLETTER_ENABLED NEWSLETTER_TOKEN_KEY NEWSLETTER_PUBLIC_URL NEWSLETTER_FROM NEWSLETTER_REPLY_TO NEWSLETTER_OPERATOR NEWSLETTER_TEST_RECIPIENTS NEWSLETTER_PER_MINUTE NEWSLETTER_DAILY_LIMIT DEFAULT_ADMIN_USERNAME DEFAULT_ADMIN_PASSWORD".split()
           defaults.update({key: "" for key in optional})
+          defaults.update(NEWSLETTER_TURNSTILE_SITE_KEY="", NEWSLETTER_TURNSTILE_SECRET_KEY="")
+          if bool(os.environ.get("NEWSLETTER_TURNSTILE_SITE_KEY")) != bool(os.environ.get("NEWSLETTER_TURNSTILE_SECRET_KEY")):
+              raise SystemExit("Configure both newsletter Turnstile keys together.")
           lines = []
           for key, fallback in defaults.items():
               value = os.environ.get(key) or fallback

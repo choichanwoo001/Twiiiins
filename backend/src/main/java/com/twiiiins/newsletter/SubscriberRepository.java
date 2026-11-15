@@ -6,6 +6,8 @@ import java.util.*;
 
 public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     Optional<Subscriber> findByEmail(String email);
+    Optional<Subscriber> findByEmailKey(String emailKey);
+    List<Subscriber> findByEmailKeyIsNullOrderById();
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Subscriber s where s.id = :id")
     Optional<Subscriber> lockById(@org.springframework.data.repository.query.Param("id") Long id);

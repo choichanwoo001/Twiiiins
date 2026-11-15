@@ -18,6 +18,7 @@ import java.util.*;
 public class TranslationResponseAdvice implements ResponseBodyAdvice<Object> {
     private final TranslationRepository rows;
     private final TranslationFields fields;
+    private final TranslationContent content;
     private final ObjectMapper json;
     public boolean supports(MethodParameter p, Class<? extends HttpMessageConverter<?>> converter) {
         return MappingJackson2HttpMessageConverter.class.isAssignableFrom(converter);
@@ -53,16 +54,7 @@ public class TranslationResponseAdvice implements ResponseBodyAdvice<Object> {
         Map<String, Object> result = json.convertValue(data, new TypeReference<LinkedHashMap<String, Object>>() {});
         Map<String, Object> translations = new LinkedHashMap<>();
         for (ContentTranslation row : saved.getOrDefault(kind + ":" + id, List.of())) {
-            // Compare DTO snapshots without loading content. Pair hashes exclude generated counterparts.
-            String source;
-            if (TranslationFields.NEWS_PAIRS.containsKey(row.getFieldPath()) && kind.equals("news")) {
-                String en = fields.read(data, row.getFieldPath()), de = fields.read(data, TranslationFields.NEWS_PAIRS.get(row.getFieldPath()));
-                if (!row.isManualEn() && Objects.equals(en, row.getTextEn())) en = "";
-                if (!row.isManualDe() && Objects.equals(de, row.getTextDe())) de = "";
-                if (row.getFieldPath().equals("title") && TranslationFields.present(de) && en.equals(de) && !row.isManualEn()) en = "";
-                try { source = json.writeValueAsString(new String[]{en, de}); } catch (Exception ex) { continue; }
-            } else source = fields.read(data, row.getFieldPath());
-            if (!Objects.equals(TranslationFields.hash(source), row.getSourceHash())) continue;
+            if (!content.matchesResponse(data, row)) continue;
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("state", row.getState());
             if ("COMPLETED".equals(row.getState())) { entry.put("en", row.getTextEn()); entry.put("de", row.getTextDe()); }

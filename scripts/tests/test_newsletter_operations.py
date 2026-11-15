@@ -25,13 +25,17 @@ class NewsletterOperationsTest(unittest.TestCase):
 
     def test_preflight_refuses_existing_pending_deliveries_without_mutation(self):
         with patch.object(operations, 'sql', return_value='2') as sql, \
-             patch.object(operations, 'environment', return_value={}), \
+             patch.object(operations, 'environment', return_value={'NEWSLETTER_DAILY_LIMIT': '300', 'NEWSLETTER_TOKEN_KEY': 'not-for-logs'}), \
              patch.object(operations, 'request', return_value={'available': False}), \
-             patch('builtins.print'):
+             patch('builtins.print') as output:
             with self.assertRaisesRegex(RuntimeError, 'Review pending deliveries'):
                 operations.preflight()
             self.assertEqual(sql.call_count, 1)
             self.assertTrue(sql.call_args.args[0].startswith('SELECT'))
+            self.assertEqual(json.loads(output.call_args.args[0]), {
+                'pendingDeliveries': 2, 'existingTokenKeyPresent': True,
+                'currentlyAvailable': False, 'configuredDailyLimit': 300,
+            })
 
     def test_database_errors_do_not_disclose_values(self):
         result = type('Result', (), {'returncode': 1, 'stderr': "ERROR 1267 (HY000): sensitive recipient", 'stdout': ''})()

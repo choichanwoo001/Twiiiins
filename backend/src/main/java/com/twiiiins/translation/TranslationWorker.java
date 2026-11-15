@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import java.time.Instant;
 import java.util.*;
 
 @Component @RequiredArgsConstructor
@@ -15,7 +14,7 @@ public class TranslationWorker {
     private final java.time.Clock clock;
     private final TranslationRepository rows;
     private final TranslationFields fields;
-    private final TranslationService service;
+    private final TranslationContent content;
     private final TranslationSettings settings;
     private final GeminiTranslator gemini;
     private final PlatformTransactionManager transactions;
@@ -54,39 +53,10 @@ public class TranslationWorker {
             Object entity = fields.lockEntity(job.getKind(), job.getContentId());
             ContentTranslation row = rows.lock(id).orElse(null);
             if (row == null || !Objects.equals(row.getVersion(), job.getVersion()) || !"PROCESSING".equals(row.getState())) return;
-            if (!service.current(entity, row)) { rows.delete(row); return; }
+            if (!content.isCurrent(entity, row)) { rows.delete(row); return; }
             if (error != null) { fail(row, error); return; }
             try {
-                boolean manualEn = row.isManualEn(), manualDe = row.isManualDe();
-                String authoredEn = row.getTextEn(), authoredDe = row.getTextDe();
-                if (service.paired(entity, row.getFieldPath()) && manualEn != manualDe) {
-                    String original = row.isManualEn() ? row.getTextEn() : row.getTextDe();
-                    // A German article entered into the default English tab is still German source text.
-                    manualEn = "en".equals(output.sourceLanguage());
-                    manualDe = "de".equals(output.sourceLanguage());
-                    if (manualEn) authoredEn = original; else authoredDe = original;
-                }
-                String en = manualEn ? authoredEn : service.validate(row, output.en());
-                String de = manualDe ? authoredDe : service.validate(row, output.de());
-                if (!service.paired(entity, row.getFieldPath())) {
-                    // Never trust a model to rewrite the source language.
-                    if ("en".equals(output.sourceLanguage()) && !row.isManualEn()) en = row.getSourceText();
-                    if ("de".equals(output.sourceLanguage()) && !row.isManualDe()) de = row.getSourceText();
-                }
-                if (!TranslationFields.present(en) || !TranslationFields.present(de)) throw new IllegalArgumentException("Empty translation");
-                String original = service.paired(entity, row.getFieldPath())
-                    ? (row.isManualEn() ? row.getTextEn() : row.getTextDe()) : row.getSourceText();
-                if (!manualEn) service.validateStructure(row, original, en);
-                if (!manualDe) service.validateStructure(row, original, de);
-                row.setManualEn(manualEn); row.setManualDe(manualDe);
-                row.setTextEn(en); row.setTextDe(de); row.setSourceLanguage(output.sourceLanguage());
-                if (service.paired(entity, row.getFieldPath())) {
-                    fields.write(entity, row.getFieldPath(), en);
-                    fields.write(entity, TranslationFields.NEWS_PAIRS.get(row.getFieldPath()), de);
-                    row.setSourceText(service.snapshot(entity, row.getFieldPath(), row));
-                    row.setSourceHash(TranslationFields.hash(row.getSourceText()));
-                }
-                row.setState("COMPLETED"); row.setErrorCode(null);
+                content.applyGenerated(entity, row, output);
             } catch (IllegalArgumentException ex) { fail(row, new GeminiTranslator.Failure("INVALID_TRANSLATION", true)); }
         });
     }

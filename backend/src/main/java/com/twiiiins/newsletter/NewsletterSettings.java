@@ -19,6 +19,15 @@ public class NewsletterSettings {
     private String operator = "";
     private List<String> testRecipients = List.of();
     private String localMailboxUrl = "";
+    private String turnstileSiteKey = "";
+    private String turnstileSecretKey = "";
+    public boolean turnstileEnabled() {
+        return !blank(turnstileSiteKey) || !blank(turnstileSecretKey);
+    }
+    public boolean signupReady() {
+        return ready() && (!turnstileEnabled() || turnstileConfigured());
+    }
+    public boolean turnstileConfigured() { return !blank(turnstileSiteKey) && !blank(turnstileSecretKey); }
     public String localMailboxUrl() {
         try {
             URI site = URI.create(publicUrl), mailbox = URI.create(localMailboxUrl);
@@ -28,7 +37,7 @@ public class NewsletterSettings {
         } catch (Exception e) { return ""; }
     }
     private int perMinute = 10;
-    private int dailyLimit = 300;
+    private int dailyLimit = 500;
     @Value("${spring.mail.host:}") private String smtpHost;
     public List<String> configurationIssues() {
         List<String> issues = new ArrayList<>();

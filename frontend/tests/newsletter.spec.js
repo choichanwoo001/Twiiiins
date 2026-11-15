@@ -1,7 +1,7 @@
 import { test, expect, emptyApiResponse } from './support/fixtures'
 
 const news = { id: 42, date: '2026-10-07', title: 'English announcement', titleDe: 'Deutsche Neuigkeiten', bodyEn: '<p>Hello <strong>friends</strong></p>', bodyDe: '<p>Hallo <strong>Freunde</strong></p>', description: 'Legacy description', imageUrls: [], videoUrls: ['https://example.com/video'], status: 'DRAFT', source: 'NEWSLETTER', version: 0, displayOrder: 0 }
-async function mocks(page, { available = true, admin = false, sent = false } = {}) {
+async function mocks(page, { available = true, admin = false, sent = false, audience = { total: 2, en: 1, de: 1 } } = {}) {
   await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) })
   let saved = { ...news }, posted = [], deleted = false, mailing = sent ? { id: 1, newsId: 42, titleEn: news.title, totalCount: 2 } : null
   let manualNews = [{ id: 7, date: '2026-10-07', title: 'Regular News', description: 'Regular description', imageUrls: [], source: 'NEWS', status: 'PUBLISHED', version: 0 }]
@@ -42,12 +42,13 @@ async function mocks(page, { available = true, admin = false, sent = false } = {
     if (path === '/api/admin/news/42/send') {
       const publishToNews = request.postDataJSON().publishToNews !== false
       if (publishToNews) saved.status = 'PUBLISHED'
-      mailing = { id: 1, newsId: 42, titleEn: saved.title, totalCount: 2, publishToNews }
+      mailing = { id: 1, newsId: 42, titleEn: saved.title, totalCount: audience.total, publishToNews }
       data = mailing
     }
     if (path === '/api/admin/newsletter/mailings') data = mailing ? [mailing] : []
     if (path === '/api/admin/newsletter/mailings/1/deliveries') data = []
-    if (path === '/api/admin/newsletter/settings') data = { available, paused: false, perMinute: 10, dailyLimit: 300, testRecipients: ['admin@example.com'] }
+    if (path === '/api/admin/newsletter/settings') data = { available, paused: false, perMinute: 10, dailyLimit: 300, dailyUsage: { used: 7, remaining: 293, resetsAt: '2026-11-16T00:00:00Z' }, testRecipients: ['admin@example.com'] }
+    if (path === '/api/admin/newsletter/audience') data = audience
     if (path === '/api/admin/newsletter/subscribers') data = [
       { id: 1, email: 'one@example.com', language: 'en', status: 'ACTIVE', createdAt: '2026-10-07T03:00:00Z' },
       { id: 2, email: 'two@example.com', language: 'de', status: 'ACTIVE', createdAt: '2026-10-07T03:00:00Z' },
@@ -87,6 +88,8 @@ test('dashboard shows live subscriber, mailing and upcoming concert metrics', as
   await expect(dashboard).toContainText('예정 공연 2건')
   await dashboard.getByRole('button', { name: '발송 기록 보기' }).click()
   await expect(page.locator('.newsletter-admin').getByRole('heading', { name: '발송 기록' })).toBeVisible()
+  await expect(page.locator('.newsletter-admin')).toContainText('오늘 발송 시도 7건 · 남은 시도 293건')
+  await expect(page.locator('.newsletter-admin')).toContainText('오전 9:00 초기화 (한국 시간)')
 })
 
 test('newsletter photos upload without saving an incomplete draft and actions are separated', async ({ page }, testInfo) => {
@@ -195,7 +198,8 @@ test('stale local administrator information cannot open management without a ser
 })
 
 test('administrator edits both languages and confirms audience before sending', async ({ page }, testInfo) => {
-  const posted = await mocks(page, { admin: true })
+  const audience = { total: 1, en: 0, de: 1 }
+  const posted = await mocks(page, { admin: true, audience })
   await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('token', 'test-token') })
   await page.goto('/admin')
   await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
@@ -207,11 +211,13 @@ test('administrator edits both languages and confirms audience before sending', 
   await expect(admin.getByRole('textbox', { name: '뉴스레터 본문' })).toContainText('Hallo')
   await admin.getByLabel('게시·발송 방식').selectOption('publish-and-send')
   await admin.getByRole('button', { name: '게시하고 발송하기', exact: true }).click()
-  await expect(page.locator('.dialog-body')).toContainText('영어 1명, 독일어 1명')
+  await expect(page.locator('.dialog-body')).toContainText('영어 0명, 독일어 1명')
+  await expect(page.locator('.dialog-body')).toContainText('대상은 총 1명')
   expect(posted.filter(p => p.path.endsWith('/send'))).toHaveLength(0)
   await page.locator('.dialog-footer').getByRole('button', { name: '확인', exact: true }).click()
   await expect(admin.getByRole('status')).toContainText('발송 대기열')
   expect(posted.filter(p => p.path.endsWith('/send'))).toHaveLength(1)
+  expect(posted.find(p => p.path.endsWith('/send')).data.expectedAudience).toEqual(audience)
   await page.screenshot({ path: testInfo.outputPath('admin-newsletter.png'), fullPage: true })
 })
 
@@ -327,6 +333,16 @@ test('late email web view response cannot restore an archived post after opening
   await (await response).finished()
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
   await expect(page.locator('.news-item')).toHaveCount(0)
+})
+
+test('a failed mail-link detail request leaves the public News list visible', async ({ page }) => {
+  await mocks(page)
+  await page.route('**/api/media/news/99', route => route.fulfill({ status: 500, json: { success: false } }))
+  const detail = page.waitForResponse(response => new URL(response.url()).pathname === '/api/media/news/99')
+  await page.goto('/media?section=news&newsId=99')
+  expect((await detail).status()).toBe(500)
+  await expect(page.getByText('Regular News', { exact: true })).toBeVisible()
+  await expect(page.locator('.news-details')).toHaveCount(0)
 })
 
 test('regular News clears its description and prevents duplicate registration while saving', async ({ page }) => {
@@ -555,6 +571,37 @@ test('Newsletter subscriber list shows dates, counts, translated states and sear
   await expect(admin).toContainText('조건에 맞는 구독자가 없습니다.')
 })
 
+test('administrator can cancel a subscriber exclusion', async ({ page }) => {
+  await mocks(page, { admin: true })
+  await page.addInitScript(() => { if (window === window.top) localStorage.setItem('token', 'test-token') })
+  let restores = 0
+  const subscriber = { id: 4, email: 'ex.cluded@gmail.com', language: 'en', status: 'EXCLUDED', restoreStatus: 'ACTIVE' }
+  const otherAlias = { ...subscriber, id: 5, email: 'excluded@gmail.com', restoreStatus: 'UNSUBSCRIBED' }
+  const restored = [{ ...subscriber, status: 'ACTIVE', restoreStatus: null }, { ...otherAlias, status: 'UNSUBSCRIBED', restoreStatus: null }]
+  await page.route('**/api/admin/newsletter/subscribers', route => route.fulfill({ json: { success: true, data: restores ? restored : [subscriber, otherAlias] } }))
+  await page.route('**/api/admin/newsletter/subscribers/4/restore', route => {
+    restores++
+    return route.fulfill({ json: { success: true, data: restored[0] } })
+  })
+  await page.goto('/admin')
+  await page.getByRole('tab', { name: '뉴스레터 관리 메뉴' }).click()
+  const admin = page.locator('.newsletter-admin')
+  await admin.getByRole('button', { name: '구독자', exact: true }).click()
+  const row = admin.getByRole('row').filter({ hasText: subscriber.email })
+  await row.getByRole('button', { name: '발송 제외 취소' }).click()
+  const dialog = admin.locator('.dialog-content')
+  await expect(dialog).toContainText('구독 중')
+  await expect(dialog).toContainText('이 Gmail 받은편지함')
+  await dialog.getByRole('button', { name: '취소', exact: true }).click()
+  expect(restores).toBe(0)
+  await row.getByRole('button', { name: '발송 제외 취소' }).click()
+  await dialog.getByRole('button', { name: '확인', exact: true }).click()
+  await expect(row.getByRole('cell', { name: '구독 중', exact: true })).toBeVisible()
+  await expect(row.getByRole('button', { name: '발송 제외', exact: true })).toBeVisible()
+  await expect(admin.getByRole('row').filter({ hasText: otherAlias.email }).getByRole('cell', { name: '구독 해지', exact: true })).toBeVisible()
+  expect(restores).toBe(1)
+})
+
 for (const failure of [404, 500, 'network', 'invalid']) {
   test(`status failure ${failure} stays inline and can retry`, async ({ page }) => {
     const posted = await mocks(page)
@@ -628,6 +675,44 @@ test('real subscription prevents duplicates and preserves inputs on failure', as
   await expect(signup.getByRole('button', { name: 'Subscribe', exact: true })).toBeDisabled()
 })
 
+
+test('signup sends a Turnstile token and refreshes verification after rejection', async ({ page }) => {
+  await mocks(page)
+  await page.route('**/api/newsletter/status', route => route.fulfill({
+    json: { success: true, data: { available: true, turnstileSiteKey: 'test-site-key' } }
+  }))
+  await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: `let options;
+      window.completeChallenge = token => options.callback(token);
+      window.turnstile = {
+        render: (_container, config) => { options = config; return 'widget'; },
+        reset: () => {},
+        remove: () => {}
+      };`
+  }))
+  const tokens = []
+  await page.route('**/api/newsletter/subscribe', route => {
+    tokens.push(route.request().postDataJSON().turnstileToken)
+    return route.fulfill({ status: tokens.length === 1 ? 403 : 200, json: { success: tokens.length > 1 } })
+  })
+  await page.goto('/contact')
+  const signup = page.locator('.newsletter-signup')
+  const button = signup.getByRole('button', { name: 'Subscribe', exact: true })
+  await signup.getByLabel('Email address').fill('reader@example.com')
+  await signup.getByRole('checkbox').check()
+  await page.waitForFunction(() => typeof window.completeChallenge === 'function')
+  await expect(button).toBeDisabled()
+  await page.evaluate(() => window.completeChallenge('first-token'))
+  await button.click()
+  await expect(signup.getByRole('status')).toContainText('Verification failed')
+  await expect(signup.getByLabel('Email address')).toHaveValue('reader@example.com')
+  await expect(button).toBeDisabled()
+  await page.evaluate(() => window.completeChallenge('second-token'))
+  await button.click()
+  await expect(signup.getByRole('status')).toContainText('Thank you for subscribing')
+  expect(tokens).toEqual(['first-token', 'second-token'])
+})
 
 test('administrator live preview uses unsaved draft, ignores stale responses and retries inline', async ({ page }) => {
   await mocks(page, { admin: true })

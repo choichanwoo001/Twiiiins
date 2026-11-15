@@ -9,27 +9,103 @@
         <label>{{ copy.language }}<select v-model="language" :disabled="busy"><option value="en">English</option><option value="de">Deutsch</option></select></label>
       </div>
       <label class="consent"><input v-model="consent" type="checkbox" required :disabled="busy"><span>{{ copy.consent }} <router-link to="/privacy#newsletter">{{ copy.privacy }}</router-link>.</span></label>
+      <div v-if="siteKey" ref="challengeContainer"></div>
+      <div v-if="challengeFailed">
+        <p role="alert">{{ verificationCopy.failed }}</p>
+        <button class="website-button" type="button" @click="renderChallenge">{{ copy.retry }}</button>
+      </div>
       <button class="website-button" :disabled="busy || !canSubmit">{{ busy ? copy.sending : copy.subscribe }}</button>
     </form>
     <div v-if="state === 'error'">
       <p role="alert">{{ copy.connectionError }}</p>
       <button class="website-button" type="button" @click="checkAvailability">{{ copy.retry }}</button>
     </div>
-    <p role="status" aria-live="polite"><span v-if="state === 'loading'">{{ copy.loading }}</span><span v-if="state === 'disabled'">{{ copy.unavailable }} </span>{{ messageKey ? copy[messageKey] : '' }}</p>
+    <p role="status" aria-live="polite"><span v-if="state === 'loading'">{{ copy.loading }}</span><span v-if="state === 'disabled'">{{ copy.unavailable }} </span>{{ messageKey === 'verificationRejected' ? verificationCopy.rejected : copy[messageKey] }}</p>
   </section>
 </template>
 
+<script>
+let turnstileScript
+function loadTurnstile() {
+  if (window.turnstile) return Promise.resolve(window.turnstile)
+  if (!turnstileScript) {
+    turnstileScript = new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      const fail = () => {
+        clearTimeout(timeout)
+        script.remove()
+        reject(new Error('Could not load Turnstile'))
+      }
+      const timeout = setTimeout(fail, 12000)
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+      script.async = true
+      script.onload = () => {
+        clearTimeout(timeout)
+        if (window.turnstile) resolve(window.turnstile)
+        else fail()
+      }
+      script.onerror = fail
+      document.head.append(script)
+    }).catch(error => {
+      turnstileScript = undefined
+      throw error
+    })
+  }
+  return turnstileScript
+}
+</script>
+
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { websiteLanguage, useWebsiteCopy } from '../../composables/useWebsitePreferences'
 import { newsletterService as service } from '../../services/newsletterService'
 const preview = import.meta.env.DEV && import.meta.env.VITE_DUMMY_DATA === 'true'
 const email = ref(''), language = ref(websiteLanguage.value), consent = ref(false), busy = ref(false)
 const state = ref(preview ? 'preview' : 'loading'), messageKey = ref('')
-const canSubmit = computed(() => state.value === 'ready' || state.value === 'preview')
+const siteKey = ref(''), challengeContainer = ref(null), challengeToken = ref(''), challengeFailed = ref(false)
+let widget, rendering = false
+const canSubmit = computed(() => (state.value === 'ready' || state.value === 'preview')
+  && (!siteKey.value || Boolean(challengeToken.value)))
+const verificationCopy = useWebsiteCopy(
+  { failed: 'Verification could not be completed. Please try again.', rejected: 'Verification failed. Please complete the new check and submit again.' },
+  { failed: 'Die Sicherheitsprüfung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.', rejected: 'Die Sicherheitsprüfung ist fehlgeschlagen. Bitte schließen Sie die neue Prüfung ab und senden Sie das Formular erneut.' }
+)
 const copy = useWebsiteCopy({ heading: 'STAY CONNECTED', preview: 'Preview only. No subscription is saved and no email is sent.', previewSuccess: 'Preview complete. No subscription was saved and no email was sent.', loading: 'Checking subscription availability…', connectionError: 'We could not check subscription availability. Please try again.', retry: 'Try again', intro: 'Subscribe to our newsletter for the latest news, upcoming concerts, new releases, and updates from TWIIIINS.', email: 'Email address', language: 'Newsletter language', consent: 'I would like to receive the TWIIIINS newsletter. I can unsubscribe at any time. See our', privacy: 'privacy notice', subscribe: 'Subscribe', sending: 'Sending…', unavailable: 'Newsletter subscriptions are currently unavailable.', success: 'Thank you for subscribing! We’ll send you news from TWIIIINS. No further confirmation is needed.', error: 'We could not process your request. Please try again later.' },
 { heading: 'IN VERBINDUNG BLEIBEN', preview: 'Nur Vorschau. Es wird kein Abonnement gespeichert und keine E-Mail versendet.', previewSuccess: 'Vorschau abgeschlossen. Es wurde kein Abonnement gespeichert und keine E-Mail versendet.', loading: 'Die Verfügbarkeit wird geprüft…', connectionError: 'Die Verfügbarkeit konnte nicht geprüft werden. Bitte versuchen Sie es erneut.', retry: 'Erneut versuchen', intro: 'Abonnieren Sie unseren Newsletter für aktuelle Neuigkeiten, kommende Konzerte, neue Veröffentlichungen und Updates von TWIIIINS.', email: 'E-Mail-Adresse', language: 'Newsletter-Sprache', consent: 'Ich möchte den TWIIIINS-Newsletter erhalten und kann mich jederzeit abmelden. Weitere Informationen in unserer', privacy: 'Datenschutzerklärung', subscribe: 'Abonnieren', sending: 'Wird gesendet…', unavailable: 'Newsletter-Abonnements sind derzeit nicht verfügbar.', success: 'Vielen Dank für Ihr Abonnement! Sie erhalten ab jetzt Neuigkeiten von TWIIIINS. Eine weitere Bestätigung ist nicht erforderlich.', error: 'Die Anfrage konnte nicht bearbeitet werden. Bitte versuchen Sie es später erneut.' })
 watch(websiteLanguage, value => { language.value = value })
+async function renderChallenge() {
+  if (rendering) return
+  rendering = true
+  challengeToken.value = ''
+  challengeFailed.value = false
+  try {
+    await nextTick()
+    const turnstile = await loadTurnstile()
+    if (!challengeContainer.value) return
+    if (widget !== undefined) {
+      turnstile.remove(widget)
+      widget = undefined
+    }
+    widget = turnstile.render(challengeContainer.value, {
+      sitekey: siteKey.value,
+      action: 'newsletter_signup',
+      appearance: 'interaction-only',
+      size: 'flexible',
+      callback: token => { challengeToken.value = token; challengeFailed.value = false },
+      'expired-callback': () => { challengeToken.value = '' },
+      'timeout-callback': () => { challengeToken.value = ''; challengeFailed.value = true },
+      'error-callback': () => { challengeToken.value = ''; challengeFailed.value = true }
+    })
+  } catch {
+    if (challengeContainer.value) challengeFailed.value = true
+  } finally {
+    rendering = false
+  }
+}
+onBeforeUnmount(() => {
+  if (widget !== undefined) window.turnstile.remove(widget)
+  widget = undefined
+})
 async function checkAvailability() {
   if (preview) return
   messageKey.value = ''
@@ -37,7 +113,9 @@ async function checkAvailability() {
   try {
     const result = await service.available()
     if (typeof result?.available !== 'boolean') throw new Error('Invalid newsletter status')
+    siteKey.value = result.available ? result.turnstileSiteKey || '' : ''
     state.value = result.available ? 'ready' : 'disabled'
+    if (siteKey.value) renderChallenge()
   } catch { state.value = 'error' }
 }
 onMounted(checkAvailability)
@@ -47,15 +125,23 @@ async function submit() {
   try {
     if (preview) messageKey.value = 'previewSuccess'
     else {
-      await service.subscribe({ email: email.value, language: language.value, consent: consent.value })
+      const signup = { email: email.value, language: language.value, consent: consent.value }
+      if (siteKey.value) signup.turnstileToken = challengeToken.value
+      await service.subscribe(signup)
       messageKey.value = 'success'
     }
     email.value = ''; consent.value = false
   } catch (error) {
-    messageKey.value = 'error'
+    messageKey.value = siteKey.value && error.response?.status === 403 ? 'verificationRejected' : 'error'
     if (error.response?.status === 503) state.value = 'disabled'
   }
-  finally { busy.value = false }
+  finally {
+    if (widget !== undefined && state.value === 'ready') {
+      challengeToken.value = ''
+      window.turnstile.reset(widget)
+    }
+    busy.value = false
+  }
 }
 
 </script>

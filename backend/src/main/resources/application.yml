@@ -96,8 +96,10 @@ app:
     operator: ${NEWSLETTER_OPERATOR:}
     test-recipients: ${NEWSLETTER_TEST_RECIPIENTS:}
     local-mailbox-url: ${NEWSLETTER_LOCAL_MAILBOX_URL:}
+    turnstile-site-key: ${NEWSLETTER_TURNSTILE_SITE_KEY:}
+    turnstile-secret-key: ${NEWSLETTER_TURNSTILE_SECRET_KEY:}
     per-minute: ${NEWSLETTER_PER_MINUTE:10}
-    daily-limit: ${NEWSLETTER_DAILY_LIMIT:300}
+    daily-limit: ${NEWSLETTER_DAILY_LIMIT:500}
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:}

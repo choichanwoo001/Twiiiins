@@ -1,8 +1,9 @@
 package com.twiiiins.newsletter;
 
 import com.twiiiins.entity.News;
+import com.twiiiins.exception.ResourceNotFoundException;
 import com.twiiiins.repository.NewsRepository;
-import com.twiiiins.service.NewsService;
+import com.twiiiins.service.NewsPublication;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,11 +11,17 @@ import java.util.*;
 
 @Service @RequiredArgsConstructor
 public class MailingService {
+    public record Audience(long total, long en, long de) {
+        private static Audience of(List<Subscriber> recipients) {
+            long english = recipients.stream().filter(subscriber -> "en".equals(subscriber.getLanguage())).count();
+            return new Audience(recipients.size(), english, recipients.size() - english);
+        }
+    }
     private final java.time.Clock clock;
     private final NewsRepository news;
-    private final NewsService newsService;
+    private final NewsPublication publication;
     private final MailingRepository mailings;
-    private final SubscriberRepository subscribers;
+    private final NewsletterMailboxes mailboxes;
     private final DeliveryRepository deliveries;
     private final NewsletterContent content;
     private final NewsletterSettings settings;
@@ -25,9 +32,13 @@ public class MailingService {
     }
 
     @Transactional public Mailing send(Long newsId, Long version, boolean publishToNews) {
+        return send(newsId, version, publishToNews, null);
+    }
+
+    @Transactional public Mailing send(Long newsId, Long version, boolean publishToNews, Audience expectedAudience) {
         MailGate gate = gates.lock();
         News item = news.lockById(newsId).orElseThrow(() -> new IllegalArgumentException("News not found"));
-        newsService.requireSource(item, News.NEWSLETTER);
+        publication.requireSource(item, News.NEWSLETTER);
         Optional<Mailing> existing = mailings.findByNewsId(newsId);
         if (existing.isPresent()) {
             Mailing mailing = existing.get();
@@ -38,11 +49,12 @@ public class MailingService {
         settings.requireReady();
         if (gate.isPaused()) throw new IllegalArgumentException("SMTP is paused. Check settings and resume first.");
         if (!Objects.equals(item.getVersion(), version)) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "News changed. Reload before sending.");
-        if (item.isArchived()) throw new IllegalArgumentException("Archived news cannot be sent");
-        if (!publishToNews && !"DRAFT".equals(item.getStatus()))
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Only unpublished newsletters can be sent by email only.");
-        newsService.validatePublication(item);
-        if (publishToNews) item.setStatus("PUBLISHED");
+        publication.prepareMailing(item, publishToNews);
+        List<Subscriber> recipients = mailboxes.recipients();
+        if (expectedAudience != null && !expectedAudience.equals(Audience.of(recipients))) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,
+                "발송 대상 수가 변경되었습니다. 다시 확인하세요.");
+        }
         Mailing mailing = new Mailing(); mailing.setCreatedAt(clock.instant());
         mailing.setNewsId(newsId);
         mailing.setPublishToNews(publishToNews);
@@ -50,12 +62,11 @@ public class MailingService {
         mailing.setHtmlEn(content.render(item, "en", settings.getPublicUrl()));
         mailing.setHtmlDe(content.render(item, "de", settings.getPublicUrl()));
         mailing.setImages(String.join("\n", item.getImageUrls()));
-        List<Subscriber> recipients = subscribers.findByStatus("ACTIVE");
         mailing.setTotalCount(recipients.size());
         mailings.saveAndFlush(mailing);
         for (Subscriber subscriber : recipients) {
             Delivery delivery = new Delivery();
-        delivery.setCreatedAt(clock.instant()); delivery.setNextAttempt(clock.instant());
+            delivery.setCreatedAt(clock.instant()); delivery.setNextAttempt(clock.instant());
             delivery.setKind("NEWS"); delivery.setMailingId(mailing.getId());
             delivery.setSubscriberId(subscriber.getId()); delivery.setEmail(subscriber.getEmail());
             delivery.setLanguage(subscriber.getLanguage());
@@ -64,10 +75,14 @@ public class MailingService {
         }
         return mailing;
     }
+
+    @Transactional(readOnly = true) public Audience audience() {
+        return Audience.of(mailboxes.recipients());
+    }
     @Transactional(readOnly = true) public Map<String, Object> preview(Long newsId, String language) {
         SubscriptionService.language(language);
-        News item = newsService.getEntity(newsId);
-        newsService.requireSource(item, News.NEWSLETTER);
+        News item = news.findById(newsId).orElseThrow(() -> new ResourceNotFoundException("News not found"));
+        publication.requireSource(item, News.NEWSLETTER);
         return Map.of("title", content.title(item, language),
             "html", content.complete(content.render(item, language, settings.getPublicUrl()), language, settings, null, null, true));
     }
@@ -82,16 +97,5 @@ public class MailingService {
         delivery.setKind("TEST"); delivery.setEmail(email); delivery.setLanguage(language);
         delivery.setTestTitle("[TEST] " + preview.get("title")); delivery.setTestHtml((String) preview.get("html"));
         deliveries.save(delivery);
-    }
-    @Transactional public void retry(Long id) {
-        gates.lock();
-        Delivery delivery = deliveries.findById(id).orElseThrow(() -> new IllegalArgumentException("Delivery not found"));
-        if (!"FAILED".equals(delivery.getStatus()) || !"NEWS".equals(delivery.getKind())) throw new IllegalArgumentException("Only definitely failed newsletter deliveries can be retried.");
-        delivery.setStatus("WAITING"); delivery.setAttempts(0); delivery.setErrorCode(null);
-        delivery.setNextAttempt(clock.instant()); delivery.setFinishedAt(null);
-    }
-    @Transactional public void resume() {
-        settings.requireReady();
-        MailGate gate = gates.lock(); gate.setPaused(false); gate.setReason(null);
     }
 }

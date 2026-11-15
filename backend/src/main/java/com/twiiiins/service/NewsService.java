@@ -20,22 +20,20 @@ public class NewsService {
     private final NewsMapper newsMapper;
     private final NewsletterContent content;
     private final NewsletterSettings settings;
-    private final MailingRepository mailings;
-    private boolean published(News n) { return "PUBLISHED".equals(n.getStatus()); }
-    private boolean listed(News n) { return published(n) && !n.isArchived(); }
+    private final NewsPublication publication;
     public NewsDto localize(NewsDto dto, String language) {
         SubscriptionService.language(language);
         String selected = content.languageFor(dto.getTitle(), dto.getBodyEn(), dto.getTitleDe(), dto.getBodyDe(), language);
-        if ("de".equals(selected) && present(dto.getTitleDe())) dto.setTitle(dto.getTitleDe());
+        if ("de".equals(selected) && present(dto.getTitleDe())) dto.useLocalizedTitle(dto.getTitleDe());
         String body = "de".equals(selected) ? dto.getBodyDe() : dto.getBodyEn();
         dto.setBody(body == null || body.isBlank() ? "<p>" + content.escape(dto.getDescription()) + "</p>" : body);
         return dto;
     }
     public List<NewsDto> getAllNews() {
-        return newsRepository.findAllByOrderByDisplayOrderAsc().stream().filter(this::listed).map(newsMapper::toDto).toList();
+        return newsRepository.findAllByOrderByDisplayOrderAsc().stream().filter(publication::listed).map(newsMapper::toDto).toList();
     }
     public List<NewsDto> getNewsWithFilters(String title, LocalDate startDate, LocalDate endDate) {
-        return newsRepository.findNewsWithFilters(title, startDate, endDate).stream().filter(this::listed).map(newsMapper::toDto).toList();
+        return newsRepository.findNewsWithFilters(title, startDate, endDate).stream().filter(publication::listed).map(newsMapper::toDto).toList();
     }
     public List<NewsDto> adminList() {
         return newsRepository.findAllByOrderByDisplayOrderAsc().stream().map(newsMapper::toDto).toList();
@@ -48,20 +46,15 @@ public class NewsService {
     }
     public NewsDto getNewsById(Long id) {
         News news = getEntity(id);
-        if (!published(news)) throw new ResourceNotFoundException("News not found");
+        if (!publication.reachableByLink(news)) throw new ResourceNotFoundException("News not found");
         return newsMapper.toDto(news);
     }
     public NewsDto adminGet(Long id) { return newsMapper.toDto(getEntity(id)); }
     public NewsDto manualGet(Long id) {
-        News item = getEntity(id); requireSource(item, News.NEWS); return newsMapper.toDto(item);
+        News item = getEntity(id); publication.requireSource(item, News.NEWS); return newsMapper.toDto(item);
     }
     public NewsDto newsletterGet(Long id) {
-        News item = getEntity(id); requireSource(item, News.NEWSLETTER); return newsMapper.toDto(item);
-    }
-    public void requireSource(News item, String expected) {
-        if (!expected.equals(item.getSource())) throw new org.springframework.web.server.ResponseStatusException(
-            org.springframework.http.HttpStatus.CONFLICT,
-            News.NEWS.equals(expected) ? "Newsletter 글은 Newsletter 메뉴에서 수정하세요." : "일반 News는 Media > News 메뉴에서 관리하세요.");
+        News item = getEntity(id); publication.requireSource(item, News.NEWSLETTER); return newsMapper.toDto(item);
     }
     private String plainBody(String description) {
         return "<p>" + content.escape(description).replace("\n", "<br>") + "</p>";
@@ -94,26 +87,15 @@ public class NewsService {
         newsRepository.flush();
         return newsMapper.toDto(item);
     }
-    public void validatePublication(News news) {
-        requireSource(news, News.NEWSLETTER);
-        if (present(news.getCtaUrl()) || present(news.getCtaLabelEn()) || present(news.getCtaLabelDe())) {
-            if (!present(news.getCtaUrl()) || (!present(news.getCtaLabelEn()) && !present(news.getCtaLabelDe())))
-                throw new IllegalArgumentException("Button URL and at least one button label are required together.");
-            content.buttonUrl(news.getCtaUrl());
-        }
-        if (!content.completeLanguage(news.getTitle(), news.getBodyEn()) && !content.completeLanguage(news.getTitleDe(), news.getBodyDe()))
-            throw new IllegalArgumentException("Enter a title and content together in English or German.");
-    }
     @Transactional public NewsDto createNews(NewsCreateRequest request) {
         News news = newsMapper.toEntity(request);
-        news.setSource(News.NEWSLETTER);
-        news.setStatus("DRAFT");
+        publication.initialize(news, News.NEWSLETTER);
         sanitize(news);
         return saveTranslated(news);
     }
     @Transactional public NewsDto createManualNews(NewsCreateRequest request) {
         News item = newsMapper.toEntity(request);
-        item.setSource(News.NEWS); item.setStatus("PUBLISHED");
+        publication.initialize(item, News.NEWS);
         item.setVideoUrls(new ArrayList<>());
         item.setBodyEn(plainBody(item.getDescription()));
         sanitize(item);
@@ -127,7 +109,7 @@ public class NewsService {
     }
     private NewsDto update(Long id, NewsUpdateRequest request, String source) {
         News news = newsRepository.lockById(id).orElseThrow(() -> new ResourceNotFoundException("News not found"));
-        requireSource(news, source);
+        publication.requireSource(news, source);
         if (request.getVersion() != null && !Objects.equals(request.getVersion(), news.getVersion()))
             throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "News changed. Reload before saving.");
         if (News.NEWS.equals(source)) {
@@ -145,8 +127,7 @@ public class NewsService {
     }
     @Transactional public NewsDto publish(Long id) {
         News news = newsRepository.lockById(id).orElseThrow(() -> new ResourceNotFoundException("News not found"));
-        validatePublication(news);
-        news.setStatus("PUBLISHED");
+        publication.publish(news);
         return saveTranslated(news);
     }
     @Transactional public void deleteNews(Long id) {
@@ -157,8 +138,8 @@ public class NewsService {
     }
     private void delete(Long id, String source) {
         News news = newsRepository.lockById(id).orElseThrow(() -> new ResourceNotFoundException("News not found"));
-        requireSource(news, source);
-        if (mailings.existsByNewsId(id)) news.setArchived(true);
-        else { translations.remove("news", id); newsRepository.delete(news); }
+        if (publication.archiveForRemoval(news, source)) return;
+        translations.remove("news", id);
+        newsRepository.delete(news);
     }
 }
