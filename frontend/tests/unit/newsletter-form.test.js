@@ -6,7 +6,12 @@ const service = vi.hoisted(() => ({ available: vi.fn(), subscribe: vi.fn() }))
 vi.mock('../../src/services/newsletterService', () => ({ newsletterService: service }))
 let wrapper
 beforeEach(() => { websiteLanguage.value = 'en'; service.available.mockResolvedValue({ available: true }); service.subscribe.mockReset() })
-afterEach(() => wrapper?.unmount())
+afterEach(() => {
+  wrapper?.unmount()
+  wrapper = undefined
+  delete window.turnstile
+  document.head.querySelector('script[src*="challenges.cloudflare.com"]')?.remove()
+})
 async function form() {
   wrapper = mount(NewsletterSignup, { global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } } })
   await flushPromises(); await wrapper.get('input[type=email]').setValue('reader@example.com')
@@ -50,4 +55,91 @@ it('rejects malformed status and keeps input when SMTP becomes unavailable', asy
   await wrapper.get('form').trigger('submit'); await flushPromises()
   expect(wrapper.get('form button').attributes()).toHaveProperty('disabled')
   expect(wrapper.get('input[type=email]').element.value).toBe('reader@example.com')
+})
+
+it('retries loading verification after a script error or an incomplete load', async () => {
+  service.available.mockResolvedValue({ available: true, turnstileSiteKey: 'public-site-key' })
+  await form()
+  const challengeScript = () => document.head.querySelector('script[src*="challenges.cloudflare.com"]')
+  const retry = async () => {
+    await wrapper.get('form button[type=button]').trigger('click')
+    await flushPromises()
+  }
+
+  challengeScript().dispatchEvent(new Event('error'))
+  await flushPromises()
+  expect(wrapper.get('[role=alert]').text()).toContain('Verification could not be completed')
+  expect(challengeScript()).toBeNull()
+
+  await retry()
+  challengeScript().dispatchEvent(new Event('load'))
+  await flushPromises()
+  expect(challengeScript()).toBeNull()
+
+  await retry()
+  window.turnstile = { render: vi.fn().mockReturnValue('widget'), remove: vi.fn() }
+  challengeScript().dispatchEvent(new Event('load'))
+  await flushPromises()
+  expect(window.turnstile.render).toHaveBeenCalledOnce()
+  expect(wrapper.find('[role=alert]').exists()).toBe(false)
+})
+
+it('submits fresh verification tokens and preserves the form when a token is rejected', async () => {
+  service.available.mockResolvedValue({ available: true, turnstileSiteKey: 'public-site-key' })
+  service.subscribe.mockRejectedValueOnce({ response: { status: 403 } }).mockResolvedValueOnce({})
+  window.turnstile = { render: vi.fn().mockReturnValue('widget'), reset: vi.fn(), remove: vi.fn() }
+  await form()
+  const callbacks = window.turnstile.render.mock.calls[0][1]
+  expect(callbacks).toMatchObject({ sitekey: 'public-site-key', action: 'newsletter_signup' })
+  expect(wrapper.get('form button').attributes()).toHaveProperty('disabled')
+  await wrapper.get('form').trigger('submit')
+  expect(service.subscribe).not.toHaveBeenCalled()
+
+  callbacks.callback('first-token')
+  await wrapper.get('form').trigger('submit')
+  await flushPromises()
+  expect(service.subscribe).toHaveBeenLastCalledWith({
+    email: 'reader@example.com', language: 'en', consent: true, turnstileToken: 'first-token'
+  })
+  expect(wrapper.get('[role=status]').text()).toContain('complete the new check')
+  expect(wrapper.get('input[type=email]').element.value).toBe('reader@example.com')
+  expect(window.turnstile.reset).toHaveBeenCalledWith('widget')
+  expect(wrapper.get('form button').attributes()).toHaveProperty('disabled')
+
+  callbacks.callback('fresh-token')
+  await wrapper.get('form').trigger('submit')
+  await flushPromises()
+  expect(service.subscribe).toHaveBeenLastCalledWith({
+    email: 'reader@example.com', language: 'en', consent: true, turnstileToken: 'fresh-token'
+  })
+  expect(wrapper.get('[role=status]').text()).toContain('Thank you')
+})
+
+it('blocks expired, timed-out and errored challenges and replaces the widget on retry', async () => {
+  service.available.mockResolvedValue({ available: true, turnstileSiteKey: 'public-site-key' })
+  const turnstile = { render: vi.fn().mockReturnValueOnce('old-widget').mockReturnValue('new-widget'), remove: vi.fn() }
+  window.turnstile = turnstile
+  await form()
+  const callbacks = turnstile.render.mock.calls[0][1]
+
+  callbacks.callback('expired-token')
+  callbacks['expired-callback']()
+  await flushPromises()
+  expect(wrapper.get('form button').attributes()).toHaveProperty('disabled')
+  expect(wrapper.find('[role=alert]').exists()).toBe(false)
+  callbacks['timeout-callback']()
+  await flushPromises()
+  expect(wrapper.get('[role=alert]').text()).toContain('Verification could not be completed')
+
+  await wrapper.get('form button[type=button]').trigger('click')
+  await flushPromises()
+  expect(turnstile.remove).toHaveBeenCalledWith('old-widget')
+  expect(turnstile.render).toHaveBeenCalledTimes(2)
+  expect(wrapper.find('[role=alert]').exists()).toBe(false)
+  turnstile.render.mock.calls[1][1]['error-callback']()
+  await flushPromises()
+  expect(wrapper.find('[role=alert]').exists()).toBe(true)
+  wrapper.unmount()
+  wrapper = undefined
+  expect(turnstile.remove).toHaveBeenLastCalledWith('new-widget')
 })
