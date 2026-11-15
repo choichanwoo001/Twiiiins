@@ -26,4 +26,9 @@ public class Delivery {
     private Instant nextAttempt = Instant.now();
     private Instant attemptedAt;
     private Instant finishedAt;
+
+    void markSkipped(Instant now) {
+        status = "SKIPPED";
+        finishedAt = now;
+    }
 }

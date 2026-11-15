@@ -55,6 +55,22 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
   requested_at DATETIME(6), created_at DATETIME(6) NOT NULL, updated_at DATETIME(6) NOT NULL,
   consent_at DATETIME(6), consent_version VARCHAR(255), unsubscribe_version VARCHAR(255)
 );
+CALL newsletter_add_column('newsletter_subscribers', 'email_key',
+  'VARCHAR(254) NULL, ADD UNIQUE KEY newsletter_email_key (email_key)');
+CALL newsletter_add_column('newsletter_subscribers', 'status_before_exclusion', 'VARCHAR(20) NULL');
+CALL newsletter_add_column('newsletter_subscribers', 'unsubscribed_at', 'DATETIME(6) NULL');
+-- Leave historical collisions intact, including their IDs, consent and unsubscribe links.
+-- The application checks these rows before registering another spelling of the same address.
+CREATE TEMPORARY TABLE newsletter_email_backfill AS
+  SELECT MIN(id) AS id, email_key FROM (
+    SELECT id, CASE WHEN RIGHT(LOWER(TRIM(email)), 10) = '@gmail.com'
+      THEN CONCAT(REPLACE(LEFT(LOWER(TRIM(email)), CHAR_LENGTH(TRIM(email)) - 10), '.', ''), '@gmail.com')
+      ELSE LOWER(TRIM(email)) END AS email_key
+    FROM newsletter_subscribers
+  ) AS normalized GROUP BY email_key HAVING COUNT(*) = 1;
+UPDATE newsletter_subscribers s JOIN newsletter_email_backfill b ON b.id = s.id
+  SET s.email_key = b.email_key WHERE s.email_key IS NULL;
+DROP TEMPORARY TABLE newsletter_email_backfill;
 CREATE TABLE IF NOT EXISTS newsletter_mailings (
   id BIGINT AUTO_INCREMENT PRIMARY KEY, news_id BIGINT NOT NULL UNIQUE, created_at DATETIME(6),
   title_en VARCHAR(255) NOT NULL, title_de VARCHAR(255) NOT NULL,

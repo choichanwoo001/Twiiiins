@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public interface NewsMapper {
 
     @Mapping(target = "body", ignore = true)
+    @Mapping(target = "titleBeforeLocalization", ignore = true)
     NewsDto toDto(News entity);
 
     @Mapping(target = "status", ignore = true)

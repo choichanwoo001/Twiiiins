@@ -62,6 +62,7 @@ export const privacyCopy = {
         [
           "We use your email address, chosen language and consent record to provide TWIIIINS music, performance, event and release news. Submitting your email address, language and consent activates your subscription immediately and queues a welcome email. No email confirmation is required. Each newsletter includes an unsubscribe link; unsubscribing stops future queued messages.",
           "Subscription data is managed in our own website database. Our configured email account provider processes email delivery. The actual mail provider, hosting location, operator identity and contact details must be specified before activation. We do not use newsletter open or click tracking.",
+          "When Cloudflare Turnstile is enabled, your browser connects to Cloudflare to check for automated submissions. This check uses browser and connection information. We do not send your newsletter email address to Turnstile.",
           "Legacy unconfirmed applications are deleted after 7 days. Unsubscribed and manually excluded subscription records are deleted after 30 days. Recipient-level delivery records are deleted after 90 days; aggregate mailing counts are retained. Active subscription data is retained while subscribed. Legacy confirmation links expire after 24 hours."
         ]
       ],
@@ -156,6 +157,7 @@ export const privacyCopy = {
         [
           "Wir verwenden Ihre E-Mail-Adresse, gewählte Sprache und Einwilligungsnachweise für Neuigkeiten zu TWIIIINS-Musik, Auftritten, Veranstaltungen und Veröffentlichungen. Mit Ihrer E-Mail-Adresse, Sprache und Einwilligung wird das Abonnement sofort aktiviert und eine Willkommens-E-Mail versendet. Eine E-Mail-Bestätigung ist nicht erforderlich. Jeder Newsletter enthält einen Abmeldelink; nach der Abmeldung werden ausstehende Newsletter nicht mehr versendet.",
           "Abonnements werden in unserer eigenen Website-Datenbank verwaltet. Der Anbieter unseres eingerichteten E-Mail-Kontos verarbeitet den Versand. Der tatsächliche E-Mail-Anbieter, Hosting-Standort, Betreiber und Kontakt müssen vor Aktivierung benannt werden. Es findet kein Öffnungs- oder Klicktracking statt.",
+          "Wenn Cloudflare Turnstile aktiviert ist, stellt Ihr Browser zur Erkennung automatisierter Anmeldungen eine Verbindung zu Cloudflare her. Die Prüfung verwendet Browser- und Verbindungsdaten. Ihre Newsletter-E-Mail-Adresse wird dabei nicht an Turnstile übermittelt.",
           "Frühere unbestätigte Anmeldungen werden nach 7 Tagen gelöscht. Abgemeldete und manuell ausgeschlossene Abonnements werden nach 30 Tagen gelöscht. Empfängerbezogene Versandprotokolle werden nach 90 Tagen gelöscht; zusammengefasste Versandzahlen bleiben erhalten. Aktive Abonnements bleiben während des Abonnements gespeichert. Frühere Bestätigungslinks sind 24 Stunden gültig."
         ]
       ],

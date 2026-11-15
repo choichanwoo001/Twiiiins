@@ -64,14 +64,35 @@
       <div class="row"><h2>구독자</h2><button :disabled="busy" @click="run(refresh)">새로고침</button></div>
       <div class="verification-help"><h3>구독 등록 안내</h3><p>Contact에서 이메일 입력 + 수신 동의 → 바로 ‘구독 중’으로 등록 → 환영 메일 발송. 별도의 이메일 확인은 필요하지 않습니다.</p><p>환영 메일과 뉴스레터의 구독 해지 링크로 언제든 해지할 수 있습니다. 이전 방식의 인증 대기 주소는 기존 확인 링크를 이용하거나 Contact에서 다시 신청하면 됩니다.</p></div>
       <p>전체 신청자 {{ subscribers.length }}명 · 구독 중 {{ subscribers.filter(s => s.status === 'ACTIVE').length }}명 · 영어 {{ activeCount('en') }}명 · 독일어 {{ activeCount('de') }}명</p>
+      <p v-if="settings.signupCounts">서버 시작 이후 가입 처리 · 등록 {{ settings.signupCounts.registered }}건 · 중복 또는 발송 제외 {{ settings.signupCounts.duplicate }}건 · 요청 제한 {{ settings.signupCounts.limited }}건 · 봇 검증 실패 {{ settings.signupCounts.rejected }}건 · 검증 서비스 오류 {{ settings.signupCounts.verificationUnavailable }}건</p>
+      <p v-if="settings.signupVerification === 'INCOMPLETE'" role="alert">Turnstile 키 설정이 불완전해 신규 가입이 중지되었습니다.</p>
+      <p v-else-if="settings.signupVerification === 'DISABLED'">가입 폼 봇 검증이 비활성화되어 있습니다.</p>
       <div class="row"><input v-model="subscriberSearch" type="search" placeholder="이메일 검색" aria-label="구독자 검색"><select v-model="subscriberLanguage" aria-label="수신 언어"><option value="">모든 언어</option><option value="en">English</option><option value="de">Deutsch</option></select><select v-model="subscriberStatus" aria-label="구독 상태"><option value="">모든 상태</option><option v-for="status in ['ACTIVE', 'PENDING', 'UNSUBSCRIBED', 'EXCLUDED']" :key="status" :value="status">{{ subscriberStatusLabel(status) }}</option></select></div>
       <p>검색 결과 {{ filteredSubscribers.length }}명</p>
-      <div class="table-scroll"><table><thead><tr><th>이메일</th><th>언어</th><th>상태</th><th>신청일</th><th>작업</th></tr></thead><tbody><tr v-for="subscriber in filteredSubscribers" :key="subscriber.id"><td>{{ subscriber.email }}</td><td>{{ subscriber.language === 'de' ? 'Deutsch' : 'English' }}</td><td>{{ subscriberStatusLabel(subscriber.status) }}</td><td>{{ subscriberDate(subscriber.createdAt) }}</td><td><div class="subscriber-actions"><button :disabled="busy || subscriber.status === 'EXCLUDED'" @click="ask('이 주소를 발송 대상에서 제외할까요?', () => run(async () => { await service.exclude(subscriber.id); await refresh() }, '발송 대상에서 제외했습니다.'))">발송 제외</button></div></td></tr><tr v-if="!filteredSubscribers.length"><td colspan="5">조건에 맞는 구독자가 없습니다.</td></tr></tbody></table></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>이메일</th><th>언어</th><th>상태</th><th>신청일</th><th>작업</th></tr></thead>
+        <tbody>
+          <tr v-for="subscriber in filteredSubscribers" :key="subscriber.id">
+            <td>{{ subscriber.email }}</td>
+            <td>{{ subscriber.language === 'de' ? 'Deutsch' : 'English' }}</td>
+            <td>{{ subscriberStatusLabel(subscriber.status) }}</td>
+            <td>{{ subscriberDate(subscriber.createdAt) }}</td>
+            <td><div class="subscriber-actions">
+              <button v-if="subscriber.status === 'EXCLUDED'" :disabled="busy" @click="restoreSubscriber(subscriber)">발송 제외 취소</button>
+              <button v-else :disabled="busy" @click="excludeSubscriber(subscriber)">발송 제외</button>
+            </div></td>
+          </tr>
+          <tr v-if="!filteredSubscribers.length"><td colspan="5">조건에 맞는 구독자가 없습니다.</td></tr>
+        </tbody>
+      </table></div>
     </section>
 
     <section v-if="section === 'history'">
       <div class="row"><h2>발송 기록</h2><button :disabled="busy" @click="run(refreshHistory)">새로고침</button></div><p>‘SMTP 접수’는 메일 서버의 접수 상태입니다. 실제 받은편지함 도착을 뜻하지 않습니다.</p>
-      <p v-if="settings.available" class="list-help">발송 한도 분당 {{ settings.perMinute }}건 · 하루 {{ settings.dailyLimit }}건 (UTC 기준, 환영·테스트 포함)</p>
+      <p v-if="settings.available" class="list-help">발송 한도 분당 {{ settings.perMinute }}건 · 하루 {{ settings.dailyLimit }}건</p>
+      <p v-if="settings.available && settings.dailyUsage" class="list-help">
+        오늘 발송 시도 {{ settings.dailyUsage.used }}건 · 남은 시도 {{ settings.dailyUsage.remaining }}건 · {{ quotaReset(settings.dailyUsage.resetsAt) }} 초기화 (한국 시간)
+      </p>
       <div class="table-scroll"><table><thead><tr><th>제목</th><th>발송 방식</th><th>전체</th><th>기록</th></tr></thead><tbody><tr v-for="mailing in mailings" :key="mailing.id"><td>{{ mailing.titleEn }}</td><td>{{ mailing.publishToNews === false ? '구독자에게만 발송' : '뉴스 게시 및 발송' }}</td><td>{{ mailing.totalCount }}</td><td><button :disabled="busy" @click="run(async () => { selectedMailing = mailing; deliveryRows = await service.deliveries(mailing.id) })">결과 보기</button></td></tr></tbody></table></div>
       <template v-if="selectedMailing"><h3>{{ selectedMailing.titleEn }}</h3><p v-for="(count, state) in deliveryCounts" :key="state">{{ statusLabel(state) }}: {{ count }}</p>
         <div class="table-scroll"><table><thead><tr><th>이메일</th><th>언어</th><th>상태</th><th>오류</th><th>작업</th></tr></thead><tbody><tr v-for="delivery in deliveryRows" :key="delivery.id"><td>{{ delivery.email }}</td><td>{{ delivery.language }}</td><td>{{ statusLabel(delivery.status) }}</td><td>{{ delivery.errorCode }}</td><td><button v-if="delivery.status === 'FAILED'" :disabled="busy" @click="ask('명확히 실패한 메일을 다시 보낼까요?', () => run(async () => { await service.retry(delivery.id); await refreshHistory() }, '재시도를 등록했습니다.'))">재시도</button><span v-if="delivery.status === 'UNKNOWN'">SMTP 기록 수동 확인 필요</span></td></tr></tbody></table></div>
@@ -131,6 +152,10 @@ const filteredSubscribers = computed(() => subscribers.value.filter(s => s.email
 const activeCount = lang => subscribers.value.filter(s => s.status === 'ACTIVE' && s.language === lang).length
 const subscriberStatusLabel = status => ({ PENDING: '이전 인증 대기', ACTIVE: '구독 중', UNSUBSCRIBED: '구독 해지', EXCLUDED: '발송 제외' }[status] || status)
 const subscriberDate = value => value ? new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '—'
+const quotaReset = value => new Intl.DateTimeFormat('ko-KR', {
+  timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
+}).format(new Date(value))
+const isPersonalGmail = subscriber => subscriber.email.toLowerCase().endsWith('@gmail.com')
 const deliveryCounts = computed(() => {
   const m = selectedMailing.value
   const counts = { ACCEPTED: m?.acceptedCount || 0, FAILED: m?.failedCount || 0, UNKNOWN: m?.unknownCount || 0, SKIPPED: m?.skippedCount || 0, WAITING: 0, SENDING: 0 }
@@ -211,6 +236,23 @@ function upload(event) {
 }
 function preview() { run(async () => { previewData.value = await service.previewDraft(form.value, language.value); previewOpen.value = true }) }
 function ask(text, action) { confirmMessage.value = text; pendingAction = action; confirmOpen.value = true }
+function excludeSubscriber(subscriber) {
+  const target = isPersonalGmail(subscriber) ? '이 Gmail 받은편지함을' : '이 주소를'
+  ask(`${target} 발송 대상에서 제외할까요?`, () => run(async () => {
+    await service.exclude(subscriber.id)
+    await refresh()
+  }, '발송 대상에서 제외했습니다.'))
+}
+function restoreSubscriber(subscriber) {
+  const status = subscriberStatusLabel(subscriber.restoreStatus || 'UNSUBSCRIBED')
+  const text = isPersonalGmail(subscriber)
+    ? `이 Gmail 받은편지함의 발송 제외를 취소할까요? 이 주소는 ‘${status}’ 상태가 되며 같은 받은편지함의 다른 주소도 각자의 이전 상태로 돌아갑니다.`
+    : `발송 제외를 취소할까요? 취소 후 상태는 ‘${status}’입니다.`
+  ask(text, () => run(async () => {
+    await service.restore(subscriber.id)
+    subscribers.value = await service.subscribers()
+  }, '발송 제외를 취소했습니다.'))
+}
 function confirmAction() { confirmOpen.value = false; const action = pendingAction; pendingAction = null; action?.() }
 function executePublication() {
   if (publicationDisabled.value) return
@@ -222,10 +264,12 @@ function prepareSend(publishToNews) {
     validatePublication()
     await save()
     const { id, version } = form.value
+    busyLabel.value = '발송 대상 확인 중…'
+    const audience = await service.audience()
     const scope = publishToNews ? 'News에 게시하고' : 'News에 게시하지 않고'
     const result = publishToNews ? 'News에 게시하고 발송 대기열에 등록했습니다.' : '구독자 발송 대기열에 등록했습니다.'
-    ask(`${scope} 영어 ${activeCount('en')}명, 독일어 ${activeCount('de')}명에게 발송할까요? 발송 등록 후에는 수정한 내용이 이메일에 반영되지 않습니다.`, () => run(async () => {
-      await service.send(id, version, publishToNews)
+    ask(`${scope} 영어 ${audience.en}명, 독일어 ${audience.de}명에게 발송할까요? 대상은 총 ${audience.total}명입니다. 발송 등록 후에는 수정한 내용이 이메일에 반영되지 않습니다.`, () => run(async () => {
+      await service.send(id, version, publishToNews, audience)
       busyLabel.value = '발송 등록 결과 확인 중…'
       const [, history] = await Promise.all([refreshNews(), service.mailings()])
       mailings.value = history

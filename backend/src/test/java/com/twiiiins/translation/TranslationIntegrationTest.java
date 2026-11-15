@@ -191,6 +191,33 @@ class TranslationIntegrationTest {
         mvc.perform(put("/api/admin/translations/" + row(p).getId()).contentType("application/json").content("{}"))
             .andExpect(status().isUnauthorized());
     }
+
+    @Test void localizedNewsTitleRetainsTranslationMetadataInTheListAndDetail() throws Exception {
+        NewsDto item = draft("English title", "Deutscher Titel");
+        news.publish(item.getId());
+
+        mvc.perform(get("/api/media/news/" + item.getId()).param("lang", "de")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.title").value("Deutscher Titel"))
+            .andExpect(jsonPath("$.data.translations.title.en").value("English title"))
+            .andExpect(jsonPath("$.data.translations.title.de").value("Deutscher Titel"))
+            .andExpect(jsonPath("$.data.titleBeforeLocalization").doesNotExist());
+        mvc.perform(get("/api/media/news").param("lang", "de")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].title").value("Deutscher Titel"))
+            .andExpect(jsonPath("$.data[0].translations.title.en").value("English title"));
+    }
+
+    @Test void localizedNewsResponseStillOmitsMetadataWhenTheStoredSourceHasChanged() throws Exception {
+        NewsDto item = draft("Before", "Vorher");
+        news.publish(item.getId());
+        News stored = newsRepository.findById(item.getId()).orElseThrow();
+        stored.setTitle("After");
+        newsRepository.saveAndFlush(stored);
+
+        mvc.perform(get("/api/media/news/" + item.getId()).param("lang", "de")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.title").value("Vorher"))
+            .andExpect(jsonPath("$.data.translations.title").doesNotExist())
+            .andExpect(jsonPath("$.data.translations.bodyEn.de").value("<p>Hallo TWIIIINS</p>"));
+    }
     @Test void clearingSourceRemovesItsGeneratedCounterpartAndJob() {
         NewsDto n = draft("Title", null); complete(row("news", n.getId(), "bodyEn"), "en", "<p>Hello TWIIIINS</p>", "<p>Hallo TWIIIINS</p>");
         NewsUpdateRequest update = new NewsUpdateRequest(); update.setBodyEn(""); NewsDto saved = news.updateNews(n.getId(), update);

@@ -24,7 +24,8 @@ class MySqlNewsletterTest extends NewsletterIntegrationTest {
         var pool=Executors.newFixedThreadPool(4); var ready=new CountDownLatch(4); var start=new CountDownLatch(1);
         try {
             List<Future<?>> tasks=new ArrayList<>();
-            for(int i=0;i<4;i++) tasks.add(pool.submit(()-> { ready.countDown(); try { start.await(); } catch(InterruptedException e) { throw new RuntimeException(e); } subscriptions.subscribe("concurrent@example.com","en"); }));
+            for (String email : List.of("concurrent@gmail.com", "con.current@gmail.com", "concur.rent@gmail.com", "c.oncurrent@gmail.com"))
+                tasks.add(pool.submit(()-> { ready.countDown(); try { start.await(); } catch(InterruptedException e) { throw new RuntimeException(e); } subscriptions.subscribe(email,"en"); }));
             assertTrue(ready.await(10,TimeUnit.SECONDS)); start.countDown();
             for(var task:tasks) task.get(30,TimeUnit.SECONDS);
             assertEquals(1,subscribers.count()); assertEquals(1,deliveries.count());

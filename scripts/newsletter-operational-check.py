@@ -67,9 +67,11 @@ def request(path, body=None, token=None, method=None):
 def preflight():
     pending = int(sql("SELECT COUNT(*) FROM newsletter_deliveries WHERE status IN ('WAITING','SENDING');"))
     env = environment()
+    daily_limit = env.get('NEWSLETTER_DAILY_LIMIT', '')
     print(json.dumps({'pendingDeliveries': pending,
         'existingTokenKeyPresent': bool(env.get('NEWSLETTER_TOKEN_KEY')),
-        'currentlyAvailable': request('/newsletter/status')['available']}), flush=True)
+        'currentlyAvailable': request('/newsletter/status')['available'],
+        'configuredDailyLimit': int(daily_limit) if re.fullmatch(r'[0-9]{1,10}', daily_limit) else None}), flush=True)
     if pending:
         raise RuntimeError('Review pending deliveries before enabling mail; nothing was changed')
 
@@ -160,15 +162,21 @@ def verify_publication(language=None):
 
 def verify():
     env = environment()
+    signup_status = request('/newsletter/status')
     recipients = [x.strip() for x in env.get('NEWSLETTER_TEST_RECIPIENTS', '').split(',') if x.strip()]
-    if not recipients or not request('/newsletter/status')['available']:
+    if not recipients or not signup_status['available']:
         raise RuntimeError('Newsletter is not ready or test recipients are missing')
     email = recipients[0].lower()
     # All sends use the test API or this exact allowlisted signup address.
     token = secrets.token_urlsafe(32)
     digest = hashlib.sha256(token.encode()).hexdigest()
     draft_id = subscriber_id = None
-    old = sql('SELECT id FROM newsletter_subscribers WHERE email=' + quote(email) + ';')
+    local_part, _, domain = email.rpartition('@')
+    address_match = 'email=' + quote(email)
+    if domain == 'gmail.com':
+        address_match = ("RIGHT(LOWER(email),10)='@gmail.com' AND "
+                         "REPLACE(LEFT(LOWER(email),CHAR_LENGTH(email)-10),'.','')=" + quote(local_part.replace('.', '')))
+    old = sql('SELECT id FROM newsletter_subscribers WHERE ' + address_match + ' LIMIT 1;')
     sql("INSERT INTO admin_sessions(token_hash,username,expires_at) VALUES ('" + digest
         + "','newsletter-operational-check',DATE_ADD(UTC_TIMESTAMP(),INTERVAL 15 MINUTE));")
     try:
@@ -190,7 +198,9 @@ def verify():
             request(f'/admin/news/{draft_id}/test', {'language': language, 'email': email}, token)
             wait_delivery("kind='TEST' AND id>" + str(baseline) + ' AND email=' + quote(email) + ' AND language=' + quote(language))
             print('Newsletter ' + language + ': SMTP accepted', flush=True)
-        if not old:
+        if signup_status.get('turnstileSiteKey'):
+            print('Turnstile enabled; check public signup and unsubscribe through the browser', flush=True)
+        elif not old:
             request('/newsletter/subscribe', {'email': email, 'language': 'en', 'consent': True})
             row = sql('SELECT id,status FROM newsletter_subscribers WHERE email=' + quote(email) + ';').split('\t')
             subscriber_id = int(row[0])
@@ -198,12 +208,12 @@ def verify():
                 raise RuntimeError('Test signup did not activate')
             wait_delivery("kind='WELCOME' AND subscriber_id=" + str(subscriber_id))
             request('/newsletter/subscribe', {'email': email, 'language': 'de', 'consent': True})
-            if sql('SELECT language FROM newsletter_subscribers WHERE id=' + str(subscriber_id) + ';') != 'de':
-                raise RuntimeError('Language update failed')
+            if sql('SELECT language FROM newsletter_subscribers WHERE id=' + str(subscriber_id) + ';') != 'en':
+                raise RuntimeError('Duplicate signup changed the selected language')
             unsubscribe(subscriber_id, env['NEWSLETTER_TOKEN_KEY'])
             if sql('SELECT status FROM newsletter_subscribers WHERE id=' + str(subscriber_id) + ';') != 'UNSUBSCRIBED':
                 raise RuntimeError('Test unsubscribe failed')
-            print('Signup, welcome SMTP, language update and unsubscribe: PASS; test address unsubscribed', flush=True)
+            print('Signup, welcome SMTP, duplicate protection and unsubscribe: PASS; test address unsubscribed', flush=True)
         else:
             print('Existing test-recipient subscription preserved; signup/unsubscribe mutation skipped', flush=True)
         print('Inbox receipt still requires recipient confirmation; no subscriber-list send was requested', flush=True)

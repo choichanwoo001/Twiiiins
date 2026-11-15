@@ -205,12 +205,11 @@
 <script setup>
 import { t, websiteLocale, translateContent, newsTitle, newsBody } from '../composables/useWebsiteTranslation'
 import { EQUIPMENT_ENABLED } from '../constants'
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import { 
   musicService, 
   videoService, 
   photoService, 
-  newsService, 
   equipmentService 
 } from '../services'
 import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
@@ -218,15 +217,22 @@ import { getImageSrcset, handleResponsiveImageError } from '../utils/responsiveI
 import { ImageGrid } from '../components/common'
 import { logError } from '../utils/errorHandler'
 import { useMobile } from '../composables/useMobile' 
+import { usePublicNews } from '../composables/usePublicNews'
 
-import { useRoute, useRouter } from 'vue-router'
+import { isNavigationFailure, NavigationFailureType, useRoute, useRouter } from 'vue-router'
 import { mediaAllowed, websiteLanguage, cookieSettingsOpen } from '../composables/useWebsitePreferences'
 import fallbackEquipmentImage from '../imgs/exphoto1.png'
 
 const route = useRoute()
 const router = useRouter()
 if (['en', 'de'].includes(route.query.lang)) websiteLanguage.value = route.query.lang
-watch(() => route.query.newsId, () => loadNews())
+
+const activeSection = computed(() => {
+  const section = route.query.section || 'music'
+  return section === 'equipment' && !EQUIPMENT_ENABLED ? 'music' : section
+})
+const linkedNewsId = computed(() => String(route.query.newsId ?? ''))
+const { newsList, refreshNews, toggleNews } = usePublicNews(activeSection, linkedNewsId)
 
 // 모바일 감지
 // 모바일 감지
@@ -250,33 +256,17 @@ function onGalleryPhotoLoad(event) {
 }
 onUnmounted(() => galleryResizeObserver.disconnect())
 
-// 활성 섹션 상태
-const activeSection = ref('')
 watch(activeSection, () => galleryResizeObserver.disconnect())
-
-// 섹션 변경 함수
-const setActiveSection = (section) => {
-  activeSection.value = section === 'equipment' && !EQUIPMENT_ENABLED ? 'music' : section
-}
 
 // Menu navigation leaves an email web view and returns to the current public list.
 const navigateToSection = async (section) => {
-  setActiveSection(section)
-  const hadLinkedNews = route.query.newsId !== undefined
-  const query = { ...route.query, section: activeSection.value }
+  const sameNewsList = section === 'news' && activeSection.value === 'news' && route.query.newsId === undefined
+  const query = { ...route.query, section }
   delete query.newsId
-  newsList.value = newsList.value.filter(news => !news.archived)
-  await router.replace({ query })
-  // Removing newsId triggers its watcher; a plain list click still needs a refresh.
-  if (section === 'news' && !hadLinkedNews) await loadNews()
+  const failure = await router.replace({ query })
+  if (sameNewsList && activeSection.value === 'news' && route.query.newsId === undefined &&
+    (!failure || isNavigationFailure(failure, NavigationFailureType.duplicated))) await refreshNews()
 }
-
-// 쿼리 파라미터 변경 감지
-watch(() => route.query.section, (newSection) => {
-  if (newSection) {
-    setActiveSection(newSection)
-  } 
-})
 
 // 음악 데이터
 const musicItems = ref([])
@@ -384,17 +374,9 @@ const loadVideos = async () => {
 // 페이지 로드 시 데이터 가져오기
 // 페이지 로드 시 데이터 가져오기
 onMounted(() => {
-  // 초기 섹션 설정
-  if (route.query.section) {
-    setActiveSection(route.query.section)
-  } else {
-    activeSection.value = 'music'
-  }
-
   loadMusic()
   loadVideos()
   loadPhotoGroups()
-  loadNews()
   if (EQUIPMENT_ENABLED) loadEquipment()
 })
 
@@ -443,48 +425,6 @@ const loadEquipment = async () => {
   }
 }
 
-// 뉴스 데이터
-const newsList = ref([])
-let newsLoadVersion = 0
-
-// 뉴스 데이터 로드
-const loadNews = async () => {
-  const loadVersion = ++newsLoadVersion
-  const linkedId = route.query.newsId
-  try {
-    const newsData = await newsService.getAllNews()
-    if (loadVersion !== newsLoadVersion) return
-    // Archived newsletters stay available through links in already-sent email.
-    if (/^\d+$/.test(String(linkedId)) && !newsData.some(news => String(news.id) === String(linkedId))) {
-      try {
-        newsData.push(await newsService.getNewsById(linkedId))
-      } catch (error) {
-        if (error.response?.status !== 404) throw error
-      }
-    }
-    if (loadVersion !== newsLoadVersion) return
-    newsList.value = newsData.map(news => ({
-      ...news,
-      id: news.id,
-      date: news.date,
-      title: news.title,
-      description: news.description,
-      imageUrls: news.imageUrls ? news.imageUrls.map(url => toAbsoluteUrl(url)) : [],
-      expanded: String(news.id) === String(linkedId)
-    }))
-  } catch (error) {
-    logError(error, '뉴스 데이터 로드')
-    if (loadVersion === newsLoadVersion) newsList.value = []
-  }
-}
-
-// 뉴스 토글 함수
-const toggleNews = (newsId) => {
-  const news = newsList.value.find(n => n.id === newsId)
-  if (news) {
-    news.expanded = !news.expanded
-  }
-}
 </script>
 
 <style scoped>

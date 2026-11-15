@@ -14,4 +14,14 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     long countByAttemptedAtGreaterThanEqual(Instant since);
     List<Delivery> findByMailingIdOrderByIdAsc(Long id);
     List<Delivery> findByStatus(String status);
+    List<Delivery> findBySubscriberIdAndStatus(Long subscriberId, String status);
+    @Query("""
+        select count(d) from Delivery d
+        where d.mailingId = :mailingId and d.id <> :deliveryId
+          and d.status in ('ACCEPTED', 'SENDING', 'UNKNOWN')
+          and lower(d.email) like '%@gmail.com'
+          and replace(lower(d.email), '.', '') = :mailbox
+        """)
+    long countOtherSentToGmail(@Param("mailingId") Long mailingId, @Param("deliveryId") Long deliveryId,
+                               @Param("mailbox") String mailbox);
 }
