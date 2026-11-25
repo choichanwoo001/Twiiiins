@@ -86,9 +86,9 @@ test('newsletter studio renders attachments and both languages without API write
   await page.route('**/newsletter-fonts/*.ttf', route => route.abort())
   await page.reload()
   await page.getByRole('button', { name: '예시 내용 채우기' }).click()
+  await expect(frame.getByRole('heading', { level: 1 })).toHaveText('SOUND IN MOTION')
   await expect.poll(() => frame.locator('body').evaluate(el =>
     [...el.ownerDocument.fonts].some(font => font.weight === '800' && font.status === 'error')
   )).toBe(true)
-  await expect(frame.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(frame.getByText('This is example content for the newsletter preview.')).toBeVisible()
 })
