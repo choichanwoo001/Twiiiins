@@ -1,42 +1,44 @@
 <template>
   <div class="news-page">
-    <h1>{{ t('NEWS') }}</h1>
-    <NewsletterSignup />
+    <h1 class="news-page-title">{{ t('NEWS') }}</h1>
+    <div class="news-page-body">
+      <NewsletterSignup />
 
-    <p v-if="loadFailed" class="news-status" role="status">{{ t('News could not be loaded.') }}</p>
-    <p v-else-if="!loading && !newsList.length" class="news-status">{{ t('No news yet.') }}</p>
-    <div class="news-list" :aria-busy="loading">
-      <article v-for="news in newsList" :id="`news-${news.id}`" :key="news.id" class="news-item">
-        <h2>
-          <button class="news-preview" type="button" :aria-expanded="news.expanded"
-            :aria-controls="`news-details-${news.id}`" @click="toggleNews(news.id)">
-            <img v-if="news.imageUrls[0]" class="news-thumbnail" :src="news.imageUrls[0]"
-              :srcset="getImageSrcset(news.imageUrls[0])" sizes="(max-width: 48rem) 120px, 192px"
-              width="192" height="128" alt="" loading="lazy" decoding="async"
-              @error="handleResponsiveImageError($event, news.imageUrls[0])">
-            <span class="news-content">
-              <time v-if="news.date" class="news-date" :datetime="news.date">{{ formatNewsDate(news.date) }}</time>
-              <span class="news-title">{{ newsTitle(news) }}</span>
-            </span>
-            <svg class="news-expand" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </h2>
+      <p v-if="loadFailed" class="news-status" role="status">{{ t('News could not be loaded.') }}</p>
+      <p v-else-if="!loading && !newsList.length" class="news-status">{{ t('No news yet.') }}</p>
+      <div class="news-list" :aria-busy="loading">
+        <article v-for="news in newsList" :id="`news-${news.id}`" :key="news.id" class="news-item">
+          <h2>
+            <button class="news-preview" type="button" :aria-expanded="news.expanded"
+              :aria-controls="`news-details-${news.id}`" @click="toggleNews(news.id)">
+              <img v-if="news.imageUrls[0]" class="news-thumbnail" :src="news.imageUrls[0]"
+                :srcset="getImageSrcset(news.imageUrls[0])" sizes="(max-width: 48rem) 120px, 192px"
+                width="192" height="128" alt="" loading="lazy" decoding="async"
+                @error="handleResponsiveImageError($event, news.imageUrls[0])">
+              <span class="news-content">
+                <time v-if="news.date" class="news-date" :datetime="news.date">{{ formatNewsDate(news.date) }}</time>
+                <span class="news-title">{{ newsTitle(news) }}</span>
+              </span>
+              <svg class="news-expand" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </h2>
 
-        <div :id="`news-details-${news.id}`" :hidden="!news.expanded" class="news-details">
-          <template v-if="news.expanded">
-            <div v-if="news.bodyEn || news.bodyDe" class="news-description news-rich" v-html="newsBody(news)"></div>
-            <p v-else-if="news.description" class="news-description">{{ translateContent('news', 'description', news.description, news) }}</p>
-            <p v-for="(url, index) in news.videoUrls || []" :key="url">
-              <a :href="url" target="_blank" rel="noopener noreferrer">{{ t('Watch video') }} {{ index + 1 }} ↗</a>
-            </p>
-            <div v-if="news.imageUrls.length" class="news-images">
-              <ImageGrid :images="news.imageUrls" :alt-text-prefix="newsTitle(news)" mobile-aspect-ratio="16 / 9" />
-            </div>
-          </template>
-        </div>
-      </article>
+          <div :id="`news-details-${news.id}`" :hidden="!news.expanded" class="news-details">
+            <template v-if="news.expanded">
+              <div v-if="news.bodyEn || news.bodyDe" class="news-description news-rich" v-html="newsBody(news)"></div>
+              <p v-else-if="news.description" class="news-description">{{ translateContent('news', 'description', news.description, news) }}</p>
+              <p v-for="(url, index) in news.videoUrls || []" :key="url">
+                <a :href="url" target="_blank" rel="noopener noreferrer">{{ t('Watch video') }} {{ index + 1 }} ↗</a>
+              </p>
+              <div v-if="news.imageUrls.length" class="news-images">
+                <ImageGrid :images="news.imageUrls" :alt-text-prefix="newsTitle(news)" mobile-aspect-ratio="16 / 9" />
+              </div>
+            </template>
+          </div>
+        </article>
+      </div>
     </div>
   </div>
 </template>
@@ -80,18 +82,29 @@ function formatNewsDate(date) {
 
 <style scoped>
 .news-page {
-  max-width: 58rem;
-  margin: 0 auto;
-  padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) var(--website-footer-space);
+  display: grid;
+  grid-template-columns: minmax(min-content, 1fr) minmax(0, 2.2fr);
+  align-items: start;
+  gap: clamp(1.5rem, 4.7vw, 4rem);
+  padding: 5rem clamp(1.5rem, 4.7vw, 4rem) var(--website-footer-space) 2rem;
 }
 
-h1 {
-  margin: 0 0 clamp(1.25rem, 3vw, 2rem);
-  font-size: clamp(2rem, 5vw, 4rem);
-  font-weight: 300;
-  line-height: 1.1;
-  letter-spacing: 0.08em;
-  overflow-wrap: anywhere;
+.news-page-title {
+  position: sticky;
+  top: calc(var(--navbar-height) + 1.5rem);
+  color: #943c31;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.news-page-body {
+  width: 100%;
+  max-width: 58rem;
+  min-width: 0;
+  justify-self: end;
 }
 
 .newsletter-signup { margin: 0 0 clamp(1.5rem, 4vw, 2.75rem); }
@@ -158,8 +171,20 @@ h1 {
 .news-images { margin-top: 1.5rem; }
 
 @media (max-width: 48rem) {
+  .news-page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    padding: 4rem 1.5rem var(--website-footer-space);
+  }
+
+  .news-page-title { position: static; font-size: 2.5rem; overflow-wrap: anywhere; }
+  .news-page-body { justify-self: stretch; }
   .news-thumbnail { width: clamp(4.75rem, 27vw, 7.5rem); }
   .news-title { font-size: 1.125rem; line-height: 1.4; }
   .news-expand { width: 1rem; height: 1rem; }
+}
+
+@media (max-width: 22.5rem) {
+  .news-page-title:lang(de) { font-size: min(2.5rem, 11.25vw); }
 }
 </style>

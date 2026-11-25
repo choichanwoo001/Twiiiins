@@ -192,7 +192,7 @@ test('header dropdown fits narrow screens and empty-state copy is German', async
 test.describe('News in a time zone west of UTC', () => {
   test.use({ timezoneId: 'America/Los_Angeles' })
 
-  test('News has its own main menu link and shows date, image and translated title before expanding', async ({ page }) => {
+  test('News has its own main menu link and shows date, image and translated title before expanding', async ({ page, isMobile }) => {
     await publicApi(page, {
       '/api/media/news': [
         { id: 1, date: '2026-04-26', title: 'Spring concert announcement', titleDe: 'Neuigkeiten zu unserem besonderen Frühlingskonzert', imageUrls: ['/Website_logo.jpg'], description: 'Concert details' },
@@ -209,6 +209,18 @@ test.describe('News in a time zone west of UTC', () => {
     await expect(menu.locator('.mobile-menu-item + .mobile-sub-menu + a[href="/news"], a[href="/media"] + a[href="/news"]')).toHaveCount(1)
     await menu.getByRole('link', { name: 'NEWS', exact: true }).click()
     await expect(page).toHaveURL(/\/news$/)
+    const heading = page.getByRole('heading', { name: 'NEWS', level: 1 })
+    const title = await heading.boundingBox()
+    const signup = await page.locator('.newsletter-signup').boundingBox()
+    await expect(heading).toHaveCSS('font-size', isMobile ? '40px' : '72px')
+    await expect(heading).toHaveCSS('font-weight', '400')
+    if (isMobile) {
+      expect(title.x).toBe(signup.x)
+      expect(title.y + title.height).toBeLessThan(signup.y)
+    } else {
+      expect(title.x + title.width).toBeLessThan(signup.x)
+      expect(title.y).toBe(signup.y)
+    }
     const firstStory = page.locator('.news-item').first()
     await expect(firstStory).toHaveCSS('border-top-width', '0px')
     const preview = firstStory.getByRole('button')
