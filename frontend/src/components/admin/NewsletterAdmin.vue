@@ -62,7 +62,7 @@
 
     <section v-if="section === 'subscribers'">
       <div class="row"><h2>구독자</h2><button :disabled="busy" @click="run(refresh)">새로고침</button></div>
-      <div class="verification-help"><h3>구독 등록 안내</h3><p>Contact에서 이메일 입력 + 수신 동의 → 바로 ‘구독 중’으로 등록 → 환영 메일 발송. 별도의 이메일 확인은 필요하지 않습니다.</p><p>환영 메일과 뉴스레터의 구독 해지 링크로 언제든 해지할 수 있습니다. 이전 방식의 인증 대기 주소는 기존 확인 링크를 이용하거나 Contact에서 다시 신청하면 됩니다.</p></div>
+      <div class="verification-help"><h3>구독 등록 안내</h3><p>News에서 이메일 입력 + 수신 동의 → 바로 ‘구독 중’으로 등록 → 환영 메일 발송. 별도의 이메일 확인은 필요하지 않습니다.</p><p>환영 메일과 뉴스레터의 구독 해지 링크로 언제든 해지할 수 있습니다. 이전 방식의 인증 대기 주소는 기존 확인 링크를 이용하거나 News에서 다시 신청하면 됩니다.</p></div>
       <p>전체 신청자 {{ subscribers.length }}명 · 구독 중 {{ subscribers.filter(s => s.status === 'ACTIVE').length }}명 · 영어 {{ activeCount('en') }}명 · 독일어 {{ activeCount('de') }}명</p>
       <p v-if="settings.signupCounts">서버 시작 이후 가입 처리 · 등록 {{ settings.signupCounts.registered }}건 · 중복 또는 발송 제외 {{ settings.signupCounts.duplicate }}건 · 요청 제한 {{ settings.signupCounts.limited }}건 · 봇 검증 실패 {{ settings.signupCounts.rejected }}건 · 검증 서비스 오류 {{ settings.signupCounts.verificationUnavailable }}건</p>
       <p v-if="settings.signupVerification === 'INCOMPLETE'" role="alert">Turnstile 키 설정이 불완전해 신규 가입이 중지되었습니다.</p>

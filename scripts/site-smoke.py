@@ -23,7 +23,7 @@ def check(base):
     if origin.scheme not in ('http', 'https') or not origin.netloc:
         raise ValueError('Expected an HTTP(S) site URL')
     assets = Assets()
-    for path in ['/', '/about', '/projects', '/concerts', '/media', '/shop', '/contact', '/privacy', '/login']:
+    for path in ['/', '/about', '/projects', '/concerts', '/media', '/news', '/shop', '/contact', '/privacy', '/login']:
         with urlopen(base.rstrip('/') + path, timeout=20) as response:
             assert response.status == 200
             body = response.read().decode('utf-8')

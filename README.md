@@ -5,6 +5,8 @@
 
 **[실제 서비스 바로가기 →](https://twiiiins.com)**
 
+[공개 웹사이트 디자인 가이드](./docs/website-design.md)
+
 ![메인 화면](./assets/main-screen.png)
 
 `2025.12 ~ 현재 운영 중`

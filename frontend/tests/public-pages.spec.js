@@ -1,13 +1,14 @@
 import { test, expect, publicApi } from './support/fixtures'
 import AxeBuilder from '@axe-core/playwright'
 
-const pages = ['/', '/about', '/projects', '/concerts', '/media', '/shop', '/contact', '/privacy', '/login']
+const pages = ['/', '/about', '/projects', '/concerts', '/media', '/news', '/shop', '/contact', '/privacy', '/login']
 for (const path of pages) {
   test(`public route survives direct access and reload: ${path}`, async ({ page }) => {
     await publicApi(page)
     await page.goto(path); await expect(page.locator('#app')).not.toBeEmpty()
     await page.reload(); await expect(page.locator('#app')).not.toBeEmpty()
     await expect(page.locator('main, h1, .home').first()).toBeVisible()
+    await expect(page.locator('.navbar .website-language summary')).toBeVisible()
   })
 }
 test('history and navigation keep the correct page', async ({ page, isMobile }) => {
@@ -36,7 +37,7 @@ test('unknown project is handled without a browser crash', async ({ page }) => {
 })
 test('principal page landmarks and forms have no serious accessibility violations', async ({ page }) => {
   await publicApi(page)
-  for (const path of ['/login', '/contact', '/shop', '/privacy']) {
+  for (const path of ['/login', '/contact', '/news', '/shop', '/privacy']) {
     await page.goto(path)
     const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
     expect(result.violations.filter(v => ['critical', 'serious'].includes(v.impact)), path).toEqual([])
@@ -46,7 +47,7 @@ for (const width of [320, 390, 768, 1366]) {
   test(`layout contains its content at ${width}px`, async ({ page }) => {
     await publicApi(page)
     await page.setViewportSize({ width, height: 900 })
-    for (const path of ['/shop', '/contact', '/privacy', '/projects', '/concerts']) {
+    for (const path of ['/shop', '/contact', '/news', '/privacy', '/projects', '/concerts']) {
       await page.goto(path)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), `${path} at ${width}`).toBe(true)
     }

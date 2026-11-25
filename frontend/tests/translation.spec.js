@@ -43,13 +43,14 @@ test('DB variants precede static translations and arrays switch without replacin
   await language(page, 'English'); await expect(page.locator('.project-text h1')).toHaveText('New project')
   await expect(page.locator('.project-content')).toContainText('First paragraph')
 })
-test('media transformations preserve generated translations', async ({ page }) => {
+test('media and News show generated translations', async ({ page, isMobile }) => {
   await mock(page); await page.goto('/media'); await language(page, 'Deutsch')
   await page.locator('.media').getByText('VIDEOS', { exact: true }).first().click()
   await expect(page.locator('.video-title')).toHaveText('Neues Video')
   await page.locator('.media').getByText('FOTOS', { exact: true }).first().click()
   await expect(page.locator('.photo-group-title')).toHaveText('Neue Galerie')
-  await page.locator('.media').getByText('NEUIGKEITEN', { exact: true }).first().click()
+  if (isMobile) await page.getByRole('button', { name: 'Menü öffnen' }).click()
+  await page.locator('.navbar').getByRole('link', { name: 'NEUIGKEITEN', exact: true }).click()
   await expect(page.locator('.news-title')).toHaveText('Neue Nachricht')
   await page.locator('.news-preview').click(); await expect(page.locator('.news-rich')).toContainText('Neue Geschichte')
 })

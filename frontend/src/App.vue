@@ -5,22 +5,24 @@
       <div class="container">
         <router-link to="/" class="logo" :class="{ 'small': !isHomePage }">TWIIIINS</router-link>
         
-        <!-- 데스크탑 메뉴 -->
-        <div class="nav-links desktop-nav">
-          <router-link to="/about">{{ t('ABOUT') }}</router-link>
-          <router-link to="/projects">{{ t('PROJECTS') }}</router-link>
-          <router-link to="/concerts">{{ t('CONCERTS') }}</router-link>
-          <router-link to="/media">{{ t('MEDIA') }}</router-link>
-          <router-link to="/shop">{{ t('SHOP') }}</router-link>
-          <router-link to="/contact">{{ t('CONTACT') }}</router-link>
-        </div>
+        <div class="header-actions">
+          <div class="nav-links desktop-nav">
+            <router-link to="/about">{{ t('ABOUT') }}</router-link>
+            <router-link to="/projects">{{ t('PROJECTS') }}</router-link>
+            <router-link to="/media">{{ t('MEDIA') }}</router-link>
+            <router-link to="/news">{{ t('NEWS') }}</router-link>
+            <router-link to="/concerts">{{ t('CONCERTS') }}</router-link>
+            <router-link to="/shop">{{ t('SHOP') }}</router-link>
+            <router-link to="/contact">{{ t('CONTACT') }}</router-link>
+          </div>
 
-        <!-- 햄버거 버튼 (모바일) -->
-        <button class="hamburger-button" @click="toggleMobileMenu" :class="{ 'is-open': isMobileMenuOpen }" :aria-expanded="isMobileMenuOpen" :aria-label="t(isMobileMenuOpen ? 'Close menu' : 'Open menu')" aria-controls="mobile-navigation">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+          <button class="hamburger-button" @click="toggleMobileMenu" :class="{ 'is-open': isMobileMenuOpen }" :aria-expanded="isMobileMenuOpen" :aria-label="t(isMobileMenuOpen ? 'Close menu' : 'Open menu')" aria-controls="mobile-navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <LanguageSwitch />
+        </div>
       </div>
 
       <!-- 모바일 메뉴 오버레이 -->
@@ -30,7 +32,6 @@
             <router-link to="/about" @click="closeMobileMenu">{{ t('ABOUT') }}</router-link>
           </div>
           <router-link to="/projects" @click="closeMobileMenu">{{ t('PROJECTS') }}</router-link>
-          <router-link to="/concerts" @click="closeMobileMenu">{{ t('CONCERTS') }}</router-link>
           
           <!-- MEDIA (Accordion) -->
           <div class="mobile-menu-item" :class="{ active: isMediaMenuOpen }" @click="toggleMediaMenu">{{ t('MEDIA') }}</div>
@@ -38,9 +39,10 @@
             <router-link to="/media?section=music" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('MUSIC') }}</router-link>
             <router-link to="/media?section=videos" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('VIDEOS') }}</router-link>
             <router-link to="/media?section=photos" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('PHOTOS') }}</router-link>
-            <router-link to="/media?section=news" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('NEWS') }}</router-link>
             <router-link v-if="EQUIPMENT_ENABLED" to="/media?section=equipment" class="mobile-sub-link" @click.stop="closeMobileMenu">{{ t('EQUIPMENT') }}</router-link>
           </div>
+          <router-link to="/news" @click="closeMobileMenu">{{ t('NEWS') }}</router-link>
+          <router-link to="/concerts" @click="closeMobileMenu">{{ t('CONCERTS') }}</router-link>
           <router-link to="/shop" @click="closeMobileMenu">{{ t('SHOP') }}</router-link>
           <router-link to="/contact" @click="closeMobileMenu">{{ t('CONTACT') }}</router-link>
         </div>
@@ -61,14 +63,11 @@
          class="sns-link">
         {{ sns.name }}
       </a>
-      <LanguageSwitch v-if="!isHomePage && !isMobile" />
     </div>
 
-    <div v-if="!isEditorPage && !isHomePage && !shouldShowSnsLinks && !isMobile" class="standalone-language"><LanguageSwitch /></div>
     <footer v-if="!isEditorPage && !isHomePage" ref="legalFooter" class="legal-footer">
       <router-link to="/privacy">{{ websiteLanguage === 'de' ? 'Datenschutz & Bedingungen' : 'Privacy & Terms' }}</router-link>
       <button type="button" @click="cookieSettingsOpen = true">{{ websiteLanguage === 'de' ? 'Cookie-Einstellungen' : 'Cookie settings' }}</button>
-      <LanguageSwitch v-if="isMobile" />
     </footer>
     <CookieControls v-if="!isEditorPage" />
 

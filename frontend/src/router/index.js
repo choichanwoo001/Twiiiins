@@ -6,6 +6,7 @@ import Projects from '../views/Projects.vue'
 import ProjectDetail from '../views/ProjectDetail.vue'
 import Concert from '../views/Concert.vue'
 import Media from '../views/Media.vue'
+import News from '../views/News.vue'
 import Shop from '../views/Shop.vue'
 import Contact from '../views/Contact.vue'
 import Privacy from '../views/Privacy.vue'
@@ -50,6 +51,7 @@ const routes = [
     name: 'Media',
     component: Media
   },
+  { path: '/news', name: 'News', component: News },
   {
     path: '/shop',
     name: 'Shop',
@@ -77,6 +79,11 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
+    if (to.path === from.path && to.hash === from.hash && to.query.lang !== from.query.lang) {
+      const { lang: nextLanguage, ...nextQuery } = to.query
+      const { lang: previousLanguage, ...previousQuery } = from.query
+      if (JSON.stringify(nextQuery) === JSON.stringify(previousQuery)) return false
+    }
     if (to.hash) return { el: to.hash, top: 128 }
     return savedPosition || { top: 0 }
   }
@@ -84,6 +91,10 @@ const router = createRouter({
 
 // 인증 가드
 router.beforeEach(async (to) => {
+  if (to.name === 'Media' && to.query.section === 'news') {
+    const { section, ...query } = to.query
+    return { name: 'News', query, hash: to.hash }
+  }
   const appStore = useAppStore()
   if (!to.meta.requiresAuth && to.name !== 'Login') return true
   if (localStorage.getItem('token')) {
