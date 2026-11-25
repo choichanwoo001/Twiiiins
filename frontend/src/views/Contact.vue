@@ -17,8 +17,6 @@
         </div>
       </section>
 
-      <NewsletterSignup />
-
       <section class="general-contact contact-section" aria-labelledby="general-contact-heading">
         <h2 id="general-contact-heading">{{ copy.generalHeading }}</h2>
         <p class="section-intro">{{ copy.generalIntro }}</p>
@@ -65,7 +63,6 @@ import axios from '../api/axios'
 import { toAbsoluteUrl } from '../utils/commonHelpers'
 import { isDropboxUrl } from '../utils/downloadLinks'
 import { websiteLanguage, useWebsiteCopy } from '../composables/useWebsitePreferences'
-import NewsletterSignup from '../components/common/NewsletterSignup.vue'
 
 const route = useRoute()
 const previewMode = import.meta.env.DEV && route.query.preview === 'contact'

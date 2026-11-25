@@ -17,11 +17,6 @@
            @click="navigateToSection('photos')">
         <h2>{{ t('PHOTOS') }}</h2>
       </div>
-      <div class="nav-item" 
-           :class="{ active: activeSection === 'news' }"
-           @click="navigateToSection('news')">
-        <h2>{{ t('NEWS') }}</h2>
-      </div>
       <div v-if="EQUIPMENT_ENABLED" class="nav-item"
            :class="{ active: activeSection === 'equipment' }"
            @click="navigateToSection('equipment')">
@@ -45,11 +40,6 @@
            :class="{ active: activeSection === 'photos' }"
            @click="navigateToSection('photos')">
         {{ t('PHOTOS') }}
-      </div>
-      <div class="mobile-nav-item" 
-           :class="{ active: activeSection === 'news' }"
-           @click="navigateToSection('news')">
-        {{ t('NEWS') }}
       </div>
       <div v-if="EQUIPMENT_ENABLED" class="mobile-nav-item"
            :class="{ active: activeSection === 'equipment' }"
@@ -142,42 +132,6 @@
         </div>
       </div>
 
-      <!-- NEWS 섹션 -->
-      <div v-if="activeSection === 'news'" class="content-section">
-        <div class="news-list">
-          <div class="news-item" v-for="news in newsList" :key="news.id">
-            <div class="news-preview" @click="toggleNews(news.id)">
-              <div class="news-date">{{ formatDate(news.date, 'short', websiteLocale) }}</div>
-              <div class="news-content">
-                <div class="news-title">{{ newsTitle(news) }}</div>
-              </div>
-              <div class="news-expand" :class="{ 'expanded': news.expanded }">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-            </div>
-            
-            <!-- 상세 정보 -->
-            <div class="news-details" v-if="news.expanded">
-              <div v-if="news.bodyEn || news.bodyDe" class="news-description news-rich" v-html="newsBody(news)"></div>
-              <div v-else class="news-description">{{ translateContent('news', 'description', news.description, news) }}</div>
-              <p v-for="(url, index) in news.videoUrls || []" :key="url"><a :href="url" target="_blank" rel="noopener noreferrer">{{ websiteLanguage === 'de' ? 'Video ansehen' : 'Watch video' }} {{ index + 1 }} ↗</a></p>
-              
-              <!-- 사진 섹션 -->
-              <div class="news-images" v-if="news.imageUrls && news.imageUrls.length > 0">
-                <ImageGrid 
-                  :images="news.imageUrls" 
-                  :alt-text-prefix="newsTitle(news)"
-                  mobile-aspect-ratio="16 / 9"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
       <!-- EQUIPMENT 섹션 -->
       <div v-if="EQUIPMENT_ENABLED && activeSection === 'equipment'" class="content-section">
         <div class="equipment-grid">
@@ -203,7 +157,7 @@
 </template>
 
 <script setup>
-import { t, websiteLocale, translateContent, newsTitle, newsBody } from '../composables/useWebsiteTranslation'
+import { t, translateContent } from '../composables/useWebsiteTranslation'
 import { EQUIPMENT_ENABLED } from '../constants'
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import { 
@@ -212,27 +166,25 @@ import {
   photoService, 
   equipmentService 
 } from '../services'
-import { toAbsoluteUrl, formatDate } from '../utils/commonHelpers'
+import { toAbsoluteUrl } from '../utils/commonHelpers'
 import { getImageSrcset, handleResponsiveImageError } from '../utils/responsiveImages'
-import { ImageGrid } from '../components/common'
 import { logError } from '../utils/errorHandler'
 import { useMobile } from '../composables/useMobile' 
-import { usePublicNews } from '../composables/usePublicNews'
 
-import { isNavigationFailure, NavigationFailureType, useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { mediaAllowed, websiteLanguage, cookieSettingsOpen } from '../composables/useWebsitePreferences'
 import fallbackEquipmentImage from '../imgs/exphoto1.png'
 
 const route = useRoute()
 const router = useRouter()
-if (['en', 'de'].includes(route.query.lang)) websiteLanguage.value = route.query.lang
+watch(() => route.query.lang, lang => {
+  if (route.name === 'Media' && ['en', 'de'].includes(lang)) websiteLanguage.value = lang
+}, { immediate: true })
 
 const activeSection = computed(() => {
   const section = route.query.section || 'music'
   return section === 'equipment' && !EQUIPMENT_ENABLED ? 'music' : section
 })
-const linkedNewsId = computed(() => String(route.query.newsId ?? ''))
-const { newsList, refreshNews, toggleNews } = usePublicNews(activeSection, linkedNewsId)
 
 // 모바일 감지
 // 모바일 감지
@@ -258,15 +210,7 @@ onUnmounted(() => galleryResizeObserver.disconnect())
 
 watch(activeSection, () => galleryResizeObserver.disconnect())
 
-// Menu navigation leaves an email web view and returns to the current public list.
-const navigateToSection = async (section) => {
-  const sameNewsList = section === 'news' && activeSection.value === 'news' && route.query.newsId === undefined
-  const query = { ...route.query, section }
-  delete query.newsId
-  const failure = await router.replace({ query })
-  if (sameNewsList && activeSection.value === 'news' && route.query.newsId === undefined &&
-    (!failure || isNavigationFailure(failure, NavigationFailureType.duplicated))) await refreshNews()
-}
+const navigateToSection = section => router.replace({ query: { ...route.query, section } })
 
 // 음악 데이터
 const musicItems = ref([])
@@ -428,10 +372,6 @@ const loadEquipment = async () => {
 </script>
 
 <style scoped>
-.news-rich :deep(p) { margin: .7rem 0; }
-.news-rich :deep(a) { color: #815d47; text-decoration: underline; }
-.news-rich :deep(ul), .news-rich :deep(ol) { padding-left: 1.5rem; }
-
 .media-consent-placeholder { min-height: 15rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center; padding: 2rem; background: #f5f1ec; }
 .video-embed:has(.media-consent-placeholder) { aspect-ratio: auto; }
 
@@ -713,95 +653,6 @@ const loadEquipment = async () => {
   }
 }
 
-/* NEWS 섹션 */
-.news-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.news-item {
-  border-bottom: 0.0625rem solid var(--color-border);
-  transition: background-color 0.3s ease;
-}
-
-.news-item:last-child {
-  border-bottom: none;
-}
-
-.news-preview {
-  display: flex;
-  align-items: center;
-  padding: 1.5rem 0;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.news-preview:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-.news-date {
-  font-family: 'Jost', sans-serif;
-  font-weight: 500;
-  color: var(--color-text); /* #1E1D1D */
-  font-size: 1.1rem;
-  min-width: 10rem;
-}
-
-.news-content {
-  flex: 1;
-}
-
-.news-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.news-title {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--color-text-secondary); /* #555 */
-}
-
-.news-toggle {
-  color: var(--color-text-muted); /* #999 */
-  transition: transform 0.3s ease;
-}
-
-.news-toggle.expanded {
-  transform: rotate(180deg);
-}
-
-.news-description {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--color-text-tertiary); /* #666 */
-  margin-top: 1rem;
-  white-space: pre-line;
-}
-.news-details {
-  padding: 1.5rem 2rem 2rem 2rem; /* 상단, 오른쪽, 하단, 왼쪽 (좌우 여백 5rem -> 2rem 축소) */
-  background-color: var(--color-background-soft);
-  border-top: 0.0625rem solid var(--color-border);
-}
-
-.news-description {
-  font-size: 0.9rem;
-  color: var(--color-text-tertiary);
-  line-height: 1.5;
-  margin-bottom: 2rem;
-}
-
-/* 뉴스 사진 섹션 (프로젝트 디테일 스타일과 동일) */
-.news-images {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--color-border);
-}
-
 /* EQUIPMENT 섹션 */
 .equipment-grid {
   display: grid;
@@ -911,59 +762,6 @@ const loadEquipment = async () => {
     font-size: 0.75rem;
     word-break: break-all;
     overflow-wrap: break-word;
-  }
-
-  /* News Section Mobile Optimization */
-  .news-preview {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1.25rem 0; /* 20px */
-    position: relative;
-  }
-
-  .news-date {
-    width: 100%;
-    margin-bottom: 0.5rem; /* 8px */
-    font-size: 0.875rem; /* 14px */
-    color: var(--color-text-muted);
-  }
-
-  .news-content {
-    margin-left: 0;
-    width: 100%;
-    padding-right: 2rem; /* Space for expand icon */
-  }
-
-  .news-title {
-    font-size: 1.125rem; /* 18px */
-    line-height: 1.4;
-    word-break: keep-all;
-  }
-
-  .news-expand {
-    position: absolute;
-    right: 0;
-    top: 1.25rem; /* Align with top padding */
-    /* top: 50% transform: translateY(-50%) could work if date is small enough, 
-       but fixing to top often looks cleaner with stacked layout */
-  }
-
-  /* News Details (Unfolded) Mobile Optimization */
-  .news-details {
-    padding: 1.5rem 1rem; /* Reduced side padding (16px) */
-    background-color: #fafafa;
-  }
-
-  .news-description {
-    font-size: 0.9375rem; /* 15px */
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-    color: #444;
-  }
-
-  .news-images {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
   }
 
   /* Equipment Section Mobile Optimization */

@@ -8,7 +8,7 @@ for (const language of ['en', 'de']) {
       localStorage.setItem('twiiiins-website-language', lang)
       localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() }))
     }, language)
-    await page.goto('/contact')
+    await page.goto('/news')
     const signup = page.locator('.newsletter-signup')
     const snapshot = () => page.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage }, cookies: document.cookie }))
     const before = await snapshot()

@@ -2,8 +2,13 @@
 
 The public website uses the shared `websiteLanguage` preference (`en` or `de`),
 stored under `twiiiins-website-language` in local storage. English is the default.
-The switch lives beside the social links, or in the lower left on pages without
-social links. Navigation URLs do not change with the language.
+The switch is at the right of the shared public header, including on mobile.
+On the home page, the entire header is visible on the first section and hidden
+on the concert section. Navigation keeps the current page. Links with an explicit
+`lang` parameter retain the selected value when the visitor switches languages.
+News is available at `/news`. Links to `/media?section=news` open the same page
+with their original article and language parameters. News dates use
+`DD.MM.YYYY` in both languages.
 
 Fixed interface copy is in `frontend/src/composables/useWebsiteTranslation.js`.
 About, privacy, cookie, shop and newsletter copy also retain their existing

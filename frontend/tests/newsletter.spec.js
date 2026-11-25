@@ -1,5 +1,11 @@
 import { test, expect, emptyApiResponse } from './support/fixtures'
 
+async function openNewsMenu(page) {
+  const menu = page.locator('.hamburger-button')
+  if (await menu.isVisible()) await menu.click()
+  await page.locator('.navbar a[href="/news"]:visible').click()
+}
+
 const news = { id: 42, date: '2026-10-07', title: 'English announcement', titleDe: 'Deutsche Neuigkeiten', bodyEn: '<p>Hello <strong>friends</strong></p>', bodyDe: '<p>Hallo <strong>Freunde</strong></p>', description: 'Legacy description', imageUrls: [], videoUrls: ['https://example.com/video'], status: 'DRAFT', source: 'NEWSLETTER', version: 0, displayOrder: 0 }
 async function mocks(page, { available = true, admin = false, sent = false, audience = { total: 2, en: 1, de: 1 } } = {}) {
   await page.addInitScript(() => { if (window !== window.top) return; localStorage.setItem('twiiiins-cookie-preferences', JSON.stringify({ version: 1, media: false, savedAt: Date.now() })) })
@@ -129,33 +135,38 @@ test('subscriber management explains immediate activation without a confirmation
   await expect(admin.getByRole('button', { name: '인증 메일 다시 보내기' })).toHaveCount(0)
 })
 
-test('Contact orders booking, newsletter and general inquiries and submits selected language and consent', async ({ page }, testInfo) => {
+test('Contact keeps its contact sections and News starts with the working signup form', async ({ page }, testInfo) => {
   const posted = await mocks(page)
   const contactRequests = []
   page.on('request', request => { if (new URL(request.url()).pathname === '/api/media/contacts') contactRequests.push(request.url()) })
   await page.goto('/contact')
   const signup = page.locator('.newsletter-signup')
-  await expect(signup.getByRole('heading', { name: 'STAY CONNECTED' })).toBeVisible()
-  const signupBox = await signup.boundingBox(), bookingBox = await page.locator('.booking-agency').boundingBox(), generalBox = await page.locator('.general-contact').boundingBox()
-  expect(bookingBox.y + bookingBox.height).toBeLessThan(signupBox.y)
-  expect(signupBox.y + signupBox.height).toBeLessThan(generalBox.y)
+  await expect(signup).toHaveCount(0)
+  const bookingBox = await page.locator('.booking-agency').boundingBox()
+  const generalBox = await page.locator('.general-contact').boundingBox()
+  expect(bookingBox.y + bookingBox.height).toBeLessThan(generalBox.y)
   await expect(page.locator('.booking-agency')).toContainText('Shaggy Schwarz')
   await expect(page.locator('.booking-agency a')).toHaveAttribute('href', 'mailto:mail@shaggyschwarz.de')
   await expect(page.locator('.general-contact > a')).toHaveAttribute('href', 'mailto:contact@twiiiins.com')
   await expect(page.locator('.contact-name')).toHaveCount(1)
   await expect(page.locator('.download-terms a')).toHaveAttribute('href', '/privacy#press-kit')
   await expect.poll(() => contactRequests.length).toBe(1)
+  await page.goto('/news')
+  await expect(signup.getByRole('heading', { name: 'STAY CONNECTED' })).toBeVisible()
+  const signupBox = await signup.boundingBox()
+  const firstStoryBox = await page.locator('.news-item').first().boundingBox()
+  expect(signupBox.y + signupBox.height).toBeLessThan(firstStoryBox.y)
   await signup.getByLabel('Email address').fill('reader@example.com')
   await signup.getByLabel('Newsletter language').selectOption('de')
   await signup.getByRole('checkbox').check()
   await signup.getByRole('button', { name: 'Subscribe', exact: true }).click()
   await expect(signup.getByRole('status')).toContainText('Thank you for subscribing')
   expect(posted.find(p => p.path.endsWith('/subscribe')).data).toEqual({ email: 'reader@example.com', language: 'de', consent: true })
-  await page.screenshot({ path: testInfo.outputPath('contact-newsletter.png'), fullPage: true })
+  await page.screenshot({ path: testInfo.outputPath('news-newsletter.png'), fullPage: true })
 })
 
 test('disabled SMTP keeps an editable form and blocks click and Enter submission', async ({ page }) => {
-  const posted = await mocks(page, { available: false }); await page.goto('/contact')
+  const posted = await mocks(page, { available: false }); await page.goto('/news')
   await expect(page.locator('.newsletter-signup')).toContainText('Newsletter subscriptions are currently unavailable')
   const signup = page.locator('.newsletter-signup')
   await expect(signup.getByLabel('Email address')).toBeVisible()
@@ -184,11 +195,17 @@ test('confirmation and unsubscribe only post after an explicit button click', as
 
 test('email web link opens the correct German News', async ({ page }) => {
   await mocks(page); await page.goto('/media?section=news&newsId=42&lang=de')
-  await expect(page.locator('.news-details')).toBeVisible()
-  const expandedNews = page.locator('.news-item').filter({ has: page.locator('.news-details') })
+  await expect(page).toHaveURL(/\/news\?newsId=42&lang=de$/)
+  await expect(page.locator('.news-details:visible')).toBeVisible()
+  const expandedNews = page.locator('.news-item').filter({ has: page.locator('.news-details:visible') })
   await expect(expandedNews.locator('.news-title')).toHaveText('Deutsche Neuigkeiten')
   await expect(page.locator('.news-rich strong')).toHaveText('Freunde')
   await expect(page.getByRole('link', { name: /Video ansehen/ })).toHaveAttribute('href', 'https://example.com/video')
+  await page.locator('.website-language summary').click()
+  await page.getByRole('button', { name: 'English', exact: true }).click()
+  await expect(page).toHaveURL(/\/news\?newsId=42&lang=en$/)
+  await page.reload()
+  await expect(page.locator('.news-rich strong')).toHaveText('friends')
 })
 
 test('stale local administrator information cannot open management without a server token', async ({ page }) => {
@@ -294,9 +311,8 @@ test('sent newsletter can be removed from News with failure recovery while keepi
   await page.goto('/media?section=news&newsId=42')
   await expect(page.getByText(news.title, { exact: true })).toBeVisible()
   await expect(page.getByText('Hello friends', { exact: true })).toBeVisible()
-  const menu = page.locator('.media-nav:visible, .mobile-nav:visible')
-  await menu.getByText('NEWS', { exact: true }).click()
-  await expect(page).toHaveURL(/\/media\?section=news$/)
+  await openNewsMenu(page)
+  await expect(page).toHaveURL(/\/news$/)
   await expect(page.getByText(news.title, { exact: true })).toHaveCount(0)
   await page.reload()
   await expect(page.getByText(news.title, { exact: true })).toHaveCount(0)
@@ -304,12 +320,10 @@ test('sent newsletter can be removed from News with failure recovery while keepi
 
 test('returning to News refreshes a list that was archived while the page stayed open', async ({ page }) => {
   await mocks(page)
-  await page.goto('/media?section=news')
+  await page.goto('/news')
   await expect(page.getByText(news.title, { exact: true })).toBeVisible()
   await page.route('**/api/media/news', route => route.fulfill({ json: { success: true, data: [] } }))
-  const menu = page.locator('.media-nav:visible, .mobile-nav:visible')
-  await menu.getByText('MUSIC', { exact: true }).click()
-  await menu.getByText('NEWS', { exact: true }).click()
+  await openNewsMenu(page)
   await expect(page.getByText(news.title, { exact: true })).toHaveCount(0)
 })
 
@@ -326,8 +340,8 @@ test('late email web view response cannot restore an archived post after opening
   })
   await page.goto('/media?section=news&newsId=42')
   await requested
-  await page.locator('.media-nav:visible, .mobile-nav:visible').getByText('NEWS', { exact: true }).click()
-  await expect(page).toHaveURL(/\/media\?section=news$/)
+  await openNewsMenu(page)
+  await expect(page).toHaveURL(/\/news$/)
   const response = page.waitForResponse(r => new URL(r.url()).pathname === '/api/media/news/42')
   release()
   await (await response).finished()
@@ -342,7 +356,7 @@ test('a failed mail-link detail request leaves the public News list visible', as
   await page.goto('/media?section=news&newsId=99')
   expect((await detail).status()).toBe(500)
   await expect(page.getByText('Regular News', { exact: true })).toBeVisible()
-  await expect(page.locator('.news-details')).toHaveCount(0)
+  await expect(page.locator('.news-details:visible')).toHaveCount(0)
 })
 
 test('regular News clears its description and prevents duplicate registration while saving', async ({ page }) => {
@@ -612,7 +626,7 @@ for (const failure of [404, 500, 'network', 'invalid']) {
       if (failure === 'invalid') return route.fulfill({ json: { success: true, data: {} } })
       return route.fulfill({ status: failure, json: { success: false } })
     })
-    await page.goto('/contact')
+    await page.goto('/news')
     const signup = page.locator('.newsletter-signup')
     await expect(signup.getByRole('alert')).toContainText('could not check')
     await expect(signup).not.toContainText('currently unavailable')
@@ -641,7 +655,7 @@ test('status loading and German disabled copy', async ({ page }) => {
     await pending
     await route.fulfill({ json: { success: true, data: { available: false } } })
   })
-  await page.goto('/contact')
+  await page.goto('/news')
   const signup = page.locator('.newsletter-signup')
   await expect(signup).toContainText('Die Verfügbarkeit wird geprüft')
   await expect(signup.getByRole('button', { name: 'Abonnieren', exact: true })).toBeDisabled()
@@ -661,7 +675,7 @@ test('real subscription prevents duplicates and preserves inputs on failure', as
     await pending
     await route.fulfill({ status: 503, json: { success: false } })
   })
-  await page.goto('/contact')
+  await page.goto('/news')
   const signup = page.locator('.newsletter-signup')
   await signup.getByLabel('Email address').fill('reader@example.com')
   await signup.getByRole('checkbox').check()
@@ -696,7 +710,7 @@ test('signup sends a Turnstile token and refreshes verification after rejection'
     tokens.push(route.request().postDataJSON().turnstileToken)
     return route.fulfill({ status: tokens.length === 1 ? 403 : 200, json: { success: tokens.length > 1 } })
   })
-  await page.goto('/contact')
+  await page.goto('/news')
   const signup = page.locator('.newsletter-signup')
   const button = signup.getByRole('button', { name: 'Subscribe', exact: true })
   await signup.getByLabel('Email address').fill('reader@example.com')

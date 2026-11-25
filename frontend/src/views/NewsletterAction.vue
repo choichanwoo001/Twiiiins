@@ -24,7 +24,7 @@ const message = computed(() => {
   if (messageKey.value !== 'success') return ''
   return language.value === 'de' ? (unsubscribe.value ? 'Sie wurden abgemeldet.' : 'Ihr Abonnement wurde bestätigt.') : (unsubscribe.value ? 'You have been unsubscribed.' : 'Your subscription is confirmed.')
 })
-watch(() => route.fullPath, () => { complete.value = false; messageKey.value = '' })
+watch([() => route.name, token], () => { complete.value = false; messageKey.value = '' })
 async function submit() {
   if (busy.value || complete.value || !token.value) return
   busy.value = true

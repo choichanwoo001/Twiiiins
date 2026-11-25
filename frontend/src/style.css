@@ -215,10 +215,9 @@ body.has-fullpage-scroll {
   opacity: 1;
 }
 
-/* events 섹션일 때 네비게이션 숨기기 */
+/* Hide the entire header on the home concert section. */
 body.events-section-active .navbar {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 /* 홈 페이지에서 로고가 커질 때 네비게이션 바의 패딩 조정 */
@@ -233,6 +232,12 @@ body:has(.router-link-active[href="/"]) .navbar {
   align-items: flex-start;
   width: 100%;
   padding: 0 2rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 2rem);
 }
 
 /* 로고 스타일 (모든 페이지 통일) */
@@ -256,7 +261,7 @@ body:has(.router-link-active[href="/"]) .navbar {
 
 .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: clamp(0.75rem, 2vw, 2rem);
   align-items: flex-start;
 }
 
@@ -273,7 +278,14 @@ body:has(.router-link-active[href="/"]) .navbar {
 }
 
 .nav-links a.router-link-active {
-  border-bottom: 0.125rem solid var(--color-text);
+  box-shadow: 0 0.125rem 0 var(--color-text);
+}
+
+@media (min-width: 48.001rem) and (max-width: 70rem) {
+  .navbar .logo { font-size: clamp(2.5rem, 5vw, 4rem); }
+  .navbar .logo.small { font-size: 2.5rem; }
+  .header-actions { font-size: 0.82rem; }
+  .header-actions, .desktop-nav { gap: clamp(0.65rem, 1.5vw, 1.25rem); }
 }
 
 /* 메인 컨텐츠 */
@@ -498,8 +510,6 @@ body.events-section-active .sns-link {
   /* 햄버거 버튼 보이기 */
   .hamburger-button {
     display: flex;
-    margin-top: 0.25rem;
-    /* 버튼 위치 내리기 */
   }
 
   /* 모바일에서 스크롤 업 버튼 숨기기 */
@@ -636,11 +646,7 @@ body.events-section-active .sns-link {
   .public-page-shell { --website-footer-space: calc(10rem + env(safe-area-inset-bottom, 0px)); }
 }
 .sns-links { align-items: center; flex-wrap: wrap; max-width: calc(100vw - 2rem); }
-.sns-links .website-language { flex: 0 0 auto; }
-.sns-links .website-language summary { font-size: inherit; color: inherit; }
-.standalone-language { position: fixed; bottom: 1rem; left: 1rem; z-index: 1000; }
 body.has-fullpage-scroll:not(.events-section-active) .sns-links { visibility: hidden; opacity: 0 !important; pointer-events: none !important; }
-body.events-section-active .website-language summary { color: #fff; }
 .about-title-section h1, .projects-title h1, .concert-title h1, .shop-title h1, .contact-title h1 { overflow-wrap: anywhere; }
 .website-button { font: inherit; font-size: 0.85rem; border: 1px solid #815d47; background: transparent; color: #815d47; padding: 0.65rem 1rem; cursor: pointer; min-height: 2.75rem; }
 .website-button:hover { background: #f5f1ec; }
@@ -649,16 +655,14 @@ body.events-section-active .website-language summary { color: #fff; }
 .legal-footer a, .legal-footer button { color: #555; font: inherit; text-decoration: none; border: 0; background: none; cursor: pointer; padding: 0.2rem 0; }
 body.events-section-active .legal-footer a, body.events-section-active .legal-footer button { color: #fff; }
 .scroll-up-button { bottom: 3.5rem; }
-body:has(.privacy-page) .navbar { background: rgba(255, 255, 255, 0.97); }
+body:has(.privacy-page, .news-page) .navbar { background: rgba(255, 255, 255, 0.97); }
 @media (min-width: 48.001rem) and (max-width: 60rem) {
-  .sns-links, .standalone-language { bottom: 3.5rem; }
+  .sns-links { bottom: 3.5rem; }
 }
 @media (max-width: 48rem) {
   .legal-footer { right: 0; left: 0; bottom: 0; justify-content: center; align-items: center; flex-wrap: wrap; column-gap: 1rem; row-gap: 0.25rem; padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px)); background: rgba(255, 255, 255, 0.94); }
   .legal-footer > * { flex: 0 0 auto; white-space: nowrap; text-align: center; }
-  .legal-footer .website-language summary { font-size: inherit; text-align: center; }
   .sns-links { bottom: calc(3rem + env(safe-area-inset-bottom, 0px)); }
   body:has(.legal-footer) .sns-links { bottom: calc(var(--legal-footer-height, 2.5rem) + 0.5rem); }
-  .standalone-language { bottom: calc(3rem + env(safe-area-inset-bottom, 0px)); }
   body.events-section-active .legal-footer { background: #943c31; }
 }

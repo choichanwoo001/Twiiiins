@@ -19,6 +19,8 @@ const german = {
   'Concert information (only for collaboration):': 'Informationen zur Zusammenarbeit:',
   'Invalid video URL.': 'Ungültige Video-URL.', 'No videos found.': 'Keine Videos gefunden.',
   'YouTube video player': 'YouTube-Videoplayer', 'Photo from': 'Foto aus', Download: 'Downloads',
+  'No news yet.': 'Noch keine Neuigkeiten.', 'News could not be loaded.': 'Die Neuigkeiten konnten nicht geladen werden.',
+  'Watch video': 'Video ansehen',
   'FOR COLLABORATIONS, PERFORMANCE INQUIRIES, OR PORTFOLIO REQUESTS,': 'FÜR KOOPERATIONEN, KONZERTANFRAGEN ODER PORTFOLIO-ANFRAGEN',
   'PLEASE CONTACT US HERE. WE LOOK FORWARD TO CONNECTING WITH YOU!': 'KONTAKTIEREN SIE UNS BITTE HIER. WIR FREUEN UNS AUF IHRE NACHRICHT!',
   'Preview · sample contacts and downloads. Download links are inactive.': 'Vorschau · Beispielkontakte und Downloads. Download-Links sind deaktiviert.',

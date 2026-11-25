@@ -28,7 +28,7 @@ const resources = [
   { name: 'Equipment', path: '/api/media/equipment', field: 'name', input: { name: 'Journey Equipment' } },
   { name: 'Contact', path: '/api/media/contacts', field: 'name', input: { name: 'Journey Contact', email: 'journey@example.com', role: 'Violin' }, url: '/contact' },
   { name: 'Download', path: '/api/media/download-files', field: 'name', input: { name: 'Journey Rider', downloadSource: 'upload' }, url: '/contact' },
-  { name: 'News', path: '/api/media/news', field: 'title', input: { title: 'Journey News', date: '2026-10-31', description: 'Journey description', imageUrls: [] }, url: '/media?section=news' },
+  { name: 'News', path: '/api/media/news', field: 'title', input: { title: 'Journey News', date: '2026-10-31', description: 'Journey description', imageUrls: [] }, url: '/news' },
 ]
 async function expectPublicContent(page, resource, title) {
   const text = page.getByText(title, { exact: true }).first()
@@ -120,7 +120,7 @@ test('real photo group uploads two images, updates metadata and cascades deletio
 
 test('subscription reaches SMTP and unsubscribe excludes the recipient from publication', async ({ request, page }) => {
   const email = `reader-${Date.now()}@example.com`
-  await page.goto('/contact'); await page.getByLabel('Email address').fill(email)
+  await page.goto('/news'); await page.getByLabel('Email address').fill(email)
   await page.getByLabel('Newsletter language').selectOption('de')
   await page.locator('.newsletter-signup input[type=checkbox]').check()
   await page.locator('.newsletter-signup').getByRole('button', { name: 'Subscribe', exact: true }).click()
@@ -158,7 +158,7 @@ test('subscription reaches SMTP and unsubscribe excludes the recipient from publ
       .find(d => d.email === activeEmail)?.status).toBe('ACCEPTED')
     const inbox = (await (await request.get('http://127.0.0.1:18025/api/v1/messages')).json()).messages
     expect(inbox.filter(m => m.Subject === 'Hello newsletter' && m.To.some(to => to.Address === activeEmail))).toHaveLength(1)
-    await page.goto('/media?section=news'); await expect(page.getByText('Hello newsletter', { exact: true }).first()).toBeVisible()
+    await page.goto('/news'); await expect(page.getByText('Hello newsletter', { exact: true }).first()).toBeVisible()
     await call(request, 'delete', `/api/admin/news/${post.id}`)
     await page.reload()
     await expect(page.getByText('Hello newsletter', { exact: true })).toHaveCount(0)
@@ -168,8 +168,10 @@ test('subscription reaches SMTP and unsubscribe excludes the recipient from publ
     await page.goto(`/media?section=news&newsId=${post.id}`)
     await expect(page.getByText('Hello newsletter', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Hello audience', { exact: true })).toBeVisible()
-    await page.locator('.media-nav:visible, .mobile-nav:visible').getByText('NEWS', { exact: true }).click()
-    await expect(page).toHaveURL(/\/media\?section=news$/)
+    const menu = page.locator('.hamburger-button')
+    if (await menu.isVisible()) await menu.click()
+    await page.locator('.navbar a[href="/news"]:visible').click()
+    await expect(page).toHaveURL(/\/news$/)
     await expect(page.getByText('Hello newsletter', { exact: true })).toHaveCount(0)
   } finally { await call(request, 'delete', `/api/admin/news/${post.id}`) }
 })

@@ -30,6 +30,7 @@ export const PATHS_WITH_SNS_LINKS = [
     '/projects',
     '/concerts',
     '/media',
+    '/news',
     '/shop',
     '/contact'
 ]
